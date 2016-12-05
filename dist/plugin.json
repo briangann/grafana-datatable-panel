@@ -1,0 +1,44 @@
+{
+    "type": "panel",
+    "name": "Datatable Panel",
+    "id": "briangann-datatable-panel",
+    "info": {
+        "description": "Datatable panel for Grafana",
+        "author": {
+            "name": "Brian Gann (bkgann@gmail.com)",
+            "url": "https://github.com/briangann"
+        },
+        "keywords": ["table", "panel"],
+        "logos": {
+            "small": "img/nav-dt.png",
+            "large": "img/nav-dt.png"
+        },
+        "links": [{
+            "name": "Project site",
+            "url": "https://github.com/briangann/grafana-datatable-panel"
+        }, {
+            "name": "MIT License",
+            "url": "https://github.com/briangann/grafana-datatable-panel/blob/master/LICENSE"
+        }],
+        "screenshots": [{
+            "name": "Showcase",
+            "path": "screenshots/default-gauge-w-threshold.png"
+        }, {
+            "name": "Options",
+            "path": "screenshots/options.png"
+        }, {
+            "name": "Radial Metrics",
+            "path": "screenshots/radialmetrics.png"
+        }, {
+            "name": "Thresholding",
+            "path": "screenshots/thresholding.png"
+        }],
+        "version": "0.0.1",
+        "updated": "2016-11-25"
+    },
+
+    "dependencies": {
+        "grafanaVersion": "3.x.x",
+        "plugins": []
+    }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "briangann-datatable-panel",
+  "description": "Datatables.net panel for Grafana",
+  "main": "",
+  "authors": [
+    "Brian Gann <bkgann@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "grafana datatables.net table"
+  ],
+  "homepage": "https://github.com/briangann/grafana-datatable-panel",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "angular": "^1.5.9",
+    "font-awesome": "^4.7.0",
+    "datatables.net": "^1.10.12",
+    "datatables.net-dt": "^1.10.12"
+  }
+}
