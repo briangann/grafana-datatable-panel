@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['jquery', 'app/core/utils/kbn', './libs/datatables.net/js/jquery.dataTables.min.js'], function (_export, _context) {
+System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.net/js/jquery.dataTables.min.js'], function (_export, _context) {
   "use strict";
 
-  var $, kbn, DataTable, _typeof, _createClass, DatatableRenderer;
+  var $, kbn, moment, DataTable, _typeof, _createClass, DatatableRenderer;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -16,6 +16,8 @@ System.register(['jquery', 'app/core/utils/kbn', './libs/datatables.net/js/jquer
       $ = _jquery.default;
     }, function (_appCoreUtilsKbn) {
       kbn = _appCoreUtilsKbn.default;
+    }, function (_moment) {
+      moment = _moment.default;
     }, function (_libsDatatablesNetJsJqueryDataTablesMinJs) {
       DataTable = _libsDatatablesNetJsJqueryDataTablesMinJs.default;
     }],
@@ -210,8 +212,8 @@ System.register(['jquery', 'app/core/utils/kbn', './libs/datatables.net/js/jquer
             return '<td' + style + '>' + value + widthHack + '</td>';
           }
         }, {
-          key: 'render',
-          value: function render(page) {
+          key: 'NOTrender',
+          value: function NOTrender(page) {
             var pageSize = this.panel.pageSize || 100;
             var startPos = page * pageSize;
             var endPos = Math.min(startPos + pageSize, this.table.rows.length);
@@ -233,22 +235,163 @@ System.register(['jquery', 'app/core/utils/kbn', './libs/datatables.net/js/jquer
             return html;
           }
         }, {
-          key: 'render_values',
-          value: function render_values() {
-            var rows = [];
+          key: 'getCell',
+          value: function getCell(columnIndex, value) {
+            //debugger;
+            value = this.formatColumnValue(columnIndex, value);
+            var style = '';
+            var bgColor = null;
+            var color = null;
+            var hidden = false;
+            if (this.colorState.cell) {
+              bgColor = this.colorState.cell;
+              color = 'white';
+              this.colorState.cell = null;
+            } else if (this.colorState.value) {
+              color = this.colorState.value;
+              this.colorState.value = null;
+            }
 
-            for (var y = 0; y < this.table.rows.length; y++) {
-              var row = this.table.rows[y];
-              var new_row = [];
-              for (var i = 0; i < this.table.columns.length; i++) {
-                new_row.push(this.formatColumnValue(i, row[i]));
-              }
-              rows.push(new_row);
+            if (value === undefined) {
+              hidden = true;
+              this.table.columns[columnIndex].hidden = true;
+            } else {
+              this.table.columns[columnIndex].hidden = false;
             }
             return {
-              columns: this.table.columns,
-              rows: rows
+              backgroundColor: bgColor,
+              color: color,
+              hidden: hidden,
+              value: value
             };
+            //return '<td' + style + '>' + value + '</td>';
+          }
+        }, {
+          key: 'generateFormattedData',
+          value: function generateFormattedData(rowData) {
+            var formattedRowData = [];
+            for (var y = 0; y < rowData.length; y++) {
+              var row = this.table.rows[y];
+
+              var cellData = [];
+              for (var i = 0; i < this.table.columns.length; i++) {
+                cellData.push(this.formatColumnValue(i, row[i]));
+              }
+
+              //let rowContent = [];
+              //for (let x = 0; x < cellData.length; x++) {
+              //  rowContent.push(cellData[x]);
+              //}
+              formattedRowData.push(cellData);
+            }
+            return formattedRowData;
+          }
+        }, {
+          key: 'populateTable',
+          value: function populateTable(dt) {
+            for (var y = 0; y < this.table.rows.length; y++) {
+              var row = this.table.rows[y];
+              var cellHtml = '';
+              var rowStyle = '';
+
+              var cellStyle = '';
+              var cellText = '';
+              var cellData = [];
+              for (var i = 0; i < this.table.columns.length; i++) {
+                cellData.push(this.getCell(i, row[i]));
+              }
+              var rowData = {
+                backGroundColor: null,
+                color: null
+              };
+              if (this.colorState.row) {
+                rowData.backGroundColor = this.colorState.row;
+                rowData.color = 'white';
+                this.colorState.row = null;
+                //console.log('<tr ' + rowStyle + '>' + cellHtml + '</tr>');
+              }
+              // now append to the datatable
+              //console.log(cellData, rowData);
+              // collapse cellData values into a row
+              var rowContent = [];
+              for (var x = 0; x < cellData.length; x++) {
+                rowContent.push(cellData[x].value);
+              }
+              //console.log(rowContent);
+              var rowNode = dt.row.add(rowContent).draw().node();
+
+              if (rowData.backGroundColor) {
+                // have to add style to children to color the whole row
+                $(rowNode).children().css('background-color', rowData.backGroundColor).css('color', rowData.color);
+              }
+              //$( rowNode )
+              //  .css( 'color', 'red' )
+              //  .animate( { color: 'black' } );
+              //console.log('<tr ' + rowStyle + '>' + cellHtml + '</tr>');
+            }
+          }
+        }, {
+          key: 'render',
+          value: function render() {
+            if (this.table.columns.length === 0) return;
+            // multiple types here
+            // timeseries_to_rows (column 0 = timestamp)
+            // timeseries_to_columns
+            // timeseries_aggregations - column 0 is the metric name (series name, not a timestamp)
+            // annotations - specific headers for this
+            // table
+            // json (raw)
+            // columns[x].type === "date" then set columndefs to parse the date, otherwise leave it as default
+            // convert table.columns[N].text to columns formatted to datatables.net format
+            var columns = [];
+            var columnDefs = [];
+            for (var i = 0; i < this.table.columns.length; i++) {
+              /* jshint loopfunc: true */
+              columns.push({
+                title: this.table.columns[i].text,
+                type: this.table.columns[i].type
+              });
+            }
+
+            try {
+              var should_destroy = false;
+              if ($.fn.dataTable.isDataTable('#datatable-panel-table')) {
+                should_destroy = true;
+              }
+              if (should_destroy) {
+                var aDT = $('#datatable-panel-table').DataTable();
+                aDT.destroy();
+                $('#datatable-panel-table').empty();
+              }
+            } catch (err) {
+              console.log("Exception: " + err.message);
+            }
+            // sanity check
+            // annotations come back as 4 items in an array per row. If the first row content is undefined, then modify to empty
+            // since datatables.net throws errors
+            if (this.table.rows[0].length === 4) {
+              if (this.table.rows[0][0] === undefined) {
+                // detected empty annotations
+                this.table.rows = [];
+              }
+            }
+            // pass the formatted rows into the datatable
+            //var formattedData = [];
+            var formattedData = this.generateFormattedData(this.table.rows);
+            var newDT = $('#datatable-panel-table').DataTable({
+              data: formattedData,
+              columns: columns,
+              "createdRow": function createdRow(row, data, dataIndex) {
+                //console.log("row data = " + data[1]);
+                // color row/cell according to threshold settings
+                if (data[1] >= 1000) {
+                  $(row).addClass('threshold-ok');
+                }
+              }
+            });
+
+            //this.populateTable(newDT);
+            console.log("Datatable Loaded!");
           }
         }]);
 

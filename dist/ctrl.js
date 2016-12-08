@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/datatables.net-dt/css/jquery.dataTables.min.css!', './css/datatable.css!', './css/panel.css!', 'app/core/utils/file_export', './transformers'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/datatables.net-dt/css/jquery.dataTables.min.css!', './css/datatable.css!', './css/panel.css!', 'app/core/utils/file_export', './transformers', './renderer'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, $, moment, kbn, DataTable, FileExport, transformDataToTable, transformers, _createClass, _get, panelDefaults, DatatablePanelCtrl;
+  var MetricsPanelCtrl, $, moment, kbn, DataTable, FileExport, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -51,6 +51,8 @@ System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', '.
     }, function (_transformers) {
       transformDataToTable = _transformers.transformDataToTable;
       transformers = _transformers.transformers;
+    }, function (_renderer) {
+      DatatableRenderer = _renderer.DatatableRenderer;
     }],
     execute: function () {
       _createClass = function () {
@@ -294,86 +296,14 @@ System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', '.
             var formatters = [];
             var _this = this;
 
+            /**
+             * [renderPanel description]
+             * @return {[type]} [description]
+             */
             function renderPanel() {
-
-              if (_this.table.columns.length === 0) return;
-              // multiple types here
-              // timeseries_to_rows (column 0 = timestamp)
-              // timeseries_to_columns
-              // timeseries_aggregations - column 0 is the metric name (series name, not a timestamp)
-              // annotations - specific headers for this
-              // table
-              // json (raw)
-              // columns[x].type === "date" then set columndefs to parse the date, otherwise leave it as default
-              // convert table.columns[N].text to columns formatted to datatables.net format
-              var columns = [];
-              var columnDefs = [];
-              for (var i = 0; i < _this.table.columns.length; i++) {
-                /* jshint loopfunc: true */
-                columns.push({
-                  title: _this.table.columns[i].text,
-                  type: _this.table.columns[i].type
-                });
-                if (_this.table.columns[i].type !== null) {
-                  switch (_this.table.columns[i].type) {
-                    case "date":
-                      columnDefs.push({
-                        "type": "date",
-                        "targets": i,
-                        "render": function render(data, type, full, meta) {
-                          var response = data;
-                          try {
-                            //console.log("Data is : " + data);
-                            if (data === undefined) {
-                              return null;
-                            }
-                            response = moment.utc(data, "x").toISOString().replace(/T/, ' ').replace(/Z/, '');
-                          } catch (err) {
-                            return response;
-                          }
-                          return response;
-                        }
-                      });
-                      break;
-                    default:
-                      columnDefs.push({ null: null });
-                      break;
-                  }
-                } else {
-                  columnDefs.push({ null: null });
-                }
-              }
-
-              try {
-                var should_destroy = false;
-                if ($.fn.dataTable.isDataTable('#datatable-panel-table')) {
-                  should_destroy = true;
-                }
-                if (should_destroy) {
-                  var aDT = $('#datatable-panel-table').DataTable();
-                  aDT.destroy();
-                  $('#datatable-panel-table').empty();
-                }
-              } catch (err) {
-                console.log("Exception: " + err.message);
-              }
-              // sanity check
-              // annotations come back as 4 items in an array per row. If the first row content is undefined, then modify to empty
-              // since datatables.net throws errors
-              if (_this.table.rows[0].length === 4) {
-                if (_this.table.rows[0][0] === undefined) {
-                  // detected empty annotations
-                  _this.table.rows = [];
-                }
-              }
-              $('#datatable-panel-table').DataTable({
-                data: _this.table.rows,
-                columnDefs: columnDefs,
-                columns: columns
-              });
-
+              var renderer = new DatatableRenderer(panel, data, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize);
+              renderer.render();
               _this.dataLoaded = true;
-              console.log("Datatable Loaded!");
             }
 
             ctrl.events.on('render', function (renderData) {
@@ -438,7 +368,7 @@ System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', '.
           key: 'setUnitFormat',
           value: function setUnitFormat(column, subItem) {
             column.unit = subItem.value;
-            this.panelCtrl.render();
+            this.render();
           }
         }, {
           key: 'invertColorOrder',
@@ -447,7 +377,7 @@ System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', '.
             var copy = ref[0];
             ref[0] = ref[2];
             ref[2] = copy;
-            this.panelCtrl.render();
+            this.render();
           }
         }]);
 

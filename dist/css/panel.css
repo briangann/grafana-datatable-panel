@@ -23,3 +23,10 @@ paper-button {
   color: white;
   background-color: #313131 !important;
 }
+
+.threshold-bg-ok {
+  background-color: green !important;
+}
+.threshold-text-ok {
+  color: green !important;
+}
