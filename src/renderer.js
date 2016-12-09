@@ -171,13 +171,16 @@ export class DatatableRenderer {
         title: this.table.columns[i].text,
         type: this.table.columns[i].type
       });
-      if (this.table.columns[i].type === undefined) {
         columnDefs.push(
           {
             "targets": i,
             "createdCell": function (td, cellData, rowData, row, col) {
               // hidden columns have null data
               if (cellData === null) return;
+              // set the fontsize for the cell
+              $(td).css('font-size', _this.panel.fontSize);
+              // undefined types should have numerical data, any others are already formatted
+              if (_this.table.columns[i].type !== undefined) return;
               // pass the celldata to threshold checker
               var items = cellData.split(/(\s+)/);
               // only color cell if the content is a number?
@@ -206,7 +209,6 @@ export class DatatableRenderer {
             }
           }
         );
-      }
     }
 
     try {
@@ -246,7 +248,7 @@ export class DatatableRenderer {
         newDT.column( i ).visible( false );
       }
     }
-    console.log("Datatable Loaded!");
+    //console.log("Datatable Loaded!");
   }
 
 }

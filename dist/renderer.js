@@ -188,50 +188,59 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
         }, {
           key: 'render',
           value: function render() {
+            var _this3 = this;
+
             if (this.table.columns.length === 0) return;
             var columns = [];
             var columnDefs = [];
             var _this = this;
-            for (var i = 0; i < this.table.columns.length; i++) {
+
+            var _loop = function _loop(i) {
               /* jshint loopfunc: true */
               columns.push({
-                title: this.table.columns[i].text,
-                type: this.table.columns[i].type
+                title: _this3.table.columns[i].text,
+                type: _this3.table.columns[i].type
               });
-              if (this.table.columns[i].type === undefined) {
-                columnDefs.push({
-                  "targets": i,
-                  "createdCell": function createdCell(td, cellData, rowData, row, col) {
-                    // hidden columns have null data
-                    if (cellData === null) return;
-                    // pass the celldata to threshold checker
-                    var items = cellData.split(/(\s+)/);
-                    // only color cell if the content is a number?
-                    var bgColor = null;
-                    var color = null;
-                    // check if the content has a numeric value after the split
-                    // color the cell as needed
-                    if (!isNaN(items[0])) {
-                      if (_this.colorState.cell) {
-                        bgColor = _this.colorState.cell;
-                        color = 'white';
-                        $(td).css('color', color);
-                        $(td).css('background-color', bgColor);
-                      } else if (_this.colorState.value) {
-                        color = _this.colorState.value;
-                        $(td).css('color', color);
-                      }
-                    }
-                    if (_this.colorState.row) {
-                      bgColor = _this.colorState.row;
+              columnDefs.push({
+                "targets": i,
+                "createdCell": function createdCell(td, cellData, rowData, row, col) {
+                  // hidden columns have null data
+                  if (cellData === null) return;
+                  // set the fontsize for the cell
+                  $(td).css('font-size', _this.panel.fontSize);
+                  // undefined types should have numerical data, any others are already formatted
+                  if (_this.table.columns[i].type !== undefined) return;
+                  // pass the celldata to threshold checker
+                  var items = cellData.split(/(\s+)/);
+                  // only color cell if the content is a number?
+                  var bgColor = null;
+                  var color = null;
+                  // check if the content has a numeric value after the split
+                  // color the cell as needed
+                  if (!isNaN(items[0])) {
+                    if (_this.colorState.cell) {
+                      bgColor = _this.colorState.cell;
                       color = 'white';
-                      // set the row using the parentNode
-                      $(td.parentNode).children().css('color', color);
-                      $(td.parentNode).children().css('background-color', bgColor);
+                      $(td).css('color', color);
+                      $(td).css('background-color', bgColor);
+                    } else if (_this.colorState.value) {
+                      color = _this.colorState.value;
+                      $(td).css('color', color);
                     }
                   }
-                });
-              }
+                  if (_this.colorState.row) {
+                    bgColor = _this.colorState.row;
+                    color = 'white';
+                    // set the row using the parentNode
+                    $(td.parentNode).children().css('color', color);
+                    $(td.parentNode).children().css('background-color', bgColor);
+                  }
+                }
+              });
+            };
+
+            for (var i = 0; i < this.table.columns.length; i++) {
+              _loop(i);
             }
 
             try {
@@ -270,7 +279,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                 newDT.column(_i).visible(false);
               }
             }
-            console.log("Datatable Loaded!");
+            //console.log("Datatable Loaded!");
           }
         }]);
 
