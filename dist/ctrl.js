@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/datatables.net-dt/css/jquery.dataTables.min.css!', './css/datatable.css!', './css/panel.css!', 'app/core/utils/file_export', './transformers', './renderer'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/datatables.net-dt/css/jquery.dataTables.min.css!', './css/datatable.css!', './css/panel.css!', 'app/core/utils/file_export', './transformers', './renderer'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, $, moment, kbn, DataTable, FileExport, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
+  var MetricsPanelCtrl, $, angular, kbn, DataTable, FileExport, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -40,8 +40,8 @@ System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', '.
       MetricsPanelCtrl = _appPluginsSdk.MetricsPanelCtrl;
     }, function (_jquery) {
       $ = _jquery.default;
-    }, function (_moment) {
-      moment = _moment.default;
+    }, function (_angular) {
+      angular = _angular.default;
     }, function (_appCoreUtilsKbn) {
       kbn = _appCoreUtilsKbn.default;
     }, function (_libsDatatablesNetJsJqueryDataTablesMinJs) {
@@ -182,10 +182,10 @@ System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', '.
           }];
           // this is used from bs-typeahead and needs to be instance bound
           _this2.getColumnNames = function () {
-            if (!_this2.panelCtrl.table) {
+            if (!_this2.table) {
               return [];
             }
-            return _.map(_this2.panelCtrl.table.columns, function (col) {
+            return _.map(_this2.table.columns, function (col) {
               return col.text;
             });
           };
@@ -324,17 +324,17 @@ System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', '.
           key: 'removeColumn',
           value: function removeColumn(column) {
             this.panel.columns = _.without(this.panel.columns, column);
-            this.panelCtrl.render();
+            this.render();
           }
         }, {
           key: 'getColumnOptions',
           value: function getColumnOptions() {
             var _this3 = this;
 
-            if (!this.panelCtrl.dataRaw) {
+            if (!this.dataRaw) {
               return this.$q.when([]);
             }
-            var columns = this.transformers[this.panel.transform].getColumns(this.panelCtrl.dataRaw);
+            var columns = this.transformers[this.panel.transform].getColumns(this.dataRaw);
             var segments = _.map(columns, function (c) {
               return _this3.uiSegmentSrv.newSegment({
                 value: c.text
@@ -345,7 +345,7 @@ System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', '.
         }, {
           key: 'addColumn',
           value: function addColumn() {
-            var columns = transformers[this.panel.transform].getColumns(this.panelCtrl.dataRaw);
+            var columns = transformers[this.panel.transform].getColumns(this.dataRaw);
             var column = _.find(columns, {
               text: this.addColumnSegment.value
             });
@@ -358,6 +358,21 @@ System.register(['app/plugins/sdk', 'jquery', 'moment', 'app/core/utils/kbn', '.
             var plusButton = this.uiSegmentSrv.newPlusButton();
             this.addColumnSegment.html = plusButton.html;
             this.addColumnSegment.value = plusButton.value;
+          }
+        }, {
+          key: 'addColumnStyle',
+          value: function addColumnStyle() {
+            var columnStyleDefaults = {
+              unit: 'short',
+              type: 'number',
+              decimals: 2,
+              colors: ["rgba(245, 54, 54, 0.9)", "rgba(237, 129, 40, 0.89)", "rgba(50, 172, 45, 0.97)"],
+              colorMode: null,
+              pattern: '/.*/',
+              dateFormat: 'YYYY-MM-DD HH:mm:ss',
+              thresholds: []
+            };
+            this.panel.styles.push(angular.copy(columnStyleDefaults));
           }
         }, {
           key: 'removeColumnStyle',

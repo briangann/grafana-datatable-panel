@@ -1,6 +1,6 @@
 import { MetricsPanelCtrl } from 'app/plugins/sdk';
 import $ from 'jquery';
-import moment from 'moment';
+import angular from 'angular';
 import kbn from 'app/core/utils/kbn';
 
 import DataTable from './libs/datatables.net/js/jquery.dataTables.min.js';
@@ -114,10 +114,10 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     ];
     // this is used from bs-typeahead and needs to be instance bound
     this.getColumnNames = () => {
-      if (!this.panelCtrl.table) {
+      if (!this.table) {
         return [];
       }
-      return _.map(this.panelCtrl.table.columns, function(col) {
+      return _.map(this.table.columns, function(col) {
         return col.text;
       });
     };
@@ -245,13 +245,13 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
   removeColumn(column) {
     this.panel.columns = _.without(this.panel.columns, column);
-    this.panelCtrl.render();
+    this.render();
   }
   getColumnOptions() {
-    if (!this.panelCtrl.dataRaw) {
+    if (!this.dataRaw) {
       return this.$q.when([]);
     }
-    var columns = this.transformers[this.panel.transform].getColumns(this.panelCtrl.dataRaw);
+    var columns = this.transformers[this.panel.transform].getColumns(this.dataRaw);
     var segments = _.map(columns, (c) => this.uiSegmentSrv.newSegment({
       value: c.text
     }));
@@ -259,7 +259,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   addColumn() {
-    var columns = transformers[this.panel.transform].getColumns(this.panelCtrl.dataRaw);
+    var columns = transformers[this.panel.transform].getColumns(this.dataRaw);
     var column = _.find(columns, {
       text: this.addColumnSegment.value
     });
@@ -274,6 +274,19 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     this.addColumnSegment.value = plusButton.value;
   }
 
+  addColumnStyle() {
+      var columnStyleDefaults = {
+        unit: 'short',
+        type: 'number',
+        decimals: 2,
+        colors: ["rgba(245, 54, 54, 0.9)", "rgba(237, 129, 40, 0.89)", "rgba(50, 172, 45, 0.97)"],
+        colorMode: null,
+        pattern: '/.*/',
+        dateFormat: 'YYYY-MM-DD HH:mm:ss',
+        thresholds: [],
+      };
+      this.panel.styles.push(angular.copy(columnStyleDefaults));
+  }
   removeColumnStyle(style) {
     this.panel.styles = _.without(this.panel.styles, style);
   }
