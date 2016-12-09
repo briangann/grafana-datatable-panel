@@ -137,6 +137,10 @@ export class DatatableRenderer {
       let row = this.table.rows[y];
       let cellData = [];
       for (var i = 0; i < this.table.columns.length; i++) {
+        let value = this.formatColumnValue(i, row[i]);
+        if (value === undefined) {
+          this.table.columns[i].hidden = true;
+        }
         cellData.push(this.formatColumnValue(i, row[i]));
       }
       formattedRowData.push(cellData);
@@ -172,6 +176,8 @@ export class DatatableRenderer {
           {
             "targets": i,
             "createdCell": function (td, cellData, rowData, row, col) {
+              // hidden columns have null data
+              if (cellData === null) return;
               // pass the celldata to threshold checker
               var items = cellData.split(/(\s+)/);
               // only color cell if the content is a number?
@@ -233,6 +239,13 @@ export class DatatableRenderer {
       columns: columns,
       columnDefs: columnDefs
     });
+
+    // hide columns that are marked hidden
+    for (let i = 0; i < this.table.columns.length; i++) {
+      if (this.table.columns[i].hidden) {
+        newDT.column( i ).visible( false );
+      }
+    }
     console.log("Datatable Loaded!");
   }
 

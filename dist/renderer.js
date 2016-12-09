@@ -175,6 +175,10 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               var row = this.table.rows[y];
               var cellData = [];
               for (var i = 0; i < this.table.columns.length; i++) {
+                var value = this.formatColumnValue(i, row[i]);
+                if (value === undefined) {
+                  this.table.columns[i].hidden = true;
+                }
                 cellData.push(this.formatColumnValue(i, row[i]));
               }
               formattedRowData.push(cellData);
@@ -198,6 +202,8 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                 columnDefs.push({
                   "targets": i,
                   "createdCell": function createdCell(td, cellData, rowData, row, col) {
+                    // hidden columns have null data
+                    if (cellData === null) return;
                     // pass the celldata to threshold checker
                     var items = cellData.split(/(\s+)/);
                     // only color cell if the content is a number?
@@ -257,6 +263,13 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               columns: columns,
               columnDefs: columnDefs
             });
+
+            // hide columns that are marked hidden
+            for (var _i = 0; _i < this.table.columns.length; _i++) {
+              if (this.table.columns[_i].hidden) {
+                newDT.column(_i).visible(false);
+              }
+            }
             console.log("Datatable Loaded!");
           }
         }]);
