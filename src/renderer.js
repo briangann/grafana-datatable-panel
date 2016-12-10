@@ -136,12 +136,16 @@ export class DatatableRenderer {
     for (var y = 0; y < rowData.length; y++) {
       let row = this.table.rows[y];
       let cellData = [];
+      //cellData.push('');
       for (var i = 0; i < this.table.columns.length; i++) {
         let value = this.formatColumnValue(i, row[i]);
         if (value === undefined) {
           this.table.columns[i].hidden = true;
         }
         cellData.push(this.formatColumnValue(i, row[i]));
+      }
+      if (this.panel.rowNumbersEnabled) {
+        cellData.unshift('rowCounter');
       }
       formattedRowData.push(cellData);
     }
@@ -165,6 +169,21 @@ export class DatatableRenderer {
     var columns = [];
     var columnDefs = [];
     var _this = this;
+    var rowNumberOffset = 0;
+    if (this.panel.rowNumbersEnabled) {
+      rowNumberOffset = 1;
+      columns.push({
+        title: '',
+        type: 'number'
+      });
+      columnDefs.push(
+        {
+            "searchable": false,
+            "orderable": false,
+            "targets": 0,
+            "width": "1%",
+        });
+    }
     for (let i = 0; i < this.table.columns.length; i++) {
       /* jshint loopfunc: true */
       columns.push({
@@ -173,7 +192,7 @@ export class DatatableRenderer {
       });
         columnDefs.push(
           {
-            "targets": i,
+            "targets": i + rowNumberOffset,
             "createdCell": function (td, cellData, rowData, row, col) {
               // hidden columns have null data
               if (cellData === null) return;
@@ -236,6 +255,10 @@ export class DatatableRenderer {
     }
     // pass the formatted rows into the datatable
     var formattedData = this.generateFormattedData(this.table.rows);
+
+    if (this.panel.rowNumbersEnabled) {
+      // shift the data to the right
+    }
     var newDT = $('#datatable-panel-table').DataTable({
       "lengthMenu": [ [10, 25, 50, 75, 100, -1], [10, 25, 50, 75, 100, "All"] ],
       paging: true,
@@ -248,13 +271,14 @@ export class DatatableRenderer {
       columnDefs: columnDefs,
       "search": {
         "regex": true
-      }
+      },
+      "order": [[ 1, 'asc' ]]
     });
 
     // hide columns that are marked hidden
     for (let i = 0; i < this.table.columns.length; i++) {
       if (this.table.columns[i].hidden) {
-        newDT.column( i ).visible( false );
+        newDT.column( i + rowNumberOffset ).visible( false );
       }
     }
 
@@ -262,6 +286,14 @@ export class DatatableRenderer {
     if (this.panel.pageSize !== null) {
       //console.log("page size = " + this.panel.pageSize);
       newDT.page.len( this.panel.pageSize ).draw();
+    }
+    // function to display row numbers
+    if (this.panel.rowNumbersEnabled) {
+      newDT.on( 'order.dt search.dt', function () {
+        newDT.column(0, {search:'applied', order:'applied'}).nodes().each( function (cell, i) {
+            cell.innerHTML = i+1;
+        } );
+      } ).draw();
     }
     // to use scrolling vs paging, use these settings
     // reference: http://www.jqueryscript.net/demo/DataTables-Jquery-Table-Plugin/examples/basic_init/scroll_y.html

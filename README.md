@@ -21,17 +21,18 @@ PLEASE NOTE: This is a work in progress, and has not been integrated into grafan
 
 ## Features
 
-Feature parity with built-in Grafana Table Panel
-Set font size for rows
-Scrolling
-Paging
-  Preset page sizes
-  Multiple paging types
-  Dropdown for page size
-Row Numbers on left side
-Searchable table content (filtering)
-Themes
-  Multiple built-in themes
+* Feature parity with built-in Grafana Table Panel
+* Set font size for rows
+* Scrolling
+* Paging
+  * Preset page sizes
+  * Multiple paging types
+  * Dropdown for page size
+* Row Numbers on left side
+* Searchable table content (filtering)
+  * option to enable regex
+* Themes
+  * Multiple built-in themes
 
 ## TODO
 
