@@ -268,9 +268,18 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             // pass the formatted rows into the datatable
             var formattedData = this.generateFormattedData(this.table.rows);
             var newDT = $('#datatable-panel-table').DataTable({
+              "lengthMenu": [[10, 25, 50, 75, 100, -1], [10, 25, 50, 75, 100, "All"]],
+              paging: true,
+              pagingType: this.panel.datatablePagingType,
+              searching: this.panel.searchEnabled,
+              info: this.panel.infoEnabled,
+              lengthChange: this.panel.lengthChangeEnabled,
               data: formattedData,
               columns: columns,
-              columnDefs: columnDefs
+              columnDefs: columnDefs,
+              "search": {
+                "regex": true
+              }
             });
 
             // hide columns that are marked hidden
@@ -279,6 +288,17 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                 newDT.column(_i).visible(false);
               }
             }
+
+            // set the page size
+            if (this.panel.pageSize !== null) {
+              //console.log("page size = " + this.panel.pageSize);
+              newDT.page.len(this.panel.pageSize).draw();
+            }
+            // to use scrolling vs paging, use these settings
+            // reference: http://www.jqueryscript.net/demo/DataTables-Jquery-Table-Plugin/examples/basic_init/scroll_y.html
+            //  "scrollY":        "200px",
+            //  "scrollCollapse": true,
+            //  "paging":         false
             //console.log("Datatable Loaded!");
           }
         }]);

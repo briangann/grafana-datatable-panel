@@ -20,7 +20,7 @@ import { DatatableRenderer } from './renderer';
 const panelDefaults = {
   targets: [{}],
   transform: 'timeseries_to_columns',
-  pageSize: null,
+  pageSize: 10,
   showHeader: true,
   styles: [
     {
@@ -39,12 +39,83 @@ const panelDefaults = {
       }
     ],
   columns: [],
-  scroll: true,
+  scroll: false,
+  scrollHeight: 'default',
   fontSize: '100%',
   sort: {
     col: 0,
     desc: true
   },
+  datatableTheme: 'basic_theme',
+  rowNumbersEnabled: false,
+  infoEnabled: true,
+  searchEnabled: true,
+  showCellBorders: false,
+  showRowBorders: true,
+  compactRowsEnabled: false,
+  stripedRowsEnabled: true,
+  lengthChangeEnabled: true,
+  datatablePagingType: 'simple_numbers',
+  pagingTypes: [
+    {
+      text: 'Page number buttons only',
+      value: 'numbers',
+    },
+    {
+      text: "'Previous' and 'Next' buttons only",
+      value: 'simple'
+    },
+    {
+      text: "'Previous' and 'Next' buttons, plus page numbers",
+      value: 'simple_numbers'
+    },
+    {
+      text: "'First', 'Previous', 'Next' and 'Last' buttons",
+      value: 'full'
+    },
+    {
+      text: "'First', 'Previous', 'Next' and 'Last' buttons, plus page numbers",
+      value: 'full_numbers'
+    },
+    {
+      text: "'First' and 'Last' buttons, plus page numbers",
+      value: 'first_last_numbers'
+    }
+  ],
+  themes: [
+    {
+      text: 'Basic',
+      value: 'basic_theme'
+    },
+    {
+      text: 'Bootstrap 3',
+      value: 'bootstrap3_theme',
+    },
+    {
+      text: 'Bootstrap 4',
+      value: 'bootstrap4_theme',
+    },
+    {
+      text: 'Foundation',
+      value: 'foundation_theme',
+    },
+    {
+      text: 'Semantic UI',
+      value: 'semantic_ui_theme',
+    },
+    {
+      text: 'ThemeRoller',
+      value: 'themeroller_theme',
+    },
+    {
+      text: 'Material Design',
+      value: 'material_design_theme',
+    },
+    {
+      text: 'UIKit',
+      value: 'uikit_theme',
+    }
+  ]
 };
 
 export class DatatablePanelCtrl extends MetricsPanelCtrl {
@@ -130,6 +201,8 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     }
     _.defaults(this.panel, panelDefaults);
 
+    //this.datatableTheme = this.panel.themes[0];
+
     this.dataLoaded = true;
     this.http = $http;
 
@@ -156,6 +229,8 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     // add the relative path to the partial
     var optionsPath = thisPanelPath + 'partials/editor.options.html';
     this.addEditorTab('Options', optionsPath, 2);
+    var datatableOptionsPath = thisPanelPath + 'partials/datatables.options.html';
+    this.addEditorTab('Datatable Options', datatableOptionsPath, 3);
   }
 
   issueQueries(datasource) {
@@ -239,6 +314,11 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   // editor methods
+  //
+  themeChanged() {
+    console.log(this.panel.datatableTheme);
+    this.render();
+  }
   transformChanged() {
     this.panel.columns = [];
     this.render();

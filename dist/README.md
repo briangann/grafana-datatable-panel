@@ -2,6 +2,8 @@
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for [Grafana](http://www.grafana.org) 3.x/4.x
 
+PLEASE NOTE: This is a work in progress, and has not been integrated into grafana.net
+
 ### Screenshots
 
 ##### Example Tables
@@ -18,6 +20,23 @@ This panel plugin provides a [Datatables.net](http://www.datatables.net) table p
 -------
 
 ## Features
+
+Feature parity with built-in Grafana Table Panel
+Set font size for rows
+Scrolling
+Paging
+  Preset page sizes
+  Multiple paging types
+  Dropdown for page size
+Row Numbers on left side
+Searchable table content (filtering)
+Themes
+  Multiple built-in themes
+
+## TODO
+
+* Add option to cells for linking to another page
+* Add option to enable regex in search
 
 ## Building
 
@@ -58,7 +77,7 @@ Then browse to http://localhost:3000
 
 #### Acknowledgements
 
-This panel is based on the "Table" panel by Grafana
+This panel is based on the "Table" panel by GrafanaLabs
 
 #### Changelog
 

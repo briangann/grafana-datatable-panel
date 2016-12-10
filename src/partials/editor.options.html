@@ -22,30 +22,6 @@
 			</div>
 		</div>
 	</div>
-
-	<div class="section gf-form-group">
-		<h5 class="section-heading">Table Display</h5>
-		<div class="gf-form-inline">
-			<div class="gf-form max-width-17">
-				<label class="gf-form-label width-11">Pagination (Page size)</label>
-				<input type="number" class="gf-form-input"
-					placeholder="100" data-placement="right"
-					ng-model="ctrl.panel.pageSize"
-					ng-change="ctrl.render()"
-					ng-model-onblur>
-			</div>
-			<gf-form-switch class="gf-form" label-class="width-4" label="Scroll" checked="ctrl.panel.scroll" on-change="ctrl.render()"></gf-form-switch>
-			<div class="gf-form max-width-17">
-				<label class="gf-form-label width-6">Font size</label>
-				<div class="gf-form-select-wrapper max-width-15">
-					<select class="gf-form-input"
-							ng-model="ctrl.panel.fontSize"
-							ng-options="f for f in ctrl.fontSizes"
-							ng-change="ctrl.render()"></select>
-				</div>
-			</div>
-		</div>
-	</div>
 </div>
 
 <div class="editor-row">
