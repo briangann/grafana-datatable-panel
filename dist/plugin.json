@@ -22,19 +22,19 @@
         }],
         "screenshots": [{
             "name": "Showcase",
-            "path": "screenshots/default-gauge-w-threshold.png"
+            "path": "screenshots/default-datatable.png"
         }, {
             "name": "Options",
             "path": "screenshots/options.png"
         }, {
-            "name": "Radial Metrics",
-            "path": "screenshots/radialmetrics.png"
+            "name": "Datatable Options",
+            "path": "screenshots/datatable-options.png"
         }, {
             "name": "Thresholding",
             "path": "screenshots/thresholding.png"
         }],
         "version": "0.0.1",
-        "updated": "2016-11-25"
+        "updated": "2016-12-10"
     },
 
     "dependencies": {
