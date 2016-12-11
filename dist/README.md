@@ -6,14 +6,24 @@ This panel plugin provides a [Datatables.net](http://www.datatables.net) table p
 
 ##### Example Tables
 
-![Default Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/default-datatable.png)
+![Default Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-default-paging.png)
 
+![Scrolling](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-scroll.png)
+
+![Numbered and Compact Rows](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-compact-numbered.png)
 ##### Options
 
-![Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/options.png)
+![Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-options.png)
 
+![Datatable Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dt-options.png)
 ##### Thresholding
-![Thresholding](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/thresholding.png)
+
+![Thresholding with Row Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-row.png)
+
+![Thresholding with Cell Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-cell.png)
+
+![Thresholding with Value Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-cell.png)
+
 
 -------
 
