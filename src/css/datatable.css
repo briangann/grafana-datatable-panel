@@ -1,5 +1,6 @@
 /*
  * Table styles
+ * Grafana Dark - background color #1f1d1d #313131
  */
 table.dataTable {
   width: 100%;
@@ -318,7 +319,7 @@ table.dataTable td {
   .dataTables_wrapper .dataTables_info,
   .dataTables_wrapper .dataTables_processing,
   .dataTables_wrapper .dataTables_paginate {
-    color: green; }
+    color: white; }
   .dataTables_wrapper .dataTables_scroll {
     clear: both; }
     .dataTables_wrapper .dataTables_scroll div.dataTables_scrollBody {

@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/datatables.net-dt/css/jquery.dataTables.min.css!', './css/datatable.css!', './css/panel.css!', 'app/core/utils/file_export', './transformers', './renderer'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', 'app/core/utils/file_export', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/datatables.net-dt/css/jquery.dataTables.min.css!', './css/panel.css!', './css/datatables-wrapper.css!', './css/datatable.css!', './transformers', './renderer'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, $, angular, kbn, DataTable, FileExport, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
+  var MetricsPanelCtrl, $, angular, kbn, FileExport, DataTable, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -44,11 +44,11 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
       angular = _angular.default;
     }, function (_appCoreUtilsKbn) {
       kbn = _appCoreUtilsKbn.default;
+    }, function (_appCoreUtilsFile_export) {
+      FileExport = _appCoreUtilsFile_export;
     }, function (_libsDatatablesNetJsJqueryDataTablesMinJs) {
       DataTable = _libsDatatablesNetJsJqueryDataTablesMinJs.default;
-    }, function (_libsDatatablesNetDtCssJqueryDataTablesMinCss) {}, function (_cssDatatableCss) {}, function (_cssPanelCss) {}, function (_appCoreUtilsFile_export) {
-      FileExport = _appCoreUtilsFile_export;
-    }, function (_transformers) {
+    }, function (_libsDatatablesNetDtCssJqueryDataTablesMinCss) {}, function (_cssPanelCss) {}, function (_cssDatatablesWrapperCss) {}, function (_cssDatatableCss) {}, function (_transformers) {
       transformDataToTable = _transformers.transformDataToTable;
       transformers = _transformers.transformers;
     }, function (_renderer) {
@@ -101,7 +101,7 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
       panelDefaults = {
         targets: [{}],
         transform: 'timeseries_to_columns',
-        pageSize: 10,
+        rowsPerPage: 5,
         showHeader: true,
         styles: [{
           type: 'date',
@@ -130,6 +130,8 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
         searchEnabled: true,
         showCellBorders: false,
         showRowBorders: true,
+        hoverEnabled: true,
+        orderColumnEnabled: true,
         compactRowsEnabled: false,
         stripedRowsEnabled: true,
         lengthChangeEnabled: true,
@@ -154,30 +156,39 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           value: 'first_last_numbers'
         }],
         themes: [{
+          value: 'basic_theme',
           text: 'Basic',
-          value: 'basic_theme'
+          disabled: false
         }, {
+          value: 'bootstrap3_theme',
           text: 'Bootstrap 3',
-          value: 'bootstrap3_theme'
+          disabled: true
         }, {
+          value: 'bootstrap4_theme',
           text: 'Bootstrap 4',
-          value: 'bootstrap4_theme'
+          disabled: true
         }, {
+          value: 'foundation_theme',
           text: 'Foundation',
-          value: 'foundation_theme'
+          disabled: true
         }, {
+          value: 'semantic_ui_theme',
           text: 'Semantic UI',
-          value: 'semantic_ui_theme'
+          disabled: true
         }, {
+          value: 'themeroller_theme',
           text: 'ThemeRoller',
-          value: 'themeroller_theme'
+          disabled: true
         }, {
+          value: 'material_design_theme',
           text: 'Material Design',
-          value: 'material_design_theme'
+          disabled: true
         }, {
+          value: 'uikit_theme',
           text: 'UIKit',
-          value: 'uikit_theme'
+          disabled: true
         }]
+
       };
 
       _export('DatatablePanelCtrl', DatatablePanelCtrl = function (_MetricsPanelCtrl) {
@@ -342,9 +353,32 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
             return _get(DatatablePanelCtrl.prototype.__proto__ || Object.getPrototypeOf(DatatablePanelCtrl.prototype), 'render', this).call(this, this.table);
           }
         }, {
+          key: 'getPanelHeight',
+          value: function getPanelHeight() {
+            // panel can have a fixed height via options
+            var tmpPanelHeight = this.$scope.ctrl.panel.height;
+            // if that is blank, try to get it from our row
+            if (typeof tmpPanelHeight === 'undefined') {
+              // get from the row instead
+              tmpPanelHeight = this.row.height;
+              // default to 250px if that was undefined also
+              if (typeof tmpPanelHeight === 'undefined') {
+                tmpPanelHeight = "250px";
+              }
+            }
+            // convert to numeric value
+            tmpPanelHeight = tmpPanelHeight.replace("px", "");
+            var actualHeight = parseInt(tmpPanelHeight);
+            // grafana minimum height for a panel is 250px
+            if (actualHeight < 250) {
+              actualHeight = 250;
+            }
+            return actualHeight;
+          }
+        }, {
           key: 'exportCsv',
           value: function exportCsv() {
-            var renderer = new TableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize);
+            var renderer = new DatatableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize);
             FileExport.exportTableDataToCsv(renderer.render_values());
           }
         }, {
@@ -360,11 +394,12 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
              * @return {[type]} [description]
              */
             function renderPanel() {
-              var renderer = new DatatableRenderer(panel, data, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize);
+              var renderer = new DatatableRenderer(panel, ctrl.table, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize);
               renderer.render();
               _this.dataLoaded = true;
             }
 
+            ctrl.panel.panelHeight = this.getPanelHeight();
             ctrl.events.on('render', function (renderData) {
               data = renderData || data;
               if (data) {
@@ -374,9 +409,17 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
             });
           }
         }, {
+          key: 'showCellBordersChanged',
+          value: function showCellBordersChanged() {
+            if (this.panel.showCellBorders) {
+              this.panel.showRowBorders = false;
+            }
+            this.render();
+          }
+        }, {
           key: 'themeChanged',
           value: function themeChanged() {
-            console.log(this.panel.datatableTheme);
+            //console.log(this.panel.datatableTheme);
             this.render();
           }
         }, {

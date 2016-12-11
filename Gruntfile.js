@@ -11,16 +11,43 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-force-task');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks("grunt-ts");
+  grunt.loadNpmTasks('grunt-css-selectors');
+  grunt.loadNpmTasks('grunt-contrib-cssmin');
 
   grunt.initConfig({
 
     pkg: grunt.file.readJSON('package.json'),
     clean: ["dist"],
 
+    cssmin: {
+       dist: {
+          options: {
+          },
+          files: {
+             'dist/libs/bootstrap/dist/css/prefixed-bootstrap.min.css': ['dist/libs/bootstrap/dist/css/prefixed-bootstrap.css'],
+             'dist/libs/foundation/css/prefixed-foundation.min.css': ['dist/libs/foundation/css/prefixed-foundation.css']
+          }
+      }
+    },
+    css_selectors: {
+      options: {
+        // Task-specific options go here.
+        mutations: [
+          {prefix: '.datatables-wrapper'}
+        ]
+      },
+      your_target: {
+        // Target-specific file lists and/or options go here.
+        files: {
+        'dist/libs/bootstrap/dist/css/prefixed-bootstrap.css': ['bower_components/bootstrap/dist/css/bootstrap.css'],
+        'dist/libs/foundation/css/prefixed-foundation.css': ['bower_components/foundation/css/foundation.css'],
+        },
+      },
+    },
     ts: {
       default : {
         options: {
-          noEmit: false,
+          noEmit: false
         },
         src: ["src/**/*.ts", "!node_modules/**/*.ts"],
         outDir: "dist",
@@ -29,7 +56,7 @@ module.exports = function(grunt) {
     jshint: {
       options: {
         jshintrc: '.jshintrc',
-        ignores: ['src/bower_components/**', 'src/**/external/**'],
+        ignores: ['src/bower_components/**', 'src/**/external/**']
       },
       src: ['Gruntfile.js', 'src/**/*.js'],
     },
@@ -55,17 +82,20 @@ module.exports = function(grunt) {
         cwd: 'bower_components',
         expand: true,
         src: [
-          'angular/**',
-          'angular-aria/**',
-          'angular-animate/**',
-          'angular-material/**',
-          'angular-messages/**',
           'bootstrap/**',
-          'font-awesome/**',
-          'jquery/**',
           'datatables.net/**',
+          'datatables.net-bs/**',
           'datatables.net-dt/**',
-        ],
+          'datatables.net-jqui/**',
+          'datatables.net-zf/**',
+          'fastclick/**',
+          'font-awesome/**',
+          'foundation/**',
+          'jquery/**',
+          'jquery-placeholder/**',
+          'jquery.cookie/**',
+          'modernizr/**'
+      ],
         dest: 'dist/libs/'
       },
       pluginDef: {
@@ -133,6 +163,8 @@ module.exports = function(grunt) {
           'jshint',
           'multidest',
           'copy:bower_libs',
+          'css_selectors',
+          'cssmin',
           'babel']);
   grunt.registerTask('release', ['jshint', 'clean', 'multidest', 'copy:bower_libs', 'packageModules', 'babel']);
 };

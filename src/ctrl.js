@@ -3,12 +3,49 @@ import $ from 'jquery';
 import angular from 'angular';
 import kbn from 'app/core/utils/kbn';
 
-import DataTable from './libs/datatables.net/js/jquery.dataTables.min.js';
-import './libs/datatables.net-dt/css/jquery.dataTables.min.css!';
-// See this for styling https://datatables.net/manual/styling/theme-creator
-import './css/datatable.css!';
-import './css/panel.css!';
 import * as FileExport from 'app/core/utils/file_export';
+import DataTable from './libs/datatables.net/js/jquery.dataTables.min.js';
+
+// this is needed for basic datatables.net theme
+import './libs/datatables.net-dt/css/jquery.dataTables.min.css!';
+
+// See this for styling https://datatables.net/manual/styling/theme-creator
+
+/*
+// These three are needed for bootstrap theme
+import './libs/datatables.net-bs/js/dataTables.bootstrap.js';
+// this distributed css modifies the entire page, use the prefixed version of it instead
+//import './libs/bootstrap/dist/css/bootstrap.min.css!';
+import './libs/bootstrap/dist/css/prefixed-bootstrap.min.css!';
+import './libs/datatables.net-bs/css/dataTables.bootstrap.min.css!';
+*/
+
+
+/*
+// this distributed css modifies the entire page, use the prefixed version of it instead
+//import './libs/foundation/css/foundation.min.css!';
+import './libs/foundation/css/prefixed-foundation.min.css!';
+import './libs/datatables.net-zf/js/dataTables.foundation.js';
+import './libs/datatables.net-zf/css/dataTables.foundation.min.css!';
+*/
+
+/*
+  JQuery UI ThemeRoller
+import './libs/datatables.net-jqui/js/dataTables.jqueryui.js';
+import './libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!';
+*/
+
+// These are "preview themes"
+//import './css/dataTables.bootstrap4.min.css!';
+//import './css/dataTables.material.min.css!';
+//import './css/dataTables.semanticui.min.css!';
+//import './css/dataTables.uikit.min.css!';
+
+//import './css/datatable.css!';
+import './css/panel.css!';
+// themes attempt to modify the entire page, this "contains" the styling to the table only
+import './css/datatables-wrapper.css!';
+import './css/datatable.css!';
 
 import {
   transformDataToTable,
@@ -20,7 +57,7 @@ import { DatatableRenderer } from './renderer';
 const panelDefaults = {
   targets: [{}],
   transform: 'timeseries_to_columns',
-  pageSize: 10,
+  rowsPerPage: 5,
   showHeader: true,
   styles: [
     {
@@ -52,6 +89,8 @@ const panelDefaults = {
   searchEnabled: true,
   showCellBorders: false,
   showRowBorders: true,
+  hoverEnabled: true,
+  orderColumnEnabled: true,
   compactRowsEnabled: false,
   stripedRowsEnabled: true,
   lengthChangeEnabled: true,
@@ -84,38 +123,47 @@ const panelDefaults = {
   ],
   themes: [
     {
+      value: 'basic_theme',
       text: 'Basic',
-      value: 'basic_theme'
+      disabled: false,
     },
     {
-      text: 'Bootstrap 3',
       value: 'bootstrap3_theme',
+      text: 'Bootstrap 3',
+      disabled: true,
     },
     {
-      text: 'Bootstrap 4',
       value: 'bootstrap4_theme',
+      text: 'Bootstrap 4',
+      disabled: true,
     },
     {
-      text: 'Foundation',
       value: 'foundation_theme',
+      text: 'Foundation',
+      disabled: true,
     },
     {
-      text: 'Semantic UI',
       value: 'semantic_ui_theme',
+      text: 'Semantic UI',
+      disabled: true,
     },
     {
-      text: 'ThemeRoller',
       value: 'themeroller_theme',
+      text: 'ThemeRoller',
+      disabled: true,
     },
     {
-      text: 'Material Design',
       value: 'material_design_theme',
+      text: 'Material Design',
+      disabled: true,
     },
     {
-      text: 'UIKit',
       value: 'uikit_theme',
+      text: 'UIKit',
+      disabled: true,
     }
   ]
+
 };
 
 export class DatatablePanelCtrl extends MetricsPanelCtrl {
@@ -283,8 +331,31 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     return super.render(this.table);
   }
 
+  getPanelHeight() {
+    // panel can have a fixed height via options
+    var tmpPanelHeight = this.$scope.ctrl.panel.height;
+    // if that is blank, try to get it from our row
+    if (typeof tmpPanelHeight === 'undefined') {
+      // get from the row instead
+      tmpPanelHeight = this.row.height;
+      // default to 250px if that was undefined also
+      if (typeof tmpPanelHeight === 'undefined') {
+        tmpPanelHeight = "250px";
+      }
+    }
+    // convert to numeric value
+    tmpPanelHeight = tmpPanelHeight.replace("px","");
+    var actualHeight = parseInt(tmpPanelHeight);
+    // grafana minimum height for a panel is 250px
+    if (actualHeight < 250) {
+      actualHeight = 250;
+    }
+    return actualHeight;
+  }
+
+
   exportCsv() {
-    var renderer = new TableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize);
+    var renderer = new DatatableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize);
     FileExport.exportTableDataToCsv(renderer.render_values());
   }
 
@@ -299,11 +370,12 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
      * @return {[type]} [description]
      */
     function renderPanel() {
-      var renderer = new DatatableRenderer(panel, data, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize);
+      var renderer = new DatatableRenderer(panel, ctrl.table, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize);
       renderer.render();
       _this.dataLoaded = true;
     }
 
+    ctrl.panel.panelHeight = this.getPanelHeight();
     ctrl.events.on('render', function(renderData) {
       data = renderData || data;
       if (data) {
@@ -315,10 +387,19 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
 
   // editor methods
   //
-  themeChanged() {
-    console.log(this.panel.datatableTheme);
+  // cell and row borders cannot both be set at the same time
+  showCellBordersChanged() {
+    if (this.panel.showCellBorders) {
+      this.panel.showRowBorders = false;
+    }
     this.render();
   }
+
+  themeChanged() {
+    //console.log(this.panel.datatableTheme);
+    this.render();
+  }
+
   transformChanged() {
     this.panel.columns = [];
     this.render();
@@ -327,6 +408,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     this.panel.columns = _.without(this.panel.columns, column);
     this.render();
   }
+
   getColumnOptions() {
     if (!this.dataRaw) {
       return this.$q.when([]);

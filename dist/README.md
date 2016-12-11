@@ -2,8 +2,6 @@
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for [Grafana](http://www.grafana.org) 3.x/4.x
 
-PLEASE NOTE: This is a work in progress, and has not been integrated into grafana.net
-
 ### Screenshots
 
 ##### Example Tables
@@ -28,16 +26,23 @@ PLEASE NOTE: This is a work in progress, and has not been integrated into grafan
   * Preset page sizes
   * Multiple paging types
   * Dropdown for page size
-* Row Numbers on left side
-* Searchable table content (filtering)
-  * option to enable regex
-* Themes
-  * Multiple built-in themes
+* Row Numbers reactive to filtering
+* Searchable table content (filtering), regex enabled
+
 
 ## TODO
 
 * Add option to cells for linking to another page
-* Add option to enable regex in search
+* Themes
+  * Multiple built-in themes
+      * Bootstrap:
+        * Requires a modified .js file since it looks for "datatables.net" - need workaround
+      * Foundation:
+        * Requires a modified .js file since it looks for "datatables.net" - need workaround
+        * Needs a new CSS that is "dark" for Grafana - the builtin is light
+          http://foundation.zurb.com/sites/download.html/#customizeFoundation
+      * JQueryUI ThemeRoller
+        * Requires a modified .js file since it looks for "datatables.net" - need workaround
 
 ## Building
 

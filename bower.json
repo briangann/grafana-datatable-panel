@@ -20,7 +20,12 @@
   ],
   "dependencies": {
     "font-awesome": "^4.7.0",
-    "datatables.net": "^1.10.12",
-    "datatables.net-dt": "^1.10.12"
+    "datatables.net": "^1.10.13",
+    "datatables.net-dt": "^1.10.13",
+    "datatables.net-bs": "^1.10.13",
+    "bootstrap": "^3.3.7",
+    "datatables.net-zf": "^1.10.13",
+    "foundation": "^5.5.3",
+    "datatables.net-jqui": "^1.10.13"
   }
 }

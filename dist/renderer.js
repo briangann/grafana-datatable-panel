@@ -289,13 +289,14 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             if (this.panel.rowNumbersEnabled) {
               // shift the data to the right
             }
-            var newDT = $('#datatable-panel-table').DataTable({
-              "lengthMenu": [[10, 25, 50, 75, 100, -1], [10, 25, 50, 75, 100, "All"]],
-              paging: true,
-              pagingType: this.panel.datatablePagingType,
+            var panelHeight = this.panel.panelHeight;
+            // console.log("panel height = " + panelHeight);
+            var tableOptions = {
+              "lengthMenu": [[5, 10, 25, 50, 75, 100, -1], [5, 10, 25, 50, 75, 100, "All"]],
               searching: this.panel.searchEnabled,
               info: this.panel.infoEnabled,
               lengthChange: this.panel.lengthChangeEnabled,
+              scrollCollapse: false,
               data: formattedData,
               columns: columns,
               columnDefs: columnDefs,
@@ -303,7 +304,15 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                 "regex": true
               },
               "order": [[1, 'asc']]
-            });
+            };
+            if (this.panel.scroll) {
+              tableOptions.paging = false;
+              tableOptions.scrollY = panelHeight;
+            } else {
+              tableOptions.paging = true;
+              tableOptions.pagingType = this.panel.datatablePagingType;
+            }
+            var newDT = $('#datatable-panel-table').DataTable(tableOptions);
 
             // hide columns that are marked hidden
             for (var _i = 0; _i < this.table.columns.length; _i++) {
@@ -312,10 +321,33 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               }
             }
 
-            // set the page size
-            if (this.panel.pageSize !== null) {
-              //console.log("page size = " + this.panel.pageSize);
-              newDT.page.len(this.panel.pageSize).draw();
+            // enable compact mode
+            if (this.panel.compactRowsEnabled) {
+              $('#datatable-panel-table').addClass('compact');
+            }
+            // enable striped mode
+            if (this.panel.stripedRowsEnabled) {
+              $('#datatable-panel-table').addClass('stripe');
+            }
+            if (this.panel.hoverEnabled) {
+              $('#datatable-panel-table').addClass('hover');
+            }
+            if (this.panel.orderColumnEnabled) {
+              $('#datatable-panel-table').addClass('order-column');
+            }
+            // these two are mutually exclusive
+            if (this.panel.showCellBorders) {
+              $('#datatable-panel-table').addClass('cell-border');
+            } else {
+              if (this.panel.showRowBorders) {
+                $('#datatable-panel-table').addClass('row-border');
+              }
+            }
+            if (!this.panel.scroll) {
+              // set the page size
+              if (this.panel.rowsPerPage !== null) {
+                newDT.page.len(this.panel.rowsPerPage).draw();
+              }
             }
             // function to display row numbers
             if (this.panel.rowNumbersEnabled) {
@@ -331,6 +363,24 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             //  "scrollCollapse": true,
             //  "paging":         false
             //console.log("Datatable Loaded!");
+          }
+        }, {
+          key: 'render_values',
+          value: function render_values() {
+            var rows = [];
+
+            for (var y = 0; y < this.table.rows.length; y++) {
+              var row = this.table.rows[y];
+              var new_row = [];
+              for (var i = 0; i < this.table.columns.length; i++) {
+                new_row.push(this.formatColumnValue(i, row[i]));
+              }
+              rows.push(new_row);
+            }
+            return {
+              columns: this.table.columns,
+              rows: rows
+            };
           }
         }]);
 
