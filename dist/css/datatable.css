@@ -58,17 +58,17 @@ table.dataTable {
   table.dataTable tbody td {
     padding: 8px 10px; }
   table.dataTable.row-border tbody th, table.dataTable.row-border tbody td, table.dataTable.display tbody th, table.dataTable.display tbody td {
-    border-top: 1px solid #dddddd; }
+    border-top: 1px solid #111111; }
   table.dataTable.row-border tbody tr:first-child th,
   table.dataTable.row-border tbody tr:first-child td, table.dataTable.display tbody tr:first-child th,
   table.dataTable.display tbody tr:first-child td {
     border-top: none; }
   table.dataTable.cell-border tbody th, table.dataTable.cell-border tbody td {
-    border-top: 1px solid #dddddd;
-    border-right: 1px solid #dddddd; }
+    border-top: 1px solid #111111;
+    border-right: 1px solid #111111; }
   table.dataTable.cell-border tbody tr th:first-child,
   table.dataTable.cell-border tbody tr td:first-child {
-    border-left: 1px solid #dddddd; }
+    border-left: 1px solid #111111; }
   table.dataTable.cell-border tbody tr:first-child th,
   table.dataTable.cell-border tbody tr:first-child td {
     border-top: none; }
