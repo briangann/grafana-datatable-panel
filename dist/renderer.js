@@ -209,6 +209,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             for (var i = 0; i < this.panel.styles.length; i++) {
               var style = this.panel.styles[i];
               var column = this.table.columns[columnNumber];
+              if (column === undefined) break;
               var regex = kbn.stringToJsRegex(style.pattern);
               if (column.text.match(regex)) {
                 colStyle = style;
@@ -259,8 +260,6 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
         }, {
           key: 'render',
           value: function render() {
-            var _this3 = this;
-
             if (this.table.columns.length === 0) return;
             var columns = [];
             var columnDefs = [];
@@ -279,12 +278,11 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                 "width": "1%"
               });
             }
-
-            var _loop = function _loop(i) {
+            for (var i = 0; i < this.table.columns.length; i++) {
               /* jshint loopfunc: true */
               columns.push({
-                title: _this3.table.columns[i].text,
-                type: _this3.table.columns[i].type
+                title: this.table.columns[i].text,
+                type: this.table.columns[i].type
               });
               columnDefs.push({
                 "targets": i + rowNumberOffset,
@@ -294,8 +292,13 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                   // set the fontsize for the cell
                   $(td).css('font-size', _this.panel.fontSize);
                   // undefined types should have numerical data, any others are already formatted
-                  if (_this.table.columns[i].type !== undefined) return;
-
+                  var actualColumn = col;
+                  if (_this.panel.rowNumbersEnabled) {
+                    actualColumn -= 1;
+                  }
+                  console.log("checking column " + actualColumn);
+                  if (_this.table.columns[actualColumn].type !== undefined) return;
+                  console.log("processing column " + actualColumn);
                   // for coloring rows, get the "worst" threshold
                   if (_this.colorState.row || _this.colorState.rowcolumn) {
                     // run all of the rowData through threshold check, get the "highest" index
@@ -310,9 +313,11 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                       // only columns of type undefined are checked
                       if (_this.table.columns[columnNumber].type === undefined) {
                         rowColorData = _this.getCellColors(_this.colorState, columnNumber, rowData[columnNumber]);
-                        if (rowColorData.bgColorIndex > rowColorIndex) {
-                          rowColorIndex = rowColorData.bgColorIndex;
-                          rowColor = rowColorData.bgColor;
+                        if (rowColorData.bgColorIndex !== null) {
+                          if (rowColorData.bgColorIndex > rowColorIndex) {
+                            rowColorIndex = rowColorData.bgColorIndex;
+                            rowColor = rowColorData.bgColor;
+                          }
                         }
                       }
                     }
@@ -325,7 +330,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                   //    1) Cell coloring is enabled, the above row color is skipped
                   //    2) RowColumn is enabled, the above row color is process, but we also
                   //    set the cell colors individually
-                  var colorData = _this.getCellColors(_this.colorState, col, cellData);
+                  var colorData = _this.getCellColors(_this.colorState, actualColumn, cellData);
                   if (_this.colorState.cell || _this.colorState.rowcolumn) {
                     if (colorData.color !== undefined) {
                       $(td).css('color', colorData.color);
@@ -340,10 +345,6 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                   }
                 }
               });
-            };
-
-            for (var i = 0; i < this.table.columns.length; i++) {
-              _loop(i);
             }
 
             try {
@@ -376,6 +377,12 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             }
             var panelHeight = this.panel.panelHeight;
             // console.log("panel height = " + panelHeight);
+            var orderSetting = [[0, 'desc']];
+            if (this.panel.rowNumbersEnabled) {
+              // when row numbers are enabled, show them ascending
+              orderSetting = [[0, 'asc']];
+            }
+
             var tableOptions = {
               "lengthMenu": [[5, 10, 25, 50, 75, 100, -1], [5, 10, 25, 50, 75, 100, "All"]],
               searching: this.panel.searchEnabled,
@@ -389,7 +396,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               "search": {
                 "regex": true
               },
-              "order": [[1, 'asc']]
+              "order": orderSetting
             };
             if (this.panel.scroll) {
               tableOptions.paging = false;
