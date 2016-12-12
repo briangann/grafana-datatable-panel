@@ -31,6 +31,19 @@ export class DatatableRenderer {
     return _.first(style.colors);
   }
 
+  // to determine the overall row color, the index of the threshold is needed
+  getColorIndexForValue(value, style) {
+    if (!style.thresholds) {
+      return null;
+    }
+    for (var i = style.thresholds.length; i > 0; i--) {
+      if (value >= style.thresholds[i - 1]) {
+        return i;
+      }
+    }
+    return 0;
+  }
+
   /**
    * [defaultCellFormatter description]
    * @param  {[type]} v     [description]
@@ -152,6 +165,57 @@ export class DatatableRenderer {
     return formattedRowData;
   }
 
+  getStyleForColumn(columnNumber) {
+    let colStyle = null;
+    for (let i = 0; i < this.panel.styles.length; i++) {
+      let style = this.panel.styles[i];
+      let column = this.table.columns[columnNumber];
+      var regex = kbn.stringToJsRegex(style.pattern);
+      if (column.text.match(regex)) {
+        colStyle = style;
+        break;
+      }
+    }
+    return colStyle;
+  }
+
+  getCellColors(colorState, columnNumber, cellData) {
+    var items = cellData.split(/(\s+)/);
+    // only color cell if the content is a number?
+    var bgColor = null;
+    var bgColorIndex = null;
+    var color = null;
+    var colorIndex = null;
+    let colStyle = null;
+    let value = null;
+    // check if the content has a numeric value after the split
+    if (!isNaN(items[0])) {
+      // run value through threshold function
+      value = parseFloat(items[0].replace(",", "."));
+      colStyle = this.getStyleForColumn(columnNumber);
+    }
+    if (colStyle !== null) {
+      // check color for either cell or row
+      if ((colorState.cell) || (colorState.row) || (colorState.rowcolumn)){
+        // bgColor = _this.colorState.cell;
+        bgColor = this.getColorForValue(value, colStyle);
+        bgColorIndex = this.getColorIndexForValue(value, colStyle);
+        color = 'white';
+      }
+      // just the value color is set
+      if (colorState.value) {
+        //color = _this.colorState.value;
+        color = this.getColorForValue(value, colStyle);
+        colorIndex = this.getColorIndexForValue(value, colStyle);
+      }
+    }
+    return {
+      bgColor: bgColor,
+      bgColorIndex: bgColorIndex,
+      color: color,
+      colorIndex: colorIndex
+    };
+  }
   /**
    * Construct table using Datatables.net API
    *  multiple types supported
@@ -201,30 +265,48 @@ export class DatatableRenderer {
               $(td).css('font-size', _this.panel.fontSize);
               // undefined types should have numerical data, any others are already formatted
               if (_this.table.columns[i].type !== undefined) return;
-              // pass the celldata to threshold checker
-              var items = cellData.split(/(\s+)/);
-              // only color cell if the content is a number?
-              var bgColor = null;
-              var color = null;
-              // check if the content has a numeric value after the split
-              // color the cell as needed
-              if (!isNaN(items[0])) {
-                if (_this.colorState.cell) {
-                  bgColor = _this.colorState.cell;
-                  color = 'white';
-                  $(td).css('color', color);
-                  $(td).css('background-color', bgColor);
-                } else if (_this.colorState.value) {
-                  color = _this.colorState.value;
-                  $(td).css('color', color);
+
+              // for coloring rows, get the "worst" threshold
+              if ((_this.colorState.row) || (_this.colorState.rowcolumn)) {
+                // run all of the rowData through threshold check, get the "highest" index
+                // and use that for the entire row
+                if (rowData === null) return;
+                let rowColorIndex = -1;
+                let rowColorData = null;
+                let rowColor = _this.colorState.row;
+                // this should be configurable...
+                let color = 'white';
+                for (let columnNumber = 0; columnNumber < _this.table.columns.length; columnNumber++) {
+                  // only columns of type undefined are checked
+                  if (_this.table.columns[columnNumber].type === undefined) {
+                    rowColorData = _this.getCellColors(_this.colorState, columnNumber, rowData[columnNumber]);
+                    if (rowColorData.bgColorIndex > rowColorIndex) {
+                      rowColorIndex = rowColorData.bgColorIndex;
+                      rowColor = rowColorData.bgColor;
+                    }
+                  }
                 }
-              }
-              if (_this.colorState.row) {
-                bgColor = _this.colorState.row;
-                color = 'white';
-                // set the row using the parentNode
                 $(td.parentNode).children().css('color', color);
-                $(td.parentNode).children().css('background-color', bgColor);
+                $(td.parentNode).children().css('background-color', rowColor);
+              }
+
+              // Now process the cell coloring
+              // Two scenarios:
+              //    1) Cell coloring is enabled, the above row color is skipped
+              //    2) RowColumn is enabled, the above row color is process, but we also
+              //    set the cell colors individually
+              var colorData = _this.getCellColors(_this.colorState, col, cellData);
+              if ((_this.colorState.cell) || (_this.colorState.rowcolumn)){
+                if (colorData.color !== undefined) {
+                  $(td).css('color', colorData.color);
+                }
+                if (colorData.bgColor !== undefined) {
+                  $(td).css('background-color', colorData.bgColor);
+                }
+              } else if (_this.colorState.value) {
+                if (colorData.color !== undefined) {
+                  $(td).css('color', colorData.color);
+                }
               }
             }
           }
@@ -268,6 +350,7 @@ export class DatatableRenderer {
       info: this.panel.infoEnabled,
       lengthChange: this.panel.lengthChangeEnabled,
       scrollCollapse: false,
+      saveState: true,
       data: formattedData,
       columns: columns,
       columnDefs: columnDefs,

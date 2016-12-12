@@ -30,6 +30,11 @@ This panel plugin provides a [Datatables.net](http://www.datatables.net) table p
 ## Features
 
 * Feature parity with built-in Grafana Table Panel
+* Row coloring uses the "highest" threshold color of all columns
+* New "RowColumn" threshold color option:
+   Sets color to "highest" threshold found for all cells in row.
+   Also sets color for each cell according to the threshold.
+   This means - a row can have an overall color, with each cell indicating it's real threshold color.
 * Set font size for rows
 * Scrolling
 * Paging
@@ -41,7 +46,8 @@ This panel plugin provides a [Datatables.net](http://www.datatables.net) table p
 
 
 ## TODO
-
+* + Column is not working
+* Save state
 * Add option to cells for linking to another page
 * Themes
   * Multiple built-in themes

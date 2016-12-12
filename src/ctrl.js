@@ -197,6 +197,10 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         text: 'Row',
         value: 'row'
       },
+      {
+        text: 'Row Column',
+        value: 'rowcolumn'
+      },
     ];
     this.columnTypes = [
       {

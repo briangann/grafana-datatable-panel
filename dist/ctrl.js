@@ -221,6 +221,9 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           }, {
             text: 'Row',
             value: 'row'
+          }, {
+            text: 'Row Column',
+            value: 'rowcolumn'
           }];
           _this2.columnTypes = [{
             text: 'Number',
