@@ -4,25 +4,80 @@ This panel plugin provides a [Datatables.net](http://www.datatables.net) table p
 
 ### Screenshots
 
-##### Example Tables
 
+##### Paging enabled
 ![Default Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-default-paging.png)
 
+##### Scrolling enabled
 ![Scrolling](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-scroll.png)
 
+##### Numbered Rows and Compact Style
+
 ![Numbered and Compact Rows](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-compact-numbered.png)
-##### Options
+
+#### Options
+
+##### Options Tab
 
 ![Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-options.png)
 
+Same options as built-in table panel
+
+##### Datatable Options Tab
+
 ![Datatable Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dt-options.png)
-##### Thresholding
+
+Table Display Options
+* Font Size - set font size of table content
+* Scroll - toggle for scrolling vs Paging
+* Paging Options
+  * Rows Per Page - number of rows to display when paging is enabled
+  * Paging type - multiple navigation options
+
+Table Options
+* Row Numbers - toggle to show row numbers
+* Length Change Enabled - top left dropdown for showing alternate page sizes
+* Search Enabled - toggle to allow searching table content (regex is enabled)
+* Info - Displays the "Show N of X entries" on bottom left of table
+* Cell Borders - show borders around each Cell (cannot be enabled with Row Borders)
+* Row Borders - show border between rows
+* Compact Rows - uses less padding for denser data display
+* Striped Rows - non-colored rows will be "striped" odd/even
+* Order Column - Highlights the column used for sorting
+* Hover - Highlights row on mouse hover
+
+Theme Settings
+* Basic theme is currently the only option, more to be added
+
+#### Thresholding
+
+##### Row-based threshold coloring
 
 ![Thresholding with Row Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-row.png)
 
+##### Cell based threshold coloring
+
 ![Thresholding with Cell Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-cell.png)
 
+##### Cell based threshold value coloring
+
 ![Thresholding with Value Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-cell.png)
+
+##### RowColumn threshold coloring
+
+This option sets the row color to the "highest" threshold found for all cells in row.
+
+It also sets the color for each cell according to the threshold (you can tell which columns actually exceeded the threshold).
+
+This means - a row can have an overall color, with each cell indicating it's real threshold color.
+
+![Thresholding with RowColumn](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn.png)
+
+##### RowColumn threshold coloring including row counter
+
+Same as above, but with row counter included
+
+![Thresholding with RowColumn including row count](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn-rownumbers.png)
 
 
 -------
@@ -46,18 +101,16 @@ This panel plugin provides a [Datatables.net](http://www.datatables.net) table p
 
 
 ## TODO
-* + Column is not working
-* Save state
-* Add option to cells for linking to another page
-* Themes
-  * Multiple built-in themes
-      * Bootstrap:
+* [+] Column is not working
+* Add option for a cell or row to link to another page
+* Add Additional Themes
+    * Bootstrap:
         * Requires a modified .js file since it looks for "datatables.net" - need workaround
-      * Foundation:
+    * Foundation:
         * Requires a modified .js file since it looks for "datatables.net" - need workaround
         * Needs a new CSS that is "dark" for Grafana - the builtin is light
           http://foundation.zurb.com/sites/download.html/#customizeFoundation
-      * JQueryUI ThemeRoller
+    * JQueryUI ThemeRoller
         * Requires a modified .js file since it looks for "datatables.net" - need workaround
 
 ## Building
