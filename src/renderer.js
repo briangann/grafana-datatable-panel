@@ -269,9 +269,9 @@ export class DatatableRenderer {
               if (_this.panel.rowNumbersEnabled) {
                 actualColumn -= 1;
               }
-              console.log("checking column " + actualColumn);
+              //console.log("checking column " + actualColumn);
               if (_this.table.columns[actualColumn].type !== undefined) return;
-              console.log("processing column " + actualColumn);
+              //console.log("processing column " + actualColumn);
               // for coloring rows, get the "worst" threshold
               if ((_this.colorState.row) || (_this.colorState.rowcolumn)) {
                 // run all of the rowData through threshold check, get the "highest" index

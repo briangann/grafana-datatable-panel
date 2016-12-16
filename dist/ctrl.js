@@ -1,6 +1,6 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', 'app/core/utils/file_export', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/datatables.net-dt/css/jquery.dataTables.min.css!', './css/panel.css!', './css/datatables-wrapper.css!', './css/datatable.css!', './transformers', './renderer'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', 'app/core/utils/file_export', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/datatables.net-dt/css/jquery.dataTables.min.css!', './css/panel.css!', './css/datatables-wrapper.css!', './transformers', './renderer'], function (_export, _context) {
   "use strict";
 
   var MetricsPanelCtrl, $, angular, kbn, FileExport, DataTable, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
@@ -48,7 +48,7 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
       FileExport = _appCoreUtilsFile_export;
     }, function (_libsDatatablesNetJsJqueryDataTablesMinJs) {
       DataTable = _libsDatatablesNetJsJqueryDataTablesMinJs.default;
-    }, function (_libsDatatablesNetDtCssJqueryDataTablesMinCss) {}, function (_cssPanelCss) {}, function (_cssDatatablesWrapperCss) {}, function (_cssDatatableCss) {}, function (_transformers) {
+    }, function (_libsDatatablesNetDtCssJqueryDataTablesMinCss) {}, function (_cssPanelCss) {}, function (_cssDatatablesWrapperCss) {}, function (_transformers) {
       transformDataToTable = _transformers.transformDataToTable;
       transformers = _transformers.transformers;
     }, function (_renderer) {
@@ -125,6 +125,10 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           desc: true
         },
         datatableTheme: 'basic_theme',
+        themeOptions: {
+          light: './css/datatable-light.css',
+          dark: './css/datatable-dark.css'
+        },
         rowNumbersEnabled: false,
         infoEnabled: true,
         searchEnabled: true,
@@ -267,6 +271,12 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           }
           _.defaults(_this2.panel, panelDefaults);
 
+          if (grafanaBootData.user.lightTheme) {
+            System.import(_this2.getPanelPath() + _this2.panel.themeOptions.light + '!css');
+          } else {
+            System.import(_this2.getPanelPath() + _this2.panel.themeOptions.dark + "!css");
+          }
+
           //this.datatableTheme = this.panel.themes[0];
 
           _this2.dataLoaded = true;
@@ -301,6 +311,15 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
             this.addEditorTab('Options', optionsPath, 2);
             var datatableOptionsPath = thisPanelPath + 'partials/datatables.options.html';
             this.addEditorTab('Datatable Options', datatableOptionsPath, 3);
+          }
+        }, {
+          key: 'getPanelPath',
+          value: function getPanelPath() {
+            var panels = grafanaBootData.settings.panels;
+            var thisPanel = panels[this.pluginId];
+            // the system loader preprends publib to the url, add a .. to go back one level
+            var thisPanelPath = '../' + thisPanel.baseUrl + '/';
+            return thisPanelPath;
           }
         }, {
           key: 'issueQueries',

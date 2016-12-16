@@ -66,7 +66,7 @@
 					checked="ctrl.panel.showCellBorders" on-change="ctrl.showCellBordersChanged()"></gf-form-switch>
 				<gf-form-switch class="gf-form" label-class="width-11"
 					label="Row Borders"
-					tooltip="Show row borders"
+					tooltip="Show row borders (Requires Page Reload on toggle)"
 					checked="ctrl.panel.showRowBorders" on-change="ctrl.render()"></gf-form-switch>
 			</div>
 			<div class="gf-form-inline">
@@ -76,7 +76,7 @@
 					checked="ctrl.panel.compactRowsEnabled" on-change="ctrl.render()"></gf-form-switch>
 				<gf-form-switch class="gf-form" label-class="width-11"
 					label="Striped Rows"
-					tooltip="Show stripes on rows"
+					tooltip="Show stripes on rows (Requires Page Reload on toggle)"
 					checked="ctrl.panel.stripedRowsEnabled" on-change="ctrl.render()"></gf-form-switch>
 			</div>
 			<div class="gf-form-inline">
@@ -86,7 +86,7 @@
 					checked="ctrl.panel.orderColumnEnabled" on-change="ctrl.render()"></gf-form-switch>
 				<gf-form-switch class="gf-form" label-class="width-11"
 					label="Hover"
-					tooltip="Highlights row on hover"
+					tooltip="Highlights row on hover (Requires Page Reload on toggle)"
 					checked="ctrl.panel.hoverEnabled" on-change="ctrl.render()"></gf-form-switch>
 			</div>
 		</div>

@@ -45,7 +45,6 @@ import './libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!';
 import './css/panel.css!';
 // themes attempt to modify the entire page, this "contains" the styling to the table only
 import './css/datatables-wrapper.css!';
-import './css/datatable.css!';
 
 import {
   transformDataToTable,
@@ -84,6 +83,10 @@ const panelDefaults = {
     desc: true
   },
   datatableTheme: 'basic_theme',
+  themeOptions: {
+    light: './css/datatable-light.css',
+    dark:  './css/datatable-dark.css'
+  },
   rowNumbersEnabled: false,
   infoEnabled: true,
   searchEnabled: true,
@@ -170,6 +173,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
 
   constructor($scope, $injector, $http, $location, uiSegmentSrv, annotationsSrv) {
     super($scope, $injector);
+
     this.pageIndex = 0;
     this.table = null;
     this.dataRaw = [];
@@ -253,6 +257,12 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     }
     _.defaults(this.panel, panelDefaults);
 
+    if (grafanaBootData.user.lightTheme) {
+      System.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
+    } else {
+      System.import(this.getPanelPath() + this.panel.themeOptions.dark + "!css");
+    }
+
     //this.datatableTheme = this.panel.themes[0];
 
     this.dataLoaded = true;
@@ -283,6 +293,14 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     this.addEditorTab('Options', optionsPath, 2);
     var datatableOptionsPath = thisPanelPath + 'partials/datatables.options.html';
     this.addEditorTab('Datatable Options', datatableOptionsPath, 3);
+  }
+
+  getPanelPath() {
+    var panels = grafanaBootData.settings.panels;
+    var thisPanel = panels[this.pluginId];
+    // the system loader preprends publib to the url, add a .. to go back one level
+    var thisPanelPath = '../' + thisPanel.baseUrl + '/';
+    return thisPanelPath;
   }
 
   issueQueries(datasource) {
