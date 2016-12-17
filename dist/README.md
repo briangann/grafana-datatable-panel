@@ -6,17 +6,17 @@ This panel plugin provides a [Datatables.net](http://www.datatables.net) table p
 
 
 ##### Paging enabled
-![Default Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dark-paging.png)
+![Default Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-basic-dark.png)
 
 ##### Scrolling enabled
 ![Scrolling](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dark-scrolling.png)
 
 ##### Light Theme with Paging
-![Light Theme with Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-light-paging.png)
+![Light Theme with Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-basic-light.png)
 
 ##### Numbered Rows and Compact Style
 
-![Numbered and Compact Rows](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-compact-numbered.png)
+![Numbered and Compact Rows](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dark-numbered-compact.png)
 
 #### Options
 
