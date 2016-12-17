@@ -7,41 +7,49 @@ import * as FileExport from 'app/core/utils/file_export';
 import DataTable from './libs/datatables.net/js/jquery.dataTables.min.js';
 
 // this is needed for basic datatables.net theme
-import './libs/datatables.net-dt/css/jquery.dataTables.min.css!';
+//import './libs/datatables.net-dt/css/jquery.dataTables.min.css!';
 
 // See this for styling https://datatables.net/manual/styling/theme-creator
 
 /*
-// These three are needed for bootstrap theme
-import './libs/datatables.net-bs/js/dataTables.bootstrap.js';
-// this distributed css modifies the entire page, use the prefixed version of it instead
-//import './libs/bootstrap/dist/css/bootstrap.min.css!';
-import './libs/bootstrap/dist/css/prefixed-bootstrap.min.css!';
-import './libs/datatables.net-bs/css/dataTables.bootstrap.min.css!';
+Dark Theme Basic uses these values
+
+table section border: #242222 rgb(36,34,34)
+row/cell border: #141414 rgb(20,20,20)
+row background: #1F1D1D  rgb(31,29,29)
+row selected color:  #242222 rgb(36,34,34)
+control text: #1FB2E5 rgb(31,178,229)
+control text: white  (dataTables_paginate)
+paging active button: #242222 rgb(36,34,34)
+paging button hover: #111111 rgb(17,17,17)
+
+with these modifications:
+.dataTables_wrapper .dataTables_paginate .paginate_button {
+  color: white
+}
+table.dataTable tfoot th {
+  color: #1FB2E5;
+  font-weight: bold; }
+
+
+Light Theme Basic uses these values
+
+table section border: #ECECEC rgb(236,236,236)
+row/cell border: #FFFFFF rgb(255,255,255)
+row background: #FBFBFB  rgb(251,251,251)
+row selected color:  #ECECEC rgb(236,236,236)
+control text: black
+paging active button: #BEBEBE
+paging button hover: #C0C0C0
+
+with these modifications:
+.dataTables_wrapper .dataTables_paginate .paginate_button.current, .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
+  color: #1fb2e5 !important;
+table.dataTable tfoot th {
+  color: #1FB2E5;
+  font-weight: bold; }
 */
 
-
-/*
-// this distributed css modifies the entire page, use the prefixed version of it instead
-//import './libs/foundation/css/foundation.min.css!';
-import './libs/foundation/css/prefixed-foundation.min.css!';
-import './libs/datatables.net-zf/js/dataTables.foundation.js';
-import './libs/datatables.net-zf/css/dataTables.foundation.min.css!';
-*/
-
-/*
-  JQuery UI ThemeRoller
-import './libs/datatables.net-jqui/js/dataTables.jqueryui.js';
-import './libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!';
-*/
-
-// These are "preview themes"
-//import './css/dataTables.bootstrap4.min.css!';
-//import './css/dataTables.material.min.css!';
-//import './css/dataTables.semanticui.min.css!';
-//import './css/dataTables.uikit.min.css!';
-
-//import './css/datatable.css!';
 import './css/panel.css!';
 // themes attempt to modify the entire page, this "contains" the styling to the table only
 import './css/datatables-wrapper.css!';
@@ -131,13 +139,8 @@ const panelDefaults = {
       disabled: false,
     },
     {
-      value: 'bootstrap3_theme',
-      text: 'Bootstrap 3',
-      disabled: true,
-    },
-    {
-      value: 'bootstrap4_theme',
-      text: 'Bootstrap 4',
+      value: 'bootstrap_theme',
+      text: 'Bootstrap',
       disabled: true,
     },
     {
@@ -146,23 +149,8 @@ const panelDefaults = {
       disabled: true,
     },
     {
-      value: 'semantic_ui_theme',
-      text: 'Semantic UI',
-      disabled: true,
-    },
-    {
       value: 'themeroller_theme',
       text: 'ThemeRoller',
-      disabled: true,
-    },
-    {
-      value: 'material_design_theme',
-      text: 'Material Design',
-      disabled: true,
-    },
-    {
-      value: 'uikit_theme',
-      text: 'UIKit',
       disabled: true,
     }
   ]
@@ -257,23 +245,60 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     }
     _.defaults(this.panel, panelDefaults);
 
-    if (grafanaBootData.user.lightTheme) {
-      System.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
-    } else {
-      System.import(this.getPanelPath() + this.panel.themeOptions.dark + "!css");
+    System.config({
+        paths: {
+            "datatables.net": this.getPanelPath() + "libs/datatables.net/js/jquery.dataTables.min",
+            "datatables.net-bs" : this.getPanelPath() + "libs/datatables.net-bs/js/dataTables.bootstrap.min",
+            "datatables.net-jqui" : this.getPanelPath() + "libs/datatables.net-jqui/js/dataTables.jqueryui.min",
+            "datatables.net-zf" : this.getPanelPath() + "libs/datatables.net-zf/js/dataTables.foundation.min",
+        }
+    });
+
+    // basic datatables theme
+    // alternative themes are disabled since they affect all datatable panels on same page currently
+    switch (this.panel.datatableTheme) {
+      case 'basic_theme':
+        System.import(this.getPanelPath() +  'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
+        if (grafanaBootData.user.lightTheme) {
+          System.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
+        } else {
+          System.import(this.getPanelPath() + this.panel.themeOptions.dark + "!css");
+        }
+        break;
+      case 'bootstrap_theme':
+        System.import(this.getPanelPath() + 'libs/datatables.net-bs/js/dataTables.bootstrap.min.js');
+        System.import(this.getPanelPath() + 'libs/bootstrap/dist/css/prefixed-bootstrap.min.css!');
+        System.import(this.getPanelPath() + 'libs/datatables.net-bs/css/dataTables.bootstrap.min.css!');
+        if (!grafanaBootData.user.lightTheme) {
+          System.import(this.getPanelPath() + 'css/prefixed-bootstrap-slate.min.css!');
+        }
+        break;
+      case 'foundation_theme':
+        System.import(this.getPanelPath() + 'libs/datatables.net-zf/js/dataTables.foundation.min.js');
+        System.import(this.getPanelPath() + 'libs/foundation/css/prefixed-foundation.min.css!');
+        System.import(this.getPanelPath() + 'libs/datatables.net-zf/css/dataTables.foundation.min.css!');
+        break;
+      case 'themeroller_theme':
+        System.import(this.getPanelPath() +  'libs/datatables.net-jqui/js/dataTables.jqueryui.min.js');
+        System.import(this.getPanelPath() +  'libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!');
+        System.import(this.getPanelPath() +  'css/jquery-ui-smoothness.css!');
+        break;
+    default:
+        System.import(this.getPanelPath() +  'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
+        if (grafanaBootData.user.lightTheme) {
+          System.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
+        } else {
+          System.import(this.getPanelPath() + this.panel.themeOptions.dark + "!css");
+        }
+        break;
     }
-
-    //this.datatableTheme = this.panel.themes[0];
-
     this.dataLoaded = true;
     this.http = $http;
-
     this.events.on('data-received', this.onDataReceived.bind(this));
     this.events.on('data-error', this.onDataError.bind(this));
     this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
     this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
     this.events.on('init-panel-actions', this.onInitPanelActions.bind(this));
-
   }
 
   onInitPanelActions(actions) {
@@ -282,7 +307,8 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         click: 'ctrl.exportCsv()'
       });
     }
-    // setup the editor
+
+  // setup the editor
   onInitEditMode() {
     // determine the path to this plugin
     var panels = grafanaBootData.settings.panels;
@@ -354,27 +380,28 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   getPanelHeight() {
-    // panel can have a fixed height via options
-    var tmpPanelHeight = this.$scope.ctrl.panel.height;
-    // if that is blank, try to get it from our row
-    if (typeof tmpPanelHeight === 'undefined') {
-      // get from the row instead
-      tmpPanelHeight = this.row.height;
-      // default to 250px if that was undefined also
+      // panel can have a fixed height via options
+      var tmpPanelHeight = this.$scope.ctrl.panel.height;
+      // if that is blank, try to get it from our row
       if (typeof tmpPanelHeight === 'undefined') {
-        tmpPanelHeight = "250px";
+        // get from the row instead
+        tmpPanelHeight = this.row.height;
+        // default to 250px if that was undefined also
+        if (typeof tmpPanelHeight === 'undefined') {
+          tmpPanelHeight = 250;
+        }
       }
-    }
-    // convert to numeric value
-    tmpPanelHeight = tmpPanelHeight.replace("px","");
-    var actualHeight = parseInt(tmpPanelHeight);
-    // grafana minimum height for a panel is 250px
-    if (actualHeight < 250) {
-      actualHeight = 250;
-    }
-    return actualHeight;
+      else {
+        // convert to numeric value
+        tmpPanelHeight = tmpPanelHeight.replace("px","");
+      }
+      var actualHeight = parseInt(tmpPanelHeight);
+      // grafana minimum height for a panel is 250px
+      if (actualHeight < 250) {
+        actualHeight = 250;
+      }
+      return actualHeight;
   }
-
 
   exportCsv() {
     var renderer = new DatatableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize);

@@ -323,13 +323,13 @@ export class DatatableRenderer {
 
     try {
       var should_destroy = false;
-      if ( $.fn.dataTable.isDataTable( '#datatable-panel-table')) {
+      if ( $.fn.dataTable.isDataTable( '#datatable-panel-table-' + this.panel.id )) {
         should_destroy = true;
       }
       if (should_destroy) {
-        var aDT = $('#datatable-panel-table').DataTable();
+        var aDT = $('#datatable-panel-table-' + this.panel.id).DataTable();
         aDT.destroy();
-        $('#datatable-panel-table').empty();
+        $('#datatable-panel-table-' + this.panel.id).empty();
       }
     }
     catch(err) {
@@ -380,7 +380,7 @@ export class DatatableRenderer {
       tableOptions.paging = true;
       tableOptions.pagingType = this.panel.datatablePagingType;
     }
-    var newDT = $('#datatable-panel-table').DataTable(tableOptions);
+    var newDT = $('#datatable-panel-table-' + this.panel.id).DataTable(tableOptions);
 
     // hide columns that are marked hidden
     for (let i = 0; i < this.table.columns.length; i++) {
@@ -391,24 +391,24 @@ export class DatatableRenderer {
 
     // enable compact mode
     if (this.panel.compactRowsEnabled) {
-      $('#datatable-panel-table').addClass( 'compact' );
+      $('#datatable-panel-table-' + this.panel.id).addClass( 'compact' );
     }
     // enable striped mode
     if (this.panel.stripedRowsEnabled) {
-      $('#datatable-panel-table').addClass( 'stripe' );
+      $('#datatable-panel-table-' + this.panel.id).addClass( 'stripe' );
     }
     if (this.panel.hoverEnabled) {
-      $('#datatable-panel-table').addClass( 'hover' );
+      $('#datatable-panel-table-' + this.panel.id).addClass( 'hover' );
     }
     if (this.panel.orderColumnEnabled) {
-      $('#datatable-panel-table').addClass( 'order-column' );
+      $('#datatable-panel-table-' + this.panel.id).addClass( 'order-column' );
     }
     // these two are mutually exclusive
     if (this.panel.showCellBorders) {
-      $('#datatable-panel-table').addClass( 'cell-border' );
+      $('#datatable-panel-table-' + this.panel.id).addClass( 'cell-border' );
     } else {
       if (this.panel.showRowBorders) {
-        $('#datatable-panel-table').addClass( 'row-border' );
+        $('#datatable-panel-table-' + this.panel.id).addClass( 'row-border' );
       }
     }
     if (!this.panel.scroll) {

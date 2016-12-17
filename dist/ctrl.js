@@ -1,6 +1,6 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', 'app/core/utils/file_export', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/datatables.net-dt/css/jquery.dataTables.min.css!', './css/panel.css!', './css/datatables-wrapper.css!', './transformers', './renderer'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', 'app/core/utils/file_export', './libs/datatables.net/js/jquery.dataTables.min.js', './css/panel.css!', './css/datatables-wrapper.css!', './transformers', './renderer'], function (_export, _context) {
   "use strict";
 
   var MetricsPanelCtrl, $, angular, kbn, FileExport, DataTable, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
@@ -48,7 +48,7 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
       FileExport = _appCoreUtilsFile_export;
     }, function (_libsDatatablesNetJsJqueryDataTablesMinJs) {
       DataTable = _libsDatatablesNetJsJqueryDataTablesMinJs.default;
-    }, function (_libsDatatablesNetDtCssJqueryDataTablesMinCss) {}, function (_cssPanelCss) {}, function (_cssDatatablesWrapperCss) {}, function (_transformers) {
+    }, function (_cssPanelCss) {}, function (_cssDatatablesWrapperCss) {}, function (_transformers) {
       transformDataToTable = _transformers.transformDataToTable;
       transformers = _transformers.transformers;
     }, function (_renderer) {
@@ -164,32 +164,16 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           text: 'Basic',
           disabled: false
         }, {
-          value: 'bootstrap3_theme',
-          text: 'Bootstrap 3',
-          disabled: true
-        }, {
-          value: 'bootstrap4_theme',
-          text: 'Bootstrap 4',
+          value: 'bootstrap_theme',
+          text: 'Bootstrap',
           disabled: true
         }, {
           value: 'foundation_theme',
           text: 'Foundation',
           disabled: true
         }, {
-          value: 'semantic_ui_theme',
-          text: 'Semantic UI',
-          disabled: true
-        }, {
           value: 'themeroller_theme',
           text: 'ThemeRoller',
-          disabled: true
-        }, {
-          value: 'material_design_theme',
-          text: 'Material Design',
-          disabled: true
-        }, {
-          value: 'uikit_theme',
-          text: 'UIKit',
           disabled: true
         }]
 
@@ -271,23 +255,60 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           }
           _.defaults(_this2.panel, panelDefaults);
 
-          if (grafanaBootData.user.lightTheme) {
-            System.import(_this2.getPanelPath() + _this2.panel.themeOptions.light + '!css');
-          } else {
-            System.import(_this2.getPanelPath() + _this2.panel.themeOptions.dark + "!css");
+          System.config({
+            paths: {
+              "datatables.net": _this2.getPanelPath() + "libs/datatables.net/js/jquery.dataTables.min",
+              "datatables.net-bs": _this2.getPanelPath() + "libs/datatables.net-bs/js/dataTables.bootstrap.min",
+              "datatables.net-jqui": _this2.getPanelPath() + "libs/datatables.net-jqui/js/dataTables.jqueryui.min",
+              "datatables.net-zf": _this2.getPanelPath() + "libs/datatables.net-zf/js/dataTables.foundation.min"
+            }
+          });
+
+          // basic datatables theme
+          // alternative themes are disabled since they affect all datatable panels on same page currently
+          switch (_this2.panel.datatableTheme) {
+            case 'basic_theme':
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
+              if (grafanaBootData.user.lightTheme) {
+                System.import(_this2.getPanelPath() + _this2.panel.themeOptions.light + '!css');
+              } else {
+                System.import(_this2.getPanelPath() + _this2.panel.themeOptions.dark + "!css");
+              }
+              break;
+            case 'bootstrap_theme':
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-bs/js/dataTables.bootstrap.min.js');
+              System.import(_this2.getPanelPath() + 'libs/bootstrap/dist/css/prefixed-bootstrap.min.css!');
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-bs/css/dataTables.bootstrap.min.css!');
+              if (!grafanaBootData.user.lightTheme) {
+                System.import(_this2.getPanelPath() + 'css/prefixed-bootstrap-slate.min.css!');
+              }
+              break;
+            case 'foundation_theme':
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-zf/js/dataTables.foundation.min.js');
+              System.import(_this2.getPanelPath() + 'libs/foundation/css/prefixed-foundation.min.css!');
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-zf/css/dataTables.foundation.min.css!');
+              break;
+            case 'themeroller_theme':
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-jqui/js/dataTables.jqueryui.min.js');
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!');
+              System.import(_this2.getPanelPath() + 'css/jquery-ui-smoothness.css!');
+              break;
+            default:
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
+              if (grafanaBootData.user.lightTheme) {
+                System.import(_this2.getPanelPath() + _this2.panel.themeOptions.light + '!css');
+              } else {
+                System.import(_this2.getPanelPath() + _this2.panel.themeOptions.dark + "!css");
+              }
+              break;
           }
-
-          //this.datatableTheme = this.panel.themes[0];
-
           _this2.dataLoaded = true;
           _this2.http = $http;
-
           _this2.events.on('data-received', _this2.onDataReceived.bind(_this2));
           _this2.events.on('data-error', _this2.onDataError.bind(_this2));
           _this2.events.on('data-snapshot-load', _this2.onDataReceived.bind(_this2));
           _this2.events.on('init-edit-mode', _this2.onInitEditMode.bind(_this2));
           _this2.events.on('init-panel-actions', _this2.onInitPanelActions.bind(_this2));
-
           return _this2;
         }
 
@@ -385,11 +406,12 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
               tmpPanelHeight = this.row.height;
               // default to 250px if that was undefined also
               if (typeof tmpPanelHeight === 'undefined') {
-                tmpPanelHeight = "250px";
+                tmpPanelHeight = 250;
               }
+            } else {
+              // convert to numeric value
+              tmpPanelHeight = tmpPanelHeight.replace("px", "");
             }
-            // convert to numeric value
-            tmpPanelHeight = tmpPanelHeight.replace("px", "");
             var actualHeight = parseInt(tmpPanelHeight);
             // grafana minimum height for a panel is 250px
             if (actualHeight < 250) {

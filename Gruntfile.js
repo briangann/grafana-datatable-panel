@@ -25,8 +25,9 @@ module.exports = function(grunt) {
           },
           files: {
              'dist/libs/bootstrap/dist/css/prefixed-bootstrap.min.css': ['dist/libs/bootstrap/dist/css/prefixed-bootstrap.css'],
-             'dist/libs/foundation/css/prefixed-foundation.min.css': ['dist/libs/foundation/css/prefixed-foundation.css']
-          }
+             'dist/libs/foundation/css/prefixed-foundation.min.css': ['dist/libs/foundation/css/prefixed-foundation.css'],
+             'dist/css/prefixed-bootstrap-slate.min.css': ['dist/css/prefixed-bootstrap-slate.css'],
+        }
       }
     },
     css_selectors: {
@@ -41,6 +42,7 @@ module.exports = function(grunt) {
         files: {
         'dist/libs/bootstrap/dist/css/prefixed-bootstrap.css': ['bower_components/bootstrap/dist/css/bootstrap.css'],
         'dist/libs/foundation/css/prefixed-foundation.css': ['bower_components/foundation/css/foundation.css'],
+        'dist/css/prefixed-bootstrap-slate.css': ['src/css/bootstrap-slate.css'],
         },
       },
     },
