@@ -296,23 +296,25 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                   if (_this.panel.rowNumbersEnabled) {
                     actualColumn -= 1;
                   }
-                  //console.log("checking column " + actualColumn);
                   if (_this.table.columns[actualColumn].type !== undefined) return;
-                  //console.log("processing column " + actualColumn);
                   // for coloring rows, get the "worst" threshold
-                  if (_this.colorState.row || _this.colorState.rowcolumn) {
+                  var rowColor = null;
+                  var color = null;
+                  var rowColorIndex = null;
+                  var rowColorData = null;
+                  if (_this.colorState.row) {
                     // run all of the rowData through threshold check, get the "highest" index
                     // and use that for the entire row
                     if (rowData === null) return;
-                    var rowColorIndex = -1;
-                    var rowColorData = null;
-                    var rowColor = _this.colorState.row;
+                    rowColorIndex = -1;
+                    rowColorData = null;
+                    rowColor = _this.colorState.row;
                     // this should be configurable...
-                    var color = 'white';
+                    color = 'white';
                     for (var columnNumber = 0; columnNumber < _this.table.columns.length; columnNumber++) {
                       // only columns of type undefined are checked
                       if (_this.table.columns[columnNumber].type === undefined) {
-                        rowColorData = _this.getCellColors(_this.colorState, columnNumber, rowData[columnNumber]);
+                        rowColorData = _this.getCellColors(_this.colorState, columnNumber, rowData[columnNumber + rowNumberOffset]);
                         if (rowColorData.bgColorIndex !== null) {
                           if (rowColorData.bgColorIndex > rowColorIndex) {
                             rowColorIndex = rowColorData.bgColorIndex;
@@ -321,11 +323,52 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                         }
                       }
                     }
+                    // style the entire row (the parent of the td is the tr)
+                    // this will color the rowNumber and Timestamp also
                     $(td.parentNode).children().css('color', color);
                     $(td.parentNode).children().css('background-color', rowColor);
                   }
 
-                  // Now process the cell coloring
+                  if (_this.colorState.rowcolumn) {
+                    // run all of the rowData through threshold check, get the "highest" index
+                    // and use that for the entire row
+                    if (rowData === null) return;
+                    rowColorIndex = -1;
+                    rowColorData = null;
+                    rowColor = _this.colorState.rowcolumn;
+                    // this should be configurable...
+                    color = 'white';
+                    for (var _columnNumber = 0; _columnNumber < _this.table.columns.length; _columnNumber++) {
+                      // only columns of type undefined are checked
+                      if (_this.table.columns[_columnNumber].type === undefined) {
+                        rowColorData = _this.getCellColors(_this.colorState, _columnNumber, rowData[_columnNumber + rowNumberOffset]);
+                        if (rowColorData.bgColorIndex !== null) {
+                          if (rowColorData.bgColorIndex > rowColorIndex) {
+                            rowColorIndex = rowColorData.bgColorIndex;
+                            rowColor = rowColorData.bgColor;
+                          }
+                        }
+                      }
+                    }
+                    // style the rowNumber and Timestamp column
+                    // the cell colors will be determined in the next phase
+                    if (_this.table.columns[0].type !== undefined) {
+                      var children = $(td.parentNode).children();
+                      var aChild = children[0];
+                      $(aChild).css('color', color);
+                      $(aChild).css('background-color', rowColor);
+                      // the 0 column contains the row number, if they are enabled
+                      // then the above just filled in the color for the row number,
+                      // now take care of the timestamp
+                      if (_this.panel.rowNumbersEnabled) {
+                        aChild = children[1];
+                        $(aChild).css('color', color);
+                        $(aChild).css('background-color', rowColor);
+                      }
+                    }
+                  }
+
+                  // Process cell coloring
                   // Two scenarios:
                   //    1) Cell coloring is enabled, the above row color is skipped
                   //    2) RowColumn is enabled, the above row color is process, but we also
@@ -376,7 +419,6 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               // shift the data to the right
             }
             var panelHeight = this.panel.panelHeight;
-            // console.log("panel height = " + panelHeight);
             var orderSetting = [[0, 'desc']];
             if (this.panel.rowNumbersEnabled) {
               // when row numbers are enabled, show them ascending
@@ -450,12 +492,6 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                 });
               }).draw();
             }
-            // to use scrolling vs paging, use these settings
-            // reference: http://www.jqueryscript.net/demo/DataTables-Jquery-Table-Plugin/examples/basic_init/scroll_y.html
-            //  "scrollY":        "200px",
-            //  "scrollCollapse": true,
-            //  "paging":         false
-            //console.log("Datatable Loaded!");
           }
         }, {
           key: 'render_values',

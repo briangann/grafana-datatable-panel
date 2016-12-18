@@ -64,7 +64,7 @@ Theme Settings
 
 ##### Cell based threshold value coloring
 
-![Thresholding with Value Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-cell.png)
+![Thresholding with Value Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-value.png)
 
 ##### RowColumn threshold coloring
 
@@ -74,7 +74,9 @@ It also sets the color for each cell according to the threshold (you can tell wh
 
 This means - a row can have an overall color, with each cell indicating it's real threshold color.
 
-![Thresholding with RowColumn](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn.png)
+![Thresholding with RowColumn1](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn1.png)
+
+![Thresholding with RowColumn2](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn2.png)
 
 ##### RowColumn threshold coloring including row counter
 
