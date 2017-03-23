@@ -1,12 +1,12 @@
 {
     "type": "panel",
     "name": "Datatable Panel",
-    "id": "briangann-datatable-panel",
+    "id": "abmptit-datatable-panel",
     "info": {
         "description": "Datatable panel for Grafana",
         "author": {
             "name": "Brian Gann (bkgann@gmail.com)",
-            "url": "https://github.com/briangann"
+            "url": "https://github.com/abmptit"
         },
         "keywords": ["table", "panel"],
         "logos": {
@@ -15,10 +15,10 @@
         },
         "links": [{
             "name": "Project site",
-            "url": "https://github.com/briangann/grafana-datatable-panel"
+            "url": "https://github.com/abmptit/grafana-datatable-panel"
         }, {
             "name": "MIT License",
-            "url": "https://github.com/briangann/grafana-datatable-panel/blob/master/LICENSE"
+            "url": "https://github.com/abmptit/grafana-datatable-panel/blob/master/LICENSE"
         }],
         "screenshots": [{
             "name": "Showcase Paging",
@@ -46,7 +46,7 @@
             "path": "screenshots/datatable-threshold-value.png"
         }],
         "version": "0.0.1",
-        "updated": "2016-12-10"
+        "updated": "2017-03-23"
     },
 
     "dependencies": {

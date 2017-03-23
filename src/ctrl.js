@@ -210,6 +210,10 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
       {
         text: 'Hidden',
         value: 'hidden'
+      },
+      {
+        text: 'Url',
+        value: 'url'
       }
     ];
     this.unitFormats = kbn.getUnitFormats();
@@ -425,7 +429,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     }
 
     ctrl.panel.panelHeight = this.getPanelHeight();
-    ctrl.events.on('render', function(renderData) {
+    ctrl.events.on('render', function (renderData) {
       data = renderData || data;
       if (data) {
         renderPanel();
