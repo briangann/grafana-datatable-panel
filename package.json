@@ -1,5 +1,5 @@
 {
-  "name": "briangann-datatable-panel",
+  "name": "abmptit-datatable-panel",
   "private": true,
   "version": "0.0.2",
   "description": "Grafana Datatable Panel",
@@ -9,12 +9,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/briangann/grafana-datatable-panel.git"
+    "url": "git+https://github.com/abmptit/grafana-datatable-panel.git"
   },
   "author": "Brian Gann",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/briangann/grafana-datatable-panel/issues"
+    "url": "https://github.com/abmptit/grafana-datatable-panel/issues"
   },
   "devDependencies": {
     "babel-cli": "^6.18.0",
@@ -46,5 +46,5 @@
     "typescript": "^2.0.10"
   },
   "dependencies": {},
-  "homepage": "https://github.com/briangann/grafana-datatable-panel"
+  "homepage": "https://github.com/abmptit/grafana-datatable-panel"
 }

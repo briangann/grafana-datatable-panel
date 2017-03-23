@@ -74,6 +74,11 @@ export class DatatableRenderer {
     if (!style) {
       return this.defaultCellFormatter;
     }
+    if (style.type === 'url') {
+      return function (v) {
+        return v.link();
+      };
+    }
     if (style.type === 'hidden') {
       return v => {
         return undefined;

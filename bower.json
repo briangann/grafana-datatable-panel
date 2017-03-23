@@ -1,5 +1,5 @@
 {
-  "name": "briangann-datatable-panel",
+  "name": "abmptit-datatable-panel",
   "description": "Datatables.net panel for Grafana",
   "main": "",
   "authors": [
@@ -9,7 +9,7 @@
   "keywords": [
     "grafana datatables.net table"
   ],
-  "homepage": "https://github.com/briangann/grafana-datatable-panel",
+  "homepage": "https://github.com/abmptit/grafana-datatable-panel",
   "private": true,
   "ignore": [
     "**/.*",

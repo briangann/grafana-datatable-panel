@@ -6,29 +6,29 @@ This panel plugin provides a [Datatables.net](http://www.datatables.net) table p
 
 
 ##### Paging enabled
-![Default Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-basic-dark.png)
+![Default Paging](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-basic-dark.png)
 
 ##### Scrolling enabled
-![Scrolling](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dark-scrolling.png)
+![Scrolling](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-dark-scrolling.png)
 
 ##### Light Theme with Paging
-![Light Theme with Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-basic-light.png)
+![Light Theme with Paging](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-basic-light.png)
 
 ##### Numbered Rows and Compact Style
 
-![Numbered and Compact Rows](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dark-numbered-compact.png)
+![Numbered and Compact Rows](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-dark-numbered-compact.png)
 
 #### Options
 
 ##### Options Tab
 
-![Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-options.png)
+![Options](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-options.png)
 
 Same options as built-in table panel
 
 ##### Datatable Options Tab
 
-![Datatable Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dt-options.png)
+![Datatable Options](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-dt-options.png)
 
 Table Display Options
 * Font Size - set font size of table content
@@ -56,15 +56,15 @@ Theme Settings
 
 ##### Row-based threshold coloring
 
-![Thresholding with Row Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-row.png)
+![Thresholding with Row Coloring](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-threshold-row.png)
 
 ##### Cell based threshold coloring
 
-![Thresholding with Cell Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-cell.png)
+![Thresholding with Cell Coloring](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-threshold-cell.png)
 
 ##### Cell based threshold value coloring
 
-![Thresholding with Value Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-value.png)
+![Thresholding with Value Coloring](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-threshold-value.png)
 
 ##### RowColumn threshold coloring
 
@@ -74,15 +74,15 @@ It also sets the color for each cell according to the threshold (you can tell wh
 
 This means - a row can have an overall color, with each cell indicating it's real threshold color.
 
-![Thresholding with RowColumn1](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn1.png)
+![Thresholding with RowColumn1](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn1.png)
 
-![Thresholding with RowColumn2](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn2.png)
+![Thresholding with RowColumn2](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn2.png)
 
 ##### RowColumn threshold coloring including row counter
 
 Same as above, but with row counter included
 
-![Thresholding with RowColumn including row count](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn-rownumbers.png)
+![Thresholding with RowColumn including row count](https://raw.githubusercontent.com/abmptit/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn-rownumbers.png)
 
 
 -------

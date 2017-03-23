@@ -225,6 +225,9 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           }, {
             text: 'Hidden',
             value: 'hidden'
+          }, {
+            text: 'Url',
+            value: 'url'
           }];
           _this2.unitFormats = kbn.getUnitFormats();
           _this2.dateFormats = [{

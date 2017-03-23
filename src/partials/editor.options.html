@@ -44,6 +44,7 @@
 					<metric-segment-model property="style.dateFormat" options="ctrl.dateFormats" on-change="ctrl.render()" custom="true"></metric-segment-model>
 				</div>
 				<gf-form-switch class="gf-form" label-class="width-8" ng-if="style.type === 'string'" label="Sanitize HTML" checked="style.sanitize" change="ctrl.render()"></gf-form-switch>
+				<div class="gf-form" label-class="width-8" ng-if="style.type === 'url'" change="ctrl.render()"></div>
 				<div class="gf-form gf-form--grow">
 					<div class="gf-form-label gf-form-label--grow"></div>
 				</div>
