@@ -45,8 +45,8 @@
             "name": "Thresholding with Value Coloring",
             "path": "screenshots/datatable-threshold-value.png"
         }],
-        "version": "0.0.1",
-        "updated": "2016-12-10"
+        "version": "0.0.2",
+        "updated": "2017-07-18"
     },
 
     "dependencies": {

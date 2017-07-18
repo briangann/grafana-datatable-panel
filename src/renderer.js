@@ -59,7 +59,11 @@ export class DatatableRenderer {
     }
     if (style && style.sanitize) {
       return this.sanitize(v);
-    } else {
+    }
+    else if (style && style.link) {
+      return '<a href="' + v + '" target="_blank">' + v + '</a>';
+    }
+    else {
       return _.escape(v);
     }
   }
@@ -394,11 +398,11 @@ export class DatatableRenderer {
       // shift the data to the right
     }
     var panelHeight = this.panel.panelHeight;
-    let orderSetting = [[0, 'desc']];
-    if (this.panel.rowNumbersEnabled) {
-      // when row numbers are enabled, show them ascending
-      orderSetting = [[0, 'asc']];
-    }
+    let orderSetting = this.panel.sortByColumnsData;
+    //if (this.panel.rowNumbersEnabled) {
+    //  // when row numbers are enabled, show them ascending
+    //  orderSetting = [[0, 'asc']];
+    //}
 
     var tableOptions = {
       "lengthMenu": [ [5, 10, 25, 50, 75, 100, -1], [5, 10, 25, 50, 75, 100, "All"] ],
@@ -413,7 +417,7 @@ export class DatatableRenderer {
       "search": {
         "regex": true
       },
-      "order": orderSetting
+      order: orderSetting
     };
     if (this.panel.scroll) {
       tableOptions.paging = false;
@@ -444,6 +448,8 @@ export class DatatableRenderer {
     }
     if (this.panel.orderColumnEnabled) {
       $('#datatable-panel-table-' + this.panel.id).addClass( 'order-column' );
+      //debugger;
+      //newDT.order(orderSetting).draw();
     }
     // these two are mutually exclusive
     if (this.panel.showCellBorders) {

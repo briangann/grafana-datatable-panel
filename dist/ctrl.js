@@ -120,10 +120,15 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
         scroll: false,
         scrollHeight: 'default',
         fontSize: '100%',
-        sort: {
+        notsort: {
           col: 0,
           desc: true
         },
+        sortByColumnsData: [[0, 'desc']],
+        sortByColumns: [{
+          columnData: 0,
+          sortMethod: 'desc'
+        }],
         datatableTheme: 'basic_theme',
         themeOptions: {
           light: './css/datatable-light.css',
@@ -196,6 +201,13 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           // editor
 
           _this2.addColumnSegment = uiSegmentSrv.newPlusButton();
+          _this2.columnSortMethods = [{
+            text: 'Ascending',
+            value: 'asc'
+          }, {
+            text: 'Descending',
+            value: 'desc'
+          }];
           _this2.fontSizes = ['80%', '90%', '100%', '110%', '120%', '130%', '150%', '160%', '180%', '200%', '220%', '250%'];
           _this2.colorModes = [{
             text: 'Disabled',
@@ -392,7 +404,8 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           key: 'render',
           value: function render() {
             this.table = transformDataToTable(this.dataRaw, this.panel);
-            this.table.sort(this.panel.sort);
+            //this.table.sort(this.panel.sort);
+            // compute the sort order
             return _get(DatatablePanelCtrl.prototype.__proto__ || Object.getPrototypeOf(DatatablePanelCtrl.prototype), 'render', this).call(this, this.table);
           }
         }, {
@@ -530,6 +543,58 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           key: 'removeColumnStyle',
           value: function removeColumnStyle(style) {
             this.panel.styles = _.without(this.panel.styles, style);
+          }
+        }, {
+          key: 'addColumnSortingRule',
+          value: function addColumnSortingRule() {
+            var defaultRule = {
+              columnData: 0,
+              sortMethod: 'desc'
+            };
+            // check if this column already exists
+            this.panel.sortByColumns.push(angular.copy(defaultRule));
+            this.columnSortChanged();
+          }
+        }, {
+          key: 'removeSortByColumn',
+          value: function removeSortByColumn(column) {
+            this.panel.sortByColumns = _.without(this.panel.sortByColumns, column);
+            this.columnSortChanged();
+          }
+        }, {
+          key: 'columnSortChanged',
+          value: function columnSortChanged() {
+            // take the values in sortByColumns and convert them into datatables format
+            var data = [];
+            if (this.panel.sortByColumns.length > 0) {
+              for (var i = 0; i < this.panel.sortByColumns.length; i++) {
+                // allow numbers and column names
+                var columnData = this.panel.sortByColumns[i].columnData;
+                var columnNumber = 0;
+                try {
+                  columnNumber = Int32.parseInt(columnData);
+                } catch (e) {
+                  // check if empty
+                  if (columnData === "") {
+                    columnNumber = 0;
+                  }
+                  // find the matching column index
+                  for (var j = 0; j < this.panel.columns.length; j++) {
+                    if (this.panel.columns[j].text === columnData) {
+                      columnNumber = j;
+                      break;
+                    }
+                  }
+                }
+                var sortDirection = this.panel.sortByColumns[i].sortMethod;
+                data.push([columnNumber, sortDirection]);
+              }
+            } else {
+              // default to column 0, descending
+              data.push([0, 'desc']);
+            }
+            this.panel.sortByColumnsData = data;
+            this.render();
           }
         }, {
           key: 'setUnitFormat',

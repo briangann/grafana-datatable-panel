@@ -103,6 +103,8 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             }
             if (style && style.sanitize) {
               return this.sanitize(v);
+            } else if (style && style.link) {
+              return '<a href="' + v + '" target="_blank">' + v + '</a>';
             } else {
               return _.escape(v);
             }
@@ -419,11 +421,11 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               // shift the data to the right
             }
             var panelHeight = this.panel.panelHeight;
-            var orderSetting = [[0, 'desc']];
-            if (this.panel.rowNumbersEnabled) {
-              // when row numbers are enabled, show them ascending
-              orderSetting = [[0, 'asc']];
-            }
+            var orderSetting = this.panel.sortByColumnsData;
+            //if (this.panel.rowNumbersEnabled) {
+            //  // when row numbers are enabled, show them ascending
+            //  orderSetting = [[0, 'asc']];
+            //}
 
             var tableOptions = {
               "lengthMenu": [[5, 10, 25, 50, 75, 100, -1], [5, 10, 25, 50, 75, 100, "All"]],
@@ -438,7 +440,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               "search": {
                 "regex": true
               },
-              "order": orderSetting
+              order: orderSetting
             };
             if (this.panel.scroll) {
               tableOptions.paging = false;
@@ -469,6 +471,8 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             }
             if (this.panel.orderColumnEnabled) {
               $('#datatable-panel-table-' + this.panel.id).addClass('order-column');
+              //debugger;
+              //newDT.order(orderSetting).draw();
             }
             // these two are mutually exclusive
             if (this.panel.showCellBorders) {

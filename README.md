@@ -2,6 +2,16 @@
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for [Grafana](http://www.grafana.org) 3.x/4.x
 
+### Changelog
+
+|Version|Changes|
+|-------|-----------|
+|0.0.1  | first release |
+|0.0.2  | NEW: Added option for a cell or row to link to another page|
+|       | NEW: Supports Clickable links inside table |
+|       | BUGFIX: Fixed missing CSS files |
+|       | NEW: Added multi-column sorting |
+
 ### Screenshots
 
 
@@ -107,7 +117,6 @@ Same as above, but with row counter included
 
 ## TODO
 * [+] Column is not working
-* Add option for a cell or row to link to another page
 * Add Additional Themes
     * Bootstrap:
         * Requires a modified .js file since it looks for "datatables.net" - need workaround
