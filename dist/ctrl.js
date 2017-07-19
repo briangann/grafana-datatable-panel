@@ -351,7 +351,7 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
             console.log("baseUrl: " + thisPanel.baseUrl);
             // the system loader preprends public to the url, add a .. to go back one level, but don't modify anything before it
             //var thisPanelPath = thisPanel.baseUrl.replace("public", "../public");
-            thisPanelPath = thisPanel.baseUrl + '/';
+            var thisPanelPath = thisPanel.baseUrl + '/';
             console.log("panelPath: " + thisPanelPath);
             return thisPanelPath;
           }
