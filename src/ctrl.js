@@ -343,8 +343,8 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     var thisPanel = panels[this.pluginId];
     console.log("baseUrl: " + thisPanel.baseUrl);
     // the system loader preprends public to the url, add a .. to go back one level, but don't modify anything before it
-    var thisPanelPath = thisPanel.baseUrl.replace("public", "../public");
-    thisPanelPath += '/';
+    //var thisPanelPath = thisPanel.baseUrl.replace("public", "../public");
+    thisPanelPath = thisPanel.baseUrl +'/';
     console.log("panelPath: " + thisPanelPath);
   return thisPanelPath;
   }
