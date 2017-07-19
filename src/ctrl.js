@@ -86,10 +86,8 @@ const panelDefaults = {
   scroll: false,
   scrollHeight: 'default',
   fontSize: '100%',
-  notsort: {
-    col: 0,
-    desc: true
-  },
+  columnAliases: [],
+  columnWidthHints: [],
   sortByColumnsData: [
     [ 0, 'desc' ]
   ],
@@ -343,8 +341,9 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   getPanelPath() {
     var panels = grafanaBootData.settings.panels;
     var thisPanel = panels[this.pluginId];
-    // the system loader preprends publib to the url, add a .. to go back one level
-    var thisPanelPath = '../' + thisPanel.baseUrl + '/';
+    // the system loader preprends public to the url, add a .. to go back one level, but don't modify anything before it
+    var thisPanelPath = thisPanel.baseUrl.replace("public", "../public");
+    thisPanelPath += '/';
     return thisPanelPath;
   }
 
@@ -571,6 +570,44 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     this.panel.sortByColumnsData = data;
     this.render();
   }
+
+  addColumnAlias() {
+      var defaultAlias = {
+        name: '',
+        alias: '',
+      };
+      // check if this column already exists
+      this.panel.columnAliases.push(angular.copy(defaultAlias));
+      this.columnAliasChanged();
+  }
+
+  removeColumnAlias(column) {
+    this.panel.columnAliases = _.without(this.panel.columnAliases, column);
+    this.columnAliasChanged();
+  }
+
+  columnAliasChanged() {
+    this.render();
+  }
+
+  addColumnWidthHint() {
+      var defaultHint = {
+        name: '',
+        width: '80px',
+      };
+      // check if this column already exists
+      this.panel.columnWidthHints.push(angular.copy(defaultHint));
+      this.columnWidthHintsChanged();
+  }
+  removeColumnWidthHint(column) {
+    this.panel.columnWidthHints = _.without(this.panel.columnWidthHints, column);
+    this.columnWidthsChanged();
+  }
+
+  columnWidthHintsChanged() {
+    this.render();
+  }
+
   setUnitFormat(column, subItem) {
     column.unit = subItem.value;
     this.render();

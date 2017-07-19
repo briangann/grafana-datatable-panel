@@ -260,6 +260,32 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             };
           }
         }, {
+          key: 'getColumnAlias',
+          value: function getColumnAlias(columnName) {
+            // default to the columnName
+            var columnAlias = columnName;
+            for (var i = 0; i < this.panel.columnAliases.length; i++) {
+              if (this.panel.columnAliases[i].name === columnName) {
+                columnAlias = this.panel.columnAliases[i].alias;
+                break;
+              }
+            }
+            return columnAlias;
+          }
+        }, {
+          key: 'getColumnWidthHint',
+          value: function getColumnWidthHint(columnName) {
+            // default to the columnName
+            var columnWidth = '';
+            for (var i = 0; i < this.panel.columnWidthHints.length; i++) {
+              if (this.panel.columnWidthHints[i].name === columnName) {
+                columnWidth = this.panel.columnWidthHints[i].width;
+                break;
+              }
+            }
+            return columnWidth;
+          }
+        }, {
           key: 'render',
           value: function render() {
             if (this.table.columns.length === 0) return;
@@ -281,10 +307,15 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               });
             }
             for (var i = 0; i < this.table.columns.length; i++) {
+              var columnAlias = this.getColumnAlias(this.table.columns[i].text);
+              var columnWidthHint = this.getColumnWidthHint(this.table.columns[i].text);
+              // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
+              // with full width
               /* jshint loopfunc: true */
               columns.push({
-                title: this.table.columns[i].text,
-                type: this.table.columns[i].type
+                title: columnAlias,
+                type: this.table.columns[i].type,
+                width: columnWidthHint
               });
               columnDefs.push({
                 "targets": i + rowNumberOffset,

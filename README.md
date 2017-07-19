@@ -2,18 +2,7 @@
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for [Grafana](http://www.grafana.org) 3.x/4.x
 
-### Changelog
-
-|Version|Changes|
-|-------|-----------|
-|0.0.1  | first release |
-|0.0.2  | NEW: Added option for a cell or row to link to another page|
-|       | NEW: Supports Clickable links inside table |
-|       | BUGFIX: Fixed missing CSS files |
-|       | NEW: Added multi-column sorting |
-
 ### Screenshots
-
 
 ##### Paging enabled
 ![Default Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-basic-dark.png)
@@ -46,6 +35,15 @@ Table Display Options
 * Paging Options
   * Rows Per Page - number of rows to display when paging is enabled
   * Paging type - multiple navigation options
+
+Column Aliasing
+* Override the name displayed for a column
+
+Column Width Hints
+* Provide a width "hint" in percentage or pixels ( 100px or 10% ). Note: The table will autosize as needed, but will use the hints provided.
+
+Column Sorting
+* Sort table by any number of columns in ascending/descending order.
 
 Table Options
 * Row Numbers - toggle to show row numbers
@@ -113,6 +111,10 @@ Same as above, but with row counter included
   * Dropdown for page size
 * Row Numbers reactive to filtering
 * Searchable table content (filtering), regex enabled
+* Columns names can be aliased
+* URLs inside row text can be "clicked"
+* Rows can have a click-through URL
+* Multi-Column Sorting
 
 
 ## TODO
@@ -170,6 +172,13 @@ This panel is based on the "Table" panel by GrafanaLabs
 
 #### Changelog
 
-
-##### v0.0.1
-- Initial commit
+|Version|Changes|
+|-------|-----------|
+|0.0.1  | first release |
+|0.0.2  | NEW: Added option for a cell or row to link to another page|
+|       | NEW: Supports Clickable links inside table |
+|       | BUGFIX: Fixed missing CSS files |
+|       | BUGFIX: CSS files now load when Grafana has a subpath|
+|       | NEW: Added multi-column sorting - sort by any number of columns ascending/descending|
+|       | NEW: Column Aliasing - modify the name of a column as sent by the datasource|
+|       | NEW: Column width hints - suggest a width for a named column

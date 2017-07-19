@@ -120,10 +120,8 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
         scroll: false,
         scrollHeight: 'default',
         fontSize: '100%',
-        notsort: {
-          col: 0,
-          desc: true
-        },
+        columnAliases: [],
+        columnWidthHints: [],
         sortByColumnsData: [[0, 'desc']],
         sortByColumns: [{
           columnData: 0,
@@ -350,8 +348,9 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           value: function getPanelPath() {
             var panels = grafanaBootData.settings.panels;
             var thisPanel = panels[this.pluginId];
-            // the system loader preprends publib to the url, add a .. to go back one level
-            var thisPanelPath = '../' + thisPanel.baseUrl + '/';
+            // the system loader preprends public to the url, add a .. to go back one level, but don't modify anything before it
+            var thisPanelPath = thisPanel.baseUrl.replace("public", "../public");
+            thisPanelPath += '/';
             return thisPanelPath;
           }
         }, {
@@ -594,6 +593,50 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
               data.push([0, 'desc']);
             }
             this.panel.sortByColumnsData = data;
+            this.render();
+          }
+        }, {
+          key: 'addColumnAlias',
+          value: function addColumnAlias() {
+            var defaultAlias = {
+              name: '',
+              alias: ''
+            };
+            // check if this column already exists
+            this.panel.columnAliases.push(angular.copy(defaultAlias));
+            this.columnAliasChanged();
+          }
+        }, {
+          key: 'removeColumnAlias',
+          value: function removeColumnAlias(column) {
+            this.panel.columnAliases = _.without(this.panel.columnAliases, column);
+            this.columnAliasChanged();
+          }
+        }, {
+          key: 'columnAliasChanged',
+          value: function columnAliasChanged() {
+            this.render();
+          }
+        }, {
+          key: 'addColumnWidthHint',
+          value: function addColumnWidthHint() {
+            var defaultHint = {
+              name: '',
+              width: '80px'
+            };
+            // check if this column already exists
+            this.panel.columnWidthHints.push(angular.copy(defaultHint));
+            this.columnWidthHintsChanged();
+          }
+        }, {
+          key: 'removeColumnWidthHint',
+          value: function removeColumnWidthHint(column) {
+            this.panel.columnWidthHints = _.without(this.panel.columnWidthHints, column);
+            this.columnWidthsChanged();
+          }
+        }, {
+          key: 'columnWidthHintsChanged',
+          value: function columnWidthHintsChanged() {
             this.render();
           }
         }, {

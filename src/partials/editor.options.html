@@ -26,6 +26,76 @@
 
 <div class="editor-row">
 	<div class="section gf-form-group">
+		<h5 class="section-heading">Column Aliasing</h5>
+      <div class="gf-form" ng-repeat="column in ctrl.panel.columnAliases">
+				<div class="gf-form-inline">
+				<div class="gf-form">
+					<label class="gf-form-label width-10">Column Name</label>
+					<div class="gf-form-select-wrapper width-20">
+						<select class="gf-form-input"
+						  ng-model="column.name"
+							ng-options="c.value as c.text for c in ctrl.panel.columns">
+						</select>
+					</div>
+					<label class="gf-form-label width-6">Alias</label>
+					<input type="text"
+					  class="gf-form-input width-20"
+						ng-model="column.alias"
+						spellcheck="false"
+						ng-model-onblur
+						ng-change="ctrl.columnAliasChanged()">
+					<label class="gf-form-label">
+						<i class="pointer fa fa-trash" ng-click="ctrl.removeColumnAlias(column)"></i>
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="gf-form-button">
+	    <button class="btn btn-inverse" ng-click="ctrl.addColumnAlias()">
+	      <i class="fa fa-plus"></i>&nbsp;Add Column Alias
+	    </button>
+	  </div>
+	</div>
+</div>
+
+<div class="editor-row">
+	<div class="section gf-form-group">
+		<h5 class="section-heading">Column Width Hints</h5>
+      <div class="gf-form" ng-repeat="column in ctrl.panel.columnWidthHints">
+				<div class="gf-form-inline">
+				<div class="gf-form">
+					<label class="gf-form-label width-10">Column Name</label>
+					<div class="gf-form-select-wrapper width-20">
+						<select class="gf-form-input"
+						  ng-model="column.name"
+							ng-options="c.value as c.text for c in ctrl.panel.columns">
+						</select>
+					</div>
+					<label class="gf-form-label width-10">Width (px or %)</label>
+					<input type="text"
+					  class="gf-form-input width-20"
+						ng-model="column.width"
+						spellcheck="false"
+						ng-model-onblur
+						ng-change="ctrl.columnWidthHintsChanged()">
+					<label class="gf-form-label">
+						<i class="pointer fa fa-trash" ng-click="ctrl.removeColumnWidthHint(column)"></i>
+					</label>
+				</div>
+			</div>
+		</div>
+		<div class="gf-form-button">
+	    <button class="btn btn-inverse" ng-click="ctrl.addColumnWidthHint()">
+	      <i class="fa fa-plus"></i>&nbsp;Add Column Width Hint
+	    </button>
+	  </div>
+	</div>
+</div>
+
+
+
+<div class="editor-row">
+	<div class="section gf-form-group">
 		<h5 class="section-heading">Column Sorting (applied top to bottom)</h5>
       <div class="gf-form" ng-repeat="column in ctrl.panel.sortByColumns">
 				<div class="gf-form-inline">
@@ -70,12 +140,6 @@
 					<label class="gf-form-label">Name or regex</label>
 					<input type="text" class="gf-form-input" ng-model="style.pattern" bs-typeahead="ctrl.getColumnNames" ng-blur="ctrl.render()" data-min-length=0 data-items=100 ng-model-onblur>
 				</div>
-				<!-- TODO
-				<div class="gf-form">
-					<label class="gf-form-label">Alias</label>
-					<input type="text" class="gf-form-input" ng-model="style.alias" ng-blur="ctrl.render()" ng-model-onblur>
-				</div>
-			  -->
 				<div class="gf-form">
 					<label class="gf-form-label">Type</label>
 					<div class="gf-form-select-wrapper">
