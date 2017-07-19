@@ -342,11 +342,11 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     var panels = grafanaBootData.settings.panels;
     var thisPanel = panels[this.pluginId];
     console.log("baseUrl: " + thisPanel.baseUrl);
-    // the system loader preprends public to the url, add a .. to go back one level, but don't modify anything before it
-    //var thisPanelPath = thisPanel.baseUrl.replace("public", "../public");
-    var thisPanelPath = thisPanel.baseUrl +'/';
+    // the system loader preprends public to the url, remove the extra from our baseurl
+    var thisPanelPath = thisPanel.baseUrl.replace("public/plugins", "plugins");
+    thisPanelPath += '/';
     console.log("panelPath: " + thisPanelPath);
-  return thisPanelPath;
+    return thisPanelPath;
   }
 
   issueQueries(datasource) {
