@@ -294,16 +294,6 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     // alternative themes are disabled since they affect all datatable panels on same page currently
     switch (this.panel.datatableTheme) {
       case 'basic_theme':
-        //System.import(this.getPanelPath() + 'libs/datatables.net/js/jquery.dataTables.min.js');
-
-        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/dataTables.buttons.min.js');
-        //System.import(this.getPanelPath() + 'libs/datatables.net-select/js/dataTables.select.min.js');
-        //System.import(this.getPanelPath() + 'libs/jszip/dist/jszip.min.js');
-        //System.import(this.getPanelPath() + 'libs/pdfmake/build/pdfmake.min.js');
-        //System.import(this.getPanelPath() + 'libs/pdfmake/build/vfs_fonts.js');
-        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.html5.js');
-        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.print.min.js');
-        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.colVis.min.js');
         System.import(this.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
         if (grafanaBootData.user.lightTheme) {
           System.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
@@ -335,16 +325,6 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         System.import(this.getPanelPath() + 'css/jquery-ui-smoothness.css!');
         break;
     default:
-        //System.import(this.getPanelPath() + 'libs/datatables.net/js/jquery.dataTables.min.js');
-
-        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/dataTables.buttons.min.js');
-        //System.import(this.getPanelPath() + 'libs/datatables.net-select/js/dataTables.select.min.js');
-        //System.import(this.getPanelPath() + 'libs/jszip/dist/jszip.min.js');
-        //System.import(this.getPanelPath() + 'libs/pdfmake/build/pdfmake.min.js');
-        //System.import(this.getPanelPath() + 'libs/pdfmake/build/vfs_fonts.js');
-        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.html5.js');
-        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.print.min.js');
-        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.colVis.min.js');
         System.import(this.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
         if (grafanaBootData.user.lightTheme) {
           System.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');

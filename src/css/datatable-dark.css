@@ -359,3 +359,48 @@ table.dataTable td {
     text-align: center; }
   .dataTables_wrapper .dataTables_filter {
     margin-top: 0.5em; } }
+
+/* Export Buttons for datatable */
+.dataTables_wrapper button.dt-button,div.dt-button,a.dt-button {
+  box-sizing: border-box;
+  display: inline-block;
+  min-width: 1.5em;
+  padding: 0.5em 1em;
+  margin-left: 2px;
+  text-align: center;
+  text-decoration: none !important;
+  cursor: pointer !important;
+  *cursor: hand !important;
+  color: white !important;
+  border: 1px solid black !important;
+  border-radius: 2px !important;
+  background-color: transparent;
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #6d6767), color-stop(100%, #242222)) !important;
+  /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #6d6767 0%, #242222 100%) !important;
+  /* Chrome10+,Safari5.1+ */
+  background: -moz-linear-gradient(top, #6d6767 0%, #242222 100%) !important;
+  /* FF3.6+ */
+  background: -ms-linear-gradient(top, #6d6767 0%, #242222 100%) !important;
+  /* IE10+ */
+  background: -o-linear-gradient(top, #6d6767 0%, #242222 100%) !important;
+  /* Opera 11.10+ */
+  background: linear-gradient(to bottom, #6d6767 0%, #242222 100%) !important;
+  /* W3C */ }
+
+
+/* Progress Div lower section activated by export buttons */
+div.dt-button-info {
+  background-color: #242222 !important;
+  border: 2px solid #111;
+  box-shadow: 3px 3px 8px rgba(0, 0, 0, 0.3);
+  border-radius: 3px;
+}
+/* Progress Div HEADER section activated by export buttons */
+div.dt-button-info h2 {
+  padding: 0.5em;
+  margin: 0;
+  font-weight: normal;
+  border-bottom: 1px solid #ddd;
+  background-color: #242222 !important;
+}
