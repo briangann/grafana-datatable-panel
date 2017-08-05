@@ -440,7 +440,7 @@ export class DatatableRenderer {
       info: this.panel.infoEnabled,
       lengthChange: this.panel.lengthChangeEnabled,
       scrollCollapse: false,
-      saveState: true,
+      stateSave: true,
       dom: 'Bfrtip',
       buttons: [
         'copy', 'excel', 'csv', 'pdf', 'print'
