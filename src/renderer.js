@@ -441,6 +441,13 @@ export class DatatableRenderer {
       lengthChange: this.panel.lengthChangeEnabled,
       scrollCollapse: false,
       saveState: true,
+      dom: 'Bfrtip',
+      buttons: [
+        'copy', 'excel', 'csv', 'pdf', 'print'
+      ],
+      select: {
+        style: 'os'
+      },
       data: formattedData,
       columns: columns,
       columnDefs: columnDefs,

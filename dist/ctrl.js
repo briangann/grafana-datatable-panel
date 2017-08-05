@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', 'app/core/utils/file_export', './libs/datatables.net/js/jquery.dataTables.min.js', './css/panel.css!', './css/datatables-wrapper.css!', './transformers', './renderer'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', 'app/core/utils/file_export', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/jszip/dist/jszip.min.js', './css/panel.css!', './css/datatables-wrapper.css!', './transformers', './renderer'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, $, angular, kbn, FileExport, DataTable, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
+  var MetricsPanelCtrl, $, angular, kbn, FileExport, DataTable, JSZip, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -48,6 +48,8 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
       FileExport = _appCoreUtilsFile_export;
     }, function (_libsDatatablesNetJsJqueryDataTablesMinJs) {
       DataTable = _libsDatatablesNetJsJqueryDataTablesMinJs.default;
+    }, function (_libsJszipDistJszipMinJs) {
+      JSZip = _libsJszipDistJszipMinJs.default;
     }, function (_cssPanelCss) {}, function (_cssDatatablesWrapperCss) {}, function (_transformers) {
       transformDataToTable = _transformers.transformDataToTable;
       transformers = _transformers.transformers;
@@ -190,6 +192,8 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
 
           var _this2 = _possibleConstructorReturn(this, (DatatablePanelCtrl.__proto__ || Object.getPrototypeOf(DatatablePanelCtrl)).call(this, $scope, $injector));
 
+          // this is needed to export excel format
+          window.JSZip = JSZip;
           _this2.pageIndex = 0;
           _this2.table = null;
           _this2.dataRaw = [];
@@ -265,30 +269,59 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           }
           _.defaults(_this2.panel, panelDefaults);
 
+          //    "jquery": this.getPanelPath() + "libs/jquery/dist/jquery.min",
+
           System.config({
             paths: {
               "datatables.net": _this2.getPanelPath() + "libs/datatables.net/js/jquery.dataTables.min",
               "datatables.net-bs": _this2.getPanelPath() + "libs/datatables.net-bs/js/dataTables.bootstrap.min",
               "datatables.net-jqui": _this2.getPanelPath() + "libs/datatables.net-jqui/js/dataTables.jqueryui.min",
-              "datatables.net-zf": _this2.getPanelPath() + "libs/datatables.net-zf/js/dataTables.foundation.min"
+              "datatables.net-zf": _this2.getPanelPath() + "libs/datatables.net-zf/js/dataTables.foundation.min",
+              "datatables.net-select": _this2.getPanelPath() + "libs/datatables.net-select/js/dataTables.select.min",
+              "datatables.net-buttons": _this2.getPanelPath() + "libs/datatables.net-buttons/js/dataTables.buttons.min",
+              "jszip": _this2.getPanelPath() + "libs/jszip/dist/jszip.min",
+              "pdfmake": _this2.getPanelPath() + "libs/pdfmake/build/pdfmake.min",
+              "pdfmake-vfs": _this2.getPanelPath() + "libs/pdfmake/build/vfs_fonts"
             }
           });
+
+          System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons/js/dataTables.buttons.min.js');
+          System.import(_this2.getPanelPath() + 'libs/datatables.net-select/js/dataTables.select.min.js');
+          System.import(_this2.getPanelPath() + 'libs/jszip/dist/jszip.min.js');
+          System.import(_this2.getPanelPath() + 'libs/pdfmake/build/pdfmake.min.js');
+          System.import(_this2.getPanelPath() + 'libs/pdfmake/build/vfs_fonts.js');
+          System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.html5.js');
+          System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.print.min.js');
+          System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.colVis.min.js');
 
           // basic datatables theme
           // alternative themes are disabled since they affect all datatable panels on same page currently
           switch (_this2.panel.datatableTheme) {
             case 'basic_theme':
+              //System.import(this.getPanelPath() + 'libs/datatables.net/js/jquery.dataTables.min.js');
+
+              //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/dataTables.buttons.min.js');
+              //System.import(this.getPanelPath() + 'libs/datatables.net-select/js/dataTables.select.min.js');
+              //System.import(this.getPanelPath() + 'libs/jszip/dist/jszip.min.js');
+              //System.import(this.getPanelPath() + 'libs/pdfmake/build/pdfmake.min.js');
+              //System.import(this.getPanelPath() + 'libs/pdfmake/build/vfs_fonts.js');
+              //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.html5.js');
+              //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.print.min.js');
+              //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.colVis.min.js');
               System.import(_this2.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
               if (grafanaBootData.user.lightTheme) {
                 System.import(_this2.getPanelPath() + _this2.panel.themeOptions.light + '!css');
               } else {
                 System.import(_this2.getPanelPath() + _this2.panel.themeOptions.dark + "!css");
               }
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-select-dt/css/select.dataTables.min.css!');
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons-dt/css/buttons.dataTables.min.css!');
               break;
             case 'bootstrap_theme':
               System.import(_this2.getPanelPath() + 'libs/datatables.net-bs/js/dataTables.bootstrap.min.js');
               System.import(_this2.getPanelPath() + 'libs/bootstrap/dist/css/prefixed-bootstrap.min.css!');
               System.import(_this2.getPanelPath() + 'libs/datatables.net-bs/css/dataTables.bootstrap.min.css!');
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-select-bs/css/select.bootstrap.min.css!');
               if (!grafanaBootData.user.lightTheme) {
                 System.import(_this2.getPanelPath() + 'css/prefixed-bootstrap-slate.min.css!');
               }
@@ -297,19 +330,33 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
               System.import(_this2.getPanelPath() + 'libs/datatables.net-zf/js/dataTables.foundation.min.js');
               System.import(_this2.getPanelPath() + 'libs/foundation/css/prefixed-foundation.min.css!');
               System.import(_this2.getPanelPath() + 'libs/datatables.net-zf/css/dataTables.foundation.min.css!');
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-select-zf/css/select.foundation.min.css!');
               break;
             case 'themeroller_theme':
               System.import(_this2.getPanelPath() + 'libs/datatables.net-jqui/js/dataTables.jqueryui.min.js');
               System.import(_this2.getPanelPath() + 'libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!');
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-select-jqui/css/select.jqueryui.min.css!');
               System.import(_this2.getPanelPath() + 'css/jquery-ui-smoothness.css!');
               break;
             default:
+              //System.import(this.getPanelPath() + 'libs/datatables.net/js/jquery.dataTables.min.js');
+
+              //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/dataTables.buttons.min.js');
+              //System.import(this.getPanelPath() + 'libs/datatables.net-select/js/dataTables.select.min.js');
+              //System.import(this.getPanelPath() + 'libs/jszip/dist/jszip.min.js');
+              //System.import(this.getPanelPath() + 'libs/pdfmake/build/pdfmake.min.js');
+              //System.import(this.getPanelPath() + 'libs/pdfmake/build/vfs_fonts.js');
+              //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.html5.js');
+              //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.print.min.js');
+              //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.colVis.min.js');
               System.import(_this2.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
               if (grafanaBootData.user.lightTheme) {
                 System.import(_this2.getPanelPath() + _this2.panel.themeOptions.light + '!css');
               } else {
                 System.import(_this2.getPanelPath() + _this2.panel.themeOptions.dark + "!css");
               }
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-select-dt/css/select.dataTables.min.css!');
+              System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons-dt/css/buttons.dataTables.min.css!');
               break;
           }
           _this2.dataLoaded = true;
@@ -348,11 +395,11 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           value: function getPanelPath() {
             var panels = grafanaBootData.settings.panels;
             var thisPanel = panels[this.pluginId];
-            console.log("baseUrl: " + thisPanel.baseUrl);
+            //console.log("baseUrl: " + thisPanel.baseUrl);
             // the system loader preprends public to the url, remove the extra from our baseurl
             var thisPanelPath = thisPanel.baseUrl.replace("public/plugins", "plugins");
             thisPanelPath += '/';
-            console.log("panelPath: " + thisPanelPath);
+            //console.log("panelPath: " + thisPanelPath);
             return thisPanelPath;
           }
         }, {

@@ -465,6 +465,11 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               lengthChange: this.panel.lengthChangeEnabled,
               scrollCollapse: false,
               saveState: true,
+              dom: 'Bfrtip',
+              buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
+              select: {
+                style: 'os'
+              },
               data: formattedData,
               columns: columns,
               columnDefs: columnDefs,

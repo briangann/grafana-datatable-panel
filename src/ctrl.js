@@ -5,6 +5,8 @@ import kbn from 'app/core/utils/kbn';
 
 import * as FileExport from 'app/core/utils/file_export';
 import DataTable from './libs/datatables.net/js/jquery.dataTables.min.js';
+// this is needed to export to excel format
+import JSZip from './libs/jszip/dist/jszip.min.js';
 
 // this is needed for basic datatables.net theme
 //import './libs/datatables.net-dt/css/jquery.dataTables.min.css!';
@@ -168,7 +170,8 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
 
   constructor($scope, $injector, $http, $location, uiSegmentSrv, annotationsSrv) {
     super($scope, $injector);
-
+    // this is needed to export excel format
+    window.JSZip = JSZip;
     this.pageIndex = 0;
     this.table = null;
     this.dataRaw = [];
@@ -262,30 +265,59 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     }
     _.defaults(this.panel, panelDefaults);
 
+//    "jquery": this.getPanelPath() + "libs/jquery/dist/jquery.min",
+
     System.config({
         paths: {
             "datatables.net": this.getPanelPath() + "libs/datatables.net/js/jquery.dataTables.min",
             "datatables.net-bs" : this.getPanelPath() + "libs/datatables.net-bs/js/dataTables.bootstrap.min",
             "datatables.net-jqui" : this.getPanelPath() + "libs/datatables.net-jqui/js/dataTables.jqueryui.min",
             "datatables.net-zf" : this.getPanelPath() + "libs/datatables.net-zf/js/dataTables.foundation.min",
+            "datatables.net-select": this.getPanelPath() + "libs/datatables.net-select/js/dataTables.select.min",
+            "datatables.net-buttons": this.getPanelPath() + "libs/datatables.net-buttons/js/dataTables.buttons.min",
+            "jszip": this.getPanelPath() + "libs/jszip/dist/jszip.min",
+            "pdfmake": this.getPanelPath() + "libs/pdfmake/build/pdfmake.min",
+            "pdfmake-vfs": this.getPanelPath() + "libs/pdfmake/build/vfs_fonts",
         }
     });
+
+    System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/dataTables.buttons.min.js');
+    System.import(this.getPanelPath() + 'libs/datatables.net-select/js/dataTables.select.min.js');
+    System.import(this.getPanelPath() + 'libs/jszip/dist/jszip.min.js');
+    System.import(this.getPanelPath() + 'libs/pdfmake/build/pdfmake.min.js');
+    System.import(this.getPanelPath() + 'libs/pdfmake/build/vfs_fonts.js');
+    System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.html5.js');
+    System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.print.min.js');
+    System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.colVis.min.js');
 
     // basic datatables theme
     // alternative themes are disabled since they affect all datatable panels on same page currently
     switch (this.panel.datatableTheme) {
       case 'basic_theme':
-        System.import(this.getPanelPath() +  'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
+        //System.import(this.getPanelPath() + 'libs/datatables.net/js/jquery.dataTables.min.js');
+
+        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/dataTables.buttons.min.js');
+        //System.import(this.getPanelPath() + 'libs/datatables.net-select/js/dataTables.select.min.js');
+        //System.import(this.getPanelPath() + 'libs/jszip/dist/jszip.min.js');
+        //System.import(this.getPanelPath() + 'libs/pdfmake/build/pdfmake.min.js');
+        //System.import(this.getPanelPath() + 'libs/pdfmake/build/vfs_fonts.js');
+        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.html5.js');
+        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.print.min.js');
+        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.colVis.min.js');
+        System.import(this.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
         if (grafanaBootData.user.lightTheme) {
           System.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
         } else {
           System.import(this.getPanelPath() + this.panel.themeOptions.dark + "!css");
         }
+        System.import(this.getPanelPath() + 'libs/datatables.net-select-dt/css/select.dataTables.min.css!');
+        System.import(this.getPanelPath() + 'libs/datatables.net-buttons-dt/css/buttons.dataTables.min.css!');
         break;
       case 'bootstrap_theme':
         System.import(this.getPanelPath() + 'libs/datatables.net-bs/js/dataTables.bootstrap.min.js');
         System.import(this.getPanelPath() + 'libs/bootstrap/dist/css/prefixed-bootstrap.min.css!');
         System.import(this.getPanelPath() + 'libs/datatables.net-bs/css/dataTables.bootstrap.min.css!');
+        System.import(this.getPanelPath() + 'libs/datatables.net-select-bs/css/select.bootstrap.min.css!');
         if (!grafanaBootData.user.lightTheme) {
           System.import(this.getPanelPath() + 'css/prefixed-bootstrap-slate.min.css!');
         }
@@ -294,19 +326,33 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         System.import(this.getPanelPath() + 'libs/datatables.net-zf/js/dataTables.foundation.min.js');
         System.import(this.getPanelPath() + 'libs/foundation/css/prefixed-foundation.min.css!');
         System.import(this.getPanelPath() + 'libs/datatables.net-zf/css/dataTables.foundation.min.css!');
+        System.import(this.getPanelPath() + 'libs/datatables.net-select-zf/css/select.foundation.min.css!');
         break;
       case 'themeroller_theme':
-        System.import(this.getPanelPath() +  'libs/datatables.net-jqui/js/dataTables.jqueryui.min.js');
-        System.import(this.getPanelPath() +  'libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!');
-        System.import(this.getPanelPath() +  'css/jquery-ui-smoothness.css!');
+        System.import(this.getPanelPath() + 'libs/datatables.net-jqui/js/dataTables.jqueryui.min.js');
+        System.import(this.getPanelPath() + 'libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!');
+        System.import(this.getPanelPath() + 'libs/datatables.net-select-jqui/css/select.jqueryui.min.css!');
+        System.import(this.getPanelPath() + 'css/jquery-ui-smoothness.css!');
         break;
     default:
-        System.import(this.getPanelPath() +  'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
+        //System.import(this.getPanelPath() + 'libs/datatables.net/js/jquery.dataTables.min.js');
+
+        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/dataTables.buttons.min.js');
+        //System.import(this.getPanelPath() + 'libs/datatables.net-select/js/dataTables.select.min.js');
+        //System.import(this.getPanelPath() + 'libs/jszip/dist/jszip.min.js');
+        //System.import(this.getPanelPath() + 'libs/pdfmake/build/pdfmake.min.js');
+        //System.import(this.getPanelPath() + 'libs/pdfmake/build/vfs_fonts.js');
+        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.html5.js');
+        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.print.min.js');
+        //System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.colVis.min.js');
+        System.import(this.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
         if (grafanaBootData.user.lightTheme) {
           System.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
         } else {
           System.import(this.getPanelPath() + this.panel.themeOptions.dark + "!css");
         }
+        System.import(this.getPanelPath() + 'libs/datatables.net-select-dt/css/select.dataTables.min.css!');
+        System.import(this.getPanelPath() + 'libs/datatables.net-buttons-dt/css/buttons.dataTables.min.css!');
         break;
     }
     this.dataLoaded = true;
@@ -341,11 +387,11 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   getPanelPath() {
     var panels = grafanaBootData.settings.panels;
     var thisPanel = panels[this.pluginId];
-    console.log("baseUrl: " + thisPanel.baseUrl);
+    //console.log("baseUrl: " + thisPanel.baseUrl);
     // the system loader preprends public to the url, remove the extra from our baseurl
     var thisPanelPath = thisPanel.baseUrl.replace("public/plugins", "plugins");
     thisPanelPath += '/';
-    console.log("panelPath: " + thisPanelPath);
+    //console.log("panelPath: " + thisPanelPath);
     return thisPanelPath;
   }
 
