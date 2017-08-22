@@ -182,3 +182,7 @@ This panel is based on the "Table" panel by GrafanaLabs
 |       | NEW: Added multi-column sorting - sort by any number of columns ascending/descending|
 |       | NEW: Column Aliasing - modify the name of a column as sent by the datasource|
 |       | NEW: Column width hints - suggest a width for a named column
+|0.0.3  | BUGFIX: Saving State should now work - wrong option was in the datatable constructor
+|       | NEW: Export options for Clipboard/CSV/PDF/Excel/Print
+|       | BUGFIX: Columns from datasources other than JSON can now be aliased
+|       | BUGFIX: No data now clears table (issue #5)

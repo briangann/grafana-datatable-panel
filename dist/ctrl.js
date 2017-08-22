@@ -1,9 +1,9 @@
 'use strict';
 
-System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', 'app/core/utils/file_export', './libs/datatables.net/js/jquery.dataTables.min.js', './libs/jszip/dist/jszip.min.js', './css/panel.css!', './css/datatables-wrapper.css!', './transformers', './renderer'], function (_export, _context) {
+System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', 'app/core/utils/file_export', './libs/datatables.net/js/jquery.dataTables.min.js', './css/panel.css!', './css/datatables-wrapper.css!', './transformers', './renderer'], function (_export, _context) {
   "use strict";
 
-  var MetricsPanelCtrl, $, angular, kbn, FileExport, DataTable, JSZip, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
+  var MetricsPanelCtrl, $, angular, kbn, FileExport, DataTable, transformDataToTable, transformers, DatatableRenderer, _createClass, _get, panelDefaults, DatatablePanelCtrl;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -48,8 +48,6 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
       FileExport = _appCoreUtilsFile_export;
     }, function (_libsDatatablesNetJsJqueryDataTablesMinJs) {
       DataTable = _libsDatatablesNetJsJqueryDataTablesMinJs.default;
-    }, function (_libsJszipDistJszipMinJs) {
-      JSZip = _libsJszipDistJszipMinJs.default;
     }, function (_cssPanelCss) {}, function (_cssDatatablesWrapperCss) {}, function (_transformers) {
       transformDataToTable = _transformers.transformDataToTable;
       transformers = _transformers.transformers;
@@ -122,13 +120,10 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
         scroll: false,
         scrollHeight: 'default',
         fontSize: '100%',
-        columnAliases: [],
-        columnWidthHints: [],
-        sortByColumnsData: [[0, 'desc']],
-        sortByColumns: [{
-          columnData: 0,
-          sortMethod: 'desc'
-        }],
+        sort: {
+          col: 0,
+          desc: true
+        },
         datatableTheme: 'basic_theme',
         themeOptions: {
           light: './css/datatable-light.css',
@@ -192,8 +187,6 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
 
           var _this2 = _possibleConstructorReturn(this, (DatatablePanelCtrl.__proto__ || Object.getPrototypeOf(DatatablePanelCtrl)).call(this, $scope, $injector));
 
-          // this is needed to export excel format
-          window.JSZip = JSZip;
           _this2.pageIndex = 0;
           _this2.table = null;
           _this2.dataRaw = [];
@@ -203,13 +196,6 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           // editor
 
           _this2.addColumnSegment = uiSegmentSrv.newPlusButton();
-          _this2.columnSortMethods = [{
-            text: 'Ascending',
-            value: 'asc'
-          }, {
-            text: 'Descending',
-            value: 'desc'
-          }];
           _this2.fontSizes = ['80%', '90%', '100%', '110%', '120%', '130%', '150%', '160%', '180%', '200%', '220%', '250%'];
           _this2.colorModes = [{
             text: 'Disabled',
@@ -269,30 +255,14 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           }
           _.defaults(_this2.panel, panelDefaults);
 
-          //    "jquery": this.getPanelPath() + "libs/jquery/dist/jquery.min",
-
           System.config({
             paths: {
               "datatables.net": _this2.getPanelPath() + "libs/datatables.net/js/jquery.dataTables.min",
               "datatables.net-bs": _this2.getPanelPath() + "libs/datatables.net-bs/js/dataTables.bootstrap.min",
               "datatables.net-jqui": _this2.getPanelPath() + "libs/datatables.net-jqui/js/dataTables.jqueryui.min",
-              "datatables.net-zf": _this2.getPanelPath() + "libs/datatables.net-zf/js/dataTables.foundation.min",
-              "datatables.net-select": _this2.getPanelPath() + "libs/datatables.net-select/js/dataTables.select.min",
-              "datatables.net-buttons": _this2.getPanelPath() + "libs/datatables.net-buttons/js/dataTables.buttons.min",
-              "jszip": _this2.getPanelPath() + "libs/jszip/dist/jszip.min",
-              "pdfmake": _this2.getPanelPath() + "libs/pdfmake/build/pdfmake.min",
-              "pdfmake-vfs": _this2.getPanelPath() + "libs/pdfmake/build/vfs_fonts"
+              "datatables.net-zf": _this2.getPanelPath() + "libs/datatables.net-zf/js/dataTables.foundation.min"
             }
           });
-
-          System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons/js/dataTables.buttons.min.js');
-          System.import(_this2.getPanelPath() + 'libs/datatables.net-select/js/dataTables.select.min.js');
-          System.import(_this2.getPanelPath() + 'libs/jszip/dist/jszip.min.js');
-          System.import(_this2.getPanelPath() + 'libs/pdfmake/build/pdfmake.min.js');
-          System.import(_this2.getPanelPath() + 'libs/pdfmake/build/vfs_fonts.js');
-          System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.html5.js');
-          System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.print.min.js');
-          System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.colVis.min.js');
 
           // basic datatables theme
           // alternative themes are disabled since they affect all datatable panels on same page currently
@@ -304,14 +274,11 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
               } else {
                 System.import(_this2.getPanelPath() + _this2.panel.themeOptions.dark + "!css");
               }
-              System.import(_this2.getPanelPath() + 'libs/datatables.net-select-dt/css/select.dataTables.min.css!');
-              System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons-dt/css/buttons.dataTables.min.css!');
               break;
             case 'bootstrap_theme':
               System.import(_this2.getPanelPath() + 'libs/datatables.net-bs/js/dataTables.bootstrap.min.js');
               System.import(_this2.getPanelPath() + 'libs/bootstrap/dist/css/prefixed-bootstrap.min.css!');
               System.import(_this2.getPanelPath() + 'libs/datatables.net-bs/css/dataTables.bootstrap.min.css!');
-              System.import(_this2.getPanelPath() + 'libs/datatables.net-select-bs/css/select.bootstrap.min.css!');
               if (!grafanaBootData.user.lightTheme) {
                 System.import(_this2.getPanelPath() + 'css/prefixed-bootstrap-slate.min.css!');
               }
@@ -320,12 +287,10 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
               System.import(_this2.getPanelPath() + 'libs/datatables.net-zf/js/dataTables.foundation.min.js');
               System.import(_this2.getPanelPath() + 'libs/foundation/css/prefixed-foundation.min.css!');
               System.import(_this2.getPanelPath() + 'libs/datatables.net-zf/css/dataTables.foundation.min.css!');
-              System.import(_this2.getPanelPath() + 'libs/datatables.net-select-zf/css/select.foundation.min.css!');
               break;
             case 'themeroller_theme':
               System.import(_this2.getPanelPath() + 'libs/datatables.net-jqui/js/dataTables.jqueryui.min.js');
               System.import(_this2.getPanelPath() + 'libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!');
-              System.import(_this2.getPanelPath() + 'libs/datatables.net-select-jqui/css/select.jqueryui.min.css!');
               System.import(_this2.getPanelPath() + 'css/jquery-ui-smoothness.css!');
               break;
             default:
@@ -335,8 +300,6 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
               } else {
                 System.import(_this2.getPanelPath() + _this2.panel.themeOptions.dark + "!css");
               }
-              System.import(_this2.getPanelPath() + 'libs/datatables.net-select-dt/css/select.dataTables.min.css!');
-              System.import(_this2.getPanelPath() + 'libs/datatables.net-buttons-dt/css/buttons.dataTables.min.css!');
               break;
           }
           _this2.dataLoaded = true;
@@ -375,11 +338,8 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           value: function getPanelPath() {
             var panels = grafanaBootData.settings.panels;
             var thisPanel = panels[this.pluginId];
-            //console.log("baseUrl: " + thisPanel.baseUrl);
-            // the system loader preprends public to the url, remove the extra from our baseurl
-            var thisPanelPath = thisPanel.baseUrl.replace("public/plugins", "plugins");
-            thisPanelPath += '/';
-            //console.log("panelPath: " + thisPanelPath);
+            // the system loader preprends publib to the url, add a .. to go back one level
+            var thisPanelPath = '../' + thisPanel.baseUrl + '/';
             return thisPanelPath;
           }
         }, {
@@ -432,8 +392,8 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           key: 'render',
           value: function render() {
             this.table = transformDataToTable(this.dataRaw, this.panel);
-            //this.table.sort(this.panel.sort);
-            // compute the sort order
+            this.table.sort(this.panel.sort);
+            this.panel.emptyData = this.table.rows.length === 0 || this.table.columns.length === 0;
             return _get(DatatablePanelCtrl.prototype.__proto__ || Object.getPrototypeOf(DatatablePanelCtrl.prototype), 'render', this).call(this, this.table);
           }
         }, {
@@ -571,102 +531,6 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           key: 'removeColumnStyle',
           value: function removeColumnStyle(style) {
             this.panel.styles = _.without(this.panel.styles, style);
-          }
-        }, {
-          key: 'addColumnSortingRule',
-          value: function addColumnSortingRule() {
-            var defaultRule = {
-              columnData: 0,
-              sortMethod: 'desc'
-            };
-            // check if this column already exists
-            this.panel.sortByColumns.push(angular.copy(defaultRule));
-            this.columnSortChanged();
-          }
-        }, {
-          key: 'removeSortByColumn',
-          value: function removeSortByColumn(column) {
-            this.panel.sortByColumns = _.without(this.panel.sortByColumns, column);
-            this.columnSortChanged();
-          }
-        }, {
-          key: 'columnSortChanged',
-          value: function columnSortChanged() {
-            // take the values in sortByColumns and convert them into datatables format
-            var data = [];
-            if (this.panel.sortByColumns.length > 0) {
-              for (var i = 0; i < this.panel.sortByColumns.length; i++) {
-                // allow numbers and column names
-                var columnData = this.panel.sortByColumns[i].columnData;
-                var columnNumber = 0;
-                try {
-                  columnNumber = Int32.parseInt(columnData);
-                } catch (e) {
-                  // check if empty
-                  if (columnData === "") {
-                    columnNumber = 0;
-                  }
-                  // find the matching column index
-                  for (var j = 0; j < this.panel.columns.length; j++) {
-                    if (this.panel.columns[j].text === columnData) {
-                      columnNumber = j;
-                      break;
-                    }
-                  }
-                }
-                var sortDirection = this.panel.sortByColumns[i].sortMethod;
-                data.push([columnNumber, sortDirection]);
-              }
-            } else {
-              // default to column 0, descending
-              data.push([0, 'desc']);
-            }
-            this.panel.sortByColumnsData = data;
-            this.render();
-          }
-        }, {
-          key: 'addColumnAlias',
-          value: function addColumnAlias() {
-            var defaultAlias = {
-              name: '',
-              alias: ''
-            };
-            // check if this column already exists
-            this.panel.columnAliases.push(angular.copy(defaultAlias));
-            this.columnAliasChanged();
-          }
-        }, {
-          key: 'removeColumnAlias',
-          value: function removeColumnAlias(column) {
-            this.panel.columnAliases = _.without(this.panel.columnAliases, column);
-            this.columnAliasChanged();
-          }
-        }, {
-          key: 'columnAliasChanged',
-          value: function columnAliasChanged() {
-            this.render();
-          }
-        }, {
-          key: 'addColumnWidthHint',
-          value: function addColumnWidthHint() {
-            var defaultHint = {
-              name: '',
-              width: '80px'
-            };
-            // check if this column already exists
-            this.panel.columnWidthHints.push(angular.copy(defaultHint));
-            this.columnWidthHintsChanged();
-          }
-        }, {
-          key: 'removeColumnWidthHint',
-          value: function removeColumnWidthHint(column) {
-            this.panel.columnWidthHints = _.without(this.panel.columnWidthHints, column);
-            this.columnWidthsChanged();
-          }
-        }, {
-          key: 'columnWidthHintsChanged',
-          value: function columnWidthHintsChanged() {
-            this.render();
           }
         }, {
           key: 'setUnitFormat',

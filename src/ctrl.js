@@ -5,8 +5,6 @@ import kbn from 'app/core/utils/kbn';
 
 import * as FileExport from 'app/core/utils/file_export';
 import DataTable from './libs/datatables.net/js/jquery.dataTables.min.js';
-// this is needed to export to excel format
-import JSZip from './libs/jszip/dist/jszip.min.js';
 
 // this is needed for basic datatables.net theme
 //import './libs/datatables.net-dt/css/jquery.dataTables.min.css!';
@@ -88,17 +86,10 @@ const panelDefaults = {
   scroll: false,
   scrollHeight: 'default',
   fontSize: '100%',
-  columnAliases: [],
-  columnWidthHints: [],
-  sortByColumnsData: [
-    [ 0, 'desc' ]
-  ],
-  sortByColumns: [
-    {
-      columnData: 0,
-      sortMethod: 'desc'
-    }
-  ],
+  sort: {
+    col: 0,
+    desc: true
+  },
   datatableTheme: 'basic_theme',
   themeOptions: {
     light: './css/datatable-light.css',
@@ -170,8 +161,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
 
   constructor($scope, $injector, $http, $location, uiSegmentSrv, annotationsSrv) {
     super($scope, $injector);
-    // this is needed to export excel format
-    window.JSZip = JSZip;
+
     this.pageIndex = 0;
     this.table = null;
     this.dataRaw = [];
@@ -181,16 +171,6 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     // editor
 
     this.addColumnSegment = uiSegmentSrv.newPlusButton();
-    this.columnSortMethods = [
-      {
-        text: 'Ascending',
-        value: 'asc'
-      },
-      {
-        text: 'Descending',
-        value: 'desc'
-      },
-    ];
     this.fontSizes = ['80%', '90%', '100%', '110%', '120%', '130%', '150%', '160%', '180%', '200%', '220%', '250%'];
     this.colorModes = [
       {
@@ -265,49 +245,30 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     }
     _.defaults(this.panel, panelDefaults);
 
-//    "jquery": this.getPanelPath() + "libs/jquery/dist/jquery.min",
-
     System.config({
         paths: {
             "datatables.net": this.getPanelPath() + "libs/datatables.net/js/jquery.dataTables.min",
             "datatables.net-bs" : this.getPanelPath() + "libs/datatables.net-bs/js/dataTables.bootstrap.min",
             "datatables.net-jqui" : this.getPanelPath() + "libs/datatables.net-jqui/js/dataTables.jqueryui.min",
             "datatables.net-zf" : this.getPanelPath() + "libs/datatables.net-zf/js/dataTables.foundation.min",
-            "datatables.net-select": this.getPanelPath() + "libs/datatables.net-select/js/dataTables.select.min",
-            "datatables.net-buttons": this.getPanelPath() + "libs/datatables.net-buttons/js/dataTables.buttons.min",
-            "jszip": this.getPanelPath() + "libs/jszip/dist/jszip.min",
-            "pdfmake": this.getPanelPath() + "libs/pdfmake/build/pdfmake.min",
-            "pdfmake-vfs": this.getPanelPath() + "libs/pdfmake/build/vfs_fonts",
         }
     });
-
-    System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/dataTables.buttons.min.js');
-    System.import(this.getPanelPath() + 'libs/datatables.net-select/js/dataTables.select.min.js');
-    System.import(this.getPanelPath() + 'libs/jszip/dist/jszip.min.js');
-    System.import(this.getPanelPath() + 'libs/pdfmake/build/pdfmake.min.js');
-    System.import(this.getPanelPath() + 'libs/pdfmake/build/vfs_fonts.js');
-    System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.html5.js');
-    System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.print.min.js');
-    System.import(this.getPanelPath() + 'libs/datatables.net-buttons/js/buttons.colVis.min.js');
 
     // basic datatables theme
     // alternative themes are disabled since they affect all datatable panels on same page currently
     switch (this.panel.datatableTheme) {
       case 'basic_theme':
-        System.import(this.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
+        System.import(this.getPanelPath() +  'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
         if (grafanaBootData.user.lightTheme) {
           System.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
         } else {
           System.import(this.getPanelPath() + this.panel.themeOptions.dark + "!css");
         }
-        System.import(this.getPanelPath() + 'libs/datatables.net-select-dt/css/select.dataTables.min.css!');
-        System.import(this.getPanelPath() + 'libs/datatables.net-buttons-dt/css/buttons.dataTables.min.css!');
         break;
       case 'bootstrap_theme':
         System.import(this.getPanelPath() + 'libs/datatables.net-bs/js/dataTables.bootstrap.min.js');
         System.import(this.getPanelPath() + 'libs/bootstrap/dist/css/prefixed-bootstrap.min.css!');
         System.import(this.getPanelPath() + 'libs/datatables.net-bs/css/dataTables.bootstrap.min.css!');
-        System.import(this.getPanelPath() + 'libs/datatables.net-select-bs/css/select.bootstrap.min.css!');
         if (!grafanaBootData.user.lightTheme) {
           System.import(this.getPanelPath() + 'css/prefixed-bootstrap-slate.min.css!');
         }
@@ -316,23 +277,19 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         System.import(this.getPanelPath() + 'libs/datatables.net-zf/js/dataTables.foundation.min.js');
         System.import(this.getPanelPath() + 'libs/foundation/css/prefixed-foundation.min.css!');
         System.import(this.getPanelPath() + 'libs/datatables.net-zf/css/dataTables.foundation.min.css!');
-        System.import(this.getPanelPath() + 'libs/datatables.net-select-zf/css/select.foundation.min.css!');
         break;
       case 'themeroller_theme':
-        System.import(this.getPanelPath() + 'libs/datatables.net-jqui/js/dataTables.jqueryui.min.js');
-        System.import(this.getPanelPath() + 'libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!');
-        System.import(this.getPanelPath() + 'libs/datatables.net-select-jqui/css/select.jqueryui.min.css!');
-        System.import(this.getPanelPath() + 'css/jquery-ui-smoothness.css!');
+        System.import(this.getPanelPath() +  'libs/datatables.net-jqui/js/dataTables.jqueryui.min.js');
+        System.import(this.getPanelPath() +  'libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!');
+        System.import(this.getPanelPath() +  'css/jquery-ui-smoothness.css!');
         break;
     default:
-        System.import(this.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
+        System.import(this.getPanelPath() +  'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
         if (grafanaBootData.user.lightTheme) {
           System.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
         } else {
           System.import(this.getPanelPath() + this.panel.themeOptions.dark + "!css");
         }
-        System.import(this.getPanelPath() + 'libs/datatables.net-select-dt/css/select.dataTables.min.css!');
-        System.import(this.getPanelPath() + 'libs/datatables.net-buttons-dt/css/buttons.dataTables.min.css!');
         break;
     }
     this.dataLoaded = true;
@@ -367,11 +324,8 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   getPanelPath() {
     var panels = grafanaBootData.settings.panels;
     var thisPanel = panels[this.pluginId];
-    //console.log("baseUrl: " + thisPanel.baseUrl);
-    // the system loader preprends public to the url, remove the extra from our baseurl
-    var thisPanelPath = thisPanel.baseUrl.replace("public/plugins", "plugins");
-    thisPanelPath += '/';
-    //console.log("panelPath: " + thisPanelPath);
+    // the system loader preprends publib to the url, add a .. to go back one level
+    var thisPanelPath = '../' + thisPanel.baseUrl + '/';
     return thisPanelPath;
   }
 
@@ -421,8 +375,9 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
 
   render() {
     this.table = transformDataToTable(this.dataRaw, this.panel);
-    //this.table.sort(this.panel.sort);
-    // compute the sort order
+    this.table.sort(this.panel.sort);
+    this.panel.emptyData = this.table.rows.length === 0 ||
+                           this.table.columns.length === 0;
     return super.render(this.table);
   }
 
@@ -548,94 +503,6 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   removeColumnStyle(style) {
     this.panel.styles = _.without(this.panel.styles, style);
   }
-
-  addColumnSortingRule() {
-      var defaultRule = {
-        columnData: 0,
-        sortMethod: 'desc',
-      };
-      // check if this column already exists
-      this.panel.sortByColumns.push(angular.copy(defaultRule));
-      this.columnSortChanged();
-  }
-
-  removeSortByColumn(column) {
-    this.panel.sortByColumns = _.without(this.panel.sortByColumns, column);
-    this.columnSortChanged();
-  }
-
-  columnSortChanged() {
-    // take the values in sortByColumns and convert them into datatables format
-    var data = [];
-    if (this.panel.sortByColumns.length > 0) {
-      for (let i = 0; i < this.panel.sortByColumns.length; i++) {
-        // allow numbers and column names
-        let columnData = this.panel.sortByColumns[i].columnData;
-        let columnNumber = 0;
-        try {
-          columnNumber = Int32.parseInt(columnData);
-        }
-        catch(e) {
-          // check if empty
-          if (columnData === "") {
-            columnNumber = 0;
-          }
-          // find the matching column index
-          for (let j = 0; j < this.panel.columns.length; j++) {
-            if (this.panel.columns[j].text === columnData) {
-              columnNumber = j;
-              break;
-            }
-          }
-        }
-        let sortDirection = this.panel.sortByColumns[i].sortMethod;
-        data.push([columnNumber, sortDirection]);
-      }
-    } else {
-      // default to column 0, descending
-      data.push([0,'desc']);
-    }
-    this.panel.sortByColumnsData = data;
-    this.render();
-  }
-
-  addColumnAlias() {
-      var defaultAlias = {
-        name: '',
-        alias: '',
-      };
-      // check if this column already exists
-      this.panel.columnAliases.push(angular.copy(defaultAlias));
-      this.columnAliasChanged();
-  }
-
-  removeColumnAlias(column) {
-    this.panel.columnAliases = _.without(this.panel.columnAliases, column);
-    this.columnAliasChanged();
-  }
-
-  columnAliasChanged() {
-    this.render();
-  }
-
-  addColumnWidthHint() {
-      var defaultHint = {
-        name: '',
-        width: '80px',
-      };
-      // check if this column already exists
-      this.panel.columnWidthHints.push(angular.copy(defaultHint));
-      this.columnWidthHintsChanged();
-  }
-  removeColumnWidthHint(column) {
-    this.panel.columnWidthHints = _.without(this.panel.columnWidthHints, column);
-    this.columnWidthsChanged();
-  }
-
-  columnWidthHintsChanged() {
-    this.render();
-  }
-
   setUnitFormat(column, subItem) {
     column.unit = subItem.value;
     this.render();

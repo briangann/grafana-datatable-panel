@@ -225,10 +225,12 @@ export class DatatableRenderer {
   getColumnAlias(columnName) {
     // default to the columnName
     var columnAlias = columnName;
-    for (let i = 0; i < this.panel.columnAliases.length; i++) {
-      if (this.panel.columnAliases[i].name === columnName) {
-        columnAlias = this.panel.columnAliases[i].alias;
-        break;
+    if (this.panel.columnAliases !== undefined) {
+      for (let i = 0; i < this.panel.columnAliases.length; i++) {
+        if (this.panel.columnAliases[i].name === columnName) {
+          columnAlias = this.panel.columnAliases[i].alias;
+          break;
+        }
       }
     }
     return columnAlias;
@@ -237,10 +239,12 @@ export class DatatableRenderer {
   getColumnWidthHint(columnName) {
     // default to the columnName
     var columnWidth = '';
-    for (let i = 0; i < this.panel.columnWidthHints.length; i++) {
-      if (this.panel.columnWidthHints[i].name === columnName) {
-        columnWidth = this.panel.columnWidthHints[i].width;
-        break;
+    if (this.panel.columnWidthHints !== undefined) {
+      for (let i = 0; i < this.panel.columnWidthHints.length; i++) {
+        if (this.panel.columnWidthHints[i].name === columnName) {
+          columnWidth = this.panel.columnWidthHints[i].width;
+          break;
+        }
       }
     }
     return columnWidth;
@@ -260,7 +264,21 @@ export class DatatableRenderer {
    * @return {[Boolean]} True if loaded without errors
    */
   render() {
-    if (this.table.columns.length === 0) return;
+    const tableHolderId = '#datatable-panel-table-' + this.panel.id;
+    try {
+      if ($.fn.dataTable.isDataTable(tableHolderId)) {
+        var aDT = $(tableHolderId).DataTable();
+        aDT.destroy();
+        $(tableHolderId).empty();
+      }
+    }
+    catch(err) {
+      console.log("Exception: " + err.message);
+    }
+
+    if (this.panel.emptyData) {
+      return;
+    }
     var columns = [];
     var columnDefs = [];
     var _this = this;
@@ -404,8 +422,8 @@ export class DatatableRenderer {
         should_destroy = true;
       }
       if (should_destroy) {
-        var aDT = $('#datatable-panel-table-' + this.panel.id).DataTable();
-        aDT.destroy();
+        var destroyedDT = $('#datatable-panel-table-' + this.panel.id).DataTable();
+        destroyedDT.destroy();
         $('#datatable-panel-table-' + this.panel.id).empty();
       }
     }
@@ -463,7 +481,8 @@ export class DatatableRenderer {
       tableOptions.paging = true;
       tableOptions.pagingType = this.panel.datatablePagingType;
     }
-    var newDT = $('#datatable-panel-table-' + this.panel.id).DataTable(tableOptions);
+    var $datatable = $(tableHolderId);
+    var newDT = $datatable.DataTable(tableOptions);
 
     // hide columns that are marked hidden
     for (let i = 0; i < this.table.columns.length; i++) {
@@ -474,26 +493,24 @@ export class DatatableRenderer {
 
     // enable compact mode
     if (this.panel.compactRowsEnabled) {
-      $('#datatable-panel-table-' + this.panel.id).addClass( 'compact' );
+      $datatable.addClass( 'compact' );
     }
     // enable striped mode
     if (this.panel.stripedRowsEnabled) {
-      $('#datatable-panel-table-' + this.panel.id).addClass( 'stripe' );
+      $datatable.addClass( 'stripe' );
     }
     if (this.panel.hoverEnabled) {
-      $('#datatable-panel-table-' + this.panel.id).addClass( 'hover' );
+      $datatable.addClass( 'hover' );
     }
     if (this.panel.orderColumnEnabled) {
-      $('#datatable-panel-table-' + this.panel.id).addClass( 'order-column' );
-      //debugger;
-      //newDT.order(orderSetting).draw();
+      $datatable.addClass( 'order-column' );
     }
     // these two are mutually exclusive
     if (this.panel.showCellBorders) {
-      $('#datatable-panel-table-' + this.panel.id).addClass( 'cell-border' );
+      $datatable.addClass( 'cell-border' );
     } else {
       if (this.panel.showRowBorders) {
-        $('#datatable-panel-table-' + this.panel.id).addClass( 'row-border' );
+        $datatable.addClass( 'row-border' );
       }
     }
     if (!this.panel.scroll) {

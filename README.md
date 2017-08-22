@@ -185,3 +185,4 @@ This panel is based on the "Table" panel by GrafanaLabs
 |0.0.3  | BUGFIX: Saving State should now work - wrong option was in the datatable constructor
 |       | NEW: Export options for Clipboard/CSV/PDF/Excel/Print
 |       | BUGFIX: Columns from datasources other than JSON can now be aliased
+|       | BUGFIX: No data now clears table (issue #5)
