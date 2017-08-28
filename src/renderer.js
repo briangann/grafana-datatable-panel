@@ -458,6 +458,7 @@ export class DatatableRenderer {
       info: this.panel.infoEnabled,
       lengthChange: this.panel.lengthChangeEnabled,
       scrollCollapse: false,
+      scrollX: true,
       stateSave: true,
       dom: 'Bfrtip',
       buttons: [

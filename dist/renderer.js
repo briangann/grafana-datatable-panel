@@ -481,6 +481,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               info: this.panel.infoEnabled,
               lengthChange: this.panel.lengthChangeEnabled,
               scrollCollapse: false,
+              scrollX: true,
               stateSave: true,
               dom: 'Bfrtip',
               buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],

@@ -115,6 +115,7 @@ Same as above, but with row counter included
 * URLs inside row text can be "clicked"
 * Rows can have a click-through URL
 * Multi-Column Sorting
+* Horizontal scrolling enabled when columns are wider than panel
 
 
 ## TODO
@@ -186,3 +187,5 @@ This panel is based on the "Table" panel by GrafanaLabs
 |       | NEW: Export options for Clipboard/CSV/PDF/Excel/Print
 |       | BUGFIX: Columns from datasources other than JSON can now be aliased
 |       | BUGFIX: No data now clears table (issue #5)
+|0.0.4  | NEW: Now autoscrolls horizontally if number of columns is wider
+|       | than then rendered panel (issue #6)
