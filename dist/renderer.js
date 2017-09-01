@@ -94,8 +94,8 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
           }
         }, {
           key: 'defaultCellFormatter',
-          value: function defaultCellFormatter(v, style) {
-            if (v === null || v === void 0 || v === undefined) {
+          value: function defaultCellFormatter(v, style, column) {
+            if (v === null || v === void 0 || v === undefined || column === null) {
               return '';
             }
             if (_.isArray(v)) {
@@ -103,6 +103,8 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             }
             if (style && style.sanitize) {
               return this.sanitize(v);
+            } else if (style && style.link && style.uqrl && column.text === style.column) {
+              return '<a href="' + style.url.replace('{}', v) + '" target="_blank">' + v + '</a>';
             } else if (style && style.link) {
               return '<a href="' + v + '" target="_blank">' + v + '</a>';
             } else {
@@ -146,7 +148,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                       return '-';
                     }
                     if (_.isString(_v)) {
-                      return _this2.defaultCellFormatter(_v, style);
+                      return _this2.defaultCellFormatter(_v, style, column);
                     }
                     if (style.colorMode) {
                       _this2.colorState[style.colorMode] = _this2.getColorForValue(_v, style);
@@ -159,7 +161,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
             }
             return function (value) {
-              return _this2.defaultCellFormatter(value, style);
+              return _this2.defaultCellFormatter(value, style, column);
             };
           }
         }, {

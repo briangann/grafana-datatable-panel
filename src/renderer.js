@@ -50,8 +50,8 @@ export class DatatableRenderer {
    * @param  {[type]} style [description]
    * @return {[type]}       [description]
    */
-  defaultCellFormatter(v, style) {
-    if (v === null || v === void 0 || v === undefined) {
+  defaultCellFormatter(v, style, column) {
+    if (v === null || v === void 0 || v === undefined || column === null) {
       return '';
     }
     if (_.isArray(v)) {
@@ -59,6 +59,9 @@ export class DatatableRenderer {
     }
     if (style && style.sanitize) {
       return this.sanitize(v);
+    }
+    else if (style && style.link && style.url && column.text === style.column) {
+      return '<a href="' + style.url.replace('{}', v) + '" target="_blank">' + v + '</a>';
     }
     else if (style && style.link) {
       return '<a href="' + v + '" target="_blank">' + v + '</a>';
@@ -105,7 +108,7 @@ export class DatatableRenderer {
           return '-';
         }
         if (_.isString(v)) {
-          return this.defaultCellFormatter(v, style);
+          return this.defaultCellFormatter(v, style, column);
         }
         if (style.colorMode) {
           this.colorState[style.colorMode] = this.getColorForValue(v, style);
@@ -114,7 +117,7 @@ export class DatatableRenderer {
       };
     }
     return (value) => {
-      return this.defaultCellFormatter(value, style);
+      return this.defaultCellFormatter(value, style, column);
     };
   }
 
