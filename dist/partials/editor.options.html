@@ -152,7 +152,14 @@
 				</div>
 				<gf-form-switch class="gf-form" label-class="width-8" ng-if="style.type === 'string'" label="Sanitize HTML" checked="style.sanitize" change="ctrl.render()"></gf-form-switch>
 				<gf-form-switch class="gf-form" label-class="width-8" ng-if="style.type === 'string'" label="Clickable Link" checked="style.link" change="ctrl.render()"></gf-form-switch>
-
+				<div class="gf-form" ng-if="style.type === 'string'">
+					<label class="gf-form-label">URL</label>
+					<input type="text" class="gf-form-input" label="URL" ng-model="style.url">
+				</div>
+				<div class="gf-form" ng-if="style.type === 'string'">
+					<label class="gf-form-label">Column</label>
+					<input type="text" class="gf-form-input" label="column" placeholder="Metrics" ng-model="style.column">
+				</div>
 				<div class="gf-form gf-form--grow">
 					<div class="gf-form-label gf-form-label--grow"></div>
 				</div>
