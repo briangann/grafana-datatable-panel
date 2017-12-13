@@ -324,9 +324,20 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   getPanelPath() {
     var panels = grafanaBootData.settings.panels;
     var thisPanel = panels[this.pluginId];
-    // the system loader preprends publib to the url, add a .. to go back one level
-    var thisPanelPath = '../' + thisPanel.baseUrl + '/';
-    return thisPanelPath;
+    //
+    // For Grafana < 4.6, the system loader preprends publib to the url, add a .. to go back one level
+    if (thisPanel.baseUrl.startsWith("publib"))
+      return '../' + thisPanel.baseUrl + '/';
+    else {
+      // Grafana >= 4.6, webpack is used, need to fix the path for imports
+      if (thisPanel.baseUrl.startsWith("public")) {
+        return thisPanel.baseUrl.substring(7) + '/';
+      }
+      else {
+        // this should never happen, but just in case, append a slash to the url
+        return thisPanel.baseUrl + '/';
+      }
+    }
   }
 
   issueQueries(datasource) {

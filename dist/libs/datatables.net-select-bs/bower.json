@@ -1,6 +1,6 @@
 {
     "name": "datatables.net-select-bs",
-    "description": "Select for DataTables with styling for [Bootstrap](http://getbootstrap.com/)",
+    "description": "Select for DataTables with styling for [Bootstrap 3](http://getbootstrap.com/)",
     "main": [
         "css/select.bootstrap.css"
     ],

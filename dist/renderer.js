@@ -3,7 +3,7 @@
 System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.net/js/jquery.dataTables.min.js'], function (_export, _context) {
   "use strict";
 
-  var $, kbn, moment, DataTable, _typeof, _createClass, DatatableRenderer;
+  var $, kbn, moment, DataTable, _createClass, DatatableRenderer;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -22,12 +22,6 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
       DataTable = _libsDatatablesNetJsJqueryDataTablesMinJs.default;
     }],
     execute: function () {
-      _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) {
-        return typeof obj;
-      } : function (obj) {
-        return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj;
-      };
-
       _createClass = function () {
         function defineProperties(target, props) {
           for (var i = 0; i < props.length; i++) {
@@ -103,7 +97,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             }
             if (style && style.sanitize) {
               return this.sanitize(v);
-            } else if (style && style.link && style.uqrl && column.text === style.column) {
+            } else if (style && style.link && style.url && column.text === style.column) {
               return '<a href="' + style.url.replace('{}', v) + '" target="_blank">' + v + '</a>';
             } else if (style && style.link) {
               return '<a href="' + v + '" target="_blank">' + v + '</a>';
@@ -140,25 +134,19 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               };
             }
             if (style.type === 'number') {
-              var _ret = function () {
-                var valueFormatter = kbn.valueFormats[column.unit || style.unit];
-                return {
-                  v: function v(_v) {
-                    if (_v === null || _v === void 0) {
-                      return '-';
-                    }
-                    if (_.isString(_v)) {
-                      return _this2.defaultCellFormatter(_v, style, column);
-                    }
-                    if (style.colorMode) {
-                      _this2.colorState[style.colorMode] = _this2.getColorForValue(_v, style);
-                    }
-                    return valueFormatter(_v, style.decimals, null);
-                  }
-                };
-              }();
-
-              if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+              var valueFormatter = kbn.valueFormats[column.unit || style.unit];
+              return function (v) {
+                if (v === null || v === void 0) {
+                  return '-';
+                }
+                if (_.isString(v)) {
+                  return _this2.defaultCellFormatter(v, style, column);
+                }
+                if (style.colorMode) {
+                  _this2.colorState[style.colorMode] = _this2.getColorForValue(v, style);
+                }
+                return valueFormatter(v, style.decimals, null);
+              };
             }
             return function (value) {
               return _this2.defaultCellFormatter(value, style, column);
