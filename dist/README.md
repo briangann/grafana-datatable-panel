@@ -188,4 +188,5 @@ This panel is based on the "Table" panel by GrafanaLabs
 |       | BUGFIX: Columns from datasources other than JSON can now be aliased
 |       | BUGFIX: No data now clears table (issue #5)
 |0.0.4  | NEW: Now autoscrolls horizontally if number of columns is wider
-|       | than then rendered panel (issue #6)
+|       | than the rendered panel (issue #6)
+|0.0.5  | BUGIX: SystemJS path changes for Grafana > 4.6

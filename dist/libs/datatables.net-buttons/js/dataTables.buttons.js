@@ -1,5 +1,5 @@
-/*! Buttons for DataTables 1.4.0
- * ©2016 SpryMedia Ltd - datatables.net/license
+/*! Buttons for DataTables 1.4.2
+ * ©2016-2017 SpryMedia Ltd - datatables.net/license
  */
 
 (function( factory ){
@@ -433,6 +433,7 @@ $.extend( Buttons.prototype, {
 
 		for ( var i=0, ien=buttons.length ; i<ien ; i++ ) {
 			container.append( buttons[i].inserter );
+			container.append( ' ' );
 
 			if ( buttons[i].buttons && buttons[i].buttons.length ) {
 				this._draw( buttons[i].collection, buttons[i].buttons );
@@ -1142,7 +1143,7 @@ Buttons.defaults = {
  * @type {string}
  * @static
  */
-Buttons.version = '1.4.0';
+Buttons.version = '1.4.2';
 
 
 $.extend( _dtButtons, {
