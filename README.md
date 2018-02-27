@@ -182,10 +182,12 @@ This panel is based on the "Table" panel by GrafanaLabs
 |       | BUGFIX: CSS files now load when Grafana has a subpath|
 |       | NEW: Added multi-column sorting - sort by any number of columns ascending/descending|
 |       | NEW: Column Aliasing - modify the name of a column as sent by the datasource|
-|       | NEW: Column width hints - suggest a width for a named column
-|0.0.3  | BUGFIX: Saving State should now work - wrong option was in the datatable constructor
-|       | NEW: Export options for Clipboard/CSV/PDF/Excel/Print
-|       | BUGFIX: Columns from datasources other than JSON can now be aliased
-|       | BUGFIX: No data now clears table (issue #5)
-|0.0.4  | NEW: Now autoscrolls horizontally if number of columns is wider
-|       | than then rendered panel (issue #6)
+|       | NEW: Column width hints - suggest a width for a named column|
+|0.0.3  | BUGFIX: Saving State should now work - wrong option was in the datatable constructor|
+|       | NEW: Export options for Clipboard/CSV/PDF/Excel/Print|
+|       | BUGFIX: Columns from datasources other than JSON can now be aliased|
+|       | BUGFIX: No data now clears table (issue #5)|
+|0.0.4  | NEW: Now autoscrolls horizontally if number of columns is wider|
+|       | than the rendered panel (issue #6)|
+|0.0.5  | BUGFIX: SystemJS path changes for Grafana > 4.6|
+|0.0.6  | BUGFIX: Compatibility for v5|
