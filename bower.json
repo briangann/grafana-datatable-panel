@@ -7,7 +7,9 @@
   ],
   "license": "MIT",
   "keywords": [
-    "grafana datatables.net table"
+    "grafana",
+    "datatables.net",
+    "table"
   ],
   "homepage": "https://github.com/briangann/grafana-datatable-panel",
   "private": true,

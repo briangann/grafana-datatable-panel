@@ -22,7 +22,7 @@
     "babel-plugin-transform-es2015-for-of": "^6.23.0",
     "babel-plugin-transform-es2015-modules-systemjs": "^6.24.1",
     "babel-preset-es2015": "^6.24.1",
-    "browser-sync": "^2.18.13",
+    "browser-sync": "^2.23.6",
     "del": "^2.2.2",
     "grunt": "^0.4.5",
     "grunt-babel": "^6.0.0",
@@ -39,11 +39,11 @@
     "grunt-multi-dest": "^1.0.0",
     "grunt-package-modules": "^0.1.3",
     "grunt-systemjs-builder": "^0.2.5",
-    "grunt-ts": "^6.0.0-beta.16",
+    "grunt-ts": "^6.0.0-beta.17",
     "load-grunt-tasks": "~3.2.0",
-    "lodash": "^4.17.4",
+    "lodash": "^4.17.5",
     "minimatch": "3.0.2",
-    "typescript": "^2.5.3"
+    "typescript": "^2.7.2"
   },
   "dependencies": {},
   "homepage": "https://github.com/briangann/grafana-datatable-panel"
