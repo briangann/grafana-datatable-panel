@@ -393,27 +393,25 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   getPanelHeight() {
-      // panel can have a fixed height via options
-      var tmpPanelHeight = this.$scope.ctrl.panel.height;
-      // if that is blank, try to get it from our row
+    // panel can have a fixed height set via "General" tab in panel editor
+    var tmpPanelHeight = this.panel.height;
+    if ((typeof tmpPanelHeight === 'undefined') || (tmpPanelHeight === "")) {
+      // grafana also supplies the height, try to use that if the panel does not have a height
+      tmpPanelHeight = String(this.height);
       if (typeof tmpPanelHeight === 'undefined') {
-        // get from the row instead
+        // height still cannot be determined, get it from the row instead
         tmpPanelHeight = this.row.height;
-        // default to 250px if that was undefined also
         if (typeof tmpPanelHeight === 'undefined') {
-          tmpPanelHeight = 250;
+          // last resort - default to 250px (this should never happen)
+          tmpPanelHeight = "250";
         }
       }
-      else {
-        // convert to numeric value
-        tmpPanelHeight = tmpPanelHeight.replace("px","");
-      }
-      var actualHeight = parseInt(tmpPanelHeight);
-      // grafana minimum height for a panel is 250px
-      if (actualHeight < 250) {
-        actualHeight = 250;
-      }
-      return actualHeight;
+    }
+    // replace px
+    tmpPanelHeight = tmpPanelHeight.replace("px","");
+    // convert to numeric value
+    var actualHeight = parseInt(tmpPanelHeight);
+    return actualHeight;
   }
 
   exportCsv() {
