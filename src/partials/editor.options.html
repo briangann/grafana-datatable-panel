@@ -160,14 +160,28 @@
 					<label class="gf-form-label">Column</label>
 					<input type="text" class="gf-form-input" label="column" placeholder="Metrics" ng-model="style.column">
 				</div>
+				<div class="gf-form" ng-if="style.type === 'string'">
+				  <label class="gf-form-label width-7">Split cell by</label>
+				  <input type="text" placeholder="Name or regex" class="gf-form-input width-20" ng-model="style.splitPattern" bs-tooltip="'Specify regex using /my.*regex/ syntax'"
+						 ng-model-onblur ng-blur="editor.render()" data-placement="right">
+				  <info-popover mode="right-absolute">
+					<p>Specify an regular expression</p>
+					<span>
+					  Use a regular expression to split a cell's content:
+					  <br>
+					  <em>$__pattern_n</em> refers to Nth sub-string after splitting the cell's content. Sub-string indexes are started from 0. For instance,
+					  <em>$__pattern_0</em> refers to the first sub-string of a cell's content.
+					</span>
+				  </info-popover>
+				</div>
 				<div class="gf-form gf-form--grow">
 					<div class="gf-form-label gf-form-label--grow"></div>
 				</div>
 				<div class="gf-form">
 				  <label class="gf-form-label">
-				    <a class="pointer" ng-click="ctrl.removeColumnStyle(style)">
-				      <i class="fa fa-trash"></i>
-				    </a>
+					<a class="pointer" ng-click="ctrl.removeColumnStyle(style)">
+					  <i class="fa fa-trash"></i>
+					</a>
 				  </label>
 				</div>
 			</div>

@@ -57,11 +57,22 @@ export class DatatableRenderer {
     if (_.isArray(v)) {
       v = v.join(', ');
     }
+
+    var cellTemplate          = style.url;
+    var cellTemplateVariables = {};
+    if (typeof style.splitPattern === 'undefined' || style.splitPattern === '') {
+      style.splitPattern = '/ /';
+    }
+
+    var regex  = kbn.stringToJsRegex(String(style.splitPattern));
+    var values = v.split(regex);
+    values.map((val, i) => cellTemplate = cellTemplate.replace(`$__pattern_${i}`, val));
+
     if (style && style.sanitize) {
       return this.sanitize(v);
     }
-    else if (style && style.link && style.url && column.text === style.column) {
-      return '<a href="' + style.url.replace('{}', v) + '" target="_blank">' + v + '</a>';
+    else if (style && style.link && cellTemplate && column.text === style.column) {
+      return '<a href="' + cellTemplate.replace('{}', v) + '" target="_blank">' + v + '</a>';
     }
     else if (style && style.link) {
       return '<a href="' + v + '" target="_blank">' + v + '</a>';
