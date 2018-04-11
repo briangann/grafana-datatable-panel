@@ -324,7 +324,7 @@ export class DatatableRenderer {
               if (_this.panel.rowNumbersEnabled) {
                 actualColumn -= 1;
               }
-              if (_this.table.columns[actualColumn].type !== undefined) return;
+              if (_this.table.columns[actualColumn].type === undefined) return;
               // for coloring rows, get the "worst" threshold
               var rowColor = null;
               var color = null;
