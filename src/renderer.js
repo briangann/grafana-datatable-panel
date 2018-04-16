@@ -57,16 +57,23 @@ export class DatatableRenderer {
     if (_.isArray(v)) {
       v = v.join(', ');
     }
+    v = String(v);
 
+   if (typeof style === 'undefined') { style = {}; }
     var cellTemplate          = style.url;
     var cellTemplateVariables = {};
+
     if (typeof style.splitPattern === 'undefined' || style.splitPattern === '') {
       style.splitPattern = '/ /';
     }
 
     var regex  = kbn.stringToJsRegex(String(style.splitPattern));
     var values = v.split(regex);
-    values.map((val, i) => cellTemplate = cellTemplate.replace(`$__pattern_${i}`, val));
+    if (typeof cellTemplate !== 'undefined') {
+      // Replace $__cell with this cell's content.
+      cellTemplate = cellTemplate.replace(/\$__cell\b/, v);
+      values.map((val, i) => cellTemplate = cellTemplate.replace(`$__pattern_${i}`, val));
+    }
 
     if (style && style.sanitize) {
       return this.sanitize(v);
@@ -127,6 +134,7 @@ export class DatatableRenderer {
         return valueFormatter(v, style.decimals, null);
       };
     }
+
     return (value) => {
       return this.defaultCellFormatter(value, style, column);
     };
@@ -135,26 +143,36 @@ export class DatatableRenderer {
   /**
    * [formatColumnValue description]
    * @param  {[type]} colIndex [description]
+   * @param  {[type]} rowIndex [description]
    * @param  {[type]} value    [description]
    * @return {[type]}          [description]
    */
-  formatColumnValue(colIndex, value) {
-    if (this.formatters[colIndex]) {
-      return this.formatters[colIndex](value);
-    }
+  formatColumnValue(colIndex, rowIndex, value) {
 
-    for (let i = 0; i < this.panel.styles.length; i++) {
-      let style = this.panel.styles[i];
-      let column = this.table.columns[colIndex];
-      var regex = kbn.stringToJsRegex(style.pattern);
-      if (column.text.match(regex)) {
-        this.formatters[colIndex] = this.createColumnFormatter(style, column);
-        return this.formatters[colIndex](value);
+    if (!this.formatters[colIndex]) {
+      for (let i = 0; i < this.panel.styles.length; i++) {
+        let style = this.panel.styles[i];
+        let column = this.table.columns[colIndex];
+        var regex = kbn.stringToJsRegex(style.pattern);
+        if (column.text.match(regex)) {
+          this.formatters[colIndex] = this.createColumnFormatter(style, column);
+        }
       }
     }
 
-    this.formatters[colIndex] = this.defaultCellFormatter;
-    return this.formatters[colIndex](value);
+    if (!this.formatters[colIndex]) {
+      this.formatters[colIndex] = this.defaultCellFormatter;
+    }
+
+    let v = this.formatters[colIndex](value);
+
+    if (/\$__cell_\d+/.exec(v)) {
+      for (let i = this.table.columns.length-1; i >= 0; i--) {
+        v = v.replace(`$__cell_${i}`, this.table.rows[rowIndex][i]);
+      }
+    }
+
+    return v;
   }
 
   /**
@@ -164,16 +182,16 @@ export class DatatableRenderer {
    */
   generateFormattedData(rowData) {
     let formattedRowData = [];
-    for (var y = 0; y < rowData.length; y++) {
+
+    for (let y = 0; y < rowData.length; y++) {
       let row = this.table.rows[y];
       let cellData = [];
-      //cellData.push('');
-      for (var i = 0; i < this.table.columns.length; i++) {
-        let value = this.formatColumnValue(i, row[i]);
+      for (let i = 0; i < this.table.columns.length; i++) {
+        let value = this.formatColumnValue(i, y, row[i]);
         if (value === undefined) {
           this.table.columns[i].hidden = true;
         }
-        cellData.push(this.formatColumnValue(i, row[i]));
+        cellData.push(value);
       }
       if (this.panel.rowNumbersEnabled) {
         cellData.unshift('rowCounter');
@@ -551,7 +569,7 @@ export class DatatableRenderer {
         let row = this.table.rows[y];
         let new_row = [];
         for (var i = 0; i < this.table.columns.length; i++) {
-          new_row.push(this.formatColumnValue(i, row[i]));
+          new_row.push(this.formatColumnValue(i, y, row[i]));
         }
         rows.push(new_row);
       }
