@@ -38,8 +38,9 @@ jobs:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-      - store_artifacts:
-          path: dist
+      # ignore for now
+      #- store_artifacts:
+      #    path: dist
 
 workflows:
   version: 2
