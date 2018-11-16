@@ -28,7 +28,8 @@ jobs:
           - v1-dependencies-
 
       - run: yarn install
-
+      - run: bower install
+      - run: grunt
       - save_cache:
           paths:
             - node_modules
