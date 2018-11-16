@@ -72,7 +72,7 @@ export class DatatableRenderer {
       return this.sanitize(v);
     }
     else if (style && style.link && cellTemplate && column.text === style.column) {
-      return '<a href="' + cellTemplate.replace('{}', v) + '" target="_blank">' + v + '</a>';
+      return '<a href="' + cellTemplate.replace(/\{\}|\$__cell/g, v) + '" target="_blank">' + v + '</a>';
     }
     else if (style && style.link) {
       return '<a href="' + v + '" target="_blank">' + v + '</a>';
