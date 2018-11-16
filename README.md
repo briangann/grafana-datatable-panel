@@ -1,4 +1,5 @@
 # Grafana Datatable Panel
+[![CircleCI](https://circleci.com/gh/briangann/grafana-datatable-panel.svg?style=svg)](https://circleci.com/gh/briangann/grafana-datatable-panel)
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for [Grafana](http://www.grafana.org) 3.x/4.x
 
