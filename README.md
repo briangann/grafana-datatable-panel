@@ -2,6 +2,7 @@
 [![CircleCI](https://circleci.com/gh/briangann/grafana-datatable-panel.svg?style=svg)](https://circleci.com/gh/briangann/grafana-datatable-panel)
 https://david-dm.org/briangann/grafana-datatable-panel.svg
 [![David Dependancy Status](https://david-dm.org/briangann/grafana-datatable-panel.svg)](https://david-dm.org/briangann/grafana-datatable-panel)
+[![David devDependancy Status](https://david-dm.org/briangann/grafana-datatable-panel/dev-status.svg)](https://david-dm.org/briangann/grafana-datatable-panel?type=dev)
 [![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for [Grafana](http://www.grafana.org) 3.x/4.x
