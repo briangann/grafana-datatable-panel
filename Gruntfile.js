@@ -79,8 +79,8 @@ module.exports = function(grunt) {
         src: ['**/external/**'],
         dest: 'dist'
       },
-      bower_libs: {
-        cwd: 'bower_components',
+      runtime_libs: {
+        cwd: 'node_modules',
         expand: true,
         src: [
           'bootstrap/**',
@@ -150,7 +150,7 @@ module.exports = function(grunt) {
 
     watch: {
       rebuild_all: {
-        files: ['src/**/*', 'README.md', '!src/node_modules/**', '!src/bower_components/**'],
+        files: ['src/**/*', 'README.md', '!src/node_modules/**'],
         tasks: ['default'],
         options: {spawn: false}
       },
@@ -179,7 +179,7 @@ module.exports = function(grunt) {
   grunt.registerTask('default', [
           'jshint',
           'multidest',
-          'copy:bower_libs',
+          'copy:runtime_libs',
           'css_selectors',
           'cssmin',
           'babel']);
