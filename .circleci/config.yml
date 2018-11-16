@@ -8,7 +8,7 @@ jobs:
   build:
     docker:
       # specify the version you desire here
-      - image: circleci/node:7.10
+      - image: circleci/node:10.12-stretch
       
       # Specify service dependencies here if necessary
       # CircleCI maintains a library of pre-built images
@@ -27,17 +27,24 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
-      - run: sudo npm install -g bower
-      - run: sudo npm install -g grunt-cli
-      - run: yarn install
-      - run: bower install
-      - run: grunt
+      - run:
+          name: Build
+          command: |
+            sudo npm install -g bower
+            sudo npm install -g grunt-cli
+            sudo npm install -g jest
+            yarn install
+            bower install
+            grunt
       - save_cache:
           paths:
             - node_modules
           key: v1-dependencies-{{ checksum "package.json" }}
-        
-      # run tests!
-      #- run: yarn test
+      - store_artifacts:
+          path: dist
 
-
+workflows:
+  version: 2
+  build:
+    jobs:
+      - build
