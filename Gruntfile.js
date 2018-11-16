@@ -7,7 +7,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-multi-dest');
   grunt.loadNpmTasks('grunt-babel');
-  grunt.loadNpmTasks('grunt-force-task');
   grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks("grunt-ts");
   grunt.loadNpmTasks('grunt-css-selectors');
@@ -158,7 +157,7 @@ module.exports = function(grunt) {
 
     babel: {
       options: {
-        ignore: ['**/bower_components/*','**/external/*'],
+        ignore: ['**/external/*'],
         sourceMap: true,
         presets: ['@babel/preset-env']
       },
