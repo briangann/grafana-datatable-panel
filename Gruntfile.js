@@ -2,7 +2,6 @@ module.exports = function(grunt) {
 
   require('load-grunt-tasks')(grunt);
 
-  grunt.loadNpmTasks('grunt-execute');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-package-modules');
   grunt.loadNpmTasks('grunt-contrib-concat');
@@ -161,8 +160,7 @@ module.exports = function(grunt) {
       options: {
         ignore: ['**/bower_components/*','**/external/*'],
         sourceMap: true,
-        presets:  ["es2015"],
-        plugins: ['transform-es2015-modules-systemjs', "transform-es2015-for-of"],
+        presets: ['@babel/preset-env']
       },
       dist: {
         files: [{
