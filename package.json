@@ -1,7 +1,7 @@
 {
   "name": "briangann-datatable-panel",
   "private": true,
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Grafana Datatable Panel",
   "main": "module.js",
   "scripts": {
@@ -19,6 +19,9 @@
   "devDependencies": {
     "@babel/core": "^7.1.6",
     "@babel/preset-env": "^7.1.6",
+    "@types/datatables.net": "^1.10.13",
+    "@types/datatables.net-buttons": "^1.4.0",
+    "@types/datatables.net-select": "^1.2.4",
     "@types/jquery": "^3.3.22",
     "babel-cli": "^6.26.0",
     "babel-preset-env": "^1.7.0",

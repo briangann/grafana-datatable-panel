@@ -603,7 +603,30 @@
   dependencies:
     utilise "^2.3.5"
 
-"@types/jquery@^3.3.22":
+"@types/datatables.net-buttons@^1.4.0":
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/@types/datatables.net-buttons/-/datatables.net-buttons-1.4.0.tgz#e9c7a0dd4c01c5e5deda7c3fafb002f6d9232d9c"
+  integrity sha512-ocPxBjnNCY3T0wgeJAMHyEKwUf4yGxRo0eP8+Jwg+GGC5PySEjECJql+7kY56fWEa+2L0qFZzUzZSuk7ThHwSw==
+  dependencies:
+    "@types/datatables.net" "*"
+    "@types/jquery" "*"
+
+"@types/datatables.net-select@^1.2.4":
+  version "1.2.4"
+  resolved "https://registry.yarnpkg.com/@types/datatables.net-select/-/datatables.net-select-1.2.4.tgz#6693f0238b1efb13cd593f15b92181075f9c00ce"
+  integrity sha512-eOKwjLgQc4CHOgrv2QCIs5Il8/hPMETtI3MqlzXlK5jVNOKQA9e0o7hk+pgilk/oGOv6mbVRF47XeSu40zwxQA==
+  dependencies:
+    "@types/datatables.net" "*"
+    "@types/jquery" "*"
+
+"@types/datatables.net@*", "@types/datatables.net@^1.10.13":
+  version "1.10.13"
+  resolved "https://registry.yarnpkg.com/@types/datatables.net/-/datatables.net-1.10.13.tgz#43458dc4ac31af3393b70f3589ba240b7aa3269e"
+  integrity sha512-0HFciKksfrrS3KYzqot2EZkZd2pADKN6ek92BqUZ46b1HdwPp8TV3s8mSpqRVGQofPr/iZBW0aS6cKG6oaa0MQ==
+  dependencies:
+    "@types/jquery" "*"
+
+"@types/jquery@*", "@types/jquery@^3.3.22":
   version "3.3.22"
   resolved "https://registry.yarnpkg.com/@types/jquery/-/jquery-3.3.22.tgz#cde55dc8f83207dffd16205b05f97ce824581735"
   integrity sha512-a4JDcIhJhHYnoWCkG3xT2CZxXZeA92JeREESorg0DMQ3ZsjuKF48h7XK4l5Gl2GRa/ItGRpKMT0pyK88yRgqXQ==
@@ -4266,11 +4289,6 @@ grunt-css-selectors@^1.3.0:
   dependencies:
     rework "^1.0.0"
     rework-mutate-selectors "^2.0.0"
-
-grunt-force-task@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/grunt-force-task/-/grunt-force-task-2.0.0.tgz#5c9903f7740961e981173d1c082c18a5d7305d49"
-  integrity sha1-XJkD93QJYemBFz0cCCwYpdcwXUk=
 
 grunt-known-options@~1.1.0:
   version "1.1.1"
