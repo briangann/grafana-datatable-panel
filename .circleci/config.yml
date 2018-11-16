@@ -27,6 +27,8 @@ jobs:
           # fallback to using the latest cache if no exact match is found
           - v1-dependencies-
 
+      - run: sudo npm install -g bower
+      - run: sudo npm install -g grunt-cli
       - run: yarn install
       - run: bower install
       - run: grunt
