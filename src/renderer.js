@@ -520,7 +520,9 @@ export class DatatableRenderer {
     // hide columns that are marked hidden
     for (let i = 0; i < this.table.columns.length; i++) {
       if (this.table.columns[i].hidden) {
-        newDT.column( i + rowNumberOffset ).visible( false );
+        var column = newDT.column( i + rowNumberOffset );
+        column.visible( false );
+        column.data(null);
       }
     }
 
