@@ -101,7 +101,7 @@ export class DatatableRenderer {
     }
     if (style.type === 'hidden') {
       return v => {
-        return undefined;
+        return null;
       };
     }
     if (style.type === 'date') {
@@ -188,7 +188,7 @@ export class DatatableRenderer {
       let cellData = [];
       for (let i = 0; i < this.table.columns.length; i++) {
         let value = this.formatColumnValue(i, y, row[i]);
-        if (value === undefined) {
+        if ((value === undefined) || (value === null)) {
           this.table.columns[i].hidden = true;
         }
         cellData.push(value);
@@ -514,6 +514,7 @@ export class DatatableRenderer {
       tableOptions.paging = true;
       tableOptions.pagingType = this.panel.datatablePagingType;
     }
+
     var $datatable = $(tableHolderId);
     var newDT = $datatable.DataTable(tableOptions);
 
