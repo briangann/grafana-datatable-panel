@@ -281,7 +281,7 @@ export class DatatableRenderer {
       value = parseFloat(items[0].replace(",", "."));
       colStyle = this.getStyleForColumn(columnNumber);
     }
-    if (colStyle !== null) {
+    if (colStyle !== null && colStyle.colorMode != null) {
       // check color for either cell or row
       if ((colorState.cell) || (colorState.row) || (colorState.rowcolumn)){
         // bgColor = _this.colorState.cell;
