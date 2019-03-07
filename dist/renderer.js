@@ -95,10 +95,32 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             if (_.isArray(v)) {
               v = v.join(', ');
             }
+            v = String(v);
+
+            if (typeof style === 'undefined') {
+              style = {};
+            }
+            var cellTemplate = style.url;
+            var cellTemplateVariables = {};
+
+            if (typeof style.splitPattern === 'undefined' || style.splitPattern === '') {
+              style.splitPattern = '/ /';
+            }
+
+            var regex = kbn.stringToJsRegex(String(style.splitPattern));
+            var values = v.split(regex);
+            if (typeof cellTemplate !== 'undefined') {
+              // Replace $__cell with this cell's content.
+              cellTemplate = cellTemplate.replace(/\$__cell\b/, v);
+              values.map(function (val, i) {
+                return cellTemplate = cellTemplate.replace('$__pattern_' + i, val);
+              });
+            }
+
             if (style && style.sanitize) {
               return this.sanitize(v);
-            } else if (style && style.link && style.url && column.text === style.column) {
-              return '<a href="' + style.url.replace('{}', v) + '" target="_blank">' + v + '</a>';
+            } else if (style && style.link && cellTemplate && column.text === style.column) {
+              return '<a href="' + cellTemplate.replace(/\{\}|\$__cell/g, v) + '" target="_blank">' + v + '</a>';
             } else if (style && style.link) {
               return '<a href="' + v + '" target="_blank">' + v + '</a>';
             } else {
@@ -115,7 +137,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
             }
             if (style.type === 'hidden') {
               return function (v) {
-                return undefined;
+                return null;
               };
             }
             if (style.type === 'date') {
@@ -148,44 +170,104 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                 return valueFormatter(v, style.decimals, null);
               };
             }
+            if (style.type === 'string') {
+              return function (v) {
+                if (_.isArray(v)) {
+                  v = v.join(', ');
+                }
+
+                var mappingType = style.mappingType || 0;
+
+                if (mappingType === 1 && style.valueMaps) {
+                  for (var i = 0; i < style.valueMaps.length; i++) {
+                    var map = style.valueMaps[i];
+
+                    if (v === null) {
+                      if (map.value === 'null') {
+                        return map.text;
+                      }
+                      continue;
+                    }
+
+                    // Allow both numeric and string values to be mapped
+                    if (!_.isString(v) && Number(map.value) === Number(v) || map.value === v) {
+                      return _this2.defaultCellFormatter(map.text, style, column);
+                    }
+                  }
+                }
+
+                if (mappingType === 2 && style.rangeMaps) {
+                  for (var _i = 0; _i < style.rangeMaps.length; _i++) {
+                    var _map = style.rangeMaps[_i];
+
+                    if (v === null) {
+                      if (_map.from === 'null' && _map.to === 'null') {
+                        return _map.text;
+                      }
+                      continue;
+                    }
+
+                    if (Number(_map.from) <= Number(v) && Number(_map.to) >= Number(v)) {
+                      return _this2.defaultCellFormatter(_map.text, style, column);
+                    }
+                  }
+                }
+
+                if (v === null || v === void 0) {
+                  return '-';
+                }
+
+                return _this2.defaultCellFormatter(v, style, column);
+              };
+            }
+
             return function (value) {
               return _this2.defaultCellFormatter(value, style, column);
             };
           }
         }, {
           key: 'formatColumnValue',
-          value: function formatColumnValue(colIndex, value) {
-            if (this.formatters[colIndex]) {
-              return this.formatters[colIndex](value);
-            }
+          value: function formatColumnValue(colIndex, rowIndex, value) {
 
-            for (var i = 0; i < this.panel.styles.length; i++) {
-              var style = this.panel.styles[i];
-              var column = this.table.columns[colIndex];
-              var regex = kbn.stringToJsRegex(style.pattern);
-              if (column.text.match(regex)) {
-                this.formatters[colIndex] = this.createColumnFormatter(style, column);
-                return this.formatters[colIndex](value);
+            if (!this.formatters[colIndex]) {
+              for (var i = 0; i < this.panel.styles.length; i++) {
+                var style = this.panel.styles[i];
+                var column = this.table.columns[colIndex];
+                var regex = kbn.stringToJsRegex(style.pattern);
+                if (column.text.match(regex)) {
+                  this.formatters[colIndex] = this.createColumnFormatter(style, column);
+                }
               }
             }
 
-            this.formatters[colIndex] = this.defaultCellFormatter;
-            return this.formatters[colIndex](value);
+            if (!this.formatters[colIndex]) {
+              this.formatters[colIndex] = this.defaultCellFormatter;
+            }
+
+            var v = this.formatters[colIndex](value);
+
+            if (/\$__cell_\d+/.exec(v)) {
+              for (var _i2 = this.table.columns.length - 1; _i2 >= 0; _i2--) {
+                v = v.replace('$__cell_' + _i2, this.table.rows[rowIndex][_i2]);
+              }
+            }
+
+            return v;
           }
         }, {
           key: 'generateFormattedData',
           value: function generateFormattedData(rowData) {
             var formattedRowData = [];
+
             for (var y = 0; y < rowData.length; y++) {
               var row = this.table.rows[y];
               var cellData = [];
-              //cellData.push('');
               for (var i = 0; i < this.table.columns.length; i++) {
-                var value = this.formatColumnValue(i, row[i]);
-                if (value === undefined) {
+                var value = this.formatColumnValue(i, y, row[i]);
+                if (value === undefined || value === null) {
                   this.table.columns[i].hidden = true;
                 }
-                cellData.push(this.formatColumnValue(i, row[i]));
+                cellData.push(value);
               }
               if (this.panel.rowNumbersEnabled) {
                 cellData.unshift('rowCounter');
@@ -213,7 +295,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
         }, {
           key: 'getCellColors',
           value: function getCellColors(colorState, columnNumber, cellData) {
-            var items = cellData.split(/(\s+)/);
+            var items = cellData.split(/([^0-9.,]+)/);
             // only color cell if the content is a number?
             var bgColor = null;
             var bgColorIndex = null;
@@ -227,7 +309,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               value = parseFloat(items[0].replace(",", "."));
               colStyle = this.getStyleForColumn(columnNumber);
             }
-            if (colStyle !== null) {
+            if (colStyle !== null && colStyle.colorMode != null) {
               // check color for either cell or row
               if (colorState.cell || colorState.row || colorState.rowcolumn) {
                 // bgColor = _this.colorState.cell;
@@ -336,7 +418,8 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
                   if (_this.panel.rowNumbersEnabled) {
                     actualColumn -= 1;
                   }
-                  if (_this.table.columns[actualColumn].type !== undefined) return;
+                  // FIXME: I hidden this line due to all columns are with undefined type, so they are not colorized
+                  // if (_this.table.columns[actualColumn].type === undefined) return;
                   // for coloring rows, get the "worst" threshold
                   var rowColor = null;
                   var color = null;
@@ -481,8 +564,10 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               data: formattedData,
               columns: columns,
               columnDefs: columnDefs,
+              // TODO: move search options to editor
               "search": {
-                "regex": true
+                "regex": true,
+                "smart": false
               },
               order: orderSetting
             };
@@ -493,13 +578,14 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               tableOptions.paging = true;
               tableOptions.pagingType = this.panel.datatablePagingType;
             }
+
             var $datatable = $(tableHolderId);
             var newDT = $datatable.DataTable(tableOptions);
 
             // hide columns that are marked hidden
-            for (var _i = 0; _i < this.table.columns.length; _i++) {
-              if (this.table.columns[_i].hidden) {
-                newDT.column(_i + rowNumberOffset).visible(false);
+            for (var _i3 = 0; _i3 < this.table.columns.length; _i3++) {
+              if (this.table.columns[_i3].hidden) {
+                newDT.column(_i3 + rowNumberOffset).visible(false);
               }
             }
 
@@ -549,7 +635,7 @@ System.register(['jquery', 'app/core/utils/kbn', 'moment', './libs/datatables.ne
               var row = this.table.rows[y];
               var new_row = [];
               for (var i = 0; i < this.table.columns.length; i++) {
-                new_row.push(this.formatColumnValue(i, row[i]));
+                new_row.push(this.formatColumnValue(i, y, row[i]));
               }
               rows.push(new_row);
             }
