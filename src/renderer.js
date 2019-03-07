@@ -134,6 +134,56 @@ export class DatatableRenderer {
         return valueFormatter(v, style.decimals, null);
       };
     }
+    if (style.type === 'string') {
+      return v => {
+        if (_.isArray(v)) {
+          v = v.join(', ');
+        }
+
+        const mappingType = style.mappingType || 0;
+
+        if (mappingType === 1 && style.valueMaps) {
+          for (let i = 0; i < style.valueMaps.length; i++) {
+            const map = style.valueMaps[i];
+
+            if (v === null) {
+              if (map.value === 'null') {
+                return map.text;
+              }
+              continue;
+            }
+
+            // Allow both numeric and string values to be mapped
+            if ((!_.isString(v) && Number(map.value) === Number(v)) || map.value === v) {
+              return this.defaultCellFormatter(map.text, style, column);
+            }
+          }
+        }
+
+        if (mappingType === 2 && style.rangeMaps) {
+          for (let i = 0; i < style.rangeMaps.length; i++) {
+            const map = style.rangeMaps[i];
+
+            if (v === null) {
+              if (map.from === 'null' && map.to === 'null') {
+                return map.text;
+              }
+              continue;
+            }
+
+            if (Number(map.from) <= Number(v) && Number(map.to) >= Number(v)) {
+              return this.defaultCellFormatter(map.text, style, column);
+            }
+          }
+        }
+
+        if (v === null || v === void 0) {
+          return '-';
+        }
+
+        return this.defaultCellFormatter(v, style, column);
+      };
+    }
 
     return (value) => {
       return this.defaultCellFormatter(value, style, column);
@@ -503,10 +553,12 @@ export class DatatableRenderer {
       data: formattedData,
       columns: columns,
       columnDefs: columnDefs,
+      // TODO: move search options to editor
       "search": {
-        "regex": true
+        "regex": true,
+        "smart": false
       },
-      order: orderSetting
+      order: orderSetting,
     };
     if (this.panel.scroll) {
       tableOptions.paging = false;

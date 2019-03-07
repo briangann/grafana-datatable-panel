@@ -182,6 +182,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     // editor
 
     this.addColumnSegment = uiSegmentSrv.newPlusButton();
+    this.mappingTypes = [{ text: 'Value to text', value: 1 }, { text: 'Range to text', value: 2 }];
     this.columnSortMethods = [
       {
         text: 'Ascending',
@@ -528,6 +529,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         pattern: '/.*/',
         dateFormat: 'YYYY-MM-DD HH:mm:ss',
         thresholds: [],
+        mappingType: 1,
       };
       this.panel.styles.push(angular.copy(columnStyleDefaults));
   }
@@ -630,6 +632,32 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   columnWidthHintsChanged() {
+    this.render();
+  }
+
+  addValueMap(style) {
+    if (!style.valueMaps) {
+      style.valueMaps = [];
+    }
+    style.valueMaps.push({ value: '', text: '' });
+    this.render();
+  }
+
+  removeValueMap(style, index) {
+    style.valueMaps.splice(index, 1);
+    this.render();
+  }
+
+  addRangeMap(style) {
+    if (!style.rangeMaps) {
+      style.rangeMaps = [];
+    }
+    style.rangeMaps.push({ from: '', to: '', text: '' });
+    this.render();
+  }
+
+  removeRangeMap(style, index) {
+    style.rangeMaps.splice(index, 1);
     this.render();
   }
 
