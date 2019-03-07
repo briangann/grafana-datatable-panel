@@ -217,7 +217,7 @@ export class DatatableRenderer {
   }
 
   getCellColors(colorState, columnNumber, cellData) {
-    var items = cellData.split(/(\s+)/);
+    var items = cellData.split(/([^0-9.,]+)/);
     // only color cell if the content is a number?
     var bgColor = null;
     var bgColorIndex = null;
@@ -353,7 +353,8 @@ export class DatatableRenderer {
               if (_this.panel.rowNumbersEnabled) {
                 actualColumn -= 1;
               }
-              if (_this.table.columns[actualColumn].type === undefined) return;
+              // FIXME: I hidden this line due to all columns are with undefined type, so they are not colorized
+              // if (_this.table.columns[actualColumn].type === undefined) return;
               // for coloring rows, get the "worst" threshold
               var rowColor = null;
               var color = null;
