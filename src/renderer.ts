@@ -1,6 +1,7 @@
 import $ from 'jquery';
 import kbn from 'grafana/app/core/utils/kbn';
-import { stringToJsRegex } from '@grafana/data';
+// broken
+//import { stringToJsRegex } from '@grafana/data';
 
 import moment from 'moment';
 import _ from 'lodash';
@@ -15,6 +16,10 @@ export class DatatableRenderer {
   isUtc: boolean;
   sanitize: any;
 
+  // from app/core/constants
+  GRID_CELL_HEIGHT = 30;
+  GRID_CELL_VMARGIN = 10;
+  MIN_PANEL_HEIGHT = this.GRID_CELL_HEIGHT * 3;
   constructor(panel: any, table: any, isUtc: boolean, sanitize: any) {
     this.formatters = [];
     this.colorState = {};
@@ -24,6 +29,17 @@ export class DatatableRenderer {
     this.sanitize = sanitize;
   }
 
+  // taken from @grafana/data
+  stringToJsRegex(str: string): RegExp {
+    if (str[0] !== '/') {
+      return new RegExp('^' + str + '$');
+    }
+    const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
+    if (!match) {
+      throw new Error(`'${str}' is not a valid regular expression.`);
+    }
+    return new RegExp(match[1], match[2]);
+  }
   /**
    * Given a value, return the color corresponding to the threshold set
    * @param  {[Float]} value [Value to be evaluated]
@@ -80,7 +96,7 @@ export class DatatableRenderer {
       style.splitPattern = '/ /';
     }
 
-    const regex = stringToJsRegex(String(style.splitPattern));
+    const regex = this.stringToJsRegex(String(style.splitPattern));
     const values = v.split(regex);
     if (typeof cellTemplate !== 'undefined') {
       // Replace $__cell with this cell's content.
@@ -212,7 +228,7 @@ export class DatatableRenderer {
       for (let i = 0; i < this.panel.styles.length; i++) {
         const style = this.panel.styles[i];
         const column = this.table.columns[colIndex];
-        const regex = stringToJsRegex(style.pattern);
+        const regex = this.stringToJsRegex(style.pattern);
         if (column.text.match(regex)) {
           this.formatters[colIndex] = this.createColumnFormatter(style, column);
         }
@@ -268,7 +284,7 @@ export class DatatableRenderer {
       if (column === undefined) {
         break;
       }
-      const regex = stringToJsRegex(style.pattern);
+      const regex = this.stringToJsRegex(style.pattern);
       if (column.text.match(regex)) {
         colStyle = style;
         break;
@@ -545,6 +561,14 @@ export class DatatableRenderer {
       // shift the data to the right
     }
     const panelHeight = this.panel.panelHeight;
+    /*
+    let panelHeight = 0;
+    if (this.panel.scroll) {
+      if (typeof this.panel.height === 'undefined') {
+        panelHeight = this.getGridHeight(this.panel.gridPos.h);
+      }
+    }
+    */
     const orderSetting = this.panel.sortByColumnsData;
     //if (this.panel.rowNumbersEnabled) {
     //  // when row numbers are enabled, show them ascending
@@ -555,6 +579,7 @@ export class DatatableRenderer {
     selectSettings = {
       style: 'os',
     };
+//    scrollY: panelHeight.toString() + 'px',
     const tableOptions = {
       lengthMenu: [[5, 10, 25, 50, 75, 100, -1], [5, 10, 25, 50, 75, 100, 'All']],
       searching: this.panel.searchEnabled,
@@ -576,6 +601,7 @@ export class DatatableRenderer {
         smart: false,
       },
       order: orderSetting,
+      scroll: this.panel.scroll,
       paging: !this.panel.scroll,
       pagingType: this.panel.datatablePagingType,
     };
@@ -640,6 +666,11 @@ export class DatatableRenderer {
         })
         .draw();
     }
+  }
+
+  getGridHeight(height: number) {
+    const gridHeight = Math.ceil(height * (this.GRID_CELL_HEIGHT + this.GRID_CELL_VMARGIN));
+    return gridHeight;
   }
 
   render_values() {
