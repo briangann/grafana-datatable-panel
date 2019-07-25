@@ -124,6 +124,13 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           col: 0,
           desc: true
         },
+        columnAliases: [],
+        columnWidthHints: [],
+        sortByColumnsData: [[0, 'desc']],
+        sortByColumns: [{
+          columnData: 0,
+          sortMethod: 'desc'
+        }],
         datatableTheme: 'basic_theme',
         themeOptions: {
           light: './css/datatable-light.css',
@@ -196,6 +203,15 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
           // editor
 
           _this2.addColumnSegment = uiSegmentSrv.newPlusButton();
+          _this2.mappingTypes = [{ text: 'Value to text', value: 1 }, { text: 'Range to text', value: 2 }];
+          _this2.columnSortMethods = [{
+            text: 'Ascending',
+            value: 'asc'
+          }, {
+            text: 'Descending',
+            value: 'desc'
+          }];
+
           _this2.fontSizes = ['80%', '90%', '100%', '110%', '120%', '130%', '150%', '160%', '180%', '200%', '220%', '250%'];
           _this2.colorModes = [{
             text: 'Disabled',
@@ -530,7 +546,8 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
               colorMode: null,
               pattern: '/.*/',
               dateFormat: 'YYYY-MM-DD HH:mm:ss',
-              thresholds: []
+              thresholds: [],
+              mappingType: 1
             };
             this.panel.styles.push(angular.copy(columnStyleDefaults));
           }
@@ -552,6 +569,132 @@ System.register(['app/plugins/sdk', 'jquery', 'angular', 'app/core/utils/kbn', '
             var copy = ref[0];
             ref[0] = ref[2];
             ref[2] = copy;
+            this.render();
+          }
+        }, {
+          key: 'addColumnSortingRule',
+          value: function addColumnSortingRule() {
+            var defaultRule = {
+              columnData: 0,
+              sortMethod: 'desc'
+            };
+            // check if this column already exists
+            this.panel.sortByColumns.push(angular.copy(defaultRule));
+            this.columnSortChanged();
+          }
+        }, {
+          key: 'removeSortByColumn',
+          value: function removeSortByColumn(column) {
+            this.panel.sortByColumns = _.without(this.panel.sortByColumns, column);
+            this.columnSortChanged();
+          }
+        }, {
+          key: 'columnSortChanged',
+          value: function columnSortChanged() {
+            // take the values in sortByColumns and convert them into datatables format
+            var data = [];
+            if (this.panel.sortByColumns.length > 0) {
+              for (var i = 0; i < this.panel.sortByColumns.length; i++) {
+                // allow numbers and column names
+                var columnData = this.panel.sortByColumns[i].columnData;
+                var columnNumber = 0;
+                try {
+                  columnNumber = Int32.parseInt(columnData);
+                } catch (e) {
+                  // check if empty
+                  if (columnData === "") {
+                    columnNumber = 0;
+                  }
+                  // find the matching column index
+                  for (var j = 0; j < this.panel.columns.length; j++) {
+                    if (this.panel.columns[j].text === columnData) {
+                      columnNumber = j;
+                      break;
+                    }
+                  }
+                }
+                var sortDirection = this.panel.sortByColumns[i].sortMethod;
+                data.push([columnNumber, sortDirection]);
+              }
+            } else {
+              // default to column 0, descending
+              data.push([0, 'desc']);
+            }
+            this.panel.sortByColumnsData = data;
+            this.render();
+          }
+        }, {
+          key: 'addColumnAlias',
+          value: function addColumnAlias() {
+            var defaultAlias = {
+              name: '',
+              alias: ''
+            };
+            // check if this column already exists
+            this.panel.columnAliases.push(angular.copy(defaultAlias));
+            this.columnAliasChanged();
+          }
+        }, {
+          key: 'removeColumnAlias',
+          value: function removeColumnAlias(column) {
+            this.panel.columnAliases = _.without(this.panel.columnAliases, column);
+            this.columnAliasChanged();
+          }
+        }, {
+          key: 'columnAliasChanged',
+          value: function columnAliasChanged() {
+            this.render();
+          }
+        }, {
+          key: 'addColumnWidthHint',
+          value: function addColumnWidthHint() {
+            var defaultHint = {
+              name: '',
+              width: '80px'
+            };
+            // check if this column already exists
+            this.panel.columnWidthHints.push(angular.copy(defaultHint));
+            this.columnWidthHintsChanged();
+          }
+        }, {
+          key: 'removeColumnWidthHint',
+          value: function removeColumnWidthHint(column) {
+            this.panel.columnWidthHints = _.without(this.panel.columnWidthHints, column);
+            this.columnWidthHintsChanged();
+          }
+        }, {
+          key: 'columnWidthHintsChanged',
+          value: function columnWidthHintsChanged() {
+            this.render();
+          }
+        }, {
+          key: 'addValueMap',
+          value: function addValueMap(style) {
+            if (!style.valueMaps) {
+              style.valueMaps = [];
+            }
+            style.valueMaps.push({ value: '', text: '' });
+            this.render();
+          }
+        }, {
+          key: 'removeValueMap',
+          value: function removeValueMap(style, index) {
+            style.valueMaps.splice(index, 1);
+            this.render();
+          }
+        }, {
+          key: 'addRangeMap',
+          value: function addRangeMap(style) {
+            if (!style.rangeMaps) {
+              style.rangeMaps = [];
+            }
+            style.rangeMaps.push({ from: '', to: '', text: '' });
+            this.render();
+          }
+        }, {
+          key: 'removeRangeMap',
+          value: function removeRangeMap(style, index) {
+            style.rangeMaps.splice(index, 1);
             this.render();
           }
         }]);

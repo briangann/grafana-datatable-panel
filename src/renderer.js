@@ -101,7 +101,7 @@ export class DatatableRenderer {
     }
     if (style.type === 'hidden') {
       return v => {
-        return undefined;
+        return null;
       };
     }
     if (style.type === 'date') {
@@ -132,6 +132,56 @@ export class DatatableRenderer {
           this.colorState[style.colorMode] = this.getColorForValue(v, style);
         }
         return valueFormatter(v, style.decimals, null);
+      };
+    }
+    if (style.type === 'string') {
+      return v => {
+        if (_.isArray(v)) {
+          v = v.join(', ');
+        }
+
+        const mappingType = style.mappingType || 0;
+
+        if (mappingType === 1 && style.valueMaps) {
+          for (let i = 0; i < style.valueMaps.length; i++) {
+            const map = style.valueMaps[i];
+
+            if (v === null) {
+              if (map.value === 'null') {
+                return map.text;
+              }
+              continue;
+            }
+
+            // Allow both numeric and string values to be mapped
+            if ((!_.isString(v) && Number(map.value) === Number(v)) || map.value === v) {
+              return this.defaultCellFormatter(map.text, style, column);
+            }
+          }
+        }
+
+        if (mappingType === 2 && style.rangeMaps) {
+          for (let i = 0; i < style.rangeMaps.length; i++) {
+            const map = style.rangeMaps[i];
+
+            if (v === null) {
+              if (map.from === 'null' && map.to === 'null') {
+                return map.text;
+              }
+              continue;
+            }
+
+            if (Number(map.from) <= Number(v) && Number(map.to) >= Number(v)) {
+              return this.defaultCellFormatter(map.text, style, column);
+            }
+          }
+        }
+
+        if (v === null || v === void 0) {
+          return '-';
+        }
+
+        return this.defaultCellFormatter(v, style, column);
       };
     }
 
@@ -188,7 +238,7 @@ export class DatatableRenderer {
       let cellData = [];
       for (let i = 0; i < this.table.columns.length; i++) {
         let value = this.formatColumnValue(i, y, row[i]);
-        if (value === undefined) {
+        if ((value === undefined) || (value === null)) {
           this.table.columns[i].hidden = true;
         }
         cellData.push(value);
@@ -217,7 +267,7 @@ export class DatatableRenderer {
   }
 
   getCellColors(colorState, columnNumber, cellData) {
-    var items = cellData.split(/(\s+)/);
+    var items = cellData.split(/([^0-9.,]+)/);
     // only color cell if the content is a number?
     var bgColor = null;
     var bgColorIndex = null;
@@ -231,7 +281,7 @@ export class DatatableRenderer {
       value = parseFloat(items[0].replace(",", "."));
       colStyle = this.getStyleForColumn(columnNumber);
     }
-    if (colStyle !== null) {
+    if (colStyle !== null && colStyle.colorMode != null) {
       // check color for either cell or row
       if ((colorState.cell) || (colorState.row) || (colorState.rowcolumn)){
         // bgColor = _this.colorState.cell;
@@ -353,7 +403,8 @@ export class DatatableRenderer {
               if (_this.panel.rowNumbersEnabled) {
                 actualColumn -= 1;
               }
-              if (_this.table.columns[actualColumn].type === undefined) return;
+              // FIXME: I hidden this line due to all columns are with undefined type, so they are not colorized
+              // if (_this.table.columns[actualColumn].type === undefined) return;
               // for coloring rows, get the "worst" threshold
               var rowColor = null;
               var color = null;
@@ -502,10 +553,12 @@ export class DatatableRenderer {
       data: formattedData,
       columns: columns,
       columnDefs: columnDefs,
+      // TODO: move search options to editor
       "search": {
-        "regex": true
+        "regex": true,
+        "smart": false
       },
-      order: orderSetting
+      order: orderSetting,
     };
     if (this.panel.scroll) {
       tableOptions.paging = false;
@@ -514,6 +567,7 @@ export class DatatableRenderer {
       tableOptions.paging = true;
       tableOptions.pagingType = this.panel.datatablePagingType;
     }
+
     var $datatable = $(tableHolderId);
     var newDT = $datatable.DataTable(tableOptions);
 

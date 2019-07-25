@@ -31,12 +31,7 @@
 				<div class="gf-form-inline">
 				<div class="gf-form">
 					<label class="gf-form-label width-10">Column Name</label>
-					<div class="gf-form-select-wrapper width-20">
-						<select class="gf-form-input"
-						  ng-model="column.name"
-							ng-options="c.value as c.text for c in ctrl.panel.columns">
-						</select>
-					</div>
+                    <input type="text" class="gf-form-input width-20" ng-model="column.name" bs-typeahead="ctrl.getColumnNames" data-min-length=0 data-items=100>
 					<label class="gf-form-label width-6">Alias</label>
 					<input type="text"
 					  class="gf-form-input width-20"
@@ -65,12 +60,7 @@
 				<div class="gf-form-inline">
 				<div class="gf-form">
 					<label class="gf-form-label width-10">Column Name</label>
-					<div class="gf-form-select-wrapper width-20">
-						<select class="gf-form-input"
-						  ng-model="column.name"
-							ng-options="c.value as c.text for c in ctrl.panel.columns">
-						</select>
-					</div>
+                    <input type="text" class="gf-form-input width-20" ng-model="column.name" bs-typeahead="ctrl.getColumnNames" data-min-length=0 data-items=100>
 					<label class="gf-form-label width-10">Width (px or %)</label>
 					<input type="text"
 					  class="gf-form-input width-20"
@@ -102,14 +92,12 @@
 				<div class="gf-form">
 					<label class="gf-form-label width-10">Sorting Rule</label>
 					<input type="text"
-					  class="gf-form-input width-10"
-						ng-model="column.columnData"
-						spellcheck="false"
+					  class="gf-form-input width-20"
+						ng-model="column.name"
 						bs-typeahead="ctrl.getColumnNames"
 						ng-change="ctrl.columnSortChanged()"
 						data-min-length="0"
-						data-items="100"
-						ng-model-onblur>
+						data-items="100">
 					<div class="gf-form-select-wrapper width-10">
 						<select class="gf-form-input"
 						  ng-model="column.sortMethod"
@@ -160,14 +148,28 @@
 					<label class="gf-form-label">Column</label>
 					<input type="text" class="gf-form-input" label="column" placeholder="Metrics" ng-model="style.column">
 				</div>
+				<div class="gf-form" ng-if="style.type === 'string'">
+				  <label class="gf-form-label width-7">Split cell by</label>
+				  <input type="text" placeholder="Name or regex" class="gf-form-input width-20" ng-model="style.splitPattern" bs-tooltip="'Specify regex using /my.*regex/ syntax'"
+						 ng-model-onblur ng-blur="ctrl.render()" data-placement="right">
+				  <info-popover mode="right-absolute">
+					<p>Specify an regular expression</p>
+					<span>
+					  Use a regular expression to split a cell's content:
+					  <br>
+					  <em>$__pattern_n</em> refers to Nth sub-string after splitting the cell's content. Sub-string indexes are started from 0. For instance,
+					  <em>$__pattern_0</em> refers to the first sub-string of a cell's content.
+					</span>
+				  </info-popover>
+				</div>
 				<div class="gf-form gf-form--grow">
 					<div class="gf-form-label gf-form-label--grow"></div>
 				</div>
 				<div class="gf-form">
 				  <label class="gf-form-label">
-				    <a class="pointer" ng-click="ctrl.removeColumnStyle(style)">
-				      <i class="fa fa-trash"></i>
-				    </a>
+					<a class="pointer" ng-click="ctrl.removeColumnStyle(style)">
+					  <i class="fa fa-trash"></i>
+					</a>
 				  </label>
 				</div>
 			</div>
@@ -193,6 +195,66 @@
           <div class="gf-form-label gf-form-label--grow"></div>
         </div>
       </div>
+
+        <div class="gf-form-inline" ng-if="style.type === 'string'">
+            <div class="gf-form offset-width-8">
+                <label class="gf-form-label">Value mappings type</label>
+            </div>
+            <div class="gf-form">
+                <select class="gf-form-input width-10" ng-model="style.mappingType" ng-options="c.value as c.text for c in ctrl.mappingTypes" ng-change="ctrl.render()"></select>
+            </div>
+            <div class="gf-form">
+                <label class="gf-form-label" ng-if="style.mappingType==1">
+                    <a class="pointer" ng-click="ctrl.addValueMap(style)"><i class="fa fa-plus"></i></a>
+                </label>
+                <label class="gf-form-label" ng-if="style.mappingType==2">
+                    <a class="pointer" ng-click="ctrl.addRangeMap(style)"><i class="fa fa-plus"></i></a>
+                </label>
+            </div>
+        </div>
+        <div class="gf-form-inline" ng-repeat="map in style.valueMaps" ng-if="style.mappingType==1" ng-if="style.type === 'string'">
+            <div class="gf-form offset-width-8">
+                <span class="gf-form-label">
+                    <i class="fa fa-remove pointer" ng-click="ctrl.removeValueMap(style, $index)"></i>
+                </span>
+            </div>
+            <div class="gf-form">
+                <input type="text" class="gf-form-input max-width-10" ng-model="map.value" placeholder="Value" ng-blur="ctrl.render()">
+            </div>
+            <div class="gf-form">
+                <label class="gf-form-label">
+                    <i class="fa fa-arrow-right"></i>
+                </label>
+            </div>
+            <div class="gf-form">
+                <input type="text" class="gf-form-input max-width-10" ng-model="map.text" placeholder="Text" ng-blur="ctrl.render()">
+            </div>
+        </div>
+        <div class="gf-form-inline" ng-repeat="rangeMap in style.rangeMaps" ng-if="style.mappingType==2" ng-if="style.type === 'string'">
+            <div class="gf-form offset-width-8">
+                <span class="gf-form-label">
+                    <i class="fa fa-remove pointer" ng-click="ctrl.removeRangeMap(style, $index)"></i>
+                </span>
+            </div>
+            <div class="gf-form">
+                <span class="gf-form-label">From</span>
+            </div>
+            <div class="gf-form">
+                <input type="text" ng-model="rangeMap.from" class="gf-form-input max-width-6" ng-blur="ctrl.render()">
+            </div>
+            <div class="gf-form">
+                <span class="gf-form-label">To</span>
+            </div>
+            <div class="gf-form">
+                <input type="text" ng-model="rangeMap.to" class="gf-form-input max-width-6" ng-blur="ctrl.render()">
+            </div>
+            <div class="gf-form">
+                <span class="gf-form-label">Text</span>
+            </div>
+            <div class="gf-form">
+                <input type="text" ng-model="rangeMap.text" class="gf-form-input max-width-8" ng-blur="ctrl.render()">
+            </div>
+        </div>
 
       <div class="gf-form-inline" ng-if="style.type === 'number'">
         <div class="gf-form max-width-17 offset-width-8">

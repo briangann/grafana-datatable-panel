@@ -90,6 +90,17 @@ const panelDefaults = {
     col: 0,
     desc: true
   },
+  columnAliases: [],
+  columnWidthHints: [],
+  sortByColumnsData: [
+    [ 0, 'desc' ]
+  ],
+  sortByColumns: [
+    {
+      columnData: 0,
+      sortMethod: 'desc'
+    }
+  ],
   datatableTheme: 'basic_theme',
   themeOptions: {
     light: './css/datatable-light.css',
@@ -171,6 +182,18 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     // editor
 
     this.addColumnSegment = uiSegmentSrv.newPlusButton();
+    this.mappingTypes = [{ text: 'Value to text', value: 1 }, { text: 'Range to text', value: 2 }];
+    this.columnSortMethods = [
+      {
+        text: 'Ascending',
+        value: 'asc'
+      },
+      {
+        text: 'Descending',
+        value: 'desc'
+      },
+    ];
+
     this.fontSizes = ['80%', '90%', '100%', '110%', '120%', '130%', '150%', '160%', '180%', '200%', '220%', '250%'];
     this.colorModes = [
       {
@@ -506,6 +529,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         pattern: '/.*/',
         dateFormat: 'YYYY-MM-DD HH:mm:ss',
         thresholds: [],
+        mappingType: 1,
       };
       this.panel.styles.push(angular.copy(columnStyleDefaults));
   }
@@ -523,5 +547,119 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     ref[2] = copy;
     this.render();
   }
+
+  addColumnSortingRule() {
+    var defaultRule = {
+      columnData: 0,
+      sortMethod: 'desc',
+    };
+    // check if this column already exists
+    this.panel.sortByColumns.push(angular.copy(defaultRule));
+    this.columnSortChanged();
+  }
+
+  removeSortByColumn(column) {
+    this.panel.sortByColumns = _.without(this.panel.sortByColumns, column);
+    this.columnSortChanged();
+  }
+
+  columnSortChanged() {
+    // take the values in sortByColumns and convert them into datatables format
+    var data = [];
+    if (this.panel.sortByColumns.length > 0) {
+      for (let i = 0; i < this.panel.sortByColumns.length; i++) {
+        // allow numbers and column names
+        let columnData = this.panel.sortByColumns[i].columnData;
+        let columnNumber = 0;
+        try {
+          columnNumber = Int32.parseInt(columnData);
+        }
+        catch(e) {
+          // check if empty
+          if (columnData === "") {
+            columnNumber = 0;
+          }
+          // find the matching column index
+          for (let j = 0; j < this.panel.columns.length; j++) {
+            if (this.panel.columns[j].text === columnData) {
+              columnNumber = j;
+              break;
+            }
+          }
+        }
+        let sortDirection = this.panel.sortByColumns[i].sortMethod;
+        data.push([columnNumber, sortDirection]);
+      }
+    } else {
+      // default to column 0, descending
+      data.push([0,'desc']);
+    }
+    this.panel.sortByColumnsData = data;
+    this.render();
+  }
+
+  addColumnAlias() {
+    var defaultAlias = {
+      name: '',
+      alias: '',
+    };
+    // check if this column already exists
+    this.panel.columnAliases.push(angular.copy(defaultAlias));
+    this.columnAliasChanged();
+  }
+
+  removeColumnAlias(column) {
+    this.panel.columnAliases = _.without(this.panel.columnAliases, column);
+    this.columnAliasChanged();
+  }
+
+  columnAliasChanged() {
+    this.render();
+  }
+
+  addColumnWidthHint() {
+    var defaultHint = {
+      name: '',
+      width: '80px',
+    };
+    // check if this column already exists
+    this.panel.columnWidthHints.push(angular.copy(defaultHint));
+    this.columnWidthHintsChanged();
+  }
+  removeColumnWidthHint(column) {
+    this.panel.columnWidthHints = _.without(this.panel.columnWidthHints, column);
+    this.columnWidthHintsChanged();
+  }
+
+  columnWidthHintsChanged() {
+    this.render();
+  }
+
+  addValueMap(style) {
+    if (!style.valueMaps) {
+      style.valueMaps = [];
+    }
+    style.valueMaps.push({ value: '', text: '' });
+    this.render();
+  }
+
+  removeValueMap(style, index) {
+    style.valueMaps.splice(index, 1);
+    this.render();
+  }
+
+  addRangeMap(style) {
+    if (!style.rangeMaps) {
+      style.rangeMaps = [];
+    }
+    style.rangeMaps.push({ from: '', to: '', text: '' });
+    this.render();
+  }
+
+  removeRangeMap(style, index) {
+    style.rangeMaps.splice(index, 1);
+    this.render();
+  }
+
 }
 DatatablePanelCtrl.templateUrl = 'partials/template.html';
