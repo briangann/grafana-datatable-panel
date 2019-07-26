@@ -18,8 +18,8 @@ export class DatatableRenderer {
 
   // from app/core/constants
   GRID_CELL_HEIGHT = 30;
-  GRID_CELL_VMARGIN = 10;
-  MIN_PANEL_HEIGHT = this.GRID_CELL_HEIGHT * 3;
+  // from inspect
+  TITLE_LINE_HEIGHT = 28;
   constructor(panel: any, table: any, isUtc: boolean, sanitize: any) {
     this.formatters = [];
     this.colorState = {};
@@ -560,26 +560,21 @@ export class DatatableRenderer {
     if (this.panel.rowNumbersEnabled) {
       // shift the data to the right
     }
-    const panelHeight = this.panel.panelHeight;
-    /*
-    let panelHeight = 0;
+    let panelHeight = this.panel.panelHeight;
     if (this.panel.scroll) {
       if (typeof this.panel.height === 'undefined') {
         panelHeight = this.getGridHeight(this.panel.gridPos.h);
       }
+    } else {
+      panelHeight = '';
     }
-    */
     const orderSetting = this.panel.sortByColumnsData;
-    //if (this.panel.rowNumbersEnabled) {
-    //  // when row numbers are enabled, show them ascending
-    //  orderSetting = [[0, 'asc']];
-    //}
 
     let selectSettings: DataTables.SelectSettings;
     selectSettings = {
       style: 'os',
     };
-//    scrollY: panelHeight.toString() + 'px',
+    //    scrollY: panelHeight.toString() + 'px',
     const tableOptions = {
       lengthMenu: [[5, 10, 25, 50, 75, 100, -1], [5, 10, 25, 50, 75, 100, 'All']],
       searching: this.panel.searchEnabled,
@@ -616,6 +611,13 @@ export class DatatableRenderer {
     */
 
     const $datatable = $(tableHolderId);
+
+    var c = document.querySelector(tableHolderId);
+    if (c) {
+      console.log(c);
+      var r=c.getBoundingClientRect();
+      console.log(r);
+    }
     const newDT = $datatable.DataTable(tableOptions);
 
     // hide columns that are marked hidden
@@ -669,7 +671,7 @@ export class DatatableRenderer {
   }
 
   getGridHeight(height: number) {
-    const gridHeight = Math.ceil(height * (this.GRID_CELL_HEIGHT + this.GRID_CELL_VMARGIN));
+    const gridHeight = Math.ceil(height * this.GRID_CELL_HEIGHT) - this.TITLE_LINE_HEIGHT - 30;
     return gridHeight;
   }
 

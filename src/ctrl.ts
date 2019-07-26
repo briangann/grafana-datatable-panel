@@ -295,6 +295,9 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     // basic datatables theme
     // alternative themes are disabled since they affect all datatable panels on same page currently
     // light/dark
+    /*
+      TODO: support different themes, this method is not usable currently
+
     let isLight = false;
     const grafanaBootData = (window as any).grafanaBootData;
     if (typeof grafanaBootData !== 'undefined') {
@@ -340,6 +343,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         }
         break;
     }
+    */
     this.dataLoaded = true;
     this.http = $http;
     this.events.on('data-received', this.onDataReceived.bind(this));
@@ -442,6 +446,37 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   getPanelHeight() {
+    // panel can have a fixed height set via "General" tab in panel editor
+    var tmpPanelHeight = this.panel.height;
+    if ((typeof tmpPanelHeight === 'undefined') || (tmpPanelHeight === "")) {
+      // grafana also supplies the height, try to use that if the panel does not have a height
+      tmpPanelHeight = String(this.height);
+      // v4 and earlier define this height, detect span for pre-v5
+      if (typeof this.panel.span != 'undefined') {
+        // if there is no header, adjust height to use all space available
+        var panelTitleOffset = 20;
+        if (this.panel.title !== "") {
+          panelTitleOffset = 42;
+        }
+        tmpPanelHeight = String(this.containerHeight - panelTitleOffset); // offset for header
+      }
+      if (typeof tmpPanelHeight === 'undefined') {
+        // height still cannot be determined, get it from the row instead
+        tmpPanelHeight = this.row.height;
+        if (typeof tmpPanelHeight === 'undefined') {
+          // last resort - default to 250px (this should never happen)
+          tmpPanelHeight = "250";
+        }
+      }
+    }
+    // replace px
+    tmpPanelHeight = tmpPanelHeight.replace("px","");
+    // convert to numeric value
+    var actualHeight = parseInt(tmpPanelHeight);
+    return actualHeight;
+  }
+
+  getPanelHeightX() {
     // panel can have a fixed height set via "General" tab in panel editor
     let tmpPanelHeight = this.panel.height;
     if (typeof tmpPanelHeight === 'undefined' || tmpPanelHeight === '') {

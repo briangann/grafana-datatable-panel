@@ -23,10 +23,6 @@
     "url": "https://github.com/briangann/grafana-datatable-panel/issues"
   },
   "dependencies": {
-    "@grafana/data": "^6.3.0-alpha.32",
-    "@grafana/runtime": "^6.3.0-alpha.32",
-    "@grafana/toolkit": "next",
-    "@grafana/ui": "latest",
     "bootstrap": "^4.3.1",
     "datatables.net": "^1.10.19",
     "datatables.net-bs": "^1.10.19",
@@ -54,6 +50,7 @@
     "pdfmake": "^0.1.57"
   },
   "devDependencies": {
+    "@grafana/toolkit": "next",
     "@types/angular": "^1.6.55",
     "@types/datatables.net": "^1.10.17",
     "@types/datatables.net-buttons": "^1.4.2",
