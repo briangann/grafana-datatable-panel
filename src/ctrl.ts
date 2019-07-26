@@ -447,15 +447,15 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
 
   getPanelHeight() {
     // panel can have a fixed height set via "General" tab in panel editor
-    var tmpPanelHeight = this.panel.height;
-    if ((typeof tmpPanelHeight === 'undefined') || (tmpPanelHeight === "")) {
+    let tmpPanelHeight = this.panel.height;
+    if (typeof tmpPanelHeight === 'undefined' || tmpPanelHeight === '') {
       // grafana also supplies the height, try to use that if the panel does not have a height
       tmpPanelHeight = String(this.height);
       // v4 and earlier define this height, detect span for pre-v5
-      if (typeof this.panel.span != 'undefined') {
+      if (typeof this.panel.span !== 'undefined') {
         // if there is no header, adjust height to use all space available
-        var panelTitleOffset = 20;
-        if (this.panel.title !== "") {
+        let panelTitleOffset = 20;
+        if (this.panel.title !== '') {
           panelTitleOffset = 42;
         }
         tmpPanelHeight = String(this.containerHeight - panelTitleOffset); // offset for header
@@ -465,14 +465,14 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         tmpPanelHeight = this.row.height;
         if (typeof tmpPanelHeight === 'undefined') {
           // last resort - default to 250px (this should never happen)
-          tmpPanelHeight = "250";
+          tmpPanelHeight = '250';
         }
       }
     }
     // replace px
-    tmpPanelHeight = tmpPanelHeight.replace("px","");
+    tmpPanelHeight = tmpPanelHeight.replace('px', '');
     // convert to numeric value
-    var actualHeight = parseInt(tmpPanelHeight);
+    const actualHeight = parseInt(tmpPanelHeight, 10);
     return actualHeight;
   }
 

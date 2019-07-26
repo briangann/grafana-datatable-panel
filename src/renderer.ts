@@ -612,12 +612,14 @@ export class DatatableRenderer {
 
     const $datatable = $(tableHolderId);
 
-    var c = document.querySelector(tableHolderId);
+    /*
+    const c = document.querySelector(tableHolderId);
     if (c) {
       console.log(c);
-      var r=c.getBoundingClientRect();
+      const r = c.getBoundingClientRect();
       console.log(r);
     }
+    */
     const newDT = $datatable.DataTable(tableOptions);
 
     // hide columns that are marked hidden
