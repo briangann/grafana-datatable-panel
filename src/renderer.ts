@@ -294,6 +294,7 @@ export class DatatableRenderer {
   }
 
   getCellColors(colorState: any, columnNumber: any, cellData: any) {
+    if (cellData === null || cellData === undefined) { return null; }
     const items = cellData.split(/([^0-9.,]+)/);
     // only color cell if the content is a number?
     let bgColor = null;
@@ -451,6 +452,7 @@ export class DatatableRenderer {
               // only columns of type undefined are checked
               if (_this.table.columns[columnNumber].type === undefined) {
                 rowColorData = _this.getCellColors(_this.colorState, columnNumber, rowData[columnNumber + rowNumberOffset]);
+                if (!rowColorData) { continue; }
                 if (rowColorData.bgColorIndex !== null) {
                   if (rowColorData.bgColorIndex > rowColorIndex) {
                     rowColorIndex = rowColorData.bgColorIndex;
@@ -484,6 +486,7 @@ export class DatatableRenderer {
               // only columns of type undefined are checked
               if (_this.table.columns[columnNumber].type === undefined) {
                 rowColorData = _this.getCellColors(_this.colorState, columnNumber, rowData[columnNumber + rowNumberOffset]);
+                if (!rowColorData) { continue; }
                 if (rowColorData.bgColorIndex !== null) {
                   if (rowColorData.bgColorIndex > rowColorIndex) {
                     rowColorIndex = rowColorData.bgColorIndex;
@@ -516,6 +519,7 @@ export class DatatableRenderer {
           //    2) RowColumn is enabled, the above row color is process, but we also
           //    set the cell colors individually
           const colorData = _this.getCellColors(_this.colorState, actualColumn, cellData);
+          if (!colorData) { return; }
           if (_this.colorState.cell || _this.colorState.rowcolumn) {
             if (colorData.color !== undefined) {
               $(td).css('color', colorData.color);
