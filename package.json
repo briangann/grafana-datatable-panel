@@ -2,7 +2,7 @@
   "name": "briangann-datatable-panel",
   "private": false,
   "license": "MIT",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Grafana Datatable Panel",
   "homepage": "https://github.com/briangann/grafana-datatable-panel",
   "author": {
@@ -47,21 +47,21 @@
     "font-awesome": "^4.7.0",
     "foundation": "^4.2.1-1",
     "jszip": "^3.2.2",
-    "pdfmake": "^0.1.57"
+    "pdfmake": "^0.1.59"
   },
   "devDependencies": {
     "@grafana/toolkit": "next",
-    "@types/angular": "^1.6.55",
+    "@types/angular": "^1.6.56",
     "@types/datatables.net": "^1.10.17",
     "@types/datatables.net-buttons": "^1.4.2",
     "@types/datatables.net-select": "^1.2.6",
     "@types/grafana": "github:CorpGlory/types-grafana.git",
-    "@types/jquery": "^3.3.30",
-    "@types/lodash": "^4.14.136",
+    "@types/jquery": "^3.3.31",
+    "@types/lodash": "^4.14.138",
     "@types/systemjs": "^0.20.6",
-    "angular": "^1.7.8",
+    "angular": "^1.6.6",
     "lodash": "^4.17.15",
     "popper.js": "^1.15.0",
-    "systemjs": "^4.1.0"
+    "systemjs": "^6.0.0"
   }
 }
