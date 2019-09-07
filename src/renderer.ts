@@ -225,8 +225,8 @@ export class DatatableRenderer {
    * @return {[type]}          [description]
    */
   formatColumnValue(colIndex: any, rowIndex: any, value: any) {
-      // taken from @grafana/data
-      function stringToJsRegex(str: string): RegExp {
+    // taken from @grafana/data
+    function stringToJsRegex(str: string): RegExp {
       if (str[0] !== '/') {
         return new RegExp('^' + str + '$');
       }
