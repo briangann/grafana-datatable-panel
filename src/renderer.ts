@@ -29,17 +29,6 @@ export class DatatableRenderer {
     this.sanitize = sanitize;
   }
 
-  // taken from @grafana/data
-  stringToJsRegex(str: string): RegExp {
-    if (str[0] !== '/') {
-      return new RegExp('^' + str + '$');
-    }
-    const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
-    if (!match) {
-      throw new Error(`'${str}' is not a valid regular expression.`);
-    }
-    return new RegExp(match[1], match[2]);
-  }
   /**
    * Given a value, return the color corresponding to the threshold set
    * @param  {[Float]} value [Value to be evaluated]
@@ -78,6 +67,18 @@ export class DatatableRenderer {
    * @return {[type]}       [description]
    */
   defaultCellFormatter(v: any, style: any, column: any) {
+    // taken from @grafana/data
+    function stringToJsRegex(str: string): RegExp {
+      if (str[0] !== '/') {
+        return new RegExp('^' + str + '$');
+      }
+      const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
+      if (!match) {
+        throw new Error(`'${str}' is not a valid regular expression.`);
+      }
+      return new RegExp(match[1], match[2]);
+    }
+
     if (v === null || v === void 0 || v === undefined || column === null) {
       return '';
     }
@@ -96,7 +97,7 @@ export class DatatableRenderer {
       style.splitPattern = '/ /';
     }
 
-    const regex = this.stringToJsRegex(String(style.splitPattern));
+    const regex = stringToJsRegex(String(style.splitPattern));
     const values = v.split(regex);
     if (typeof cellTemplate !== 'undefined') {
       // Replace $__cell with this cell's content.
@@ -224,11 +225,23 @@ export class DatatableRenderer {
    * @return {[type]}          [description]
    */
   formatColumnValue(colIndex: any, rowIndex: any, value: any) {
+      // taken from @grafana/data
+      function stringToJsRegex(str: string): RegExp {
+      if (str[0] !== '/') {
+        return new RegExp('^' + str + '$');
+      }
+      const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
+      if (!match) {
+        throw new Error(`'${str}' is not a valid regular expression.`);
+      }
+      return new RegExp(match[1], match[2]);
+    }
+
     if (!this.formatters[colIndex]) {
       for (let i = 0; i < this.panel.styles.length; i++) {
         const style = this.panel.styles[i];
         const column = this.table.columns[colIndex];
-        const regex = this.stringToJsRegex(style.pattern);
+        const regex = stringToJsRegex(style.pattern);
         if (column.text.match(regex)) {
           this.formatters[colIndex] = this.createColumnFormatter(style, column);
         }
@@ -277,6 +290,18 @@ export class DatatableRenderer {
   }
 
   getStyleForColumn(columnNumber: any) {
+    // taken from @grafana/data
+    function stringToJsRegex(str: string): RegExp {
+      if (str[0] !== '/') {
+        return new RegExp('^' + str + '$');
+      }
+      const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
+      if (!match) {
+        throw new Error(`'${str}' is not a valid regular expression.`);
+      }
+      return new RegExp(match[1], match[2]);
+    }
+
     let colStyle = null;
     for (let i = 0; i < this.panel.styles.length; i++) {
       const style = this.panel.styles[i];
@@ -284,7 +309,7 @@ export class DatatableRenderer {
       if (column === undefined) {
         break;
       }
-      const regex = this.stringToJsRegex(style.pattern);
+      const regex = stringToJsRegex(style.pattern);
       if (column.text.match(regex)) {
         colStyle = style;
         break;

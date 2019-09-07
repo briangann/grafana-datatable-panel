@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.9] - 2019-09-07
+
+- Fix stringToJsRegex reference error
+
+## [0.0.8] - 2019-09-07
+
+- update packages
+
 ## [0.0.7] - 2019-07-26
 
 New features/bugfixes by contributor jmp0x00, thanks!!
