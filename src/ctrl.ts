@@ -634,16 +634,12 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         // allow numbers and column names
         const columnData = this.panel.sortByColumns[i].columnData;
         let columnNumber = 0;
-        try {
-          columnNumber = parseInt(columnData, 10);
-        } catch (e) {
-          // check if empty
-          if (columnData === '') {
-            columnNumber = 0;
-          }
+        columnNumber = parseInt(columnData, 10);
+        if (Number.isNaN(columnNumber)) {
+          columnNumber = 0;
           // find the matching column index
-          for (let j = 0; j < this.panel.columns.length; j++) {
-            if (this.panel.columns[j].text === columnData) {
+          for (let j = 0; j < this.table.columns.length; j++) {
+            if (this.table.columns[j].text === columnData) {
               columnNumber = j;
               break;
             }

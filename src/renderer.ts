@@ -620,7 +620,7 @@ export class DatatableRenderer {
       scrollCollapse: false,
       scrollX: true,
       scrollY: panelHeight,
-      stateSave: true,
+      stateSave: false,
       dom: 'Bfrtip',
       buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
       select: selectSettings,
