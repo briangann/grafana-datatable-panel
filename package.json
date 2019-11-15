@@ -50,7 +50,7 @@
     "pdfmake": "^0.1.59"
   },
   "devDependencies": {
-    "@grafana/toolkit": "next",
+    "@grafana/toolkit": "^6.5.0-beta.1",
     "@types/angular": "^1.6.56",
     "@types/datatables.net": "^1.10.17",
     "@types/datatables.net-buttons": "^1.4.2",
