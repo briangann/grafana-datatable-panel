@@ -188,12 +188,9 @@ workflows:
         requires:
         - build_docs
         - upload_coverage
-    - test_6_5_2:
-        requires:
-        - package
     - report:
         requires:
-        - test_6_5_2
+        - package
     - approve_release:
         type: approval
         requires:
