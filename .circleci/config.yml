@@ -12,7 +12,7 @@ defaults: &defaults
     - image: circleci/node:12.14-buster
 
 jobs:
-  build:
+  build_plugin:
     <<: *defaults
     steps:
     - checkout
