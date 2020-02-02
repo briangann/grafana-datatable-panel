@@ -37,3 +37,4 @@ CircleCI added to publishing
 |       | than the rendered panel (issue #6)|
 |0.0.5  | BUGFIX: SystemJS path changes for Grafana > 4.6|
 |0.0.6  | BUGFIX: Compatibility for v5|
+|1.0.0  | Update packages and convert to toolkit|

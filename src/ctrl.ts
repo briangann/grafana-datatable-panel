@@ -5,8 +5,7 @@ import kbn from 'grafana/app/core/utils/kbn';
 
 import * as FileExport from 'grafana/app/core/utils/file_export';
 
-// this is needed for basic datatables.net theme
-//import './libs/datatables.net-dt/css/jquery.dataTables.min.css!';
+import './libs/datatables.net/js/jquery.dataTables.min';
 
 // See this for styling https://datatables.net/manual/styling/theme-creator
 
@@ -49,16 +48,9 @@ table.dataTable tfoot th {
   font-weight: bold; }
 */
 
-// TODO: FIX CSS import
-//import './css/panel.css!';
-// themes attempt to modify the entire page, this "contains" the styling to the table only
-// TODO: FIX CSS import
-//import './css/datatables-wrapper.css!';
-
 import { transformDataToTable, transformers } from './transformers';
 
 import { DatatableRenderer } from './renderer';
-//mport { config } from 'rxjs';
 
 const panelDefaults = {
   targets: [{}],
@@ -283,67 +275,6 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     }
     _.defaults(this.panel, panelDefaults);
 
-    SystemJS.config({
-      paths: {
-        'datatables.net': this.getPanelPath() + 'libs/datatables.net/js/jquery.dataTables.min',
-        'datatables.net-bs': this.getPanelPath() + 'libs/datatables.net-bs/js/dataTables.bootstrap.min',
-        'datatables.net-jqui': this.getPanelPath() + 'libs/datatables.net-jqui/js/dataTables.jqueryui.min',
-        'datatables.net-zf': this.getPanelPath() + 'libs/datatables.net-zf/js/dataTables.foundation.min',
-      },
-    });
-
-    // basic datatables theme
-    // alternative themes are disabled since they affect all datatable panels on same page currently
-    // light/dark
-    /*
-      TODO: support different themes, this method is not usable currently
-
-    let isLight = false;
-    const grafanaBootData = (window as any).grafanaBootData;
-    if (typeof grafanaBootData !== 'undefined') {
-      if (grafanaBootData.user.lightTheme) {
-        isLight = true;
-      }
-    }
-    switch (this.panel.datatableTheme) {
-      case 'basic_theme':
-        //SystemJS.import(this.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
-        SystemJS.import(this.getPanelPath() + 'styles/jquery.dataTables.min.css!');
-        if (isLight) {
-          SystemJS.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
-        } else {
-          SystemJS.import(this.getPanelPath() + this.panel.themeOptions.dark + '!css');
-        }
-        break;
-      case 'bootstrap_theme':
-        SystemJS.import(this.getPanelPath() + 'libs/datatables.net-bs/js/dataTables.bootstrap.min.js');
-        SystemJS.import(this.getPanelPath() + 'libs/bootstrap/dist/css/prefixed-bootstrap.min.css!');
-        SystemJS.import(this.getPanelPath() + 'libs/datatables.net-bs/css/dataTables.bootstrap.min.css!');
-        if (!isLight) {
-          SystemJS.import(this.getPanelPath() + 'css/prefixed-bootstrap-slate.min.css!');
-        }
-        break;
-      case 'foundation_theme':
-        SystemJS.import(this.getPanelPath() + 'libs/datatables.net-zf/js/dataTables.foundation.min.js');
-        SystemJS.import(this.getPanelPath() + 'libs/foundation/css/prefixed-foundation.min.css!');
-        SystemJS.import(this.getPanelPath() + 'libs/datatables.net-zf/css/dataTables.foundation.min.css!');
-        break;
-      case 'themeroller_theme':
-        SystemJS.import(this.getPanelPath() + 'libs/datatables.net-jqui/js/dataTables.jqueryui.min.js');
-        SystemJS.import(this.getPanelPath() + 'libs/datatables.net-jqui/css/dataTables.jqueryui.min.css!');
-        SystemJS.import(this.getPanelPath() + 'css/jquery-ui-smoothness.css!');
-        break;
-      default:
-        //SystemJS.import(this.getPanelPath() + 'libs/datatables.net-dt/css/jquery.dataTables.min.css!');
-        SystemJS.import(this.getPanelPath() + 'styles/jquery.dataTables.min.css!');
-        if (isLight) {
-          SystemJS.import(this.getPanelPath() + this.panel.themeOptions.light + '!css');
-        } else {
-          SystemJS.import(this.getPanelPath() + this.panel.themeOptions.dark + '!css');
-        }
-        break;
-    }
-    */
     this.dataLoaded = true;
     this.http = $http;
     this.events.on('data-received', this.onDataReceived.bind(this));
