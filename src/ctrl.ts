@@ -189,7 +189,10 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     // editor
 
     this.addColumnSegment = uiSegmentSrv.newPlusButton();
-    this.mappingTypes = [{ text: 'Value to text', value: 1 }, { text: 'Range to text', value: 2 }];
+    this.mappingTypes = [
+      { text: 'Value to text', value: 1 },
+      { text: 'Range to text', value: 2 },
+    ];
     this.columnSortMethods = [
       {
         text: 'Ascending',

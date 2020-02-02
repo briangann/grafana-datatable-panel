@@ -1,7 +1,5 @@
 import $ from 'jquery';
 import kbn from 'grafana/app/core/utils/kbn';
-// broken
-//import { stringToJsRegex } from '@grafana/data';
 
 import moment from 'moment';
 import _ from 'lodash';
@@ -613,7 +611,10 @@ export class DatatableRenderer {
     };
     //    scrollY: panelHeight.toString() + 'px',
     const tableOptions = {
-      lengthMenu: [[5, 10, 25, 50, 75, 100, -1], [5, 10, 25, 50, 75, 100, 'All']],
+      lengthMenu: [
+        [5, 10, 25, 50, 75, 100, -1],
+        [5, 10, 25, 50, 75, 100, 'All'],
+      ],
       searching: this.panel.searchEnabled,
       info: this.panel.infoEnabled,
       lengthChange: this.panel.lengthChangeEnabled,
