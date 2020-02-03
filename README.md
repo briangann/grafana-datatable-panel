@@ -1,39 +1,46 @@
 # Grafana Datatable Panel
+
+[![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
 [![CircleCI](https://circleci.com/gh/briangann/grafana-datatable-panel.svg?style=svg)](https://circleci.com/gh/briangann/grafana-datatable-panel)
 [![David Dependancy Status](https://david-dm.org/briangann/grafana-datatable-panel.svg)](https://david-dm.org/briangann/grafana-datatable-panel)
 [![David devDependancy Status](https://david-dm.org/briangann/grafana-datatable-panel/dev-status.svg)](https://david-dm.org/briangann/grafana-datatable-panel?type=dev)
-[![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
+[![Maintainability](https://api.codeclimate.com/v1/badges/7b3cb7018973e4ddfdac/maintainability)](https://codeclimate.com/github/briangann/grafana-datatable-panel/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/7b3cb7018973e4ddfdac/test_coverage)](https://codeclimate.com/github/briangann/grafana-datatable-panel/test_coverage)
 
-This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for [Grafana](http://www.grafana.org) 3.x/4.x
+This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for [Grafana](http://www.grafana.org) 4.x/5.x/6.x
 
-### Screenshots
+## Screenshots
 
-##### Paging enabled
+### Paging enabled
+
 ![Default Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-basic-dark.png)
 
-##### Scrolling enabled
+### Scrolling enabled
+
 ![Scrolling](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dark-scrolling.png)
 
-##### Light Theme with Paging
+### Light Theme with Paging
+
 ![Light Theme with Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-basic-light.png)
 
-##### Numbered Rows and Compact Style
+### Numbered Rows and Compact Style
 
 ![Numbered and Compact Rows](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dark-numbered-compact.png)
 
-#### Options
+## Options
 
-##### Options Tab
+### Options Tab
 
 ![Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-options.png)
 
 Same options as built-in table panel
 
-##### Datatable Options Tab
+### Datatable Options Tab
 
 ![Datatable Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dt-options.png)
 
 Table Display Options
+
 * Font Size - set font size of table content
 * Scroll - toggle for scrolling vs Paging
 * Paging Options
@@ -41,15 +48,19 @@ Table Display Options
   * Paging type - multiple navigation options
 
 Column Aliasing
+
 * Override the name displayed for a column
 
 Column Width Hints
+
 * Provide a width "hint" in percentage or pixels ( 100px or 10% ). Note: The table will autosize as needed, but will use the hints provided.
 
 Column Sorting
+
 * Sort table by any number of columns in ascending/descending order.
 
 Table Options
+
 * Row Numbers - toggle to show row numbers
 * Length Change Enabled - top left dropdown for showing alternate page sizes
 * Search Enabled - toggle to allow searching table content (regex is enabled)
@@ -62,23 +73,24 @@ Table Options
 * Hover - Highlights row on mouse hover
 
 Theme Settings
+
 * Basic theme is currently the only option, more to be added
 
-#### Thresholding
+## Thresholding
 
-##### Row-based threshold coloring
+### Row-based threshold coloring
 
 ![Thresholding with Row Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-row.png)
 
-##### Cell based threshold coloring
+### Cell based threshold coloring
 
 ![Thresholding with Cell Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-cell.png)
 
-##### Cell based threshold value coloring
+### Cell based threshold value coloring
 
 ![Thresholding with Value Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-value.png)
 
-##### RowColumn threshold coloring
+### RowColumn threshold coloring
 
 This option sets the row color to the "highest" threshold found for all cells in row.
 
@@ -90,14 +102,11 @@ This means - a row can have an overall color, with each cell indicating it's rea
 
 ![Thresholding with RowColumn2](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn2.png)
 
-##### RowColumn threshold coloring including row counter
+### RowColumn threshold coloring including row counter
 
 Same as above, but with row counter included
 
 ![Thresholding with RowColumn including row count](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn-rownumbers.png)
-
-
--------
 
 ## Features
 
@@ -121,62 +130,54 @@ Same as above, but with row counter included
 * Multi-Column Sorting
 * Horizontal scrolling enabled when columns are wider than panel
 
-
 ## TODO
+
 * [+] Column is not working
-* Add Additional Themes
-    * Bootstrap:
-        * Requires a modified .js file since it looks for "datatables.net" - need workaround
-    * Foundation:
-        * Requires a modified .js file since it looks for "datatables.net" - need workaround
-        * Needs a new CSS that is "dark" for Grafana - the builtin is light
-          http://foundation.zurb.com/sites/download.html/#customizeFoundation
-    * JQueryUI ThemeRoller
-        * Requires a modified .js file since it looks for "datatables.net" - need workaround
 
 ## Building
 
-This plugin relies on Grunt/NPM/Bower, typical build sequence:
+This plugin relies on Yarn, typical build sequence:
 
-```
-npm install
-bower install
-grunt
+```BASH
+yarn install
+yarn build
 ```
 
 For development, you can run:
-```
-grunt watch
-```
-The code will be parsed then copied into "dist" if "jslint" passes without errors.
 
+```BASH
+yarn install
+yarn watch
+```
 
-### Docker Support
+The code will be parsed then copied into "dist" if the build passes without errors.
+
+## Docker Support
 
 A docker-compose.yml file is include for easy development and testing, just run
-```
+
+```BASH
 docker-compose up
 ```
 
-Then browse to http://localhost:3000
+Then browse to (<http://localhost:3000>)
 
-### RPM
+## RPM
 
 A spec file is included to facilitate RPM based deployments, to generate run
-```
+
+```BASH
 make rpm
 ```
 
 ## External Dependencies
 
-* Grafana 3.x/4.x
+* Grafana 4.x/5.x/6.x
 
 ## Build Dependencies
 
-* npm
-* bower
-* grunt
+* yarn
 
-#### Acknowledgements
+## Acknowledgements
 
 This panel is based on the "Table" panel by GrafanaLabs
