@@ -5,7 +5,7 @@ import kbn from 'grafana/app/core/utils/kbn';
 
 import * as FileExport from 'grafana/app/core/utils/file_export';
 
-import './libs/datatables.net/js/jquery.dataTables.min';
+import 'datatables.net/js/jquery.dataTables.min';
 
 // See this for styling https://datatables.net/manual/styling/theme-creator
 
