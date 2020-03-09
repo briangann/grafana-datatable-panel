@@ -189,10 +189,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     // editor
 
     this.addColumnSegment = uiSegmentSrv.newPlusButton();
-    this.mappingTypes = [
-      { text: 'Value to text', value: 1 },
-      { text: 'Range to text', value: 2 },
-    ];
+    this.mappingTypes = [{ text: 'Value to text', value: 1 }, { text: 'Range to text', value: 2 }];
     this.columnSortMethods = [
       {
         text: 'Ascending',
@@ -377,6 +374,11 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     this.table.sort(this.panel.sort);
     this.panel.emptyData = this.table.rows.length === 0 || this.table.columns.length === 0;
     return super.render(this.table);
+  }
+
+  changeRowNumbersEnabled() {
+    this.panel.sortByColumnsData.map((sortData: any) => [this.panel.rowNumbersEnabled ? sortData[0]++ : sortData[0]--, sortData[1]]);
+    this.render();
   }
 
   getPanelHeight() {
@@ -585,6 +587,9 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     } else {
       // default to column 0, descending
       data.push([0, 'desc']);
+    }
+    if (this.panel.rowNumbersEnabled) {
+      data.map((sortData: any) => [sortData[0]++, sortData[1]]);
     }
     this.panel.sortByColumnsData = data;
     this.render();
