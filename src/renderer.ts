@@ -455,7 +455,7 @@ export class DatatableRenderer {
           if (_this.panel.rowNumbersEnabled) {
             actualColumn -= 1;
           }
-          // FIXME: I hidden this line due to all columns are with undefined type, so they are not colorized
+          // FIXME: I hid this line due to all columns with undefined type, so they are not colorized
           // if (_this.table.columns[actualColumn].type === undefined) return;
           // for coloring rows, get the "worst" threshold
           let rowColor = null;
