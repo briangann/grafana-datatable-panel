@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2020-02-06
+
+- Added option to use orthogonal data option to sort by value and not formatted value
+  - <https://datatables.net/manual/data/orthogonal-data>
+
 ## [0.0.9] - 2019-09-07
 
 - Fix stringToJsRegex reference error
@@ -17,7 +22,7 @@ Conversion to typescript
 Updated all packages
 CircleCI added to publishing
 
-# (previous) Changelog
+## (previous) Changelog
 
 |Version|Changes|
 |-------|-----------|
