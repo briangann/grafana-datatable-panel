@@ -232,7 +232,7 @@ export class DatatableRenderer {
           this.table.columns[i].hidden = true;
         }
         // formatted holds the rewrite, raw holds the sort value
-        cellData.push( {
+        cellData.push({
           formattedValue: value,
           rawValue: row[i],
         });
@@ -389,9 +389,9 @@ export class DatatableRenderer {
       });
       columnDefs.push({
         targets: i + rowNumberOffset,
-        data: function ( row: any, type: any, val: any, meta: any )  {
+        data: function(row: any, type: any, val: any, meta: any) {
           // If display or filter data is requested, use formatted value
-          if ( type === 'display' || type === 'filter' ) {
+          if (type === 'display' || type === 'filter') {
             return row[meta.col].formattedValue;
           }
           // Otherwise the data type requested (`type`) is type detection or
@@ -402,7 +402,7 @@ export class DatatableRenderer {
           // always return something or DT will error
           return null;
         },
-          createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
+        createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
           // hidden columns have null data
           if (cellData === null) {
             return;
