@@ -3,7 +3,7 @@ import $ from 'jquery';
 import kbn from 'grafana/app/core/utils/kbn';
 
 import _ from 'lodash';
-import { getColorForValue, getColorIndexForValue } from './Formatter';
+import { GetColorForValue, GetColorIndexForValue, StringToJsRegex } from './Utils';
 import 'datatables.net';
 
 export class DatatableRenderer {
@@ -34,18 +34,6 @@ export class DatatableRenderer {
    * @return {[type]}       [description]
    */
   defaultCellFormatter(v: any, style: any, column: any) {
-    // taken from @grafana/data
-    function stringToJsRegex(str: string): RegExp {
-      if (str[0] !== '/') {
-        return new RegExp('^' + str + '$');
-      }
-      const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
-      if (!match) {
-        throw new Error(`'${str}' is not a valid regular expression.`);
-      }
-      return new RegExp(match[1], match[2]);
-    }
-
     if (v === null || v === void 0 || v === undefined || column === null) {
       return '';
     }
@@ -64,7 +52,7 @@ export class DatatableRenderer {
       style.splitPattern = '/ /';
     }
 
-    const regex = stringToJsRegex(String(style.splitPattern));
+    const regex = StringToJsRegex(String(style.splitPattern));
     const values = v.split(regex);
     if (typeof cellTemplate !== 'undefined') {
       // Replace $__cell with this cell's content.
@@ -132,7 +120,7 @@ export class DatatableRenderer {
           return this.defaultCellFormatter(v, style, column);
         }
         if (style.colorMode) {
-          this.colorState[style.colorMode] = getColorForValue(v, style);
+          this.colorState[style.colorMode] = GetColorForValue(v, style);
         }
         return valueFormatter(v, style.decimals, null);
       };
@@ -201,23 +189,11 @@ export class DatatableRenderer {
    * @return {[type]}          [description]
    */
   formatColumnValue(colIndex: any, rowIndex: any, value: any) {
-    // taken from @grafana/data
-    function stringToJsRegex(str: string): RegExp {
-      if (str[0] !== '/') {
-        return new RegExp('^' + str + '$');
-      }
-      const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
-      if (!match) {
-        throw new Error(`'${str}' is not a valid regular expression.`);
-      }
-      return new RegExp(match[1], match[2]);
-    }
-
     if (!this.formatters[colIndex]) {
       for (let i = 0; i < this.panel.styles.length; i++) {
         const style = this.panel.styles[i];
         const column = this.table.columns[colIndex];
-        const regex = stringToJsRegex(style.pattern);
+        const regex = StringToJsRegex(style.pattern);
         if (column.text.match(regex)) {
           this.formatters[colIndex] = this.createColumnFormatter(style, column);
         }
@@ -266,18 +242,6 @@ export class DatatableRenderer {
   }
 
   getStyleForColumn(columnNumber: any) {
-    // taken from @grafana/data
-    function stringToJsRegex(str: string): RegExp {
-      if (str[0] !== '/') {
-        return new RegExp('^' + str + '$');
-      }
-      const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
-      if (!match) {
-        throw new Error(`'${str}' is not a valid regular expression.`);
-      }
-      return new RegExp(match[1], match[2]);
-    }
-
     let colStyle = null;
     for (let i = 0; i < this.panel.styles.length; i++) {
       const style = this.panel.styles[i];
@@ -285,7 +249,7 @@ export class DatatableRenderer {
       if (column === undefined) {
         break;
       }
-      const regex = stringToJsRegex(style.pattern);
+      const regex = StringToJsRegex(style.pattern);
       if (column.text.match(regex)) {
         colStyle = style;
         break;
@@ -316,15 +280,15 @@ export class DatatableRenderer {
       // check color for either cell or row
       if (colorState.cell || colorState.row || colorState.rowcolumn) {
         // bgColor = _this.colorState.cell;
-        bgColor = getColorForValue(value, colStyle);
-        bgColorIndex = getColorIndexForValue(value, colStyle);
+        bgColor = GetColorForValue(value, colStyle);
+        bgColorIndex = GetColorIndexForValue(value, colStyle);
         color = 'white';
       }
       // just the value color is set
       if (colorState.value) {
         //color = _this.colorState.value;
-        color = getColorForValue(value, colStyle);
-        colorIndex = getColorIndexForValue(value, colStyle);
+        color = GetColorForValue(value, colStyle);
+        colorIndex = GetColorIndexForValue(value, colStyle);
       }
     }
     return {
