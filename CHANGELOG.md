@@ -2,10 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
-## [1.0.0] - 2020-02-06
+## [1.0.0] - 2020-04-18
 
 - Added option to use orthogonal data option to sort by value and not formatted value
   - <https://datatables.net/manual/data/orthogonal-data>
+- Remove momentjs
+- Updated to use new @grafana/toolkit build process
+- Packages updated
 
 ## [0.0.9] - 2019-09-07
 
