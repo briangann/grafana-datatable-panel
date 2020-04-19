@@ -1,4 +1,3 @@
-
 const colorModes = [
   {
     text: 'Disabled',
@@ -126,7 +125,6 @@ const panelDefaults = {
   ],
 };
 
-
 const columnStyleDefaults = {
   unit: 'short',
   type: 'number',
@@ -175,4 +173,4 @@ const columnTypes = [
 
 const fontSizes = ['80%', '90%', '100%', '110%', '120%', '130%', '150%', '160%', '180%', '200%', '220%', '250%'];
 
-export { colorModes, columnTypes, dateFormats, panelDefaults, columnStyleDefaults, fontSizes }
+export { colorModes, columnTypes, dateFormats, panelDefaults, columnStyleDefaults, fontSizes };

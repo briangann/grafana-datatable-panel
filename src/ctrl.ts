@@ -49,7 +49,6 @@ table.dataTable tfoot th {
   font-weight: bold; }
 */
 
-
 export class DatatablePanelCtrl extends MetricsPanelCtrl {
   static templateUrl = 'partials/template.html';
   dataLoaded: boolean;

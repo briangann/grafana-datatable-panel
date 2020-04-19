@@ -2,7 +2,6 @@ import moment from 'moment';
 import kbn from 'grafana/app/core/utils/kbn';
 import _ from 'lodash';
 
-
 /**
  * [formatColumnValue description]
  * @param  {[type]} colIndex [description]
@@ -20,8 +19,8 @@ function formatColumnValue(
   tableRows: any,
   colIndex: number,
   rowIndex: number,
-  value: any) {
-
+  value: any
+) {
   if (!formatters[colIndex]) {
     for (let i = 0; i < panelStyles.length; i++) {
       const style = panelStyles[i];
@@ -47,7 +46,6 @@ function formatColumnValue(
 
   return v;
 }
-
 
 /**
  * [createColumnFormatter description]
@@ -153,13 +151,12 @@ function createColumnFormatter(isUtc: boolean, sanitize: any, colorState: any, s
 }
 
 /**
-* [defaultCellFormatter description]
-* @param  {[type]} v     [description]
-* @param  {[type]} style [description]
-* @return {[type]}       [description]
-*/
+ * [defaultCellFormatter description]
+ * @param  {[type]} v     [description]
+ * @param  {[type]} style [description]
+ * @return {[type]}       [description]
+ */
 function defaultCellFormatter(sanitize: any, v: any, style: any, column: any) {
-
   if (v === null || v === void 0 || v === undefined || column === null) {
     return '';
   }
@@ -240,4 +237,4 @@ function stringToJsRegex(str: string): RegExp {
   return new RegExp(match[1], match[2]);
 }
 
-export { formatColumnValue, getColorIndexForValue, getColorForValue }
+export { formatColumnValue, getColorIndexForValue, getColorForValue };
