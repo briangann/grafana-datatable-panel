@@ -12,9 +12,10 @@
   },
   "scripts": {
     "build": "grafana-toolkit plugin:build",
-    "test": "grafana-toolkit plugin:test --coverage",
+    "test": "grafana-toolkit plugin:test",
     "dev": "grafana-toolkit plugin:dev",
-    "watch": "grafana-toolkit plugin:dev --watch"
+    "watch": "grafana-toolkit plugin:dev --watch",
+    "nopostinstall": "grafana-toolkit plugin:update-circleci"
   },
   "repository": {
     "type": "git",
@@ -42,7 +43,7 @@
   },
   "devDependencies": {
     "@grafana/data": "^6.7.2",
-    "@grafana/toolkit": "next",
+    "@grafana/toolkit": "canary",
     "@types/angular": "^1.6.57",
     "@types/datatables.net": "^1.10.19",
     "@types/datatables.net-buttons": "^1.4.3",
@@ -52,6 +53,7 @@
     "@types/lodash": "^4.14.150",
     "@types/systemjs": "^6.1.0",
     "angular": "^1.7.9",
+    "jest-junit": "^10.0.0",
     "jquery": "3.5.0",
     "lodash": "^4.17.15",
     "popper.js": "^1.16.1",
