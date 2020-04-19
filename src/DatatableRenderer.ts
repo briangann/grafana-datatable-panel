@@ -231,7 +231,11 @@ export class DatatableRenderer {
         if (value === undefined || value === null) {
           this.table.columns[i].hidden = true;
         }
-        cellData.push(value);
+        // formatted holds the rewrite, raw holds the sort value
+        cellData.push( {
+          formattedValue: value,
+          rawValue: row[i],
+        });
       }
       if (this.panel.rowNumbersEnabled) {
         cellData.unshift('rowCounter');
@@ -385,7 +389,20 @@ export class DatatableRenderer {
       });
       columnDefs.push({
         targets: i + rowNumberOffset,
-        createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
+        data: function ( row: any, type: any, val: any, meta: any )  {
+          // If display or filter data is requested, use formatted value
+          if ( type === 'display' || type === 'filter' ) {
+            return row[meta.col].formattedValue;
+          }
+          // Otherwise the data type requested (`type`) is type detection or
+          // sorting data, return unaltered data
+          if (typeof type !== 'undefined') {
+            return row[meta.col].rawValue;
+          }
+          // always return something or DT will error
+          return null;
+        },
+          createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
           // hidden columns have null data
           if (cellData === null) {
             return;
@@ -657,6 +674,7 @@ export class DatatableRenderer {
     return gridHeight;
   }
 
+  // For CSV Export
   render_values() {
     const rows = [];
 
