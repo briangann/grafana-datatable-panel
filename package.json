@@ -41,6 +41,7 @@
     "pdfmake": "^0.1.65"
   },
   "devDependencies": {
+    "@grafana/data": "^6.7.2",
     "@grafana/toolkit": "next",
     "@types/angular": "^1.6.57",
     "@types/datatables.net": "^1.10.19",
