@@ -6,7 +6,7 @@ import * as FileExport from 'grafana/app/core/utils/file_export';
 import 'datatables.net/js/jquery.dataTables.min';
 import { panelDefaults, dateFormats, columnTypes, columnStyleDefaults, colorModes, fontSizes } from './Defaults';
 import { transformDataToTable, transformers } from './transformers';
-import { DatatableRenderer } from './Renderer';
+import { DatatableRenderer } from './DatatableRenderer';
 
 // See this for styling https://datatables.net/manual/styling/theme-creator
 
