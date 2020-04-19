@@ -6,9 +6,10 @@ All notable changes to this project will be documented in this file.
 
 - Added option to use orthogonal data option to sort by value and not formatted value
   - <https://datatables.net/manual/data/orthogonal-data>
-- Remove momentjs
+- Remove moment package
 - Updated to use new @grafana/toolkit build process
 - Packages updated
+- FIX: column index sorting was wrong when row numbers set true
 
 ## [0.0.9] - 2019-09-07
 
