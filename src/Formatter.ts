@@ -1,4 +1,4 @@
-import moment from 'moment';
+import { dateTime } from '@grafana/data';
 import kbn from 'grafana/app/core/utils/kbn';
 import _ from 'lodash';
 
@@ -69,14 +69,23 @@ function createColumnFormatter(isUtc: boolean, sanitize: any, colorState: any, s
       if (v === undefined || v === null) {
         return '-';
       }
+
       if (_.isArray(v)) {
         v = v[0];
       }
-      let date = moment(v);
+
+      // if is an epoch (numeric string and len > 12)
+      if (_.isString(v) && !isNaN(v as any) && v.length > 12) {
+        v = parseInt(v, 10);
+      }
+
+      let date = dateTime(v);
+
       if (isUtc) {
         date = date.utc();
       }
-      return date.format(style.dateFormat);
+
+      return date.format(column.style.dateFormat);
     };
   }
   if (style.type === 'number') {
