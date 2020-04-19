@@ -128,6 +128,7 @@ jobs:
     - store_test_results:
         path: test-results
 
+  # make sure CC_TEST_REPORTER_ID is set inside circleci project
   upload_coverage:
     docker:
     - image:  circleci/circleci-cli:alpine
@@ -174,6 +175,7 @@ jobs:
           root: .
           paths:
             - dist
+            - coverage
 
   build_backend:
     executor: default_exec
