@@ -3,7 +3,7 @@ import kbn from 'grafana/app/core/utils/kbn';
 
 import moment from 'moment';
 import _ from 'lodash';
-
+import { getColorForValue, getColorIndexForValue } from './Formatter';
 import 'datatables.net';
 
 export class DatatableRenderer {
@@ -25,37 +25,6 @@ export class DatatableRenderer {
     this.table = table;
     this.isUtc = isUtc;
     this.sanitize = sanitize;
-  }
-
-  /**
-   * Given a value, return the color corresponding to the threshold set
-   * @param  {[Float]} value [Value to be evaluated]
-   * @param  {[Array]} style [Settings containing colors and thresholds]
-   * @return {[String]}       [color]
-   */
-  getColorForValue(value: any, style: any) {
-    if (!style.thresholds) {
-      return null;
-    }
-    for (let i = style.thresholds.length; i > 0; i--) {
-      if (value >= style.thresholds[i - 1]) {
-        return style.colors[i];
-      }
-    }
-    return _.first(style.colors);
-  }
-
-  // to determine the overall row color, the index of the threshold is needed
-  getColorIndexForValue(value: any, style: any) {
-    if (!style.thresholds) {
-      return null;
-    }
-    for (let i = style.thresholds.length; i > 0; i--) {
-      if (value >= style.thresholds[i - 1]) {
-        return i;
-      }
-    }
-    return 0;
   }
 
   /**
@@ -154,7 +123,7 @@ export class DatatableRenderer {
           return this.defaultCellFormatter(v, style, column);
         }
         if (style.colorMode) {
-          this.colorState[style.colorMode] = this.getColorForValue(v, style);
+          this.colorState[style.colorMode] = getColorForValue(v, style);
         }
         return valueFormatter(v, style.decimals, null);
       };
@@ -338,15 +307,15 @@ export class DatatableRenderer {
       // check color for either cell or row
       if (colorState.cell || colorState.row || colorState.rowcolumn) {
         // bgColor = _this.colorState.cell;
-        bgColor = this.getColorForValue(value, colStyle);
-        bgColorIndex = this.getColorIndexForValue(value, colStyle);
+        bgColor = getColorForValue(value, colStyle);
+        bgColorIndex = getColorIndexForValue(value, colStyle);
         color = 'white';
       }
       // just the value color is set
       if (colorState.value) {
         //color = _this.colorState.value;
-        color = this.getColorForValue(value, colStyle);
-        colorIndex = this.getColorIndexForValue(value, colStyle);
+        color = getColorForValue(value, colStyle);
+        colorIndex = getColorIndexForValue(value, colStyle);
       }
     }
     return {
