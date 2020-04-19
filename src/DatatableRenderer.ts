@@ -1,7 +1,7 @@
+import { dateTime } from '@grafana/data';
 import $ from 'jquery';
 import kbn from 'grafana/app/core/utils/kbn';
 
-import moment from 'moment';
 import _ from 'lodash';
 import { getColorForValue, getColorIndexForValue } from './Formatter';
 import 'datatables.net';
@@ -103,13 +103,22 @@ export class DatatableRenderer {
         if (v === undefined || v === null) {
           return '-';
         }
+
         if (_.isArray(v)) {
           v = v[0];
         }
-        let date = moment(v);
+
+        // if is an epoch (numeric string and len > 12)
+        if (_.isString(v) && !isNaN(v as any) && v.length > 12) {
+          v = parseInt(v, 10);
+        }
+
+        let date = dateTime(v);
+
         if (this.isUtc) {
           date = date.utc();
         }
+
         return date.format(style.dateFormat);
       };
     }
