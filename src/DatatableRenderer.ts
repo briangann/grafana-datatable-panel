@@ -46,7 +46,6 @@ export class DatatableRenderer {
       style = {};
     }
     let cellTemplate = style.url;
-    //const cellTemplateVariables = {};
 
     if (typeof style.splitPattern === 'undefined' || style.splitPattern === '') {
       style.splitPattern = '/ /';
@@ -106,8 +105,8 @@ export class DatatableRenderer {
         if (this.isUtc) {
           date = date.utc();
         }
-
-        return date.format(style.dateFormat);
+        const fmt = date.format(style.dateFormat);
+        return fmt;
       };
     }
     if (style.type === 'number') {
@@ -136,7 +135,6 @@ export class DatatableRenderer {
         if (mappingType === 1 && style.valueMaps) {
           for (let i = 0; i < style.valueMaps.length; i++) {
             const map = style.valueMaps[i];
-
             if (v === null) {
               if (map.value === 'null') {
                 return map.text;
@@ -154,7 +152,6 @@ export class DatatableRenderer {
         if (mappingType === 2 && style.rangeMaps) {
           for (let i = 0; i < style.rangeMaps.length; i++) {
             const map = style.rangeMaps[i];
-
             if (v === null) {
               if (map.from === 'null' && map.to === 'null') {
                 return map.text;
@@ -171,11 +168,9 @@ export class DatatableRenderer {
         if (v === null || v === void 0) {
           return '-';
         }
-
         return this.defaultCellFormatter(v, style, column);
       };
     }
-
     return (value: any) => {
       return this.defaultCellFormatter(value, style, column);
     };
@@ -199,19 +194,15 @@ export class DatatableRenderer {
         }
       }
     }
-
     if (!this.formatters[colIndex]) {
       this.formatters[colIndex] = this.defaultCellFormatter;
     }
-
     let v = this.formatters[colIndex](value);
-
     if (/\$__cell_\d+/.exec(v)) {
       for (let i = this.table.columns.length - 1; i >= 0; i--) {
         v = v.replace(`$__cell_${i}`, this.table.rows[rowIndex][i]);
       }
     }
-
     return v;
   }
 
@@ -222,20 +213,25 @@ export class DatatableRenderer {
    */
   generateFormattedData(rowData: any) {
     const formattedRowData = [];
-
     for (let y = 0; y < rowData.length; y++) {
       const row = this.table.rows[y];
       const cellData = [];
       for (let i = 0; i < this.table.columns.length; i++) {
-        const value = this.formatColumnValue(i, y, row[i]);
+        let value = this.formatColumnValue(i, y, row[i]);
         if (value === undefined || value === null) {
           this.table.columns[i].hidden = true;
         }
-        // formatted holds the rewrite, raw holds the sort value
-        cellData.push({
-          formattedValue: value,
-          rawValue: row[i],
-        });
+        if (value === null) {
+          value = row[i];
+        }
+        const record = {
+          "data": {
+            "display": value,
+            "raw": row[i],
+            "_": row[i],
+          }
+        }
+        cellData.push(record);
       }
       if (this.panel.rowNumbersEnabled) {
         cellData.unshift('rowCounter');
@@ -379,25 +375,38 @@ export class DatatableRenderer {
     for (let i = 0; i < this.table.columns.length; i++) {
       const columnAlias = this.getColumnAlias(this.table.columns[i].text);
       const columnWidthHint = this.getColumnWidthHint(this.table.columns[i].text);
+      // column type "date" is very limited, and overrides our formatting
+      // best to use our format, then the "raw" epoch time as the sort ordering field
+      // https://datatables.net/reference/option/columns.type
+      let columnType = this.table.columns[i].type;
+      if (columnType === 'date') {
+        columnType = 'string';
+      }
       // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
       // with full width
       /* jshint loopfunc: true */
       columns.push({
         title: columnAlias,
-        type: this.table.columns[i].type,
+        type: columnType,
         width: columnWidthHint,
       });
       columnDefs.push({
         targets: i + rowNumberOffset,
-        data: function(row: any, type: any, val: any, meta: any) {
-          // If display or filter data is requested, use formatted value
-          if (type === 'display' || type === 'filter') {
-            return row[meta.col].formattedValue;
+        data: function ( row: any, type: any, val: any, meta: any ) {
+          if (type === 'display') {
+            const idx = meta.col;
+            const returnValue = row[idx].data.display;
+            return returnValue;
           }
-          // Otherwise the data type requested (`type`) is type detection or
-          // sorting data, return unaltered data
-          if (typeof type !== 'undefined') {
-            return row[meta.col].rawValue;
+          if (type === 'sort') {
+            const idx = meta.col;
+            const returnValue = row[idx].data.raw;
+            return returnValue;
+          }
+          if (type === 'filter') {
+            const idx = meta.col;
+            const returnValue = row[idx].data.raw;
+            return returnValue;
           }
           // always return something or DT will error
           return null;
