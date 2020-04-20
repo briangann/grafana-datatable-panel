@@ -225,12 +225,12 @@ export class DatatableRenderer {
           value = row[i];
         }
         const record = {
-          "data": {
-            "display": value,
-            "raw": row[i],
-            "_": row[i],
-          }
-        }
+          data: {
+            display: value,
+            raw: row[i],
+            _: row[i],
+          },
+        };
         cellData.push(record);
       }
       if (this.panel.rowNumbersEnabled) {
@@ -392,7 +392,7 @@ export class DatatableRenderer {
       });
       columnDefs.push({
         targets: i + rowNumberOffset,
-        data: function ( row: any, type: any, val: any, meta: any ) {
+        data: function(row: any, type: any, val: any, meta: any) {
           if (type === 'display') {
             const idx = meta.col;
             const returnValue = row[idx].data.display;
