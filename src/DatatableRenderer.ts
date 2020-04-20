@@ -380,7 +380,7 @@ export class DatatableRenderer {
       // https://datatables.net/reference/option/columns.type
       let columnType = this.table.columns[i].type;
       if (columnType === 'date') {
-        columnType = 'string';
+        columnType = 'num';
       }
       // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
       // with full width
