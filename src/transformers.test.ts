@@ -61,7 +61,7 @@ describe('Transformers', () => {
     const model = new TableModel();
     model.columns = [];
     const panel = {
-      columns: []
+      columns: [],
     };
     transformers.timeseries_aggregations.transform(data, panel, model);
     expect(model.type).toEqual('table');
