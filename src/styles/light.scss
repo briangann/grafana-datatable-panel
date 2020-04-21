@@ -317,6 +317,9 @@ table.dataTable td {
 .dataTables_wrapper .dataTables_filter {
   float: right;
   text-align: right;
+  border-style: solid;
+  border-width: 1px;
+  border-color: rgb(238, 238, 238);
 }
 .dataTables_wrapper .dataTables_filter input {
   margin-left: 0.5em;
