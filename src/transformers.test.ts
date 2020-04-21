@@ -1,5 +1,5 @@
 import { transformers } from './transformers';
-import { TimeSeries } from './__mocks__/grafana/app/core/time_series2';
+import { TimeSeries } from '../__mocks__/grafana/app/core/time_series2';
 
 describe('Transformers', () => {
   const time = new Date().getTime();
