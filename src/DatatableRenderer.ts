@@ -13,18 +13,20 @@ export class DatatableRenderer {
   table: any;
   isUtc: boolean;
   sanitize: any;
+  timeSrv: any;
 
   // from app/core/constants
   GRID_CELL_HEIGHT = 30;
   // from inspect
   TITLE_LINE_HEIGHT = 28;
-  constructor(panel: any, table: any, isUtc: boolean, sanitize: any) {
+  constructor(panel: any, table: any, isUtc: boolean, sanitize: any, timeSrv: any) {
     this.formatters = [];
     this.colorState = {};
     this.panel = panel;
     this.table = table;
     this.isUtc = isUtc;
     this.sanitize = sanitize;
+    this.timeSrv = timeSrv;
   }
 
   /**
@@ -54,6 +56,8 @@ export class DatatableRenderer {
     const regex = StringToJsRegex(String(style.splitPattern));
     const values = v.split(regex);
     if (typeof cellTemplate !== 'undefined') {
+      // replace $__from/$__to/$__
+      cellTemplate = this.replaceTimeMacros(cellTemplate);
       // Replace $__cell with this cell's content.
       cellTemplate = cellTemplate.replace(/\$__cell\b/, v);
       values.map((val: any, i: any) => (cellTemplate = cellTemplate.replace(`$__pattern_${i}`, val)));
@@ -71,6 +75,24 @@ export class DatatableRenderer {
     }
   }
 
+  // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
+  replaceTimeMacros(content: string) {
+    let newContent = content;
+    if (content.match(/\$__from/g)) {
+      // replace all occurences
+      newContent = newContent.replace('$__from', this.timeSrv.time.from);
+    }
+    if (content.match(/\$__to/g)) {
+      // replace all occurences
+      newContent = newContent.replace('$__to', this.timeSrv.time.to);
+    }
+    if (content.match(/\$__keepTime/g)) {
+      // replace all occurences
+      const keepTime = `from=${this.timeSrv.time.from}&to=${this.timeSrv.time.to}`
+      newContent = newContent.replace('$__keepTime', keepTime);
+    }
+    return newContent;
+  }
   /**
    * [createColumnFormatter description]
    * @param  {[type]} style  [description]

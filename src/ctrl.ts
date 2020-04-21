@@ -70,7 +70,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   getColumnNames: () => any[];
 
   /** @ngInject */
-  constructor($scope: any, $injector: any, $http: any, $location: any, uiSegmentSrv: any, annotationsSrv: any, private $sanitize: any) {
+  constructor($scope: any, $injector: any, $http: any, $location: any, uiSegmentSrv: any, annotationsSrv: any, private $sanitize: any, timeSrv: any) {
     super($scope, $injector);
     this.pageIndex = 0;
     this.table = null;
@@ -116,7 +116,6 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
       delete this.panel.fields;
     }
     _.defaults(this.panel, panelDefaults);
-
     this.dataLoaded = true;
     this.http = $http;
     this.events.on('data-received', this.onDataReceived.bind(this));
@@ -255,7 +254,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   exportCsv() {
-    const renderer = new DatatableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize);
+    const renderer = new DatatableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize, this.timeSrv);
     FileExport.exportTableDataToCsv(renderer.render_values());
   }
 
@@ -269,7 +268,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
      * @return {[type]} [description]
      */
     function renderPanel() {
-      const renderer = new DatatableRenderer(panel, ctrl.table, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize);
+      const renderer = new DatatableRenderer(panel, ctrl.table, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize, _this.timeSrv);
       renderer.render();
       _this.dataLoaded = true;
     }
