@@ -62,7 +62,8 @@ export class DatatableRenderer {
     if (style && style.sanitize) {
       return this.sanitize(v);
     } else if (style && style.link && cellTemplate && column.text === style.column) {
-      return '<a href="' + cellTemplate.replace(/\{\}|\$__cell/g, v) + '" target="_blank">' + v + '</a>';
+      const linkValue = cellTemplate.replace(/\{\}|\$__cell_\d*/g, v);
+      return '<a href="' + linkValue + '" target="_blank">' + v + '</a>';
     } else if (style && style.link) {
       return '<a href="' + v + '" target="_blank">' + v + '</a>';
     } else {
