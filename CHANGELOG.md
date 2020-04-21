@@ -10,6 +10,7 @@ All notable changes to this project will be documented in this file.
 - Updated to use new @grafana/toolkit build process
 - Packages updated
 - FIX: column index sorting was wrong when row numbers set true
+- NEW: time macros $__from, $__to, $__keepFrom will be replaced in clickable urls
 
 ## [0.0.9] - 2019-09-07
 
