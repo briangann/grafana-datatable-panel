@@ -88,7 +88,7 @@ export class DatatableRenderer {
     }
     if (content.match(/\$__keepTime/g)) {
       // replace all occurences
-      const keepTime = `from=${this.timeSrv.time.from}&to=${this.timeSrv.time.to}`
+      const keepTime = `from=${this.timeSrv.time.from}&to=${this.timeSrv.time.to}`;
       newContent = newContent.replace('$__keepTime', keepTime);
     }
     return newContent;
