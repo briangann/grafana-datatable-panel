@@ -2,10 +2,11 @@ import { MetricsPanelCtrl } from 'grafana/app/plugins/sdk';
 import _ from 'lodash';
 import angular from 'angular';
 import kbn from 'grafana/app/core/utils/kbn';
-
 import * as FileExport from 'grafana/app/core/utils/file_export';
-
 import 'datatables.net/js/jquery.dataTables.min';
+import { panelDefaults, dateFormats, columnTypes, columnStyleDefaults, colorModes, fontSizes } from './Defaults';
+import { transformDataToTable, transformers } from './transformers';
+import { DatatableRenderer } from './DatatableRenderer';
 
 // See this for styling https://datatables.net/manual/styling/theme-creator
 
@@ -48,114 +49,6 @@ table.dataTable tfoot th {
   font-weight: bold; }
 */
 
-import { transformDataToTable, transformers } from './transformers';
-
-import { DatatableRenderer } from './renderer';
-
-const panelDefaults = {
-  targets: [{}],
-  transform: 'timeseries_to_columns',
-  rowsPerPage: 5,
-  showHeader: true,
-  styles: [
-    {
-      type: 'date',
-      pattern: 'Time',
-      dateFormat: 'YYYY-MM-DD HH:mm:ss',
-    },
-    {
-      unit: 'short',
-      type: 'number',
-      decimals: 2,
-      colors: ['rgba(245, 54, 54, 0.9)', 'rgba(237, 129, 40, 0.89)', 'rgba(50, 172, 45, 0.97)'],
-      colorMode: null,
-      pattern: '/.*/',
-      thresholds: [],
-    },
-  ],
-  columns: [],
-  scroll: false,
-  scrollHeight: 'default',
-  fontSize: '100%',
-  sort: {
-    col: 0,
-    desc: true,
-  },
-  columnAliases: [],
-  columnWidthHints: [],
-  sortByColumnsData: [[0, 'desc']],
-  sortByColumns: [
-    {
-      columnData: 0,
-      sortMethod: 'desc',
-    },
-  ],
-  datatableTheme: 'basic_theme',
-  themeOptions: {
-    light: './styles/light.css',
-    dark: './styles/dark.css',
-  },
-  rowNumbersEnabled: false,
-  infoEnabled: true,
-  searchEnabled: true,
-  showCellBorders: false,
-  showRowBorders: true,
-  hoverEnabled: true,
-  orderColumnEnabled: true,
-  compactRowsEnabled: false,
-  stripedRowsEnabled: true,
-  lengthChangeEnabled: true,
-  datatablePagingType: 'simple_numbers',
-  pagingTypes: [
-    {
-      text: 'Page number buttons only',
-      value: 'numbers',
-    },
-    {
-      text: "'Previous' and 'Next' buttons only",
-      value: 'simple',
-    },
-    {
-      text: "'Previous' and 'Next' buttons, plus page numbers",
-      value: 'simple_numbers',
-    },
-    {
-      text: "'First', 'Previous', 'Next' and 'Last' buttons",
-      value: 'full',
-    },
-    {
-      text: "'First', 'Previous', 'Next' and 'Last' buttons, plus page numbers",
-      value: 'full_numbers',
-    },
-    {
-      text: "'First' and 'Last' buttons, plus page numbers",
-      value: 'first_last_numbers',
-    },
-  ],
-  themes: [
-    {
-      value: 'basic_theme',
-      text: 'Basic',
-      disabled: false,
-    },
-    {
-      value: 'bootstrap_theme',
-      text: 'Bootstrap',
-      disabled: true,
-    },
-    {
-      value: 'foundation_theme',
-      text: 'Foundation',
-      disabled: true,
-    },
-    {
-      value: 'themeroller_theme',
-      text: 'ThemeRoller',
-      disabled: true,
-    },
-  ],
-};
-
 export class DatatablePanelCtrl extends MetricsPanelCtrl {
   static templateUrl = 'partials/template.html';
   dataLoaded: boolean;
@@ -177,9 +70,8 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   getColumnNames: () => any[];
 
   /** @ngInject */
-  constructor($scope: any, $injector: any, $http: any, $location: any, uiSegmentSrv: any, annotationsSrv: any, private $sanitize: any) {
+  constructor($scope: any, $injector: any, $http: any, $location: any, uiSegmentSrv: any, annotationsSrv: any, private $sanitize: any, timeSrv: any) {
     super($scope, $injector);
-
     this.pageIndex = 0;
     this.table = null;
     this.dataRaw = [];
@@ -187,9 +79,11 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     this.annotationsSrv = annotationsSrv;
     this.uiSegmentSrv = uiSegmentSrv;
     // editor
-
     this.addColumnSegment = uiSegmentSrv.newPlusButton();
-    this.mappingTypes = [{ text: 'Value to text', value: 1 }, { text: 'Range to text', value: 2 }];
+    this.mappingTypes = [
+      { text: 'Value to text', value: 1 },
+      { text: 'Range to text', value: 2 },
+    ];
     this.columnSortMethods = [
       {
         text: 'Ascending',
@@ -200,63 +94,11 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
         value: 'desc',
       },
     ];
-
-    this.fontSizes = ['80%', '90%', '100%', '110%', '120%', '130%', '150%', '160%', '180%', '200%', '220%', '250%'];
-    this.colorModes = [
-      {
-        text: 'Disabled',
-        value: null,
-      },
-      {
-        text: 'Cell',
-        value: 'cell',
-      },
-      {
-        text: 'Value',
-        value: 'value',
-      },
-      {
-        text: 'Row',
-        value: 'row',
-      },
-      {
-        text: 'Row Column',
-        value: 'rowcolumn',
-      },
-    ];
-    this.columnTypes = [
-      {
-        text: 'Number',
-        value: 'number',
-      },
-      {
-        text: 'String',
-        value: 'string',
-      },
-      {
-        text: 'Date',
-        value: 'date',
-      },
-      {
-        text: 'Hidden',
-        value: 'hidden',
-      },
-    ];
+    this.fontSizes = fontSizes;
+    this.colorModes = colorModes;
+    this.columnTypes = columnTypes;
     this.unitFormats = kbn.getUnitFormats();
-    this.dateFormats = [
-      {
-        text: 'YYYY-MM-DD HH:mm:ss',
-        value: 'YYYY-MM-DD HH:mm:ss',
-      },
-      {
-        text: 'MM/DD/YY h:mm:ss a',
-        value: 'MM/DD/YY h:mm:ss a',
-      },
-      {
-        text: 'MMMM D, YYYY LT',
-        value: 'MMMM D, YYYY LT',
-      },
-    ];
+    this.dateFormats = dateFormats;
     // this is used from bs-typeahead and needs to be instance bound
     this.getColumnNames = () => {
       if (!this.table) {
@@ -274,7 +116,6 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
       delete this.panel.fields;
     }
     _.defaults(this.panel, panelDefaults);
-
     this.dataLoaded = true;
     this.http = $http;
     this.events.on('data-received', this.onDataReceived.bind(this));
@@ -412,37 +253,14 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     return actualHeight;
   }
 
-  getPanelHeightX() {
-    // panel can have a fixed height set via "General" tab in panel editor
-    let tmpPanelHeight = this.panel.height;
-    if (typeof tmpPanelHeight === 'undefined' || tmpPanelHeight === '') {
-      // grafana also supplies the height, try to use that if the panel does not have a height
-      tmpPanelHeight = String(this.height);
-      if (typeof tmpPanelHeight === 'undefined') {
-        // height still cannot be determined, get it from the row instead
-        tmpPanelHeight = this.row.height;
-        if (typeof tmpPanelHeight === 'undefined') {
-          // last resort - default to 250px (this should never happen)
-          tmpPanelHeight = '250';
-        }
-      }
-    }
-    // replace px
-    tmpPanelHeight = tmpPanelHeight.replace('px', '');
-    // convert to numeric value
-    const actualHeight = parseInt(tmpPanelHeight, 10);
-    return actualHeight;
-  }
-
   exportCsv() {
-    const renderer = new DatatableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize);
+    const renderer = new DatatableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize, this.timeSrv);
     FileExport.exportTableDataToCsv(renderer.render_values());
   }
 
   link(scope: any, elem: any, attrs: any, ctrl: any) {
     let data: any[];
     const panel = ctrl.panel;
-    //const formatters = [];
     const _this = this;
 
     /**
@@ -450,7 +268,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
      * @return {[type]} [description]
      */
     function renderPanel() {
-      const renderer = new DatatableRenderer(panel, ctrl.table, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize);
+      const renderer = new DatatableRenderer(panel, ctrl.table, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize, _this.timeSrv);
       renderer.render();
       _this.dataLoaded = true;
     }
@@ -519,17 +337,6 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   addColumnStyle() {
-    const columnStyleDefaults = {
-      unit: 'short',
-      type: 'number',
-      decimals: 2,
-      colors: ['rgba(245, 54, 54, 0.9)', 'rgba(237, 129, 40, 0.89)', 'rgba(50, 172, 45, 0.97)'],
-      colorMode: null,
-      pattern: '/.*/',
-      dateFormat: 'YYYY-MM-DD HH:mm:ss',
-      thresholds: [],
-      mappingType: 1,
-    };
     this.panel.styles.push(angular.copy(columnStyleDefaults));
   }
   removeColumnStyle(style: any) {

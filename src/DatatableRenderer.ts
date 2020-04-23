@@ -1,9 +1,9 @@
+import { dateTime } from '@grafana/data';
 import $ from 'jquery';
 import kbn from 'grafana/app/core/utils/kbn';
 
-import moment from 'moment';
 import _ from 'lodash';
-
+import { GetColorForValue, GetColorIndexForValue, StringToJsRegex } from './Utils';
 import 'datatables.net';
 
 export class DatatableRenderer {
@@ -13,49 +13,20 @@ export class DatatableRenderer {
   table: any;
   isUtc: boolean;
   sanitize: any;
+  timeSrv: any;
 
   // from app/core/constants
   GRID_CELL_HEIGHT = 30;
   // from inspect
   TITLE_LINE_HEIGHT = 28;
-  constructor(panel: any, table: any, isUtc: boolean, sanitize: any) {
+  constructor(panel: any, table: any, isUtc: boolean, sanitize: any, timeSrv: any) {
     this.formatters = [];
     this.colorState = {};
     this.panel = panel;
     this.table = table;
     this.isUtc = isUtc;
     this.sanitize = sanitize;
-  }
-
-  /**
-   * Given a value, return the color corresponding to the threshold set
-   * @param  {[Float]} value [Value to be evaluated]
-   * @param  {[Array]} style [Settings containing colors and thresholds]
-   * @return {[String]}       [color]
-   */
-  getColorForValue(value: any, style: any) {
-    if (!style.thresholds) {
-      return null;
-    }
-    for (let i = style.thresholds.length; i > 0; i--) {
-      if (value >= style.thresholds[i - 1]) {
-        return style.colors[i];
-      }
-    }
-    return _.first(style.colors);
-  }
-
-  // to determine the overall row color, the index of the threshold is needed
-  getColorIndexForValue(value: any, style: any) {
-    if (!style.thresholds) {
-      return null;
-    }
-    for (let i = style.thresholds.length; i > 0; i--) {
-      if (value >= style.thresholds[i - 1]) {
-        return i;
-      }
-    }
-    return 0;
+    this.timeSrv = timeSrv;
   }
 
   /**
@@ -65,18 +36,6 @@ export class DatatableRenderer {
    * @return {[type]}       [description]
    */
   defaultCellFormatter(v: any, style: any, column: any) {
-    // taken from @grafana/data
-    function stringToJsRegex(str: string): RegExp {
-      if (str[0] !== '/') {
-        return new RegExp('^' + str + '$');
-      }
-      const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
-      if (!match) {
-        throw new Error(`'${str}' is not a valid regular expression.`);
-      }
-      return new RegExp(match[1], match[2]);
-    }
-
     if (v === null || v === void 0 || v === undefined || column === null) {
       return '';
     }
@@ -89,15 +48,16 @@ export class DatatableRenderer {
       style = {};
     }
     let cellTemplate = style.url;
-    //const cellTemplateVariables = {};
 
     if (typeof style.splitPattern === 'undefined' || style.splitPattern === '') {
       style.splitPattern = '/ /';
     }
 
-    const regex = stringToJsRegex(String(style.splitPattern));
+    const regex = StringToJsRegex(String(style.splitPattern));
     const values = v.split(regex);
     if (typeof cellTemplate !== 'undefined') {
+      // replace $__from/$__to/$__
+      cellTemplate = this.replaceTimeMacros(cellTemplate);
       // Replace $__cell with this cell's content.
       cellTemplate = cellTemplate.replace(/\$__cell\b/, v);
       values.map((val: any, i: any) => (cellTemplate = cellTemplate.replace(`$__pattern_${i}`, val)));
@@ -106,7 +66,8 @@ export class DatatableRenderer {
     if (style && style.sanitize) {
       return this.sanitize(v);
     } else if (style && style.link && cellTemplate && column.text === style.column) {
-      return '<a href="' + cellTemplate.replace(/\{\}|\$__cell/g, v) + '" target="_blank">' + v + '</a>';
+      const linkValue = cellTemplate.replace(/\{\}|\$__cell_\d*/g, v);
+      return '<a href="' + linkValue + '" target="_blank">' + v + '</a>';
     } else if (style && style.link) {
       return '<a href="' + v + '" target="_blank">' + v + '</a>';
     } else {
@@ -114,6 +75,24 @@ export class DatatableRenderer {
     }
   }
 
+  // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
+  replaceTimeMacros(content: string) {
+    let newContent = content;
+    if (content.match(/\$__from/g)) {
+      // replace all occurences
+      newContent = newContent.replace('$__from', this.timeSrv.time.from);
+    }
+    if (content.match(/\$__to/g)) {
+      // replace all occurences
+      newContent = newContent.replace('$__to', this.timeSrv.time.to);
+    }
+    if (content.match(/\$__keepTime/g)) {
+      // replace all occurences
+      const keepTime = `from=${this.timeSrv.time.from}&to=${this.timeSrv.time.to}`;
+      newContent = newContent.replace('$__keepTime', keepTime);
+    }
+    return newContent;
+  }
   /**
    * [createColumnFormatter description]
    * @param  {[type]} style  [description]
@@ -134,14 +113,23 @@ export class DatatableRenderer {
         if (v === undefined || v === null) {
           return '-';
         }
+
         if (_.isArray(v)) {
           v = v[0];
         }
-        let date = moment(v);
+
+        // if is an epoch (numeric string and len > 12)
+        if (_.isString(v) && !isNaN(v as any) && v.length > 12) {
+          v = parseInt(v, 10);
+        }
+
+        let date = dateTime(v);
+
         if (this.isUtc) {
           date = date.utc();
         }
-        return date.format(style.dateFormat);
+        const fmt = date.format(style.dateFormat);
+        return fmt;
       };
     }
     if (style.type === 'number') {
@@ -154,7 +142,7 @@ export class DatatableRenderer {
           return this.defaultCellFormatter(v, style, column);
         }
         if (style.colorMode) {
-          this.colorState[style.colorMode] = this.getColorForValue(v, style);
+          this.colorState[style.colorMode] = GetColorForValue(v, style);
         }
         return valueFormatter(v, style.decimals, null);
       };
@@ -170,7 +158,6 @@ export class DatatableRenderer {
         if (mappingType === 1 && style.valueMaps) {
           for (let i = 0; i < style.valueMaps.length; i++) {
             const map = style.valueMaps[i];
-
             if (v === null) {
               if (map.value === 'null') {
                 return map.text;
@@ -188,7 +175,6 @@ export class DatatableRenderer {
         if (mappingType === 2 && style.rangeMaps) {
           for (let i = 0; i < style.rangeMaps.length; i++) {
             const map = style.rangeMaps[i];
-
             if (v === null) {
               if (map.from === 'null' && map.to === 'null') {
                 return map.text;
@@ -205,11 +191,9 @@ export class DatatableRenderer {
         if (v === null || v === void 0) {
           return '-';
         }
-
         return this.defaultCellFormatter(v, style, column);
       };
     }
-
     return (value: any) => {
       return this.defaultCellFormatter(value, style, column);
     };
@@ -223,41 +207,25 @@ export class DatatableRenderer {
    * @return {[type]}          [description]
    */
   formatColumnValue(colIndex: any, rowIndex: any, value: any) {
-    // taken from @grafana/data
-    function stringToJsRegex(str: string): RegExp {
-      if (str[0] !== '/') {
-        return new RegExp('^' + str + '$');
-      }
-      const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
-      if (!match) {
-        throw new Error(`'${str}' is not a valid regular expression.`);
-      }
-      return new RegExp(match[1], match[2]);
-    }
-
     if (!this.formatters[colIndex]) {
       for (let i = 0; i < this.panel.styles.length; i++) {
         const style = this.panel.styles[i];
         const column = this.table.columns[colIndex];
-        const regex = stringToJsRegex(style.pattern);
+        const regex = StringToJsRegex(style.pattern);
         if (column.text.match(regex)) {
           this.formatters[colIndex] = this.createColumnFormatter(style, column);
         }
       }
     }
-
     if (!this.formatters[colIndex]) {
       this.formatters[colIndex] = this.defaultCellFormatter;
     }
-
     let v = this.formatters[colIndex](value);
-
     if (/\$__cell_\d+/.exec(v)) {
       for (let i = this.table.columns.length - 1; i >= 0; i--) {
         v = v.replace(`$__cell_${i}`, this.table.rows[rowIndex][i]);
       }
     }
-
     return v;
   }
 
@@ -268,16 +236,25 @@ export class DatatableRenderer {
    */
   generateFormattedData(rowData: any) {
     const formattedRowData = [];
-
     for (let y = 0; y < rowData.length; y++) {
       const row = this.table.rows[y];
       const cellData = [];
       for (let i = 0; i < this.table.columns.length; i++) {
-        const value = this.formatColumnValue(i, y, row[i]);
+        let value = this.formatColumnValue(i, y, row[i]);
         if (value === undefined || value === null) {
           this.table.columns[i].hidden = true;
         }
-        cellData.push(value);
+        if (value === null) {
+          value = row[i];
+        }
+        const record = {
+          data: {
+            display: value,
+            raw: row[i],
+            _: row[i],
+          },
+        };
+        cellData.push(record);
       }
       if (this.panel.rowNumbersEnabled) {
         cellData.unshift('rowCounter');
@@ -288,18 +265,6 @@ export class DatatableRenderer {
   }
 
   getStyleForColumn(columnNumber: any) {
-    // taken from @grafana/data
-    function stringToJsRegex(str: string): RegExp {
-      if (str[0] !== '/') {
-        return new RegExp('^' + str + '$');
-      }
-      const match = str.match(new RegExp('^/(.*?)/(g?i?m?y?)$'));
-      if (!match) {
-        throw new Error(`'${str}' is not a valid regular expression.`);
-      }
-      return new RegExp(match[1], match[2]);
-    }
-
     let colStyle = null;
     for (let i = 0; i < this.panel.styles.length; i++) {
       const style = this.panel.styles[i];
@@ -307,7 +272,7 @@ export class DatatableRenderer {
       if (column === undefined) {
         break;
       }
-      const regex = stringToJsRegex(style.pattern);
+      const regex = StringToJsRegex(style.pattern);
       if (column.text.match(regex)) {
         colStyle = style;
         break;
@@ -338,15 +303,15 @@ export class DatatableRenderer {
       // check color for either cell or row
       if (colorState.cell || colorState.row || colorState.rowcolumn) {
         // bgColor = _this.colorState.cell;
-        bgColor = this.getColorForValue(value, colStyle);
-        bgColorIndex = this.getColorIndexForValue(value, colStyle);
+        bgColor = GetColorForValue(value, colStyle);
+        bgColorIndex = GetColorIndexForValue(value, colStyle);
         color = 'white';
       }
       // just the value color is set
       if (colorState.value) {
         //color = _this.colorState.value;
-        color = this.getColorForValue(value, colStyle);
-        colorIndex = this.getColorIndexForValue(value, colStyle);
+        color = GetColorForValue(value, colStyle);
+        colorIndex = GetColorIndexForValue(value, colStyle);
       }
     }
     return {
@@ -433,16 +398,42 @@ export class DatatableRenderer {
     for (let i = 0; i < this.table.columns.length; i++) {
       const columnAlias = this.getColumnAlias(this.table.columns[i].text);
       const columnWidthHint = this.getColumnWidthHint(this.table.columns[i].text);
+      // column type "date" is very limited, and overrides our formatting
+      // best to use our format, then the "raw" epoch time as the sort ordering field
+      // https://datatables.net/reference/option/columns.type
+      let columnType = this.table.columns[i].type;
+      if (columnType === 'date') {
+        columnType = 'num';
+      }
       // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
       // with full width
       /* jshint loopfunc: true */
       columns.push({
         title: columnAlias,
-        type: this.table.columns[i].type,
+        type: columnType,
         width: columnWidthHint,
       });
       columnDefs.push({
         targets: i + rowNumberOffset,
+        data: function(row: any, type: any, val: any, meta: any) {
+          if (type === 'display') {
+            const idx = meta.col;
+            const returnValue = row[idx].data.display;
+            return returnValue;
+          }
+          if (type === 'sort') {
+            const idx = meta.col;
+            const returnValue = row[idx].data.raw;
+            return returnValue;
+          }
+          if (type === 'filter') {
+            const idx = meta.col;
+            const returnValue = row[idx].data.raw;
+            return returnValue;
+          }
+          // always return something or DT will error
+          return null;
+        },
         createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
           // hidden columns have null data
           if (cellData === null) {
@@ -455,7 +446,7 @@ export class DatatableRenderer {
           if (_this.panel.rowNumbersEnabled) {
             actualColumn -= 1;
           }
-          // FIXME: I hidden this line due to all columns are with undefined type, so they are not colorized
+          // FIXME: I hid this line due to all columns with undefined type, so they are not colorized
           // if (_this.table.columns[actualColumn].type === undefined) return;
           // for coloring rows, get the "worst" threshold
           let rowColor = null;
@@ -715,6 +706,7 @@ export class DatatableRenderer {
     return gridHeight;
   }
 
+  // For CSV Export
   render_values() {
     const rows = [];
 

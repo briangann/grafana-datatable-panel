@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.0] - 2020-04-21
+
+- Added option to use orthogonal data option to sort by value and not formatted value
+  - <https://datatables.net/manual/data/orthogonal-data>
+- Remove moment package
+- Updated to use new @grafana/toolkit build process
+- Packages updated
+- FIX: column index sorting was wrong when row numbers set true
+- FIX: light theme search area now more visible
+- NEW: time macros $__from, $__to, $__keepFrom will be replaced in clickable urls
+
 ## [0.0.9] - 2019-09-07
 
 - Fix stringToJsRegex reference error
@@ -17,7 +28,7 @@ Conversion to typescript
 Updated all packages
 CircleCI added to publishing
 
-# (previous) Changelog
+## (previous) Changelog
 
 |Version|Changes|
 |-------|-----------|
