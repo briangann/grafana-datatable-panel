@@ -7,6 +7,7 @@ import 'datatables.net/js/jquery.dataTables.min';
 import { panelDefaults, dateFormats, columnTypes, columnStyleDefaults, colorModes, fontSizes } from './Defaults';
 import { transformDataToTable, transformers } from './transformers';
 import { DatatableRenderer } from './DatatableRenderer';
+import { PanelEvents } from '@grafana/data';
 
 // See this for styling https://datatables.net/manual/styling/theme-creator
 
@@ -127,11 +128,11 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     _.defaults(this.panel, panelDefaults);
     this.dataLoaded = true;
     this.http = $http;
-    this.events.on('data-received', this.onDataReceived.bind(this));
-    this.events.on('data-error', this.onDataError.bind(this));
-    this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
-    this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
-    this.events.on('init-panel-actions', this.onInitPanelActions.bind(this));
+    this.events.on(PanelEvents.dataReceived, this.onDataReceived.bind(this));
+    this.events.on(PanelEvents.dataError, this.onDataError.bind(this));
+    this.events.on(PanelEvents.dataSnapshotLoad, this.onDataReceived.bind(this));
+    this.events.on(PanelEvents.editModeInitialized, this.onInitEditMode.bind(this));
+    this.events.on(PanelEvents.initPanelActions, this.onInitPanelActions.bind(this));
   }
 
   onInitPanelActions(actions: any) {
@@ -144,34 +145,12 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   // setup the editor
   onInitEditMode() {
     // determine the path to this plugin
-    const grafanaBootData = (window as any).grafanaBootData;
-    const panels = grafanaBootData.settings.panels;
-    const thisPanel = panels[this.pluginId];
-    const thisPanelPath = thisPanel.baseUrl + '/';
+    const thisPanelPath = 'public/plugins/' + this.panel.type + '/';
     // add the relative path to the partial
     const optionsPath = thisPanelPath + 'partials/editor.options.html';
     this.addEditorTab('Options', optionsPath, 2);
     const datatableOptionsPath = thisPanelPath + 'partials/datatables.options.html';
     this.addEditorTab('Datatable Options', datatableOptionsPath, 3);
-  }
-
-  getPanelPath() {
-    const grafanaBootData = (window as any).grafanaBootData;
-    const panels = grafanaBootData.settings.panels;
-    const thisPanel = panels[this.pluginId];
-    //
-    // For Grafana < 4.6, the system loader preprends publib to the url, add a .. to go back one level
-    if (thisPanel.baseUrl.startsWith('publib')) {
-      return '../' + thisPanel.baseUrl + '/';
-    } else {
-      // Grafana >= 4.6, webpack is used, need to fix the path for imports
-      if (thisPanel.baseUrl.startsWith('public')) {
-        return thisPanel.baseUrl.substring(7) + '/';
-      } else {
-        // this should never happen, but just in case, append a slash to the url
-        return thisPanel.baseUrl + '/';
-      }
-    }
   }
 
   issueQueries(datasource: any) {
