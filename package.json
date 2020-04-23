@@ -38,13 +38,13 @@
     "datatables.net-select-dt": "^1.3.1",
     "datatables.net-select-jqui": "^1.3.1",
     "font-awesome": "^4.7.0",
-    "jszip": "^3.3.0",
+    "jszip": "^3.4.0",
     "pdfmake": "^0.1.65"
   },
   "devDependencies": {
-    "@grafana/data": "^6.7.2",
+    "@grafana/data": "canary",
     "@grafana/toolkit": "canary",
-    "@types/angular": "^1.6.57",
+    "@types/angular": "^1.7.0",
     "@types/datatables.net": "^1.10.19",
     "@types/datatables.net-buttons": "^1.4.3",
     "@types/datatables.net-select": "^1.2.6",

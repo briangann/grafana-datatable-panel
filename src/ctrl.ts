@@ -70,7 +70,16 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   getColumnNames: () => any[];
 
   /** @ngInject */
-  constructor($scope: any, $injector: any, $http: any, $location: any, uiSegmentSrv: any, annotationsSrv: any, private $sanitize: any, timeSrv: any) {
+  constructor(
+    $scope: any,
+    $injector: any,
+    $http: any,
+    $location: any,
+    uiSegmentSrv: any,
+    annotationsSrv: any,
+    private $sanitize: any,
+    timeSrv: any
+  ) {
     super($scope, $injector);
     this.pageIndex = 0;
     this.table = null;
@@ -218,7 +227,10 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   changeRowNumbersEnabled() {
-    this.panel.sortByColumnsData.map((sortData: any) => [this.panel.rowNumbersEnabled ? sortData[0]++ : sortData[0]--, sortData[1]]);
+    this.panel.sortByColumnsData.map((sortData: any) => [
+      this.panel.rowNumbersEnabled ? sortData[0]++ : sortData[0]--,
+      sortData[1],
+    ]);
     this.render();
   }
 
@@ -254,7 +266,13 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   exportCsv() {
-    const renderer = new DatatableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize, this.timeSrv);
+    const renderer = new DatatableRenderer(
+      this.panel,
+      this.table,
+      this.dashboard.isTimezoneUtc(),
+      this.$sanitize,
+      this.timeSrv
+    );
     FileExport.exportTableDataToCsv(renderer.render_values());
   }
 
@@ -268,7 +286,13 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
      * @return {[type]} [description]
      */
     function renderPanel() {
-      const renderer = new DatatableRenderer(panel, ctrl.table, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize, _this.timeSrv);
+      const renderer = new DatatableRenderer(
+        panel,
+        ctrl.table,
+        ctrl.dashboard.isTimezoneUtc(),
+        ctrl.$sanitize,
+        _this.timeSrv
+      );
       renderer.render();
       _this.dataLoaded = true;
     }
