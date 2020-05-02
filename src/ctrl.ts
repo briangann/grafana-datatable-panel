@@ -2,7 +2,7 @@ import { MetricsPanelCtrl } from 'grafana/app/plugins/sdk';
 import _ from 'lodash';
 import angular from 'angular';
 import kbn from 'grafana/app/core/utils/kbn';
-import * as FileExport from 'grafana/app/core/utils/file_export';
+import * as FileExport from './libs/file_export';
 import 'datatables.net/js/jquery.dataTables.min';
 import { panelDefaults, dateFormats, columnTypes, columnStyleDefaults, colorModes, fontSizes } from './Defaults';
 import { transformDataToTable, transformers } from './transformers';
@@ -265,13 +265,12 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
      * @return {[type]} [description]
      */
     function renderPanel() {
-      const renderer = new DatatableRenderer(
-        panel,
-        ctrl.table,
-        ctrl.dashboard.isTimezoneUtc(),
-        ctrl.$sanitize,
-        _this.timeSrv
-      );
+      // v7 has removed this
+      let isInUTC = false;
+      if (ctrl.dashboard && ctrl.dashboard.hasOwnProperty('isTimezoneUtc')) {
+        isInUTC = ctrl.dashboard.isTimezoneUtc();
+      }
+      const renderer = new DatatableRenderer(panel, ctrl.table, isInUTC, ctrl.$sanitize, _this.timeSrv);
       renderer.render();
       _this.dataLoaded = true;
     }
