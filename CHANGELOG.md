@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.1] - 2020-05-02
+
+- pulled in file_export from older version of grafana for compatibility
+- add dependency file-saver require my file_export
+- v7 no longer suppolies isUTC setting from dashboard, test and default to false
+
 ## [1.0.0] - 2020-04-21
 
 - Added option to use orthogonal data option to sort by value and not formatted value
