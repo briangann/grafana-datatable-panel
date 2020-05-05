@@ -2,11 +2,12 @@ import { MetricsPanelCtrl } from 'grafana/app/plugins/sdk';
 import _ from 'lodash';
 import angular from 'angular';
 import kbn from 'grafana/app/core/utils/kbn';
-import * as FileExport from 'grafana/app/core/utils/file_export';
+import * as FileExport from './libs/file_export';
 import 'datatables.net/js/jquery.dataTables.min';
 import { panelDefaults, dateFormats, columnTypes, columnStyleDefaults, colorModes, fontSizes } from './Defaults';
 import { transformDataToTable, transformers } from './transformers';
 import { DatatableRenderer } from './DatatableRenderer';
+import { PanelEvents } from '@grafana/data';
 
 // See this for styling https://datatables.net/manual/styling/theme-creator
 
@@ -70,7 +71,16 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   getColumnNames: () => any[];
 
   /** @ngInject */
-  constructor($scope: any, $injector: any, $http: any, $location: any, uiSegmentSrv: any, annotationsSrv: any, private $sanitize: any, timeSrv: any) {
+  constructor(
+    $scope: any,
+    $injector: any,
+    $http: any,
+    $location: any,
+    uiSegmentSrv: any,
+    annotationsSrv: any,
+    private $sanitize: any,
+    timeSrv: any
+  ) {
     super($scope, $injector);
     this.pageIndex = 0;
     this.table = null;
@@ -118,11 +128,11 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     _.defaults(this.panel, panelDefaults);
     this.dataLoaded = true;
     this.http = $http;
-    this.events.on('data-received', this.onDataReceived.bind(this));
-    this.events.on('data-error', this.onDataError.bind(this));
-    this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
-    this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
-    this.events.on('init-panel-actions', this.onInitPanelActions.bind(this));
+    this.events.on(PanelEvents.dataReceived, this.onDataReceived.bind(this));
+    this.events.on(PanelEvents.dataError, this.onDataError.bind(this));
+    this.events.on(PanelEvents.dataSnapshotLoad, this.onDataReceived.bind(this));
+    this.events.on(PanelEvents.editModeInitialized, this.onInitEditMode.bind(this));
+    this.events.on(PanelEvents.initPanelActions, this.onInitPanelActions.bind(this));
   }
 
   onInitPanelActions(actions: any) {
@@ -135,34 +145,12 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   // setup the editor
   onInitEditMode() {
     // determine the path to this plugin
-    const grafanaBootData = (window as any).grafanaBootData;
-    const panels = grafanaBootData.settings.panels;
-    const thisPanel = panels[this.pluginId];
-    const thisPanelPath = thisPanel.baseUrl + '/';
+    const thisPanelPath = 'public/plugins/' + this.panel.type + '/';
     // add the relative path to the partial
     const optionsPath = thisPanelPath + 'partials/editor.options.html';
     this.addEditorTab('Options', optionsPath, 2);
     const datatableOptionsPath = thisPanelPath + 'partials/datatables.options.html';
     this.addEditorTab('Datatable Options', datatableOptionsPath, 3);
-  }
-
-  getPanelPath() {
-    const grafanaBootData = (window as any).grafanaBootData;
-    const panels = grafanaBootData.settings.panels;
-    const thisPanel = panels[this.pluginId];
-    //
-    // For Grafana < 4.6, the system loader preprends publib to the url, add a .. to go back one level
-    if (thisPanel.baseUrl.startsWith('publib')) {
-      return '../' + thisPanel.baseUrl + '/';
-    } else {
-      // Grafana >= 4.6, webpack is used, need to fix the path for imports
-      if (thisPanel.baseUrl.startsWith('public')) {
-        return thisPanel.baseUrl.substring(7) + '/';
-      } else {
-        // this should never happen, but just in case, append a slash to the url
-        return thisPanel.baseUrl + '/';
-      }
-    }
   }
 
   issueQueries(datasource: any) {
@@ -218,7 +206,10 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   changeRowNumbersEnabled() {
-    this.panel.sortByColumnsData.map((sortData: any) => [this.panel.rowNumbersEnabled ? sortData[0]++ : sortData[0]--, sortData[1]]);
+    this.panel.sortByColumnsData.map((sortData: any) => [
+      this.panel.rowNumbersEnabled ? sortData[0]++ : sortData[0]--,
+      sortData[1],
+    ]);
     this.render();
   }
 
@@ -254,7 +245,13 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   exportCsv() {
-    const renderer = new DatatableRenderer(this.panel, this.table, this.dashboard.isTimezoneUtc(), this.$sanitize, this.timeSrv);
+    const renderer = new DatatableRenderer(
+      this.panel,
+      this.table,
+      this.dashboard.isTimezoneUtc(),
+      this.$sanitize,
+      this.timeSrv
+    );
     FileExport.exportTableDataToCsv(renderer.render_values());
   }
 
@@ -268,7 +265,12 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
      * @return {[type]} [description]
      */
     function renderPanel() {
-      const renderer = new DatatableRenderer(panel, ctrl.table, ctrl.dashboard.isTimezoneUtc(), ctrl.$sanitize, _this.timeSrv);
+      // v7 has removed this
+      let isInUTC = false;
+      if (ctrl.dashboard && ctrl.dashboard.hasOwnProperty('isTimezoneUtc')) {
+        isInUTC = ctrl.dashboard.isTimezoneUtc();
+      }
+      const renderer = new DatatableRenderer(panel, ctrl.table, isInUTC, ctrl.$sanitize, _this.timeSrv);
       renderer.render();
       _this.dataLoaded = true;
     }
