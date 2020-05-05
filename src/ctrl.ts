@@ -245,10 +245,14 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   exportCsv() {
+    let isInUTC = false;
+    if (ctrl.dashboard && ctrl.dashboard.hasOwnProperty('isTimezoneUtc')) {
+      isInUTC = ctrl.dashboard.isTimezoneUtc();
+    }
     const renderer = new DatatableRenderer(
       this.panel,
       this.table,
-      this.dashboard.isTimezoneUtc(),
+      isInUTC,
       this.$sanitize,
       this.timeSrv
     );
