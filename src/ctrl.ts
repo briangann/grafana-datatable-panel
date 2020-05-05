@@ -2,7 +2,7 @@ import { MetricsPanelCtrl } from 'grafana/app/plugins/sdk';
 import _ from 'lodash';
 import angular from 'angular';
 import kbn from 'grafana/app/core/utils/kbn';
-import * as FileExport from './libs/file_export';
+import * as FileExport from './file_export';
 import 'datatables.net/js/jquery.dataTables.min';
 import { panelDefaults, dateFormats, columnTypes, columnStyleDefaults, colorModes, fontSizes } from './Defaults';
 import { transformDataToTable, transformers } from './transformers';
