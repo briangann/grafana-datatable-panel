@@ -47,7 +47,9 @@
     "@types/grafana": "github:CorpGlory/types-grafana.git",
     "@types/jquery": "^3.3.35",
     "@types/lodash": "^4.14.150",
+    "datatables.mark.js": "github:julmot/datatables.mark.js",
     "jest-junit": "^10.0.0",
+    "mark.js": "github:julmot/mark.js",
     "popper.js": "^1.16.1"
   },
   "main": "index.js"

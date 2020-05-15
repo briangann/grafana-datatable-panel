@@ -5,6 +5,7 @@ import kbn from 'grafana/app/core/utils/kbn';
 import _ from 'lodash';
 import { GetColorForValue, GetColorIndexForValue, StringToJsRegex } from './Utils';
 import 'datatables.net';
+import 'datatables.mark.js';
 
 export class DatatableRenderer {
   formatters: any;
@@ -626,6 +627,7 @@ export class DatatableRenderer {
       scrollX: true,
       scrollY: panelHeight,
       stateSave: false,
+      mark: true,
       dom: 'Bfrtip',
       buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
       select: selectSettings,
