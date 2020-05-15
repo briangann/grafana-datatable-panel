@@ -5,11 +5,7 @@
   "version": "1.0.1",
   "description": "Grafana Datatable Panel",
   "homepage": "https://github.com/briangann/grafana-datatable-panel",
-  "author": {
-    "name": "Brian Gann",
-    "email": "bkgann@gmail.com",
-    "url": "https://github.com/briangann"
-  },
+  "author": "Brian Gann <bkgann@gmail.com> (https://github.com/briangann)",
   "scripts": {
     "build": "grafana-toolkit plugin:build",
     "test": "grafana-toolkit plugin:test",
@@ -17,10 +13,7 @@
     "watch": "grafana-toolkit plugin:dev --watch",
     "nopostinstall": "grafana-toolkit plugin:update-circleci"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/briangann/grafana-datatable-panel.git"
-  },
+  "repository": "git+https://github.com/briangann/grafana-datatable-panel.git",
   "bugs": {
     "url": "https://github.com/briangann/grafana-datatable-panel/issues"
   },
@@ -45,8 +38,8 @@
     "systemjs": "v0.20.19"
   },
   "devDependencies": {
-    "@grafana/data": "next",
-    "@grafana/toolkit": "next",
+    "@grafana/data": "^6.4.5",
+    "@grafana/toolkit": "^6.4.5",
     "@types/angular": "1.6.56",
     "@types/datatables.net": "^1.10.19",
     "@types/datatables.net-buttons": "^1.4.3",
@@ -56,5 +49,6 @@
     "@types/lodash": "^4.14.150",
     "jest-junit": "^10.0.0",
     "popper.js": "^1.16.1"
-  }
+  },
+  "main": "index.js"
 }
