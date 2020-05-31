@@ -74,6 +74,7 @@ const panelDefaults = {
   compactRowsEnabled: false,
   stripedRowsEnabled: true,
   lengthChangeEnabled: true,
+  columnFiltersEnabled: false,
   datatablePagingType: 'simple_numbers',
   pagingTypes: [
     {

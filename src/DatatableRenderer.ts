@@ -707,6 +707,34 @@ export class DatatableRenderer {
         })
         .draw();
     }
+
+    if (this.panel.columnFiltersEnabled) {
+      const header = newDT.table(0).header();
+      //New additions to be put under a switch
+      const newHeaders = $(header)
+        .children('tr')
+        .clone();
+      newHeaders
+        .find('th')
+        .removeClass()
+        .addClass('column-filter');
+      newHeaders.appendTo(header as Element);
+      $(header)
+        .find(`tr:eq(1) th`)
+        .each(function(i) {
+          var title = $(this).text();
+          $(this).html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
+
+          $('input', this).on('keyup change', function(this: any) {
+            if (newDT.column(i).search() !== this.value) {
+              newDT
+                .column(i)
+                .search(this.value)
+                .draw();
+            }
+          });
+        });
+    }
   }
 
   getGridHeight(height: number) {
