@@ -5,6 +5,7 @@ import kbn from 'grafana/app/core/utils/kbn';
 import _ from 'lodash';
 import { GetColorForValue, GetColorIndexForValue, StringToJsRegex } from './Utils';
 import 'datatables.net';
+import 'datatables.mark.js';
 
 export class DatatableRenderer {
   formatters: any;
@@ -398,12 +399,16 @@ export class DatatableRenderer {
     for (let i = 0; i < this.table.columns.length; i++) {
       const columnAlias = this.getColumnAlias(this.table.columns[i].text);
       const columnWidthHint = this.getColumnWidthHint(this.table.columns[i].text);
+      var columnClassName = 'dt-left';
       // column type "date" is very limited, and overrides our formatting
       // best to use our format, then the "raw" epoch time as the sort ordering field
       // https://datatables.net/reference/option/columns.type
       let columnType = this.table.columns[i].type;
       if (columnType === 'date') {
         columnType = 'num';
+      }
+      if (columnType == 'number'){
+        columnClassName = 'dt-right'; // any reason not to align numbers right?
       }
       // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
       // with full width
@@ -412,6 +417,7 @@ export class DatatableRenderer {
         title: columnAlias,
         type: columnType,
         width: columnWidthHint,
+        className: columnClassName,
       });
       columnDefs.push({
         targets: i + rowNumberOffset,
@@ -621,6 +627,7 @@ export class DatatableRenderer {
       scrollX: true,
       scrollY: panelHeight,
       stateSave: false,
+      mark: true,
       dom: 'Bfrtip',
       buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
       select: selectSettings,
