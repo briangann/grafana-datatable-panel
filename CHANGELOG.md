@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.2] - 2020-06-26
+
+- Sorting is working again
+- NEW: column filtering option
+
 ## [1.0.1] - 2020-05-02
 
 - pulled in file_export from older version of grafana for compatibility
