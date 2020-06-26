@@ -414,22 +414,16 @@ export class DatatableRenderer {
       columnDefs.push({
         targets: i + rowNumberOffset,
         data: function(row: any, type: any, val: any, meta: any) {
+          if (type === undefined) {
+            return null;
+          }
           const idx = meta.col;
+          // sort/filter/type use raw
+          let returnValue = row[idx].raw;
           if (type === 'display') {
-            return row[idx].display;
+            returnValue = row[idx].display;
           }
-          if (type === 'sort') {
-            return row[idx].raw;
-          }
-          if (type === 'filter') {
-            return row[idx].raw;
-          }
-          // return raw for anything other than undefined
-          if (type !== undefined) {
-            return row[idx].raw;
-          }
-          // always return something or DT will error
-          return null;
+          return returnValue;
         },
         createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
           // hidden columns have null data
