@@ -248,11 +248,9 @@ export class DatatableRenderer {
           value = row[i];
         }
         const record = {
-          data: {
             display: value,
             raw: row[i],
             _: row[i],
-          },
         };
         cellData.push(record);
       }
@@ -416,20 +414,19 @@ export class DatatableRenderer {
       columnDefs.push({
         targets: i + rowNumberOffset,
         data: function(row: any, type: any, val: any, meta: any) {
+          const idx = meta.col;
           if (type === 'display') {
-            const idx = meta.col;
-            const returnValue = row[idx].data.display;
-            return returnValue;
+            return row[idx].display;
           }
           if (type === 'sort') {
-            const idx = meta.col;
-            const returnValue = row[idx].data.raw;
-            return returnValue;
+            return row[idx].raw;
           }
           if (type === 'filter') {
-            const idx = meta.col;
-            const returnValue = row[idx].data.raw;
-            return returnValue;
+            return row[idx].raw;
+          }
+          // return raw for anything other than undefined
+          if (type !== undefined) {
+            return row[idx].raw;
           }
           // always return something or DT will error
           return null;
