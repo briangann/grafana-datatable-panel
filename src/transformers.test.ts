@@ -6,11 +6,7 @@ describe('Transformers', () => {
   const time = new Date().getTime();
   let aSeries: TimeSeries;
   aSeries = new TimeSeries({
-    datapoints: [
-      [200, time],
-      [101, time + 1],
-      [555, time + 2],
-    ],
+    datapoints: [[200, time], [101, time + 1], [555, time + 2]],
     alias: 'A-series',
     seriesName: 'A-series',
     operatorName: 'current',

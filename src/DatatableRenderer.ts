@@ -248,9 +248,9 @@ export class DatatableRenderer {
           value = row[i];
         }
         const record = {
-            display: value,
-            raw: row[i],
-            _: row[i],
+          display: value,
+          raw: row[i],
+          _: row[i],
         };
         cellData.push(record);
       }
@@ -607,10 +607,7 @@ export class DatatableRenderer {
     };
     //    scrollY: panelHeight.toString() + 'px',
     const tableOptions = {
-      lengthMenu: [
-        [5, 10, 25, 50, 75, 100, -1],
-        [5, 10, 25, 50, 75, 100, 'All'],
-      ],
+      lengthMenu: [[5, 10, 25, 50, 75, 100, -1], [5, 10, 25, 50, 75, 100, 'All']],
       searching: this.panel.searchEnabled,
       info: this.panel.infoEnabled,
       lengthChange: this.panel.lengthChangeEnabled,
