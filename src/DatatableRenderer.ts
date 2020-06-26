@@ -458,11 +458,7 @@ export class DatatableRenderer {
             for (let columnNumber = 0; columnNumber < _this.table.columns.length; columnNumber++) {
               // only columns of type undefined are checked
               if (_this.table.columns[columnNumber].type === undefined) {
-                rowColorData = _this.getCellColors(
-                  _this.colorState,
-                  columnNumber,
-                  rowData[columnNumber + rowNumberOffset]
-                );
+                rowColorData = _this.getCellColors(_this.colorState, columnNumber, rowData[columnNumber + rowNumberOffset]);
                 if (!rowColorData) {
                   continue;
                 }
@@ -498,11 +494,7 @@ export class DatatableRenderer {
             for (let columnNumber = 0; columnNumber < _this.table.columns.length; columnNumber++) {
               // only columns of type undefined are checked
               if (_this.table.columns[columnNumber].type === undefined) {
-                rowColorData = _this.getCellColors(
-                  _this.colorState,
-                  columnNumber,
-                  rowData[columnNumber + rowNumberOffset]
-                );
+                rowColorData = _this.getCellColors(_this.colorState, columnNumber, rowData[columnNumber + rowNumberOffset]);
                 if (!rowColorData) {
                   continue;
                 }

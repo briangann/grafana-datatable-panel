@@ -54,6 +54,7 @@
     "@types/grafana": "github:CorpGlory/types-grafana.git",
     "@types/jquery": "^3.5.0",
     "@types/lodash": "^4.14.157",
+    "eslint-plugin-prettier": "^3.1.4",
     "jest-junit": "^11.0.1",
     "popper.js": "^1.16.1"
   }
