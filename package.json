@@ -14,6 +14,7 @@
     "build": "grafana-toolkit plugin:build",
     "test": "grafana-toolkit plugin:test",
     "dev": "grafana-toolkit plugin:dev",
+    "prettier": "grafana-toolkit plugin:dev",
     "watch": "grafana-toolkit plugin:dev --watch",
     "nopostinstall": "grafana-toolkit plugin:update-circleci"
   },
