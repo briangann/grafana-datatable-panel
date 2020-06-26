@@ -71,7 +71,16 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   getColumnNames: () => any[];
 
   /** @ngInject */
-  constructor($scope: any, $injector: any, $http: any, $location: any, uiSegmentSrv: any, annotationsSrv: any, private $sanitize: any, timeSrv: any) {
+  constructor(
+    $scope: any,
+    $injector: any,
+    $http: any,
+    $location: any,
+    uiSegmentSrv: any,
+    annotationsSrv: any,
+    private $sanitize: any,
+    timeSrv: any
+  ) {
     super($scope, $injector);
     this.pageIndex = 0;
     this.table = null;
@@ -81,7 +90,10 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     this.uiSegmentSrv = uiSegmentSrv;
     // editor
     this.addColumnSegment = uiSegmentSrv.newPlusButton();
-    this.mappingTypes = [{ text: 'Value to text', value: 1 }, { text: 'Range to text', value: 2 }];
+    this.mappingTypes = [
+      { text: 'Value to text', value: 1 },
+      { text: 'Range to text', value: 2 },
+    ];
     this.columnSortMethods = [
       {
         text: 'Ascending',
@@ -194,7 +206,10 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   }
 
   changeRowNumbersEnabled() {
-    this.panel.sortByColumnsData.map((sortData: any) => [this.panel.rowNumbersEnabled ? sortData[0]++ : sortData[0]--, sortData[1]]);
+    this.panel.sortByColumnsData.map((sortData: any) => [
+      this.panel.rowNumbersEnabled ? sortData[0]++ : sortData[0]--,
+      sortData[1],
+    ]);
     this.render();
   }
 

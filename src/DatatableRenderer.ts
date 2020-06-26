@@ -458,7 +458,11 @@ export class DatatableRenderer {
             for (let columnNumber = 0; columnNumber < _this.table.columns.length; columnNumber++) {
               // only columns of type undefined are checked
               if (_this.table.columns[columnNumber].type === undefined) {
-                rowColorData = _this.getCellColors(_this.colorState, columnNumber, rowData[columnNumber + rowNumberOffset]);
+                rowColorData = _this.getCellColors(
+                  _this.colorState,
+                  columnNumber,
+                  rowData[columnNumber + rowNumberOffset]
+                );
                 if (!rowColorData) {
                   continue;
                 }
@@ -494,7 +498,11 @@ export class DatatableRenderer {
             for (let columnNumber = 0; columnNumber < _this.table.columns.length; columnNumber++) {
               // only columns of type undefined are checked
               if (_this.table.columns[columnNumber].type === undefined) {
-                rowColorData = _this.getCellColors(_this.colorState, columnNumber, rowData[columnNumber + rowNumberOffset]);
+                rowColorData = _this.getCellColors(
+                  _this.colorState,
+                  columnNumber,
+                  rowData[columnNumber + rowNumberOffset]
+                );
                 if (!rowColorData) {
                   continue;
                 }
@@ -593,7 +601,10 @@ export class DatatableRenderer {
     };
     //    scrollY: panelHeight.toString() + 'px',
     const tableOptions = {
-      lengthMenu: [[5, 10, 25, 50, 75, 100, -1], [5, 10, 25, 50, 75, 100, 'All']],
+      lengthMenu: [
+        [5, 10, 25, 50, 75, 100, -1],
+        [5, 10, 25, 50, 75, 100, 'All'],
+      ],
       searching: this.panel.searchEnabled,
       info: this.panel.infoEnabled,
       lengthChange: this.panel.lengthChangeEnabled,
