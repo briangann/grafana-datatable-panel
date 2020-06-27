@@ -129,7 +129,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     this.dataLoaded = true;
     this.http = $http;
     // v6 compat
-    if (typeof(PanelEvents) === 'undefined') {
+    if (typeof PanelEvents === 'undefined') {
       this.events.on('data-received', this.onDataReceived.bind(this));
       this.events.on('data-error', this.onDataError.bind(this));
       this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
