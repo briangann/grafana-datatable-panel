@@ -35,7 +35,7 @@ export class DatatableRenderer {
    * @param  {[type]} style [description]
    * @return {[type]}       [description]
    */
-  defaultCellFormatter(v: any, style: any, column: any) {
+  defaultCellFormatter(v: any, style: any, column: any, rowIndex: number) {
     if (v === null || v === void 0 || v === undefined || column === null) {
       return '';
     }
@@ -66,8 +66,33 @@ export class DatatableRenderer {
     if (style && style.sanitize) {
       return this.sanitize(v);
     } else if (style && style.link && cellTemplate && column.text === style.column) {
-      const linkValue = cellTemplate.replace(/\{\}|\$__cell_\d*/g, v);
-      return '<a href="' + linkValue + '" target="_blank">' + v + '</a>';
+      const matches = /\$__cell_(\d+)/g.exec(cellTemplate);
+      // start with the template
+      let linkValue = cellTemplate;
+      if (matches) {
+        // index zero is the whole string
+        for (let matchIndex = 1; matchIndex < matches.length; matchIndex++) {
+          //console.log(`rowIndex: ${rowIndex} matchIndex: ${matchIndex}`);
+          // TODO: catch parse error
+          const matchedCellNumber = parseInt(matches[matchIndex], 10);
+          if (!isNaN(matchedCellNumber)) {
+            const matchedCellContent = this.table.rows[rowIndex][matchedCellNumber];
+            //console.log(`matchedCellNumber: ${matchedCellNumber} matchedCellContent: ${matchedCellContent}`);
+            linkValue = linkValue.replace(`$__cell_${matchedCellNumber}`, matchedCellContent);
+          }
+        }
+        const valueFormatter = kbn.valueFormats[column.unit || style.unit];
+        if (style && style.decimals) {
+          v = valueFormatter(v, style.decimals, null);
+        } else {
+          v = valueFormatter(v);
+        }
+        return '<a href="' + linkValue + '" target="_blank">' + v + '</a>';
+      } else {
+        const linkValue = cellTemplate.replace(/\{\}|\$__cell_\d*/g, v);
+        return '<a href="' + linkValue + '" target="_blank">' + v + '</a>';
+      }
+      return _.escape(v);
     } else if (style && style.link) {
       return '<a href="' + v + '" target="_blank">' + v + '</a>';
     } else {
@@ -104,12 +129,12 @@ export class DatatableRenderer {
       return this.defaultCellFormatter;
     }
     if (style.type === 'hidden') {
-      return (v: any) => {
+      return (v: any, rIndex: number) => {
         return null;
       };
     }
     if (style.type === 'date') {
-      return (v: any) => {
+      return (v: any, rIndex: number) => {
         if (v === undefined || v === null) {
           return '-';
         }
@@ -134,12 +159,12 @@ export class DatatableRenderer {
     }
     if (style.type === 'number') {
       const valueFormatter = kbn.valueFormats[column.unit || style.unit];
-      return (v: any) => {
+      return (v: any, rIndex: number) => {
         if (v === null || v === void 0) {
           return '-';
         }
         if (_.isString(v)) {
-          return this.defaultCellFormatter(v, style, column);
+          return this.defaultCellFormatter(v, style, column, rIndex);
         }
         if (style.colorMode) {
           this.colorState[style.colorMode] = GetColorForValue(v, style);
@@ -148,7 +173,7 @@ export class DatatableRenderer {
       };
     }
     if (style.type === 'string') {
-      return (v: any) => {
+      return (v: any, rIndex: number) => {
         if (_.isArray(v)) {
           v = v.join(', ');
         }
@@ -167,7 +192,7 @@ export class DatatableRenderer {
 
             // Allow both numeric and string values to be mapped
             if ((!_.isString(v) && Number(map.value) === Number(v)) || map.value === v) {
-              return this.defaultCellFormatter(map.text, style, column);
+              return this.defaultCellFormatter(map.text, style, column, rIndex);
             }
           }
         }
@@ -183,7 +208,7 @@ export class DatatableRenderer {
             }
 
             if (Number(map.from) <= Number(v) && Number(map.to) >= Number(v)) {
-              return this.defaultCellFormatter(map.text, style, column);
+              return this.defaultCellFormatter(map.text, style, column, rIndex);
             }
           }
         }
@@ -191,11 +216,11 @@ export class DatatableRenderer {
         if (v === null || v === void 0) {
           return '-';
         }
-        return this.defaultCellFormatter(v, style, column);
+        return this.defaultCellFormatter(v, style, column, rIndex);
       };
     }
-    return (value: any) => {
-      return this.defaultCellFormatter(value, style, column);
+    return (v: any, rIndex: number) => {
+      return this.defaultCellFormatter(v, style, column, rIndex);
     };
   }
 
@@ -220,7 +245,7 @@ export class DatatableRenderer {
     if (!this.formatters[colIndex]) {
       this.formatters[colIndex] = this.defaultCellFormatter;
     }
-    let v = this.formatters[colIndex](value);
+    let v = this.formatters[colIndex](value, rowIndex);
     if (/\$__cell_\d+/.exec(v)) {
       for (let i = this.table.columns.length - 1; i >= 0; i--) {
         v = v.replace(`$__cell_${i}`, this.table.rows[rowIndex][i]);
