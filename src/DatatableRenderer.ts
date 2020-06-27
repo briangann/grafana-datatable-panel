@@ -2,7 +2,7 @@ import { dateTime } from '@grafana/data';
 import $ from 'jquery';
 import kbn from 'grafana/app/core/utils/kbn';
 
-import _ from 'lodash';
+import _, { isNumber } from 'lodash';
 import { GetColorForValue, GetColorIndexForValue, StringToJsRegex } from './Utils';
 import 'datatables.net';
 
@@ -30,12 +30,14 @@ export class DatatableRenderer {
   }
 
   /**
-   * [defaultCellFormatter description]
-   * @param  {[type]} v     [description]
-   * @param  {[type]} style [description]
-   * @return {[type]}       [description]
+   * Formats a cell
+   * @param v value
+   * @param style style obj
+   * @param column column
+   * @param rowIndex The row index
+   * @return any formatted data
    */
-  defaultCellFormatter(v: any, style: any, column: any) {
+  defaultCellFormatter(v: any, style: any, column: any, rowIndex: number) {
     if (v === null || v === void 0 || v === undefined || column === null) {
       return '';
     }
@@ -66,8 +68,32 @@ export class DatatableRenderer {
     if (style && style.sanitize) {
       return this.sanitize(v);
     } else if (style && style.link && cellTemplate && column.text === style.column) {
-      const linkValue = cellTemplate.replace(/\{\}|\$__cell_\d*/g, v);
-      return '<a href="' + linkValue + '" target="_blank">' + v + '</a>';
+      const matches = /\$__cell_(\d+)/g.exec(cellTemplate);
+      // start with the template
+      let linkValue = cellTemplate;
+      if (matches) {
+        // index zero is the whole string
+        for (let matchIndex = 1; matchIndex < matches.length; matchIndex++) {
+          //console.log(`rowIndex: ${rowIndex} matchIndex: ${matchIndex}`);
+          const matchedCellNumber = parseInt(matches[matchIndex], 10);
+          if (!isNaN(matchedCellNumber)) {
+            const matchedCellContent = this.table.rows[rowIndex][matchedCellNumber];
+            //console.log(`matchedCellNumber: ${matchedCellNumber} matchedCellContent: ${matchedCellContent}`);
+            linkValue = linkValue.replace(`$__cell_${matchedCellNumber}`, matchedCellContent);
+          }
+        }
+        const valueFormatter = kbn.valueFormats[column.unit || style.unit];
+        if (style && style.decimals) {
+          v = valueFormatter(v, style.decimals, null);
+        } else {
+          v = valueFormatter(v);
+        }
+        return '<a href="' + linkValue + '" target="_blank">' + v + '</a>';
+      } else {
+        const linkValue = cellTemplate.replace(/\{\}|\$__cell_\d*/g, v);
+        return '<a href="' + linkValue + '" target="_blank">' + v + '</a>';
+      }
+      return _.escape(v);
     } else if (style && style.link) {
       return '<a href="' + v + '" target="_blank">' + v + '</a>';
     } else {
@@ -104,12 +130,12 @@ export class DatatableRenderer {
       return this.defaultCellFormatter;
     }
     if (style.type === 'hidden') {
-      return (v: any) => {
+      return (v: any, rIndex: number) => {
         return null;
       };
     }
     if (style.type === 'date') {
-      return (v: any) => {
+      return (v: any, rIndex: number) => {
         if (v === undefined || v === null) {
           return '-';
         }
@@ -134,12 +160,12 @@ export class DatatableRenderer {
     }
     if (style.type === 'number') {
       const valueFormatter = kbn.valueFormats[column.unit || style.unit];
-      return (v: any) => {
+      return (v: any, rIndex: number) => {
         if (v === null || v === void 0) {
           return '-';
         }
         if (_.isString(v)) {
-          return this.defaultCellFormatter(v, style, column);
+          return this.defaultCellFormatter(v, style, column, rIndex);
         }
         if (style.colorMode) {
           this.colorState[style.colorMode] = GetColorForValue(v, style);
@@ -148,7 +174,7 @@ export class DatatableRenderer {
       };
     }
     if (style.type === 'string') {
-      return (v: any) => {
+      return (v: any, rIndex: number) => {
         if (_.isArray(v)) {
           v = v.join(', ');
         }
@@ -167,7 +193,7 @@ export class DatatableRenderer {
 
             // Allow both numeric and string values to be mapped
             if ((!_.isString(v) && Number(map.value) === Number(v)) || map.value === v) {
-              return this.defaultCellFormatter(map.text, style, column);
+              return this.defaultCellFormatter(map.text, style, column, rIndex);
             }
           }
         }
@@ -183,7 +209,7 @@ export class DatatableRenderer {
             }
 
             if (Number(map.from) <= Number(v) && Number(map.to) >= Number(v)) {
-              return this.defaultCellFormatter(map.text, style, column);
+              return this.defaultCellFormatter(map.text, style, column, rIndex);
             }
           }
         }
@@ -191,11 +217,11 @@ export class DatatableRenderer {
         if (v === null || v === void 0) {
           return '-';
         }
-        return this.defaultCellFormatter(v, style, column);
+        return this.defaultCellFormatter(v, style, column, rIndex);
       };
     }
-    return (value: any) => {
-      return this.defaultCellFormatter(value, style, column);
+    return (v: any, rIndex: number) => {
+      return this.defaultCellFormatter(v, style, column, rIndex);
     };
   }
 
@@ -220,7 +246,7 @@ export class DatatableRenderer {
     if (!this.formatters[colIndex]) {
       this.formatters[colIndex] = this.defaultCellFormatter;
     }
-    let v = this.formatters[colIndex](value);
+    let v = this.formatters[colIndex](value, rowIndex);
     if (/\$__cell_\d+/.exec(v)) {
       for (let i = this.table.columns.length - 1; i >= 0; i--) {
         v = v.replace(`$__cell_${i}`, this.table.rows[rowIndex][i]);
@@ -248,11 +274,9 @@ export class DatatableRenderer {
           value = row[i];
         }
         const record = {
-          data: {
-            display: value,
-            raw: row[i],
-            _: row[i],
-          },
+          display: value,
+          raw: row[i],
+          _: row[i],
         };
         cellData.push(record);
       }
@@ -416,29 +440,44 @@ export class DatatableRenderer {
       columnDefs.push({
         targets: i + rowNumberOffset,
         data: function(row: any, type: any, val: any, meta: any) {
+          if (type === undefined) {
+            return null;
+          }
+          const idx = meta.col;
+          // sort/filter/type use raw
+          let returnValue = row[idx].raw;
           if (type === 'display') {
-            const idx = meta.col;
-            const returnValue = row[idx].data.display;
-            return returnValue;
+            returnValue = row[idx].display;
           }
-          if (type === 'sort') {
-            const idx = meta.col;
-            const returnValue = row[idx].data.raw;
-            return returnValue;
+          return returnValue;
+        },
+        render: function(data: any, type: any, val: any, meta: any) {
+          if (type === undefined) {
+            return null;
           }
-          if (type === 'filter') {
-            const idx = meta.col;
-            const returnValue = row[idx].data.raw;
-            return returnValue;
+          const idx = meta.col;
+          if (type === 'type') {
+            return val[idx];
           }
-          // always return something or DT will error
-          return null;
+          // sort/filter use raw
+          let returnValue = val[idx].raw;
+          if (type === 'display') {
+            returnValue = val[idx].display;
+          }
+          return returnValue;
         },
         createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
-          // hidden columns have null data
-          if (cellData === null) {
+          // orthogonal sort requires getting cell data differently
+          const formattedData = $(td).html();
+          // can only evaluate thresholds on a numerical value
+          // also - hidden columns have null data
+          if (!isNumber(_this.table.rows[row][col])) {
             return;
           }
+          if (formattedData === null) {
+            return;
+          }
+          cellData = formattedData;
           // set the fontsize for the cell
           $(td).css('font-size', _this.panel.fontSize);
           // undefined types should have numerical data, any others are already formatted
@@ -446,8 +485,6 @@ export class DatatableRenderer {
           if (_this.panel.rowNumbersEnabled) {
             actualColumn -= 1;
           }
-          // FIXME: I hid this line due to all columns with undefined type, so they are not colorized
-          // if (_this.table.columns[actualColumn].type === undefined) return;
           // for coloring rows, get the "worst" threshold
           let rowColor = null;
           let color = null;

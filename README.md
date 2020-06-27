@@ -172,7 +172,7 @@ make rpm
 
 ## External Dependencies
 
-* Grafana 4.x/5.x/6.x
+* Grafana 6.x/7.x
 
 ## Build Dependencies
 
