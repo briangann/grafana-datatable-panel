@@ -128,11 +128,21 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     _.defaults(this.panel, panelDefaults);
     this.dataLoaded = true;
     this.http = $http;
-    this.events.on(PanelEvents.dataReceived, this.onDataReceived.bind(this));
-    this.events.on(PanelEvents.dataError, this.onDataError.bind(this));
-    this.events.on(PanelEvents.dataSnapshotLoad, this.onDataReceived.bind(this));
-    this.events.on(PanelEvents.editModeInitialized, this.onInitEditMode.bind(this));
-    this.events.on(PanelEvents.initPanelActions, this.onInitPanelActions.bind(this));
+    // v6 compat
+    if (typeof(PanelEvents) === 'undefined') {
+      this.events.on('data-received', this.onDataReceived.bind(this));
+      this.events.on('data-error', this.onDataError.bind(this));
+      this.events.on('data-snapshot-load', this.onDataReceived.bind(this));
+      this.events.on('init-edit-mode', this.onInitEditMode.bind(this));
+      this.events.on('init-panel-actions', this.onInitPanelActions.bind(this));
+    } else {
+      // v7+ compat
+      this.events.on(PanelEvents.dataReceived, this.onDataReceived.bind(this));
+      this.events.on(PanelEvents.dataError, this.onDataError.bind(this));
+      this.events.on(PanelEvents.dataSnapshotLoad, this.onDataReceived.bind(this));
+      this.events.on(PanelEvents.editModeInitialized, this.onInitEditMode.bind(this));
+      this.events.on(PanelEvents.initPanelActions, this.onInitPanelActions.bind(this));
+    }
   }
 
   onInitPanelActions(actions: any) {
