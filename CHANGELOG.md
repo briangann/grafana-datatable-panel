@@ -4,8 +4,12 @@ All notable changes to this project will be documented in this file.
 
 ## [1.0.2] - 2020-06-26
 
-- Sorting is working again
 - NEW: column filtering option
+- Sorting is working correctly now Issues: #104
+- Row/Column coloring working again Issue: #100
+- Formatting working (general appearance problems) Issue: #105
+- Now loads with older versions of Grafana Issue: #97
+- Template variables inside links can now reference other cell content of same row number (Issue: #87)
 
 ## [1.0.1] - 2020-05-02
 
