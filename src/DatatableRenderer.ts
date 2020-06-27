@@ -2,7 +2,7 @@ import { dateTime } from '@grafana/data';
 import $ from 'jquery';
 import kbn from 'grafana/app/core/utils/kbn';
 
-import _ from 'lodash';
+import _, { isNumber } from 'lodash';
 import { GetColorForValue, GetColorIndexForValue, StringToJsRegex } from './Utils';
 import 'datatables.net';
 
@@ -30,10 +30,12 @@ export class DatatableRenderer {
   }
 
   /**
-   * [defaultCellFormatter description]
-   * @param  {[type]} v     [description]
-   * @param  {[type]} style [description]
-   * @return {[type]}       [description]
+   * Formats a cell
+   * @param v value
+   * @param style style obj
+   * @param column column
+   * @param rowIndex The row index
+   * @return any formatted data
    */
   defaultCellFormatter(v: any, style: any, column: any, rowIndex: number) {
     if (v === null || v === void 0 || v === undefined || column === null) {
@@ -73,7 +75,6 @@ export class DatatableRenderer {
         // index zero is the whole string
         for (let matchIndex = 1; matchIndex < matches.length; matchIndex++) {
           //console.log(`rowIndex: ${rowIndex} matchIndex: ${matchIndex}`);
-          // TODO: catch parse error
           const matchedCellNumber = parseInt(matches[matchIndex], 10);
           if (!isNaN(matchedCellNumber)) {
             const matchedCellContent = this.table.rows[rowIndex][matchedCellNumber];
@@ -450,11 +451,33 @@ export class DatatableRenderer {
           }
           return returnValue;
         },
+        render: function(data: any, type: any, val: any, meta: any) {
+          if (type === undefined) {
+            return null;
+          }
+          const idx = meta.col;
+          if (type === 'type') {
+            return val[idx];
+          }
+          // sort/filter use raw
+          let returnValue = val[idx].raw;
+          if (type === 'display') {
+            returnValue = val[idx].display;
+          }
+          return returnValue;
+        },
         createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
-          // hidden columns have null data
-          if (cellData === null) {
+          // orthogonal sort requires getting cell data differently
+          const formattedData = $(td).html();
+          // can only evaluate thresholds on a numerical value
+          // also - hidden columns have null data
+          if (!isNumber(_this.table.rows[row][col])) {
             return;
           }
+          if (formattedData === null) {
+            return;
+          }
+          cellData = formattedData;
           // set the fontsize for the cell
           $(td).css('font-size', _this.panel.fontSize);
           // undefined types should have numerical data, any others are already formatted
@@ -462,8 +485,6 @@ export class DatatableRenderer {
           if (_this.panel.rowNumbersEnabled) {
             actualColumn -= 1;
           }
-          // FIXME: I hid this line due to all columns with undefined type, so they are not colorized
-          // if (_this.table.columns[actualColumn].type === undefined) return;
           // for coloring rows, get the "worst" threshold
           let rowColor = null;
           let color = null;
