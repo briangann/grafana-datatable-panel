@@ -2,7 +2,7 @@
   "name": "briangann-datatable-panel",
   "private": false,
   "license": "MIT",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Grafana Datatable Panel",
   "homepage": "https://github.com/briangann/grafana-datatable-panel",
   "author": {
@@ -15,8 +15,7 @@
     "test": "grafana-toolkit plugin:test",
     "dev": "grafana-toolkit plugin:dev",
     "prettier": "grafana-toolkit plugin:dev",
-    "watch": "grafana-toolkit plugin:dev --watch",
-    "nopostinstall": "grafana-toolkit plugin:update-circleci"
+    "watch": "grafana-toolkit plugin:dev --watch"
   },
   "repository": {
     "type": "git",
@@ -42,7 +41,7 @@
     "file-saver": "^2.0.2",
     "font-awesome": "^4.7.0",
     "jszip": "^3.5.0",
-    "pdfmake": "^0.1.65",
+    "pdfmake": "^0.1.67",
     "systemjs": "v0.20.19"
   },
   "devDependencies": {
@@ -54,9 +53,9 @@
     "@types/datatables.net-select": "^1.2.6",
     "@types/grafana": "github:CorpGlory/types-grafana.git",
     "@types/jquery": "^3.5.0",
-    "@types/lodash": "^4.14.157",
+    "@types/lodash": "^4.14.158",
     "eslint-plugin-prettier": "^3.1.4",
-    "jest-junit": "^11.0.1",
+    "jest-junit": "^11.1.0",
     "popper.js": "^1.16.1"
   }
 }
