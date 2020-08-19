@@ -158,11 +158,8 @@ transformers.table = {
       for (let j = 0; j < panel.styles.length; j++) {
         let s = panel.styles[j];
         if (s.pattern && new RegExp(s.pattern).test(c.text)) {
-          // column matched successfully
-          if (s.type === 'number') {
-            // if matched column Type is number, then set the num for datatables internal column type
-            c.type = 'num';
-          }
+          // if matched column Type is number, then set the num for datatables internal column type
+          if (s.type === 'number') {c.type = 'num';}
           break;
         }
       }
