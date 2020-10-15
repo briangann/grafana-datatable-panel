@@ -152,6 +152,18 @@ transformers.table = {
       throw { message: 'Query result is not in table format, try using another transform.' };
     }
     model.columns = data[0].columns;
+    // check column type
+    for (let i = 0; i < model.columns.length; i++) {
+      let c = model.columns[i];
+      for (let j = 0; j < panel.styles.length; j++) {
+        let s = panel.styles[j];
+        if (s.pattern && new RegExp(s.pattern).test(c.text)) {
+          // if matched column Type is number, then set the num for datatables internal column type
+          c.type = s.type === 'number' ? 'num' : c.type;
+          break;
+        }
+      }
+    }
     model.rows = data[0].rows;
   },
 };
