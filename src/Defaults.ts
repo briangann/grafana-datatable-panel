@@ -65,6 +65,7 @@ const panelDefaults = {
     dark: './styles/dark.scss',
   },
   rowNumbersEnabled: false,
+  alignNumbersToRightEnabled: false,
   infoEnabled: true,
   searchEnabled: true,
   showCellBorders: false,
