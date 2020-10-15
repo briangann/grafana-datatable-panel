@@ -2,7 +2,7 @@
   "name": "briangann-datatable-panel",
   "private": false,
   "license": "MIT",
-  "version": "1.0.4",
+  "version": "1.0.3",
   "description": "Grafana Datatable Panel",
   "homepage": "https://github.com/briangann/grafana-datatable-panel",
   "author": {
@@ -26,6 +26,7 @@
   },
   "dependencies": {
     "@types/file-saver": "^2.0.1",
+    "@types/mark.js": "^8.11.5",
     "datatables.mark.js": "^2.0.2",
     "datatables.net": "^1.10.22",
     "datatables.net-buttons": "^1.6.5",
@@ -42,6 +43,7 @@
     "file-saver": "^2.0.2",
     "font-awesome": "^4.7.0",
     "jszip": "^3.5.0",
+    "mark.js": "^8.11.1",
     "pdfmake": "^0.1.68"
   },
   "devDependencies": {
