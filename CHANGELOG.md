@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2020-10-24
+
+- NEW: threshold by string now supported
+- NEW: added mark plugin for number alignment option
+- Signed!
+
 ## [1.0.2] - 2020-06-26
 
 - NEW: column filtering option
