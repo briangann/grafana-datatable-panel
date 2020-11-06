@@ -24,7 +24,7 @@ jobs:
         run: yarn build
 
       - name: Sign plugin
-        run: npx @grafana/toolkit@canary plugin:sign
+        run: npx @grafana/toolkit@next plugin:sign
         env:
           GRAFANA_API_KEY: ${{ secrets.GRAFANA_API_KEY }} # Requires a Grafana API key from Grafana.com.
 
@@ -50,6 +50,14 @@ jobs:
           mv dist $GRAFANA_PLUGIN_ID
           zip $GRAFANA_PLUGIN_ARTIFACT $GRAFANA_PLUGIN_ID -r
           md5sum $GRAFANA_PLUGIN_ARTIFACT > $GRAFANA_PLUGIN_ARTIFACT_CHECKSUM
+
+      - name: Create Release Branch
+        id: create-release-branch
+        uses: peterjgrainger/action-create-branch@v2.0.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          branch: "release-${{env.GRAFANA_PLUGIN_VERSION}}"
 
       - name: Create release
         id: create_release
