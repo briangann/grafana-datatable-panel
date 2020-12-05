@@ -1,5 +1,5 @@
 import { transformers } from './transformers';
-import { TimeSeries } from '../tests/__mocks__/grafana/app/core/time_series2';
+import { TimeSeries } from './__mocks__/grafana/app/core/time_series2';
 import TableModel from 'grafana/app/core/table_model';
 
 describe('Transformers', () => {

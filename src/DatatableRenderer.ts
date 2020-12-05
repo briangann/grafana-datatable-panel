@@ -5,6 +5,8 @@ import kbn from 'grafana/app/core/utils/kbn';
 import _, { isNumber } from 'lodash';
 import { GetColorForValue, GetColorIndexForValue, StringToJsRegex } from './Utils';
 import 'datatables.net';
+import 'mark.js';
+import 'datatables.mark.js';
 
 export class DatatableRenderer {
   formatters: any;
@@ -46,7 +48,8 @@ export class DatatableRenderer {
     }
     v = String(v);
 
-    if (typeof style === 'undefined') {
+    // coerce style to an object
+    if (typeof style === 'undefined' || typeof style !== 'object') {
       style = {};
     }
     let cellTemplate = style.url;
@@ -422,12 +425,21 @@ export class DatatableRenderer {
     for (let i = 0; i < this.table.columns.length; i++) {
       const columnAlias = this.getColumnAlias(this.table.columns[i].text);
       const columnWidthHint = this.getColumnWidthHint(this.table.columns[i].text);
+      var columnClassName = '';
+
       // column type "date" is very limited, and overrides our formatting
       // best to use our format, then the "raw" epoch time as the sort ordering field
       // https://datatables.net/reference/option/columns.type
       let columnType = this.table.columns[i].type;
       if (columnType === 'date') {
         columnType = 'num';
+      }
+      if (columnType === 'num' && this.panel.alignNumbersToRightEnabled) {
+        columnClassName = 'dt-right'; // any reason not to align numbers right?
+      }
+      // TODO: add alignment options
+      if (columnType === 'string') {
+        columnClassName = 'dt-right';
       }
       // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
       // with full width
@@ -436,6 +448,7 @@ export class DatatableRenderer {
         title: columnAlias,
         type: columnType,
         width: columnWidthHint,
+        className: columnClassName,
       });
       columnDefs.push({
         targets: i + rowNumberOffset,
@@ -658,6 +671,7 @@ export class DatatableRenderer {
       scrollX: true,
       scrollY: panelHeight,
       stateSave: false,
+      mark: this.panel.searchHighlightingEnabled || false,
       dom: 'Bfrtip',
       buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
       select: selectSettings,

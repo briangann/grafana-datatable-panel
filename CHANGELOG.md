@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.3] - 2020-12-05
+
+- NEW: Added mark plugin to highlight matching text in search results (from PR #98)
+- NEW: Align Number to right option (default is on)
+- FIX: Crash when regex formatter is empty: Issue #124
+- Plugin is now signed
+
 ## [1.0.2] - 2020-06-26
 
 - NEW: column filtering option
