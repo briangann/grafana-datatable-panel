@@ -42,8 +42,8 @@
 				label="Row Numbers"
 				tooltip="Display Row Numbers"
 				checked="ctrl.panel.rowNumbersEnabled" on-change="ctrl.changeRowNumbersEnabled()"></gf-form-switch>
-				<gf-form-switch class="gf-form" label-class="width-11"
-				label="Row Numbers"
+  		<gf-form-switch class="gf-form" label-class="width-11"
+				label="Right Align Numbers"
 				tooltip="Align Numbers to Right"
 				checked="ctrl.panel.alignNumbersToRightEnabled" on-change="ctrl.render()"></gf-form-switch>
 			<gf-form-switch class="gf-form" label-class="width-14"
@@ -56,6 +56,10 @@
 				label="Search Enabled"
 				tooltip="Allow searching within table"
 				checked="ctrl.panel.searchEnabled" on-change="ctrl.render()"></gf-form-switch>
+		<gf-form-switch class="gf-form" label-class="width-11"
+				label="Search Highlighting"
+				tooltip="Highlight matching text during search"
+				checked="ctrl.panel.searchHighlightingEnabled" on-change="ctrl.render()"></gf-form-switch>
 				<!--	Search toggle https://datatables.net/reference/option/searching -->
 			<gf-form-switch class="gf-form" label-class="width-14"
 				label="Info Enabled"

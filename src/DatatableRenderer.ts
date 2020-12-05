@@ -434,8 +434,12 @@ export class DatatableRenderer {
       if (columnType === 'date') {
         columnType = 'num';
       }
-      if (columnType === 'num' && this.panel.alignNumbersToRight) {
+      if (columnType === 'num' && this.panel.alignNumbersToRightEnabled) {
         columnClassName = 'dt-right'; // any reason not to align numbers right?
+      }
+      // TODO: add alignment options
+      if (columnType === 'string') {
+        columnClassName = 'dt-right';
       }
       // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
       // with full width
@@ -667,7 +671,7 @@ export class DatatableRenderer {
       scrollX: true,
       scrollY: panelHeight,
       stateSave: false,
-      mark: this.panel.alignNumbersToRight || false,
+      mark: this.panel.searchHighlightingEnabled || false,
       dom: 'Bfrtip',
       buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
       select: selectSettings,
