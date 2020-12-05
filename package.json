@@ -40,7 +40,7 @@
     "datatables.net-select": "1.3.1",
     "datatables.net-select-dt": "1.3.1",
     "datatables.net-select-jqui": "1.3.1",
-    "file-saver": "^2.0.2",
+    "file-saver": "^2.0.5",
     "font-awesome": "4.7.0",
     "jszip": "3.5.0",
     "mark.js": "8.11.1",
@@ -56,10 +56,10 @@
     "@types/grafana": "github:CorpGlory/types-grafana.git",
     "@types/jquery": "3.5.4",
     "@types/lodash": "4.14.165",
-    "eslint-plugin-prettier": "3.1.4",
+    "eslint-plugin-prettier": "3.2.0",
     "jest-junit": "^12.0.0",
     "popper.js": "1.16.1",
-    "ts-jest": "26.4.3"
+    "ts-jest": "26.4.4"
   },
   "engines": {
     "node": ">=12 <13"
