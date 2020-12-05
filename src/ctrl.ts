@@ -67,6 +67,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   columnTypes: any;
   unitFormats: any;
   dateFormats: any;
+  $q: any,
   http: any;
   getColumnNames: () => any[];
 
@@ -76,6 +77,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     $injector: any,
     $http: any,
     $location: any,
+    $q: any,
     uiSegmentSrv: any,
     annotationsSrv: any,
     private $sanitize: any,
@@ -85,6 +87,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
     this.pageIndex = 0;
     this.table = null;
     this.dataRaw = [];
+    this.$q = $q;
     this.transformers = transformers;
     this.annotationsSrv = annotationsSrv;
     this.uiSegmentSrv = uiSegmentSrv;

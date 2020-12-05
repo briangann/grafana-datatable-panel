@@ -7,7 +7,7 @@ const transformers: any = {};
 
 transformers.timeseries_to_rows = {
   description: 'Time series to rows',
-  getColumns: () => {
+  getColumns: (data: any) => {
     return [];
   },
   transform: (data: any, panel: any, model: any) => {
@@ -25,8 +25,20 @@ transformers.timeseries_to_rows = {
 
 transformers.timeseries_to_columns = {
   description: 'Time series to columns',
-  getColumns: () => {
-    return [];
+  getColumns: (data: any) => {
+    // get columns from data
+    let columns: any[] = [];
+    if (!data) {
+      return columns;
+    }
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].alias) {
+        columns.push({text: data[i].alias});
+      } else {
+        columns.push({text: data[i].target});
+      }
+    }
+    return columns;
   },
   transform: (data: any, panel: any, model: any) => {
     model.columns.push({ text: 'Time', type: 'date' });
