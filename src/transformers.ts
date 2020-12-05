@@ -11,7 +11,11 @@ transformers.timeseries_to_rows = {
     return [];
   },
   transform: (data: any, panel: any, model: any) => {
-    model.columns = [{ text: 'Time', type: 'date' }, { text: 'Metric', type: 'string' }, { text: 'Value', type: 'num' }];
+    model.columns = [
+      { text: 'Time', type: 'date' },
+      { text: 'Metric', type: 'string' },
+      { text: 'Value', type: 'num' },
+    ];
 
     for (let i = 0; i < data.length; i++) {
       const series = data[i];
@@ -33,9 +37,9 @@ transformers.timeseries_to_columns = {
     }
     for (let i = 0; i < data.length; i++) {
       if (data[i].alias) {
-        columns.push({text: data[i].alias});
+        columns.push({ text: data[i].alias });
       } else {
-        columns.push({text: data[i].target});
+        columns.push({ text: data[i].target });
       }
     }
     return columns;

@@ -49,7 +49,7 @@ export class DatatableRenderer {
     v = String(v);
 
     // coerce style to an object
-    if ((typeof style === 'undefined') || (typeof style !== 'object')) {
+    if (typeof style === 'undefined' || typeof style !== 'object') {
       style = {};
     }
     let cellTemplate = style.url;

@@ -67,7 +67,7 @@ export class DatatablePanelCtrl extends MetricsPanelCtrl {
   columnTypes: any;
   unitFormats: any;
   dateFormats: any;
-  $q: any,
+  $q: any;
   http: any;
   getColumnNames: () => any[];
 
