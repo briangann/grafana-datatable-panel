@@ -457,11 +457,8 @@ export class DatatableRenderer {
             return null;
           }
           const idx = meta.col;
-          // sort/filter/type use raw
-          let returnValue = row[idx].raw;
-          if (type === 'display') {
-            returnValue = row[idx].display;
-          }
+          // use display type for return
+          let returnValue = row[idx].display;
           return returnValue;
         },
         render: function(data: any, type: any, val: any, meta: any) {
@@ -472,11 +469,8 @@ export class DatatableRenderer {
           if (type === 'type') {
             return val[idx];
           }
-          // sort/filter use raw
-          let returnValue = val[idx].raw;
-          if (type === 'display') {
-            returnValue = val[idx].display;
-          }
+          // use display type for return
+          let returnValue = val[idx].display;
           return returnValue;
         },
         createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
