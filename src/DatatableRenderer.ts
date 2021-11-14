@@ -452,6 +452,7 @@ export class DatatableRenderer {
       });
       columnDefs.push({
         targets: i + rowNumberOffset,
+        defaultContent: '-',
         data: function(row: any, type: any, val: any, meta: any) {
           if (type === undefined) {
             return null;
