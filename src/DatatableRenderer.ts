@@ -308,6 +308,14 @@ export class DatatableRenderer {
     return colStyle;
   }
 
+  getColumnIgnoreNullValue(columnNumber: any) {
+    let colStyle = this.getStyleForColumn(columnNumber);
+    if (!colStyle || !colStyle.ignoreNull) {
+      return false;
+    }
+    return true;
+  }
+
   getCellColors(colorState: any, columnNumber: any, cellData: any) {
     if (cellData === null || cellData === undefined) {
       return null;
@@ -441,6 +449,7 @@ export class DatatableRenderer {
       if (columnType === 'string') {
         columnClassName = 'dt-right';
       }
+
       // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
       // with full width
       /* jshint loopfunc: true */
@@ -450,9 +459,8 @@ export class DatatableRenderer {
         width: columnWidthHint,
         className: columnClassName,
       });
-      columnDefs.push({
+      let columnDefDict: any = {
         targets: i + rowNumberOffset,
-        defaultContent: '-',
         data: function(row: any, type: any, val: any, meta: any) {
           if (type === undefined) {
             return null;
@@ -614,7 +622,12 @@ export class DatatableRenderer {
             }
           }
         },
-      });
+      };
+      let ignoreNullValues = this.getColumnIgnoreNullValue(i);
+      if (ignoreNullValues) {
+        columnDefDict.defaultContent = '-';
+      }
+      columnDefs.push(columnDefDict);
     }
 
     try {
