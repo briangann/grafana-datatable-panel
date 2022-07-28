@@ -399,6 +399,7 @@ export class DatatableRenderer {
         $(tableHolderId).empty();
       }
     } catch (err) {
+      // @ts-ignore
       console.log('Exception: ' + err.message);
     }
 
@@ -634,6 +635,7 @@ export class DatatableRenderer {
         $('#datatable-panel-table-' + this.panel.id).empty();
       }
     } catch (err) {
+      // @ts-ignore
       console.log('Exception: ' + err.message);
     }
     // sanity check
@@ -767,6 +769,7 @@ export class DatatableRenderer {
     }
 
     if (this.panel.columnFiltersEnabled) {
+      // @ts-ignore
       const header = newDT.table(0).header();
       //New additions to be put under a switch
       const newHeaders = $(header)

@@ -1,11 +1,16 @@
-grafana:
-  image: grafana/grafana:7.0.4
-  #image: grafana/grafana:6.7.2
-  #image: grafana/grafana:6.6.2
-  #image: grafana/grafana:6.5.3
-  ports:
-    - "3000:3000"
-  volumes:
-    - ./:/var/lib/grafana/plugins/briangann-datatable-panel
-  environment:
-    - TERM=linux
+version: "3.0"
+services:
+  grafana:
+    image: grafana/grafana:9.0.5
+    #image: grafana/grafana:8.5.9
+    #image: grafana/grafana:7.5.16
+    #image: grafana/grafana:6.7.2
+    #image: grafana/grafana:6.6.2
+    #image: grafana/grafana:6.5.3
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./:/var/lib/grafana/plugins/briangann-datatable-panel
+    environment:
+      - TERM=linux
+      - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=briangann-datatable-panel
