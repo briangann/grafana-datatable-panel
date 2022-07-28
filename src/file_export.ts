@@ -1,6 +1,5 @@
 import { isBoolean, isNumber, sortedUniq, sortedIndexOf, unescape as htmlUnescaped } from 'lodash';
 import { saveAs } from 'file-saver';
-import { isNullOrUndefined } from 'util';
 import { dateTime, TimeZone, TableData } from '@grafana/data';
 
 const DEFAULT_DATETIME_FORMAT = 'YYYY-MM-DDTHH:mm:ssZ';
@@ -63,7 +62,7 @@ function formatSpecialHeader(useExcelHeader: boolean) {
 function formatRow(row: any[], addEndRowDelimiter = true) {
   let text = '';
   for (let i = 0; i < row.length; i += 1) {
-    if (isBoolean(row[i]) || isNumber(row[i]) || isNullOrUndefined(row[i])) {
+    if (isBoolean(row[i]) || isNumber(row[i])) {
       text += row[i];
     } else {
       text += `${QUOTE}${csvEscaped(htmlUnescaped(htmlDecoded(row[i])))}${QUOTE}`;
