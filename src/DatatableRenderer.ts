@@ -308,6 +308,14 @@ export class DatatableRenderer {
     return colStyle;
   }
 
+  getColumnIgnoreNullValue(columnNumber: any) {
+    let colStyle = this.getStyleForColumn(columnNumber);
+    if (!colStyle || !colStyle.ignoreNull) {
+      return false;
+    }
+    return true;
+  }
+
   getCellColors(colorState: any, columnNumber: any, cellData: any) {
     if (cellData === null || cellData === undefined) {
       return null;
@@ -458,7 +466,7 @@ export class DatatableRenderer {
         width: columnWidthHint,
         className: columnClassName,
       });
-      columnDefs.push({
+      let columnDefDict: any = {
         targets: i + rowNumberOffset,
         data: function(row: any, type: any, val: any, meta: any) {
           if (type === undefined) {
@@ -621,7 +629,12 @@ export class DatatableRenderer {
             }
           }
         },
-      });
+      };
+      let ignoreNullValues = this.getColumnIgnoreNullValue(i);
+      if (ignoreNullValues) {
+        columnDefDict.defaultContent = '-';
+      }
+      columnDefs.push(columnDefDict);
     }
 
     try {

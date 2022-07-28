@@ -138,6 +138,7 @@
 					<label class="gf-form-label">Format</label>
 					<metric-segment-model property="style.dateFormat" options="ctrl.dateFormats" on-change="ctrl.render()" custom="true"></metric-segment-model>
 				</div>
+				<gf-form-switch class="gf-form" label-class="width-8" label="Ignore null values" checked="style.ignoreNull" change="ctrl.render()"></gf-form-switch>
 				<gf-form-switch class="gf-form" label-class="width-8" ng-if="style.type === 'string'" label="Sanitize HTML" checked="style.sanitize" change="ctrl.render()"></gf-form-switch>
 				<gf-form-switch class="gf-form" label-class="width-8" ng-if="style.type === 'string'" label="Clickable Link" checked="style.link" change="ctrl.render()"></gf-form-switch>
 				<div class="gf-form" ng-if="style.type === 'string'">
