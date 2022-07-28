@@ -14,8 +14,8 @@
     "build": "rm -rf node_modules/@grafana/data/node_modules; grafana-toolkit plugin:build",
     "test": "rm -rf node_modules/@grafana/data/node_modules; grafana-toolkit plugin:test",
     "dev": "rm -rf node_modules/@grafana/data/node_modules; grafana-toolkit plugin:dev",
-    "watch": "rm -rf node_modules/@grafana/data/node_modules; grafana-toolkit plugin:dev --watch"
-    "rpm": "rpmbuild -bb briangann-datatable-panel.spec --define \"_sourcedir ${PWD}\" --define=\"_buildno ${BUILD_NUMBER}\"
+    "watch": "rm -rf node_modules/@grafana/data/node_modules; grafana-toolkit plugin:dev --watch",
+    "rpm": "rpmbuild -bb briangann-datatable-panel.spec --define \"_sourcedir ${PWD}\" --define=\"_buildno ${BUILD_NUMBER}\""
   },
   "repository": {
     "type": "git",
