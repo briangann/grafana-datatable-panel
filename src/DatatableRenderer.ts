@@ -407,6 +407,7 @@ export class DatatableRenderer {
         $(tableHolderId).empty();
       }
     } catch (err) {
+      // @ts-ignore
       console.log('Exception: ' + err.message);
     }
 
@@ -448,6 +449,12 @@ export class DatatableRenderer {
       // TODO: add alignment options
       if (columnType === 'string') {
         columnClassName = 'dt-right';
+      }
+
+      // if we did not get a type prop from grafana at all, 
+      // check at least if it's a number to have DT sort properly
+      if (!columnType && this.table.rows[0] && (typeof this.table.rows[0][i]) === 'number' ) {
+        columnType = 'num';
       }
 
       // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
@@ -641,6 +648,7 @@ export class DatatableRenderer {
         $('#datatable-panel-table-' + this.panel.id).empty();
       }
     } catch (err) {
+      // @ts-ignore
       console.log('Exception: ' + err.message);
     }
     // sanity check
@@ -774,6 +782,7 @@ export class DatatableRenderer {
     }
 
     if (this.panel.columnFiltersEnabled) {
+      // @ts-ignore
       const header = newDT.table(0).header();
       //New additions to be put under a switch
       const newHeaders = $(header)

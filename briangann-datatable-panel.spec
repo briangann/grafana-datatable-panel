@@ -1,10 +1,10 @@
 Summary: Datatable Panel
 Name:    briangann-datatable-panel
-Version: 0.0.6
+Version: 1.0.4
 Release: %{_buildno}%{?dist}
 License: Apache
 Group:   GRNOC
-URL:     https://github.com/briangann/grafana-datatable-panelu/
+URL:     https://github.com/briangann/grafana-datatable-panel/
 Source:  https://github.com/briangann/grafana-datatable-panel
 
 BuildArch: noarch
@@ -22,8 +22,8 @@ mkdir -p %{_builddir}
 cp -pr %{_sourcedir}/.  %{_builddir}
 
 %build
-npm install
-grunt
+yarn install
+yarn build
 
 %install
 rm -rf $RPM_BUILDR_ROOT

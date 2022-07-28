@@ -2,7 +2,7 @@
   "name": "briangann-datatable-panel",
   "private": false,
   "license": "MIT",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Grafana Datatable Panel",
   "homepage": "https://github.com/briangann/grafana-datatable-panel",
   "author": {
@@ -11,11 +11,11 @@
     "url": "https://github.com/briangann"
   },
   "scripts": {
-    "build": "grafana-toolkit plugin:build",
-    "test": "grafana-toolkit plugin:test",
-    "dev": "grafana-toolkit plugin:dev",
-    "prettier": "grafana-toolkit plugin:dev",
-    "watch": "grafana-toolkit plugin:dev --watch"
+    "build": "rm -rf node_modules/@grafana/data/node_modules; grafana-toolkit plugin:build",
+    "test": "rm -rf node_modules/@grafana/data/node_modules; grafana-toolkit plugin:test",
+    "dev": "rm -rf node_modules/@grafana/data/node_modules; grafana-toolkit plugin:dev",
+    "watch": "rm -rf node_modules/@grafana/data/node_modules; grafana-toolkit plugin:dev --watch",
+    "rpm": "rpmbuild -bb briangann-datatable-panel.spec --define \"_sourcedir ${PWD}\" --define=\"_buildno ${BUILD_NUMBER}\""
   },
   "repository": {
     "type": "git",
@@ -28,40 +28,41 @@
     "@types/file-saver": "2.0.1",
     "@types/mark.js": "^8.11.5",
     "datatables.mark.js": "2.1.0",
-    "datatables.net": "1.10.22",
-    "datatables.net-buttons": "1.6.5",
-    "datatables.net-buttons-dt": "1.6.5",
-    "datatables.net-buttons-jqui": "1.6.5",
-    "datatables.net-dt": "1.10.22",
-    "datatables.net-jqui": "1.10.22",
-    "datatables.net-responsive": "2.2.6",
-    "datatables.net-responsive-dt": "2.2.6",
-    "datatables.net-responsive-jqui": "2.2.6",
-    "datatables.net-select": "1.3.1",
-    "datatables.net-select-dt": "1.3.1",
-    "datatables.net-select-jqui": "1.3.1",
+    "datatables.net": "1.12.1",
+    "datatables.net-buttons": "2.2.3",
+    "datatables.net-buttons-dt": "2.2.3",
+    "datatables.net-buttons-jqui": "2.2.3",
+    "datatables.net-dt": "1.12.1",
+    "datatables.net-jqui": "1.12.1",
+    "datatables.net-responsive": "2.3.0",
+    "datatables.net-responsive-dt": "2.3.0",
+    "datatables.net-responsive-jqui": "2.3.0",
+    "datatables.net-select": "1.4.0",
+    "datatables.net-select-dt": "1.4.0",
+    "datatables.net-select-jqui": "1.4.0",
+    "date-fns": "^2.29.1",
     "file-saver": "^2.0.5",
     "font-awesome": "4.7.0",
-    "jszip": "3.5.0",
-    "mark.js": "8.11.1",
-    "pdfmake": "0.1.68"
+    "jszip": "3.10.0",
+    "markjs": "npm:mark.js@^8.11.1",
+    "pdfmake": "0.2.5"
   },
   "devDependencies": {
-    "@grafana/data": "next",
-    "@grafana/toolkit": "next",
+    "@grafana/data": "7.3.10",
+    "@grafana/toolkit": "9.0.5",
     "@types/angular": "1.8.0",
-    "@types/datatables.net": "1.10.19",
-    "@types/datatables.net-buttons": "1.4.3",
-    "@types/datatables.net-select": "1.2.6",
+    "@types/datatables.net": "1.10.23",
+    "@types/datatables.net-buttons": "1.4.7",
+    "@types/datatables.net-select": "1.2.7",
     "@types/grafana": "github:CorpGlory/types-grafana.git",
-    "@types/jquery": "3.5.4",
-    "@types/lodash": "4.14.165",
-    "eslint-plugin-prettier": "3.2.0",
-    "jest-junit": "^12.0.0",
+    "@types/jquery": "3.5.14",
+    "@types/lodash": "4.14.182",
+    "eslint-plugin-prettier": "4.2.1",
+    "jest-junit": "^14.0.0",
     "popper.js": "1.16.1",
-    "ts-jest": "26.4.4"
+    "ts-jest": "28.0.7"
   },
   "engines": {
-    "node": ">=12 <13"
+    "node": ">=16"
   }
 }
