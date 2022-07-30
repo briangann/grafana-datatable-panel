@@ -2,8 +2,7 @@
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
 ![Release](https://github.com/briangann/grafana-datatable-panel/workflows/Release/badge.svg)
-[![David Dependancy Status](https://david-dm.org/briangann/grafana-datatable-panel.svg)](https://david-dm.org/briangann/grafana-datatable-panel)
-[![David Dev Dependency Status](https://david-dm.org/briangann/grafana-datatable-panel/dev-status.svg)](https://david-dm.org/briangann/grafana-datatable-panel?type=dev)
+![Build](https://img.shields.io/github/workflow/status/briangann/grafana-datatable-panel/Build%20Main%20on%20Push)
 [![Known Vulnerabilities](https://snyk.io/test/github/briangann/grafana-datatable-panel/badge.svg)](https://snyk.io/test/github/briangann/grafana-datatable-panel)
 [![Maintainability](https://api.codeclimate.com/v1/badges/7b3cb7018973e4ddfdac/maintainability)](https://codeclimate.com/github/briangann/grafana-datatable-panel/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/7b3cb7018973e4ddfdac/test_coverage)](https://codeclimate.com/github/briangann/grafana-datatable-panel/test_coverage)
