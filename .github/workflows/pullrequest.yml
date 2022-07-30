@@ -3,7 +3,7 @@ name: Pull Requests
 on:
   pull_request:
     branches:
-      - master # Run workflow on PR to master
+      - main # Run workflow on PR to main
 
 jobs:
   pull_request:

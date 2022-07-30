@@ -1,12 +1,12 @@
-name: Build Master on Push
+name: Build Main on Push
 
 on:
   push:
     branches:
-      - master
+      - main
 
 jobs:
-  build_master:
+  build_main:
     runs-on: ubuntu-latest
 
     steps:
