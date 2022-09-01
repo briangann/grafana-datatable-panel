@@ -25,8 +25,8 @@
     "url": "https://github.com/briangann/grafana-datatable-panel/issues"
   },
   "dependencies": {
-    "@types/file-saver": "2.0.1",
-    "@types/mark.js": "^8.11.5",
+    "@types/file-saver": "2.0.5",
+    "@types/mark.js": "8.11.8",
     "datatables.mark.js": "2.1.0",
     "datatables.net": "1.12.1",
     "datatables.net-buttons": "2.2.3",
@@ -40,27 +40,27 @@
     "datatables.net-select": "1.4.0",
     "datatables.net-select-dt": "1.4.0",
     "datatables.net-select-jqui": "1.4.0",
-    "date-fns": "^2.29.1",
-    "file-saver": "^2.0.5",
+    "date-fns": "2.29.2",
+    "file-saver": "2.0.5",
     "font-awesome": "4.7.0",
-    "jszip": "3.10.0",
+    "jszip": "3.10.1",
     "markjs": "npm:mark.js@^8.11.1",
     "pdfmake": "0.2.5"
   },
   "devDependencies": {
     "@grafana/data": "7.3.10",
-    "@grafana/toolkit": "9.0.5",
+    "@grafana/toolkit": "9.1.2",
     "@types/angular": "1.8.0",
     "@types/datatables.net": "1.10.23",
     "@types/datatables.net-buttons": "1.4.7",
     "@types/datatables.net-select": "1.2.7",
     "@types/grafana": "github:CorpGlory/types-grafana.git",
     "@types/jquery": "3.5.14",
-    "@types/lodash": "4.14.182",
+    "@types/lodash": "4.14.184",
     "eslint-plugin-prettier": "4.2.1",
     "jest-junit": "^14.0.0",
     "popper.js": "1.16.1",
-    "ts-jest": "28.0.7"
+    "ts-jest": "28.0.8"
   },
   "engines": {
     "node": ">=16"
