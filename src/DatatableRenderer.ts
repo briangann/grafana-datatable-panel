@@ -434,7 +434,7 @@ export class DatatableRenderer {
     for (let i = 0; i < this.table.columns.length; i++) {
       const columnAlias = this.getColumnAlias(this.table.columns[i].text);
       const columnWidthHint = this.getColumnWidthHint(this.table.columns[i].text);
-      var columnClassName = '';
+      let columnClassName = '';
 
       // column type "date" is very limited, and overrides our formatting
       // best to use our format, then the "raw" epoch time as the sort ordering field
@@ -769,7 +769,9 @@ export class DatatableRenderer {
             .column(0, { search: 'applied', order: 'applied' })
             .nodes()
             .each((cell, i) => {
-              cell.innerHTML = i + 1;
+              if (i !== undefined) {
+                cell.innerHTML = i + 1;
+              }
             });
         })
         .draw();
@@ -790,7 +792,7 @@ export class DatatableRenderer {
       $(header)
         .find(`tr:eq(1) th`)
         .each(function(i) {
-          var title = $(this).text();
+          let title = $(this).text();
           $(this).html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
 
           $('input', this).on('keyup change', function(this: any) {
