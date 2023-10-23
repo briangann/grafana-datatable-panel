@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2023-10-22
+
+- Port to React
+
 ## [1.0.4] - 2023-09-11
 
 - Updates for compatibility with v10.x

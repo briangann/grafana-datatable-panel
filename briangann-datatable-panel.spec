@@ -1,8 +1,8 @@
 Summary: Datatable Panel
 Name:    briangann-datatable-panel
-Version: 1.0.4
+Version: 2.0.0
 Release: %{_buildno}%{?dist}
-License: Apache
+License: MIT
 Group:   GRNOC
 URL:     https://github.com/briangann/grafana-datatable-panel/
 Source:  https://github.com/briangann/grafana-datatable-panel
