@@ -49,7 +49,7 @@
         }
       ],
       "title": "Panel Title",
-      "type": "briangann-datatable-panel"
+      "type": "briangann-datatablereact-panel"
     }
   ],
   "refresh": "",
@@ -65,7 +65,7 @@
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Provisioned datatable dashboard",
+  "title": "Provisioned datatablereact dashboard",
   "version": 0,
   "weekStart": ""
 }

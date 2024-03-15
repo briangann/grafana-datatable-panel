@@ -1,11 +1,11 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "panel",
-  "name": "Datatable",
-  "id": "briangann-datatable-panel",
+  "name": "Datatablereact",
+  "id": "briangann-datatablereact-panel",
   "info": {
     "keywords": ["panel"],
-    "description": "Datatable panel for grafana",
+    "description": "Grafana datatable panel",
     "author": {
       "name": "Briangann"
     },

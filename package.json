@@ -1,7 +1,7 @@
 {
-  "name": "datatable",
+  "name": "datatablereact",
   "version": "1.0.0",
-  "description": "Datatable panel for grafana",
+  "description": "Grafana datatable panel",
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
     "dev": "webpack -w -c ./.config/webpack/webpack.config.ts --env development",
@@ -68,5 +68,5 @@
     "react-dom": "18.2.0",
     "tslib": "2.5.3"
   },
-  "packageManager": "npm@10.2.3"
+  "packageManager": "npm@10.2.4"
 }
