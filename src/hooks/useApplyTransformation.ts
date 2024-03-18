@@ -1,23 +1,15 @@
-import { DataFrame, DataTransformerID, transformDataFrame } from '@grafana/data';
+import { DataFrame } from '@grafana/data';
 import React from 'react';
-import { lastValueFrom } from 'rxjs';
+import { transformData } from 'transformations';
+import { TransformationOptions } from 'types';
 
 export const useApplyTransformation = (dataSeries: DataFrame[]) => {
   const [dataFrames, setDataFrames] = React.useState<DataFrame[] | undefined>();
 
   React.useEffect(() => {
     async function fetchData() {
-      const rows = await lastValueFrom(
-        transformDataFrame(
-          [
-            {
-              id: DataTransformerID.joinByField,
-              options: {},
-            },
-          ],
-          dataSeries
-        )
-      );
+      //TODO: Use the actual panel option instead of this hardcoded one
+      const rows = await transformData(dataSeries, TransformationOptions.TimeSeriesToColumns);
       setDataFrames(rows);
     }
     fetchData();

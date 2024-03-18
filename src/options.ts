@@ -6,6 +6,7 @@ import {
   transformDataFrame,
 } from '@grafana/data';
 import { lastValueFrom } from 'rxjs';
+import { transformData, transformationIDMapping } from 'transformations';
 import { SimpleOptions } from 'types';
 
 export async function optionsBuilder(
@@ -30,10 +31,7 @@ export async function optionsBuilder(
     },
   });
 
-  // TODO handle "timeseries-aggregations" selection
-  // in the original plugin this columns will turn into the possible Aggregations options:
-  // avg, min, max, total, current, count
-  builder.addSelect({
+  builder.addMultiSelect({
     category: ['Data'],
     path: 'transformation-columns',
     name: 'Columns',
@@ -41,23 +39,26 @@ export async function optionsBuilder(
     settings: {
       options: [],
       getOptions: async (context) => {
-        try {
-          const transformedData = await lastValueFrom(
-            transformDataFrame(
-              [
-                {
-                  id: DataTransformerID.joinByField,
-                  options: {},
-                },
-              ],
-              context.data
-            )
-          );
-
-          return getDataFramesFields(transformedData).map((field) => ({ value: field, label: field }));
-        } catch (e) {
-          return [];
+        const selectedTransformation = context.options.transformation;
+        // the transformations grafana can handle internally
+        if (selectedTransformation in transformationIDMapping) {
+          const dataFrames = await transformData(context.data, selectedTransformation);
+          return getDataFramesFields(dataFrames).map((field) => ({ value: field, label: field }));
         }
+        // TODO handle "timeseries-aggregations" selection
+        // in the original plugin this columns will turn into the possible Aggregations options:
+        // avg, min, max, total, current, count
+        if (selectedTransformation === 'timeseries-aggregations') {
+          return [
+            { value: 'avg', label: 'Average' },
+            { value: 'min', label: 'Min' },
+            { value: 'max', label: 'Max' },
+            { value: 'total', label: 'Total' },
+            { value: 'current', label: 'Current' },
+            { value: 'count', label: 'Count' },
+          ];
+        }
+        return [];
       },
     },
   });
