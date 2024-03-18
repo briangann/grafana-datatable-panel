@@ -6,12 +6,12 @@ import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef } from 'react';
 import { SimpleOptions } from 'types';
 import { dataFrameToDataTableFormat } from 'dataHelpers';
+//TODO many more css files missing
 import '../css/datatables.css';
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const { data, height } = props;
-  console.log('Current height', height);
 
   const dataTableId = `data-table-renderer-${props.id}`;
 
