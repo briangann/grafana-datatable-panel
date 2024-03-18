@@ -6,6 +6,7 @@ import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef } from 'react';
 import { SimpleOptions } from 'types';
 import { dataFrameToDataTableFormat } from 'dataHelpers';
+import '../css/datatables.css';
 interface Props extends PanelProps<SimpleOptions> {}
 
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
@@ -20,15 +21,21 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const dataFrames = useApplyTransformation(data.series);
   const { columns, rows } = (dataFrames && dataFrameToDataTableFormat(dataFrames)) || { columns: [], rows: [] };
 
+  // actually render the table
   useEffect(() => {
     if (dataTableDOMRef.current && columns.length > 0) {
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
         jQuery(dataTableDOMRef.current).DataTable({
           columns,
           data: rows,
-          scrollY: `${height}px`,
-          scrollX: true,
-          pageLength: 80,
+          //TODO these hardcoded height values come from observing the elements datatable creates
+          // the scroll Y you pass will be the data part of the table itself, datatable will
+          // create all the headers, pagination, etc... and it will not consider it into the
+          // final height calculation. So we need to exclude it.
+          // this blogpost might have a better way to achieve this
+          // https://datatables.net/blog/2017/vertical-scroll-fitting
+          // leaving it here for now while I move on
+          scrollY: `${height - 32 - 42 - 43}px`,
           scrollCollapse: false,
           search: {
             regex: true,
@@ -41,6 +48,14 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         });
       }
     }
+    const currentDom = dataTableDOMRef.current;
+
+    // make sure we clean up on unmount
+    return () => {
+      if (currentDom && jQuery.fn.dataTable.isDataTable(currentDom)) {
+        jQuery(currentDom).DataTable().destroy();
+      }
+    };
   }, [columns, height, rows]);
 
   return (
