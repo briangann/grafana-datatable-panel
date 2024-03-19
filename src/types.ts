@@ -1,9 +1,8 @@
-type SeriesSize = 'sm' | 'md' | 'lg';
-
 export interface SimpleOptions {
-  text: string;
-  showSeriesCount: boolean;
-  seriesCountSize: SeriesSize;
+  transformation: TransformationOptions;
+  transformationColumns: string[];
+  transformationAggregation: string[];
+  columnAliases: Record<string, string>;
 }
 
 export enum TransformationOptions {
@@ -14,3 +13,8 @@ export enum TransformationOptions {
   Table = 'table',
   JSONData = 'json-data',
 }
+
+export type ColumnAliasField = {
+  name: string;
+  alias: string;
+};
