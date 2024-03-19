@@ -1,18 +1,6 @@
-import { css, cx } from '@emotion/css';
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
-import {
-  Box,
-  Button,
-  Field,
-  IconButton,
-  InlineField,
-  InlineFieldRow,
-  InlineLabel,
-  Select,
-  Stack,
-  Text,
-} from '@grafana/ui';
-import React from 'react';
+import { Box, Button, IconButton, InlineField, Input, Select, Stack } from '@grafana/ui';
+import React, { FormEvent } from 'react';
 import { getDataFramesFields } from 'transformations';
 import { ColumnAliasField } from 'types';
 
@@ -46,10 +34,11 @@ export function ColumnAliasesEditor(props: StandardEditorProps<ColumnAliasField[
     onChange(newAliases);
   }
 
-  function handleAliasChange(event: React.ChangeEvent<HTMLInputElement>, selectIndex: number) {
+  function handleAliasChange(event: FormEvent<HTMLInputElement>, selectIndex: number) {
+    const target = event.target as HTMLInputElement;
     const newAliases = value.map((alias: ColumnAliasField, index: number) => {
       if (index === selectIndex) {
-        return { name: alias.name, alias: event.target.value };
+        return { name: alias.name, alias: target.value };
       }
       return alias;
     });
@@ -74,7 +63,7 @@ export function ColumnAliasesEditor(props: StandardEditorProps<ColumnAliasField[
             />
           </InlineField>
           <InlineField label="Alias">
-            <input
+            <Input
               value={alias.alias || ''}
               onChange={(event) => {
                 handleAliasChange(event, index);
