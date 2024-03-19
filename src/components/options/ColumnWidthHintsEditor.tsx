@@ -1,5 +1,5 @@
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
-import { Box, Button, IconButton, Select, Stack, Text } from '@grafana/ui';
+import { Box, Button, IconButton, InlineField, Select, Stack, Text } from '@grafana/ui';
 import React from 'react';
 import { getDataFramesFields } from 'transformations';
 import { ColumnWidthHint } from 'types';
@@ -49,11 +49,8 @@ export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) 
     // TODO: fix the styling so all fields align. Currently
     return (
       <div key={index} style={{ width: '100%' }}>
-        <Stack justifyContent="space-evenly" direction="row" alignItems="center">
-          <div>
-            <Text>Column</Text>
-          </div>
-          <div>
+        <Stack justifyContent="start" direction="row" alignItems="start">
+          <InlineField label="Column" tooltip="The column to apply width hints to">
             <Select
               // TODO: We don't want this width here. it should be somehow auto
               width={15}
@@ -62,21 +59,16 @@ export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) 
               value={item.name || ''}
               onChange={(event) => handleSelectChange(event, index)}
             />
-          </div>
-          <div>
-            <Text>Width (% or px)</Text>
-          </div>
-          <div>
+          </InlineField>
+          <InlineField label="Width" tooltip="The width hint to apply. (add % or px)">
             <input
               value={item.width || ''}
               onChange={(event) => {
                 handleWidthChange(event, index);
               }}
             />
-          </div>
-          <div>
-            <IconButton name="trash-alt" aria-label="Remove column" onClick={() => handleRemoveColumnWidth(index)} />
-          </div>
+          </InlineField>
+          <IconButton name="trash-alt" aria-label="Remove column" onClick={() => handleRemoveColumnWidth(index)} />
         </Stack>
       </div>
     );

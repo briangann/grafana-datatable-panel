@@ -3,6 +3,7 @@ import { SimpleOptions } from 'types';
 import { ColumnAliasesEditor } from './ColumnAliasesEditor';
 import { ColumnWidthHints } from './ColumnWidthHintsEditor';
 import { ColumnSortingEditor } from './ColumnSortingEditor';
+import { ColumnStylesEditor } from './ColumnStylesEditor';
 
 export async function optionsBuilder(
   builder: PanelOptionsEditorBuilder<SimpleOptions>,
@@ -71,5 +72,13 @@ export async function optionsBuilder(
     id: 'columnSorting',
     name: 'Column Sorting',
     editor: ColumnSortingEditor,
+  });
+
+  builder.addCustomEditor({
+    category: ['Column Styles'],
+    path: 'columnStyles',
+    id: 'columnStyles',
+    name: 'Column Styles',
+    editor: ColumnStylesEditor,
   });
 }

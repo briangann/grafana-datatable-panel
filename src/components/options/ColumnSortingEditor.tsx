@@ -1,5 +1,5 @@
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
-import { Box, Button, IconButton, Select, Stack, Text } from '@grafana/ui';
+import { Box, Button, IconButton, InlineField, Select, Stack, Text } from '@grafana/ui';
 import React from 'react';
 import { ColumnSorting, ColumnSortingOptions } from 'types';
 
@@ -43,11 +43,8 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
   const currentSortings = value.map((items: ColumnSorting, index: number) => {
     return (
       <div key={index} style={{ width: '100%' }}>
-        <Stack justifyContent="space-evenly" direction="row" alignItems="center">
-          <div>
-            <Text>Column</Text>
-          </div>
-          <div>
+        <Stack justifyContent="start" direction="row" alignItems="start">
+          <InlineField label="Column" tooltip="Name of the column to sort">
             <input
               type="number"
               value={items.index}
@@ -55,20 +52,16 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
                 handleIndexChange(event, index);
               }}
             />
-          </div>
-          <div>
-            <Select
-              value={items.order}
-              options={[
-                { value: ColumnSortingOptions.Ascending, label: 'Ascending' },
-                { value: ColumnSortingOptions.Descending, label: 'Descending' },
-              ]}
-              onChange={(event) => handleOrderChange(event, index)}
-            />
-          </div>
-          <div>
-            <IconButton name="trash-alt" aria-label="Remove column" onClick={() => handleRemoveColumnSorting(index)} />
-          </div>
+          </InlineField>
+          <Select
+            value={items.order}
+            options={[
+              { value: ColumnSortingOptions.Ascending, label: 'Ascending' },
+              { value: ColumnSortingOptions.Descending, label: 'Descending' },
+            ]}
+            onChange={(event) => handleOrderChange(event, index)}
+          />
+          <IconButton name="trash-alt" aria-label="Remove column" onClick={() => handleRemoveColumnSorting(index)} />
         </Stack>
       </div>
     );
