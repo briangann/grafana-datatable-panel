@@ -1,6 +1,8 @@
 import { PanelOptionsEditorBuilder, StandardEditorContext } from '@grafana/data';
 import { SimpleOptions } from 'types';
 import { ColumnAliasesEditor } from './ColumnAliases';
+import { ColumnWidthHints } from './ColumnWidthHints';
+import { ColumnSortingEditor } from './ColumnSorting';
 
 export async function optionsBuilder(
   builder: PanelOptionsEditorBuilder<SimpleOptions>,
@@ -53,5 +55,21 @@ export async function optionsBuilder(
     id: 'columnAliases',
     name: 'Column Aliases',
     editor: ColumnAliasesEditor,
+  });
+
+  builder.addCustomEditor({
+    category: ['Column Width Hints'],
+    path: 'columnWidthHints',
+    id: 'columnWidthHints',
+    name: 'Column Width Hints',
+    editor: ColumnWidthHints,
+  });
+
+  builder.addCustomEditor({
+    category: ['Column Sorting'],
+    path: 'columnSorting',
+    id: 'columnSorting',
+    name: 'Column Sorting',
+    editor: ColumnSortingEditor,
   });
 }

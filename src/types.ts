@@ -18,3 +18,13 @@ export type ColumnAliasField = {
   name: string;
   alias: string;
 };
+
+export type ColumnWidthHint = {
+  name: string;
+  width: string;
+};
+
+export type ColumnSorting = {
+  index: number;
+  order: 'asc' | 'desc';
+};
