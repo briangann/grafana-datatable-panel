@@ -1,10 +1,10 @@
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
 import { Box, Button, IconButton, Select, Stack, Text } from '@grafana/ui';
 import React from 'react';
-import { ColumnSorting } from 'types';
+import { ColumnSorting, ColumnSortingOptions } from 'types';
 
-function getSortingValue(item: string): 'asc' | 'desc' {
-  return item === 'asc' ? 'asc' : 'desc';
+function getSortingValue(item: string): ColumnSortingOptions {
+  return item === 'asc' ? ColumnSortingOptions.Ascending : ColumnSortingOptions.Descending;
 }
 
 export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>) {
@@ -12,7 +12,7 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
 
   function handleNewColumnSorting() {
     const newIndex = value.length ? Math.max(...value.map((item) => item.index)) + 1 : 0;
-    onChange([...value, { index: newIndex, order: 'desc' }]);
+    onChange([...value, { index: newIndex, order: ColumnSortingOptions.Descending }]);
   }
 
   function handleRemoveColumnSorting(index: number) {
@@ -30,7 +30,7 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
   }
 
   function handleOrderChange(event: SelectableValue<string>, selectIndex: number) {
-    const newOrder = getSortingValue(event.value ?? 'desc');
+    const newOrder = getSortingValue(event.value ?? ColumnSortingOptions.Descending);
     const newSorting = value.map((item: ColumnSorting, itemIndex: number) => {
       if (itemIndex === selectIndex) {
         return { index: item.index, order: newOrder };
@@ -40,7 +40,7 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
     onChange(newSorting);
   }
 
-  const currentAliases = value.map((items: ColumnSorting, index: number) => {
+  const currentSortings = value.map((items: ColumnSorting, index: number) => {
     return (
       <div key={index} style={{ width: '100%' }}>
         <Stack justifyContent="space-evenly" direction="row" alignItems="center">
@@ -60,8 +60,8 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
             <Select
               value={items.order}
               options={[
-                { value: 'asc', label: 'Ascending' },
-                { value: 'desc', label: 'Descending' },
+                { value: ColumnSortingOptions.Ascending, label: 'Ascending' },
+                { value: ColumnSortingOptions.Descending, label: 'Descending' },
               ]}
               onChange={(event) => handleOrderChange(event, index)}
             />
@@ -76,7 +76,7 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
 
   return (
     <div>
-      {currentAliases}
+      {currentSortings}
       <Box marginTop={1}>
         <Button variant="secondary" icon="plus" onClick={handleNewColumnSorting}>
           Add Column Alias

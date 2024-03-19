@@ -24,7 +24,36 @@ export type ColumnWidthHint = {
   width: string;
 };
 
+export enum ColumnSortingOptions {
+  Ascending = 'asc',
+  Descending = 'desc',
+}
+
 export type ColumnSorting = {
   index: number;
-  order: 'asc' | 'desc';
+  order: ColumnSortingOptions;
+};
+
+export enum ColumnStyleType {
+  Number = 'number',
+  String = 'string',
+  Date = 'date',
+  Hidden = 'hidden',
+}
+
+export enum ColumnStyleColoring {
+  Disabled = 'disabled',
+  Cell = 'cell',
+  Value = 'value',
+  Row = 'row',
+  RowColumn = 'row-column',
+}
+
+export type ColumnStyling = {
+  nameOrRegex: string;
+  type: ColumnStyleType;
+  ignoreNull: boolean;
+  colorBy?: ColumnStyleColoring;
+  threshold?: string;
+  colors?: [string, string, string];
 };
