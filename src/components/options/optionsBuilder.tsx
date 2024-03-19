@@ -1,8 +1,8 @@
 import { PanelOptionsEditorBuilder, StandardEditorContext } from '@grafana/data';
 import { SimpleOptions } from 'types';
-import { ColumnAliasesEditor } from './ColumnAliases';
-import { ColumnWidthHints } from './ColumnWidthHints';
-import { ColumnSortingEditor } from './ColumnSorting';
+import { ColumnAliasesEditor } from './ColumnAliasesEditor';
+import { ColumnWidthHints } from './ColumnWidthHintsEditor';
+import { ColumnSortingEditor } from './ColumnSortingEditor';
 
 export async function optionsBuilder(
   builder: PanelOptionsEditorBuilder<SimpleOptions>,
