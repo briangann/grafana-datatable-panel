@@ -1,5 +1,17 @@
+import { css, cx } from '@emotion/css';
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
-import { Box, Button, IconButton, Select, Stack, Text } from '@grafana/ui';
+import {
+  Box,
+  Button,
+  Field,
+  IconButton,
+  InlineField,
+  InlineFieldRow,
+  InlineLabel,
+  Select,
+  Stack,
+  Text,
+} from '@grafana/ui';
 import React from 'react';
 import { getDataFramesFields } from 'transformations';
 import { ColumnAliasField } from 'types';
@@ -50,11 +62,8 @@ export function ColumnAliasesEditor(props: StandardEditorProps<ColumnAliasField[
     // TODO: fix the styling so all fields align. Currently
     return (
       <div key={index} style={{ width: '100%' }}>
-        <Stack justifyContent="space-evenly" direction="row" alignItems="center">
-          <div>
-            <Text>Column</Text>
-          </div>
-          <div>
+        <Stack justifyContent="start" direction="row" alignItems="start">
+          <InlineField label="Column">
             <Select
               // TODO: We don't want this width here. it should be somehow auto
               width={15}
@@ -63,21 +72,16 @@ export function ColumnAliasesEditor(props: StandardEditorProps<ColumnAliasField[
               value={alias.name || ''}
               onChange={(event) => handleSelectChange(event, index)}
             />
-          </div>
-          <div>
-            <Text>Alias</Text>
-          </div>
-          <div>
+          </InlineField>
+          <InlineField label="Alias">
             <input
               value={alias.alias || ''}
               onChange={(event) => {
                 handleAliasChange(event, index);
               }}
             />
-          </div>
-          <div>
-            <IconButton name="trash-alt" aria-label="Remove column" onClick={() => handleRemoveColumnAlias(index)} />
-          </div>
+          </InlineField>
+          <IconButton name="trash-alt" aria-label="Remove column" onClick={() => handleRemoveColumnAlias(index)} />
         </Stack>
       </div>
     );
