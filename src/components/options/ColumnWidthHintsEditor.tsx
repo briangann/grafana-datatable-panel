@@ -1,6 +1,6 @@
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
-import { Box, Button, IconButton, InlineField, Select, Stack, Text } from '@grafana/ui';
-import React from 'react';
+import { Box, Button, IconButton, InlineField, Input, Select, Stack } from '@grafana/ui';
+import React, { FormEvent } from 'react';
 import { getDataFramesFields } from 'transformations';
 import { ColumnWidthHint } from 'types';
 
@@ -34,10 +34,11 @@ export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) 
     onChange(newWidths);
   }
 
-  function handleWidthChange(event: React.ChangeEvent<HTMLInputElement>, selectIndex: number) {
+  function handleWidthChange(event: FormEvent<HTMLInputElement>, selectIndex: number) {
+    const target = event.target as HTMLInputElement;
     const newWidths = value.map((item: ColumnWidthHint, index: number) => {
       if (index === selectIndex) {
-        return { name: item.name, width: event.target.value };
+        return { name: item.name, width: target.value };
       }
       return item;
     });
@@ -61,7 +62,7 @@ export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) 
             />
           </InlineField>
           <InlineField label="Width" tooltip="The width hint to apply. (add % or px)">
-            <input
+            <Input
               value={item.width || ''}
               onChange={(event) => {
                 handleWidthChange(event, index);

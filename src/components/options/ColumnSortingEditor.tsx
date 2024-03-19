@@ -1,6 +1,6 @@
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
-import { Box, Button, IconButton, InlineField, Select, Stack, Text } from '@grafana/ui';
-import React from 'react';
+import { Box, Button, IconButton, InlineField, Input, Select, Stack } from '@grafana/ui';
+import React, { FormEvent } from 'react';
 import { ColumnSorting, ColumnSortingOptions } from 'types';
 
 function getSortingValue(item: string): ColumnSortingOptions {
@@ -19,10 +19,11 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
     onChange([...value.slice(0, index), ...value.slice(index + 1)]);
   }
 
-  function handleIndexChange(event: React.ChangeEvent<HTMLInputElement>, selectIndex: number) {
+  function handleIndexChange(event: FormEvent<HTMLInputElement>, selectIndex: number) {
+    const target = event.target as HTMLInputElement;
     const newSorting = value.map((item: ColumnSorting, itemIndex: number) => {
       if (itemIndex === selectIndex) {
-        return { index: parseInt(event.target.value, 10), order: item.order };
+        return { index: parseInt(target.value, 10), order: item.order };
       }
       return item;
     });
@@ -45,7 +46,7 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
       <div key={index} style={{ width: '100%' }}>
         <Stack justifyContent="start" direction="row" alignItems="start">
           <InlineField label="Column" tooltip="Name of the column to sort">
-            <input
+            <Input
               type="number"
               value={items.index}
               onChange={(event) => {
