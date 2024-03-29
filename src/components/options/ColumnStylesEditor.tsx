@@ -6,6 +6,7 @@ import { ColumnStyleType, ColumnStyling } from 'types';
 export function ColumnStylesEditor(props: StandardEditorProps<ColumnStyling[]>) {
   const { onChange, value = [] } = props;
 
+  // @ts-ignore
   function handleRemoveColumnStyle(index: number) {
     onChange([...value.slice(0, index), ...value.slice(index + 1)]);
   }
