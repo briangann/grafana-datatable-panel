@@ -144,7 +144,8 @@ jobs:
           mkdir -p ccbin/
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./ccbin/cc-test-reporter
           chmod +x ./ccbin/cc-test-reporter
-          npm install -g jest jest-junit
+          npm install jest
+          npm install jest-junit
           npx jest --ci --runInBand --reporters=default --reporters=jest-junit
           ./ccbin/cc-test-reporter format-coverage -t lcov -o out/codeclimate.frontend.json coverage/lcov.info
 
