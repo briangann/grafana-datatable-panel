@@ -1,0 +1,24 @@
+{
+  "language": "en",
+  "ignorePaths": [
+    "CHANGELOG.md",
+    "README.md",
+    "node_modules/**",
+    "dist/**",
+    "coverage/**",
+    "provisioning/**",
+    "src/dashboards/**"
+  ],
+  "words": [
+    "buildno",
+    "Datatable",
+    "datatables",
+    "DATETIME",
+    "DDTHH",
+    "jqui",
+    "markjs",
+    "pdfmake",
+    "rpmbuild",
+    "sourcedir"
+  ]
+}

@@ -3,11 +3,9 @@ name: CI
 on:
   push:
     branches:
-      - master
       - main
   pull_request:
     branches:
-      - master
       - main
 
 permissions: read-all
@@ -65,33 +63,11 @@ jobs:
           version: latest
           args: buildAll
 
-      - name: Check for E2E
-        id: check-for-e2e
+      - name: Warn missing Grafana access policy token
         run: |
-          if [ -d "cypress" ]
-          then
-            echo "has-e2e=true" >> $GITHUB_OUTPUT
-          fi
-
-      - name: Start grafana docker
-        if: steps.check-for-e2e.outputs.has-e2e == 'true'
-        run: docker-compose up -d
-
-      - name: Run e2e tests
-        if: steps.check-for-e2e.outputs.has-e2e == 'true'
-        run: npm run e2e
-
-      - name: Stop grafana docker
-        if: steps.check-for-e2e.outputs.has-e2e == 'true'
-        run: docker-compose down
-
-      - name: Archive E2E output
-        uses: actions/upload-artifact@v4
-        if: steps.check-for-e2e.outputs.has-e2e == 'true' && steps.run-e2e-tests.outcome != 'success'
-        with:
-          name: cypress-videos
-          path: cypress/videos
-          retention-days: 5
+          echo Please generate a Grafana access policy token: https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin#generate-an-access-policy-token
+          echo Once done please follow the instructions found here: https://github.com/${{github.repository}}/blob/main/README.md#using-github-actions-release-workflow
+        if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN == '' }}
 
       - name: Sign plugin
         run: npm run sign
@@ -117,8 +93,70 @@ jobs:
           zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
 
       - name: Archive Build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: ${{ steps.metadata.outputs.plugin-id }}-${{ steps.metadata.outputs.plugin-version }}
           path: ${{ steps.metadata.outputs.plugin-id }}
           retention-days: 5
+
+      - name: Code Climate - Check environment
+        id: check-for-codeclimate
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        run: |
+          if [ ! -z $CC_TEST_REPORTER_ID ]
+          then
+            echo "has-codeclimate=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Code Climate - Run
+        if: steps.check-for-codeclimate.outputs.has-codeclimate == 'true'
+        run: |
+          mkdir -p ccbin/
+          curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./ccbin/cc-test-reporter
+          chmod +x ./ccbin/cc-test-reporter
+          npm install jest
+          npm install jest-junit
+          ./ccbin/cc-test-reporter format-coverage -t lcov -o out/codeclimate.frontend.json coverage/lcov.info
+          npx jest --ci --runInBand --reporters=default --reporters=jest-junit
+
+      - name: Code Climate - Upload
+        if: steps.check-for-codeclimate.outputs.has-codeclimate == 'true'
+        env:
+          CC_TEST_REPORTER_ID: ${{ secrets.CC_TEST_REPORTER_ID }}
+        run: |
+          ./ccbin/cc-test-reporter sum-coverage out/codeclimate.*.json -d -p 1 -o out/codeclimate.total.json
+          ./ccbin/cc-test-reporter upload-coverage -i out/codeclimate.total.json
+
+      - name: E2E - Check for playwright
+        id: e2e-check-for-playwright
+        run: |
+          if [ -d "playwright" ]
+          then
+            echo "has-e2e-playwright=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: E2E - Start Grafana in Docker
+        if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
+        run: docker-compose up -d
+
+      - name: E2E - Install playwright dependencies
+        if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
+        run: sudo apt-get update && yarn playwright install --with-deps
+
+      - name: E2E - Run tests
+        id: e2e-run-tests
+        if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
+        run: yarn run e2e:playwright
+
+      - name: E2E - Stop Grafana in Docker
+        if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
+        run: docker-compose down
+
+      - name: E2E - Archive output
+        uses: actions/upload-artifact@v4
+        if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 30
