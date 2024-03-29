@@ -19,11 +19,11 @@ NOTE: main branch is now v2.0.0 in progress, these docs are for v1.x
 
 ### Paging enabled
 
-![Default Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-basic-dark.png)
+![Default Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/v1.x/src/screenshots/datatable-basic-dark.png)
 
 ### Scrolling enabled
 
-![Scrolling](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dark-scrolling.png)
+![Scrolling](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/v1.x/src/screenshots/datatable-dark-scrolling.png)
 
 ### Light Theme with Paging
 
