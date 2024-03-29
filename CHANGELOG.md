@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [1.0.4] - 2023-09-11
+
+- Updates for compatibility with v10.x
+- Packages updated
+- Signature Fixed
+- Minor bug fix
+- NOTE: this plugin will be migrated to React soon!
+
 ## [1.0.3] - 2020-12-05
 
 - NEW: Added mark plugin to highlight matching text in search results (from PR #98)
