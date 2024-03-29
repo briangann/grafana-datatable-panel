@@ -1,7 +1,14 @@
 {
-  "name": "datatablereact",
-  "version": "1.0.0",
-  "description": "Grafana datatable panel",
+  "name": "briangann-datatable-panel",
+  "version": "2.0.0",
+  "license": "Apache-2.0",
+  "description": "Grafana Datatable Panel",
+  "homepage": "https://github.com/briangann/grafana-datatable-panel",
+  "author": {
+    "name": "Brian Gann",
+    "email": "bkgann@gmail.com",
+    "url": "https://github.com/briangann"
+  },
   "scripts": {
     "build": "webpack -c ./.config/webpack/webpack.config.ts --env production",
     "dev": "webpack -w -c ./.config/webpack/webpack.config.ts --env development",
@@ -15,8 +22,13 @@
     "server": "docker-compose up --build",
     "sign": "npx --yes @grafana/sign-plugin@latest"
   },
-  "author": "Briangann",
-  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/briangann/grafana-datatable-panel.git"
+  },
+  "bugs": {
+    "url": "https://github.com/briangann/grafana-datatable-panel/issues"
+  },
   "devDependencies": {
     "@babel/core": "^7.21.4",
     "@grafana/e2e": "10.3.3",
