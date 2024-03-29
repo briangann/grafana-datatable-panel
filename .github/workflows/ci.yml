@@ -146,8 +146,8 @@ jobs:
           chmod +x ./ccbin/cc-test-reporter
           npm install jest
           npm install jest-junit
-          npx jest --ci --runInBand --reporters=default --reporters=jest-junit
           ./ccbin/cc-test-reporter format-coverage -t lcov -o out/codeclimate.frontend.json coverage/lcov.info
+          npx jest --ci --runInBand --reporters=default --reporters=jest-junit
 
       - name: Code Climate - Upload
         if: steps.check-for-codeclimate.outputs.has-codeclimate == 'true'
