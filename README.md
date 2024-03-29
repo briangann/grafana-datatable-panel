@@ -1,187 +1,114 @@
-# Grafana Datatable Panel
+# Grafana panel plugin template
 
-[![Marketplace](https://img.shields.io/badge/dynamic/json?logo=grafana&color=F47A20&label=marketplace&prefix=v&query=%24.items%5B%3F%28%40.slug%20%3D%3D%20%22briangann-datatable-panel%22%29%5D.version&url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins)](https://grafana.com/grafana/plugins/briangann-datatable-panel)
-[![Downloads](https://img.shields.io/badge/dynamic/json?logo=grafana&color=F47A20&label=downloads&query=%24.items%5B%3F%28%40.slug%20%3D%3D%20%22briangann-datatable-panel%22%29%5D.downloads&url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins)](https://grafana.com/grafana/plugins/briangann-datatable-panel)
-[![License](https://img.shields.io/github/license/briangann/grafana-datatable-panel)](LICENSE)
+This template is a starting point for building a panel plugin for Grafana.
 
-[![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
-![Release](https://github.com/briangann/grafana-datatable-panel/workflows/Release/badge.svg)
-![Build](https://img.shields.io/github/workflow/status/briangann/grafana-datatable-panel/Build%20Main%20on%20Push)
-[![Known Vulnerabilities](https://snyk.io/test/github/briangann/grafana-datatable-panel/badge.svg)](https://snyk.io/test/github/briangann/grafana-datatable-panel)
-[![Maintainability](https://api.codeclimate.com/v1/badges/7b3cb7018973e4ddfdac/maintainability)](https://codeclimate.com/github/briangann/grafana-datatable-panel/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/7b3cb7018973e4ddfdac/test_coverage)](https://codeclimate.com/github/briangann/grafana-datatable-panel/test_coverage)
+## What are Grafana panel plugins?
 
-This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for [Grafana](http://www.grafana.com) 8.x/9.x/10.x
+Panel plugins allow you to add new types of visualizations to your dashboard, such as maps, clocks, pie charts, lists, and more.
 
-## Screenshots
+Use panel plugins when you want to do things like visualize data returned by data source queries, navigate between dashboards, or control external systems (such as smart home devices).
 
-### Paging enabled
+## Getting started
 
-![Default Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-basic-dark.png)
+### Frontend
 
-### Scrolling enabled
+1. Install dependencies
 
-![Scrolling](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dark-scrolling.png)
+   ```bash
+   npm install
+   ```
 
-### Light Theme with Paging
+2. Build plugin in development mode and run in watch mode
 
-![Light Theme with Paging](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-basic-light.png)
+   ```bash
+   npm run dev
+   ```
 
-### Numbered Rows and Compact Style
+3. Build plugin in production mode
 
-![Numbered and Compact Rows](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dark-numbered-compact.png)
+   ```bash
+   npm run build
+   ```
 
-## Options
+4. Run the tests (using Jest)
 
-### Options Tab
+   ```bash
+   # Runs the tests and watches for changes, requires git init first
+   npm run test
 
-![Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-options.png)
+   # Exits after running all the tests
+   npm run test:ci
+   ```
 
-Same options as built-in table panel
+5. Spin up a Grafana instance and run the plugin inside it (using Docker)
 
-### Datatable Options Tab
+   ```bash
+   npm run server
+   ```
 
-![Datatable Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-dt-options.png)
+6. Run the E2E tests (using Cypress)
 
-Table Display Options
+   ```bash
+   # Spins up a Grafana instance first that we tests against
+   npm run server
 
-* Font Size - set font size of table content
-* Scroll - toggle for scrolling vs Paging
-* Paging Options
-  * Rows Per Page - number of rows to display when paging is enabled
-  * Paging type - multiple navigation options
+   # Starts the tests
+   npm run e2e
+   ```
 
-Column Aliasing
+7. Run the linter
 
-* Override the name displayed for a column
+   ```bash
+   npm run lint
 
-Column Width Hints
+   # or
 
-* Provide a width "hint" in percentage or pixels ( 100px or 10% ). Note: The table will autosize as needed, but will use the hints provided.
+   npm run lint:fix
+   ```
 
-Column Sorting
+# Distributing your plugin
 
-* Sort table by any number of columns in ascending/descending order.
+When distributing a Grafana plugin either within the community or privately the plugin must be signed so the Grafana application can verify its authenticity. This can be done with the `@grafana/sign-plugin` package.
 
-Table Options
+_Note: It's not necessary to sign a plugin during development. The docker development environment that is scaffolded with `@grafana/create-plugin` caters for running the plugin without a signature._
 
-* Row Numbers - toggle to show row numbers
-* Length Change Enabled - top left dropdown for showing alternate page sizes
-* Search Enabled - toggle to allow searching table content (regex is enabled)
-* Info - Displays the "Show N of X entries" on bottom left of table
-* Cell Borders - show borders around each Cell (cannot be enabled with Row Borders)
-* Row Borders - show border between rows
-* Compact Rows - uses less padding for denser data display
-* Striped Rows - non-colored rows will be "striped" odd/even
-* Order Column - Highlights the column used for sorting
-* Hover - Highlights row on mouse hover
+## Initial steps
 
-Theme Settings
+Before signing a plugin please read the Grafana [plugin publishing and signing criteria](https://grafana.com/legal/plugins/#plugin-publishing-and-signing-criteria) documentation carefully.
 
-* Basic theme is currently the only option, more to be added
+`@grafana/create-plugin` has added the necessary commands and workflows to make signing and distributing a plugin via the grafana plugins catalog as straightforward as possible.
 
-## Thresholding
+Before signing a plugin for the first time please consult the Grafana [plugin signature levels](https://grafana.com/legal/plugins/#what-are-the-different-classifications-of-plugins) documentation to understand the differences between the types of signature level.
 
-### Row-based threshold coloring
+1. Create a [Grafana Cloud account](https://grafana.com/signup).
+2. Make sure that the first part of the plugin ID matches the slug of your Grafana Cloud account.
+   - _You can find the plugin ID in the `plugin.json` file inside your plugin directory. For example, if your account slug is `acmecorp`, you need to prefix the plugin ID with `acmecorp-`._
+3. Create a Grafana Cloud API key with the `PluginPublisher` role.
+4. Keep a record of this API key as it will be required for signing a plugin
 
-![Thresholding with Row Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-row.png)
+## Signing a plugin
 
-### Cell based threshold coloring
+### Using Github actions release workflow
 
-![Thresholding with Cell Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-cell.png)
+If the plugin is using the github actions supplied with `@grafana/create-plugin` signing a plugin is included out of the box. The [release workflow](./.github/workflows/release.yml) can prepare everything to make submitting your plugin to Grafana as easy as possible. Before being able to sign the plugin however a secret needs adding to the Github repository.
 
-### Cell based threshold value coloring
+1. Please navigate to "settings > secrets > actions" within your repo to create secrets.
+2. Click "New repository secret"
+3. Name the secret "GRAFANA_API_KEY"
+4. Paste your Grafana Cloud API key in the Secret field
+5. Click "Add secret"
 
-![Thresholding with Value Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-value.png)
+#### Push a version tag
 
-### RowColumn threshold coloring
+To trigger the workflow we need to push a version tag to github. This can be achieved with the following steps:
 
-This option sets the row color to the "highest" threshold found for all cells in row.
+1. Run `npm version <major|minor|patch>`
+2. Run `git push origin main --follow-tags`
 
-It also sets the color for each cell according to the threshold (you can tell which columns actually exceeded the threshold).
+## Learn more
 
-This means - a row can have an overall color, with each cell indicating it's real threshold color.
+Below you can find source code for existing app plugins and other related documentation.
 
-![Thresholding with RowColumn1](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn1.png)
-
-![Thresholding with RowColumn2](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn2.png)
-
-### RowColumn threshold coloring including row counter
-
-Same as above, but with row counter included
-
-![Thresholding with RowColumn including row count](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/master/src/screenshots/datatable-threshold-rowcolumn-rownumbers.png)
-
-## Features
-
-* Feature parity with built-in Grafana Table Panel
-* Row coloring uses the "highest" threshold color of all columns
-* New "RowColumn" threshold color option:
-   Sets color to "highest" threshold found for all cells in row.
-   Also sets color for each cell according to the threshold.
-   This means - a row can have an overall color, with each cell indicating it's real threshold color.
-* Set font size for rows
-* Scrolling
-* Paging
-  * Preset page sizes
-  * Multiple paging types
-  * Dropdown for page size
-* Row Numbers reactive to filtering
-* Searchable table content (filtering), regex enabled
-* Columns names can be aliased
-* URLs inside row text can be "clicked"
-* Rows can have a click-through URL
-* Multi-Column Sorting
-* Horizontal scrolling enabled when columns are wider than panel
-
-## TODO
-
-* [+] Column is not working
-
-## Building
-
-This plugin relies on Yarn, typical build sequence:
-
-```BASH
-yarn install
-yarn build
-```
-
-For development, you can run:
-
-```BASH
-yarn install
-yarn watch
-```
-
-The code will be parsed then copied into "dist" if the build passes without errors.
-
-## Docker Support
-
-A docker-compose.yml file is include for easy development and testing, just run
-
-```BASH
-docker-compose up
-```
-
-Then browse to (<http://localhost:3000>)
-
-## RPM
-
-A spec file is included to facilitate RPM based deployments, to generate run
-
-```BASH
-make rpm
-```
-
-## External Dependencies
-
-* Grafana 6.x/7.x
-
-## Build Dependencies
-
-* yarn
-
-## Acknowledgements
-
-This panel is based on the "Table" panel by GrafanaLabs
+- [Basic panel plugin example](https://github.com/grafana/grafana-plugin-examples/tree/master/examples/panel-basic#readme)
+- [`plugin.json` documentation](https://grafana.com/developers/plugin-tools/reference-plugin-json)
+- [How to sign a plugin?](https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin)

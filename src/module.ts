@@ -1,14 +1,6 @@
-import { DatatablePanelCtrl } from './ctrl';
+import { PanelPlugin } from '@grafana/data';
+import { SimpleOptions } from './types';
+import { DataTablePanel } from 'components/DataTablePanel';
+import { optionsBuilder } from 'components/options/optionsBuilder';
 
-import { loadPluginCss } from 'grafana/app/plugins/sdk';
-
-import './styles/panel.scss';
-import './styles/datatables-wrapper.scss';
-import './styles/jquery.dataTables.min.css';
-
-loadPluginCss({
-  dark: 'plugins/briangann-datatable-panel/styles/dark.css',
-  light: 'plugins/briangann-datatable-panel/styles/light.css',
-});
-
-export { DatatablePanelCtrl as PanelCtrl };
+export const plugin = new PanelPlugin<SimpleOptions>(DataTablePanel).setPanelOptions(optionsBuilder);
