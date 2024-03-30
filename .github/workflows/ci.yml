@@ -143,7 +143,7 @@ jobs:
 
       - name: E2E - Install playwright dependencies
         if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
-        run: sudo apt-get update && pnpm add -g playwright install --with-deps
+        run: sudo apt-get update && npx playwright install --with-deps
 
       - name: E2E - Run tests
         id: e2e-run-tests
