@@ -33,3 +33,6 @@ e2e-results/
 .idea
 
 .eslintcache
+
+playwright/.auth/admin.json
+playwright-report
