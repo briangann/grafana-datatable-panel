@@ -17,23 +17,26 @@ jobs:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
     steps:
       - uses: actions/checkout@v4
+      # pnpm action uses the packageManager field in package.json to
+      # understand which version to install.
+      - uses: pnpm/action-setup@v3
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
-
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
       - name: Install dependencies
-        run: npm ci
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Check types
-        run: npm run typecheck
+        run: pnpm run typecheck
       - name: Lint
-        run: npm run lint
+        run: pnpm run lint
       - name: Unit tests
-        run: npm run test:ci
+        run: pnpm run test:ci
       - name: Build frontend
-        run: npm run build
+        run: pnpm run build
 
       - name: Check for backend
         id: check-for-backend
@@ -70,7 +73,7 @@ jobs:
         if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN == '' }}
 
       - name: Sign plugin
-        run: npm run sign
+        run: pnpm run sign
         if: ${{ env.GRAFANA_ACCESS_POLICY_TOKEN != '' }}
 
       - name: Get plugin metadata
@@ -93,7 +96,7 @@ jobs:
           zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
 
       - name: Archive Build
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.metadata.outputs.plugin-id }}-${{ steps.metadata.outputs.plugin-version }}
           path: ${{ steps.metadata.outputs.plugin-id }}
@@ -115,8 +118,6 @@ jobs:
           mkdir -p ccbin/
           curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./ccbin/cc-test-reporter
           chmod +x ./ccbin/cc-test-reporter
-          npm install jest
-          npm install jest-junit
           ./ccbin/cc-test-reporter format-coverage -t lcov -o out/codeclimate.frontend.json coverage/lcov.info
           npx jest --ci --runInBand --reporters=default --reporters=jest-junit
 
@@ -142,12 +143,12 @@ jobs:
 
       - name: E2E - Install playwright dependencies
         if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
-        run: sudo apt-get update && yarn playwright install --with-deps
+        run: sudo apt-get update && npx playwright install --with-deps
 
       - name: E2E - Run tests
         id: e2e-run-tests
         if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
-        run: yarn run e2e:playwright
+        run: pnpm run e2e:playwright
 
       - name: E2E - Stop Grafana in Docker
         if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
