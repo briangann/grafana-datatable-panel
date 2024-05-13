@@ -54,6 +54,9 @@ importers:
       '@grafana/plugin-e2e':
         specifier: 1.2.0
         version: 1.2.0(@playwright/test@1.42.1)
+      '@grafana/plugin-meta-extractor':
+        specifier: ^0.0.2
+        version: 0.0.2
       '@grafana/tsconfig':
         specifier: ^1.3.0-rc1
         version: 1.3.0-rc1
@@ -495,6 +498,10 @@ packages:
     engines: {node: '>=18 <=20'}
     peerDependencies:
       '@playwright/test': ^1.41.2
+
+  '@grafana/plugin-meta-extractor@0.0.2':
+    resolution: {integrity: sha512-4mLLkjnmHFUklltHkY/GLreajm3HtR6et2B7BMe2+tOmvCtMFwMPRUMfX1oiVsMAURXwr2RBtNrv0JqMUdTyug==}
+    hasBin: true
 
   '@grafana/runtime@10.3.3':
     resolution: {integrity: sha512-OtRLmRGnyXD3pRDh26dRThUig1WV8jUBGAiwnPmCwalRr/l4P3NhgwfirwZGDAuXjSb5HT79w0qb0nsWpcrXBg==}
@@ -4379,6 +4386,11 @@ packages:
     engines: {node: '>=14.17'}
     hasBin: true
 
+  typescript@5.4.5:
+    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
+
   ua-parser-js@1.0.37:
     resolution: {integrity: sha512-bhTyI94tZofjo+Dn8SN6Zv8nBDvyXTymAdM3LDI/0IboIUwTu1rEhW7v2TfiVsoYWgkQ4kOVqnI8APUFbIQIFQ==}
 
@@ -5090,6 +5102,13 @@ snapshots:
       semver: 7.6.0
       uuid: 9.0.1
       yaml: 2.4.1
+
+  '@grafana/plugin-meta-extractor@0.0.2':
+    dependencies:
+      debug: 4.3.4
+      typescript: 5.4.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@grafana/runtime@10.3.3(@types/react@18.2.67)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)':
     dependencies:
@@ -9832,6 +9851,8 @@ snapshots:
   typescript@4.8.4: {}
 
   typescript@5.2.2: {}
+
+  typescript@5.4.5: {}
 
   ua-parser-js@1.0.37: {}
 
