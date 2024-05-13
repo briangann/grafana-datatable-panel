@@ -19,10 +19,11 @@
     "test:ci": "jest --passWithNoTests --maxWorkers 4",
     "typecheck": "tsc --noEmit",
     "lint": "eslint --cache --ignore-path ./.gitignore --ext .js,.jsx,.ts,.tsx .",
-    "lint:fix": "pnpm run lint -- --fix",
+    "lint:fix": "pnpm run lint --fix",
     "server": "docker-compose up --build",
     "sign": "npx --yes @grafana/sign-plugin@latest",
-    "spellcheck": "cspell -c cspell.config.json \"**/*.{ts,tsx,js,go,md,mdx,yml,yaml,json,scss,css}\""
+    "spellcheck": "cspell -c cspell.config.json \"**/*.{ts,tsx,js,go,md,mdx,yml,yaml,json,scss,css}\"",
+    "e2e": "playwright test"
   },
   "repository": {
     "type": "git",
@@ -72,7 +73,8 @@
     "typescript": "4.8.4",
     "webpack": "^5.86.0",
     "webpack-cli": "^5.1.4",
-    "webpack-livereload-plugin": "^3.0.2"
+    "webpack-livereload-plugin": "^3.0.2",
+    "@grafana/plugin-meta-extractor": "^0.0.2"
   },
   "engines": {
     "node": ">=20"
