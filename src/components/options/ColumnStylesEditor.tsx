@@ -3,7 +3,7 @@ import { Stack, Box, Button, Field, Input } from '@grafana/ui';
 import React from 'react';
 import { ColumnStyleType, ColumnStyling } from 'types';
 
-export function ColumnStylesEditor(props: StandardEditorProps<ColumnStyling[]>) {
+export function ColumnStylesEditorNOT(props: StandardEditorProps<ColumnStyling[]>) {
   const { onChange, value = [] } = props;
 
   // @ts-ignore
@@ -44,7 +44,7 @@ export function ColumnStylesEditor(props: StandardEditorProps<ColumnStyling[]>) 
       <Stack>{currentStyling}</Stack>
       <Box marginTop={2}>
         <Button variant="secondary" onClick={handleAddColumnStyle}>
-          Add column style
+          Add Style
         </Button>
       </Box>
     </div>

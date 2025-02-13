@@ -1,0 +1,3 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Datatable -> DatatableV2 migrations migrates old datatable config 1`] = `{}`;

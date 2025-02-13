@@ -1,0 +1,9 @@
+apiVersion: 1
+deleteDatasources:
+  - name: gdev-testdata
+    orgId: 1
+datasources:
+  - name: gdev-testdata
+    type: testdata
+    uid: P53465F745837BCFD
+    version: 1

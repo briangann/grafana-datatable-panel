@@ -1,4 +1,8 @@
+import type { PluginOptions } from '@grafana/plugin-e2e';
 import { defineConfig, devices } from '@playwright/test';
+import { dirname } from 'node:path';
+
+const pluginE2eAuth = `${dirname(require.resolve('@grafana/plugin-e2e'))}/auth`;
 
 /**
  * Read environment variables from file.
@@ -9,8 +13,8 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * See https://playwright.dev/docs/test-configuration.
  */
-export default defineConfig({
-  testDir: './playwright',
+export default defineConfig<PluginOptions>({
+  testDir: './tests',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
@@ -28,38 +32,21 @@ export default defineConfig({
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
-    httpCredentials: {
-      username: 'admin',
-      password: 'admin',
-    },
   },
 
   /* Configure projects for major browsers */
   projects: [
-    // 0. Auth used by after-auth project test files
+    // 1. Login to Grafana and store the cookie on disk for use in other tests.
     {
       name: 'auth',
-      testDir: 'node_modules/@grafana/plugin-e2e/dist/auth',
+      testDir: pluginE2eAuth,
       testMatch: [/.*\.js/],
     },
-    // 1. Run all unauthenticated tests using Chrome.
+    // 2. Run tests in Google Chrome. Every test will start authenticated as admin user.
     {
-      name: 'not-authenticated',
-      use: {
-        ...devices['Desktop Chrome'],
-      },
-      testMatch: [/pre-auth\/.*\.spec\.ts/],
-    },
-    // 2. Run all authenticated tests in parallel using Chrome.
-    {
-      name: 'authenticated',
-      use: {
-        ...devices['Desktop Chrome'],
-        storageState: 'playwright/.auth/admin.json',
-      },
-      testMatch: [/post-auth\/.*\.spec\.ts/],
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'], storageState: 'playwright/.auth/admin.json' },
       dependencies: ['auth'],
     },
   ],
-
 });

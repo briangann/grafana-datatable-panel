@@ -79,8 +79,8 @@ export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) 
     <div>
       {currentWidths}
       <Box marginTop={1}>
-        <Button variant="secondary" icon="plus" onClick={handleNewColumnWidth}>
-          Add Column Width
+        <Button fill="solid" variant="primary" icon="plus" onClick={handleNewColumnWidth}>
+          Add Width Hint
         </Button>
       </Box>
     </div>

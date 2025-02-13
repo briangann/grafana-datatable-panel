@@ -80,8 +80,8 @@ export function ColumnAliasesEditor(props: StandardEditorProps<ColumnAliasField[
     <div>
       {currentAliases}
       <Box marginTop={1}>
-        <Button variant="secondary" icon="plus" onClick={handleNewColumnAlias}>
-          Add Column Alias
+        <Button fill="solid" variant="primary" icon="plus" onClick={handleNewColumnAlias}>
+          Add Alias
         </Button>
       </Box>
     </div>
