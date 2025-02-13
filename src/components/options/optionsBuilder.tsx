@@ -1,14 +1,207 @@
 import { PanelOptionsEditorBuilder, StandardEditorContext } from '@grafana/data';
-import { SimpleOptions } from 'types';
+import { DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
 import { ColumnAliasesEditor } from './ColumnAliasesEditor';
 import { ColumnWidthHints } from './ColumnWidthHintsEditor';
 import { ColumnSortingEditor } from './ColumnSortingEditor';
-import { ColumnStylesEditor } from './ColumnStylesEditor';
+import { ColumnStylesEditor } from './columnstyles/ColumnStylesEditor';
 
 export async function optionsBuilder(
-  builder: PanelOptionsEditorBuilder<SimpleOptions>,
-  builderContext: StandardEditorContext<SimpleOptions>
+  builder: PanelOptionsEditorBuilder<DatatableOptions>,
+  builderContext: StandardEditorContext<DatatableOptions>
 ) {
+  builder.addBooleanSwitch({
+    name: 'Use Compact Rows',
+    path: 'compactRowsEnabled',
+    defaultValue: true,
+    category: ['Table Options'],
+    description: 'Display rows in compact mode'
+  });
+  builder.addBooleanSwitch({
+    name: 'Wrap Row Content',
+    path: 'wrapToFitEnabled',
+    defaultValue: true,
+    category: ['Table Options'],
+    description: 'Display content wrapped'
+  });
+  // Striped Rows
+  builder.addBooleanSwitch({
+    name: 'Show stripes on Rows',
+    path: 'stripedRowsEnabled',
+    defaultValue: true,
+    category: ['Table Options'],
+    description: 'Show stripes on rows'
+  });
+
+  // TODO: implement
+  builder.addBooleanSwitch({
+    name: 'Hover',
+    path: 'hoverEnabled',
+    defaultValue: true,
+    category: ['Table Options'],
+    description: "Highlights row on hover (Requires Page Reload on toggle)"
+  });
+  // TODO: implement
+  builder.addBooleanSwitch({
+    name: 'infoEnabled',
+    path: 'infoEnabled',
+    defaultValue: true,
+    category: ['Table Options'],
+    description: 'infoEnabled'
+  });
+  builder.addBooleanSwitch({
+    name: 'Scrolling',
+    path: 'scroll',
+    defaultValue: true,
+    category: ['Table Options'],
+    description: 'Scrolling instead of paging'
+  });
+
+  // rows per page
+  builder.addNumberInput({
+    name: 'Rows per Page',
+    path: 'rowsPerPage',
+    defaultValue: 5,
+    settings: {
+      min: 5,
+      integer: true,
+    },
+    category: ['Table Options'],
+    description: 'Number of rows of data to display',
+    showIf: (context) => context['scroll'] === false,
+  });
+  builder.addBooleanSwitch({
+    name: 'Show rows per page selection',
+    path: 'lengthChangeEnabled',
+    defaultValue: true,
+    description: 'Display Length Change Selection',
+    category: ['Table Options'],
+    showIf: (context) => context['scroll'] === false,
+  });
+
+  builder.addBooleanSwitch({
+    name: 'emptyDataEnabled',
+    path: 'emptyDataEnabled',
+    defaultValue: true,
+    category: ['Table Options'],
+  });
+  builder.addTextInput({
+    name: 'emptyDataText',
+    path: 'emptyDataText',
+    defaultValue: 'No Data',
+    category: ['Table Options'],
+    showIf: (context) => context['emptyDataEnabled'] === true,
+  });
+
+  // table options
+
+  // TODO: implement
+  builder.addBooleanSwitch({
+    name: 'orderColumnEnabled',
+    path: 'orderColumnEnabled',
+    defaultValue: true,
+    description: 'Highlight the column that the table data is currently ordered on',
+    category: ['Table Options'],
+  });
+
+  // rowNumbers
+  builder.addBooleanSwitch({
+    name: 'Enable Row Numbers',
+    path: 'rowNumbersEnabled',
+    defaultValue: true,
+    category: ['Table Options'],
+    description: 'Display Row Numbers in left-most column'
+  });
+
+  // rightAlignNumbers
+  builder.addBooleanSwitch({
+    name: 'Right Align Numbers',
+    path: 'alignNumbersToRightEnabled',
+    defaultValue: true,
+    category: ['Table Options'],
+    description: 'Any cell with a numeric value will be aligned to the right'
+  });
+  // Search Enabled
+  // Search Highlighting
+  builder.addBooleanSwitch({
+    name: 'Allow Searching Within Table',
+    path: 'searchEnabled',
+    defaultValue: true,
+    category: ['Search Options'],
+    description: 'Provides search option at top right of table'
+  });
+  builder.addBooleanSwitch({
+    name: 'Highlight Search Results',
+    path: 'searchHighlightingEnabled',
+    defaultValue: true,
+    category: ['Search Options'],
+    description: 'Highlight matching text during search'
+  });
+  // Info Enabled
+  builder.addBooleanSwitch({
+    name: 'infoEnabled',
+    path: 'infoEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Display Showing N of N entries footer'
+  });
+
+  // TODO: implement
+  builder.addBooleanSwitch({
+    name: 'showHeaderEnabled',
+    path: 'showHeaderEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'showHeaderEnabled'
+  });
+
+  // Cell Borders
+  // Row Borders
+  builder.addBooleanSwitch({
+    name: 'Show Cell Borders',
+    path: 'showCellBordersEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Will display borders for each cell'
+  });
+  builder.addBooleanSwitch({
+    name: 'Show Row Borders',
+    path: 'showRowBordersEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Will display borders for each row'
+  });
+
+  // Order Columm
+  builder.addBooleanSwitch({
+    name: 'Order Column',
+    path: 'orderColumnEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Highlight the column that the table data is currently ordered on'
+  });
+
+  // Column Filters
+  builder.addBooleanSwitch({
+    name: 'Show Column Filters',
+    path: 'columnFiltersEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Show filter on each column'
+  });
+
+  builder.addSelect({
+    path: 'datatablePagingType',
+    name: 'Paging Type',
+    description: 'How the paging buttons are displayed',
+    defaultValue: DatatablePagingType.SIMPLE_NUMBERS,
+    category: ['Paging'],
+    settings: {
+      options: DatatablePagingOptions,
+    },
+    showIf: (context) => context['scroll'] === false,
+  });
+
+
   builder.addSelect({
     category: ['Data'],
     path: 'transformation',
@@ -36,7 +229,7 @@ export async function optionsBuilder(
     category: ['Data'],
     path: 'transformationAggregation',
     name: 'Agregations',
-    defaultValue: '',
+    defaultValue: 'current',
     showIf: (context) => context['transformation'] === 'timeseries-aggregations',
     settings: {
       options: [
@@ -55,6 +248,7 @@ export async function optionsBuilder(
     path: 'columnAliases',
     id: 'columnAliases',
     name: 'Column Aliases',
+    defaultValue: [],
     editor: ColumnAliasesEditor,
   });
 
@@ -63,6 +257,7 @@ export async function optionsBuilder(
     path: 'columnWidthHints',
     id: 'columnWidthHints',
     name: 'Column Width Hints',
+    defaultValue: [],
     editor: ColumnWidthHints,
   });
 
@@ -71,6 +266,7 @@ export async function optionsBuilder(
     path: 'columnSorting',
     id: 'columnSorting',
     name: 'Column Sorting',
+    defaultValue: [],
     editor: ColumnSortingEditor,
   });
 
@@ -79,6 +275,19 @@ export async function optionsBuilder(
     path: 'columnStyles',
     id: 'columnStyles',
     name: 'Column Styles',
+    defaultValue: [],
     editor: ColumnStylesEditor,
   });
+
+  builder.addSelect({
+    path: 'fontSizePercent',
+    name: 'Font Size',
+    description: 'Font Size',
+    defaultValue: FontSizes[2],
+    category: ['Data'],
+    settings: {
+      options: FontSizes,
+    },
+  });
+
 }

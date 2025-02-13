@@ -16,8 +16,10 @@
     "DATETIME",
     "DDTHH",
     "jqui",
+    "loopfunc",
     "markjs",
     "pdfmake",
+    "rowcolumn",
     "rpmbuild",
     "sourcedir"
   ]

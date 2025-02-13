@@ -36,3 +36,6 @@ e2e-results/
 
 playwright/.auth/admin.json
 playwright-report
+
+.stignore
+.stfolder/

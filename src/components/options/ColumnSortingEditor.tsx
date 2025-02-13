@@ -72,8 +72,8 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
     <div>
       {currentSortings}
       <Box marginTop={1}>
-        <Button variant="secondary" icon="plus" onClick={handleNewColumnSorting}>
-          Add Column Alias
+        <Button fill="solid" variant="primary" icon="plus" onClick={handleNewColumnSorting}>
+          Add Column Sort
         </Button>
       </Box>
     </div>
