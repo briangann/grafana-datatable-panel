@@ -1,0 +1,120 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 4,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "loki",
+        "uid": "P08DE598416E47F43"
+      },
+      "fieldConfig": {
+        "defaults": {},
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 21,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "columnAliases": [],
+        "columnFiltersEnabled": true,
+        "columnSorting": [],
+        "columnStyles": [],
+        "columnWidthHints": [],
+        "compactRowsEnabled": true,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "No Data",
+        "fontSizePercent": {
+          "label": "100%",
+          "value": "100%"
+        },
+        "hoverEnabled": true,
+        "infoEnabled": true,
+        "lengthChangeEnabled": true,
+        "orderColumnEnabled": true,
+        "rowNumbersEnabled": true,
+        "rowsPerPage": 5,
+        "scroll": true,
+        "searchEnabled": true,
+        "searchHighlightingEnabled": true,
+        "showCellBordersEnabled": true,
+        "showHeaderEnabled": true,
+        "showRowBordersEnabled": true,
+        "stripedRowsEnabled": true,
+        "transformation": "timeseries-to-columns",
+        "transformationAggregation": "",
+        "wrapToFitEnabled": true
+      },
+      "pluginVersion": "2.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "loki",
+            "uid": "P08DE598416E47F43"
+          },
+          "editorMode": "builder",
+          "expr": "{instance=\"zeus\"} |= ``",
+          "queryType": "range",
+          "refId": "A"
+        }
+      ],
+      "title": "Example With Logs- Transform Table",
+      "transformations": [
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "Time",
+                "Line",
+                "id"
+              ]
+            }
+          }
+        }
+      ],
+      "type": "briangann-datatable-panel"
+    }
+  ],
+  "preload": false,
+  "refresh": "",
+  "schemaVersion": 40,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Datatable Example Loki",
+  "uid": "datatableexampleloki",
+  "version": 2,
+  "weekStart": ""
+}
