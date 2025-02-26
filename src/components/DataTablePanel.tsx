@@ -39,8 +39,6 @@ import { useStyles2 } from '@grafana/ui';
 interface Props extends PanelProps<DatatableOptions> { }
 
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
-  // eslint-disable-next-line no-debugger
-  //debugger;
 
   const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState([
     "display",
@@ -97,8 +95,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       enabledClasses.push('stripe');
     }
 
-    // eslint-disable-next-line no-debugger
-    //debugger;
     setDatatableClassesEnabled(enabledClasses);
     console.log('set table classes done!');
   }, [
@@ -113,8 +109,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   // actually render the table
   useEffect(() => {
-        // eslint-disable-next-line no-debugger
-      //  debugger;
 
     // 32 = panel title when displayed
     // 8 = panel content wrapper padding (all the way around) - need this for width too!
@@ -133,7 +127,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     let columnDefs: ConfigColumnDefs[] = [];
     let rows: any[] = [];
     if (dataFrames && dataFrames.length > 0) {
-      const result = dataFrameToDataTableFormat(dataFrames);
+      const result = dataFrameToDataTableFormat(props.options.rowNumbersEnabled, dataFrames);
       columns = result.columns;
       rows = result.rows;
       columnDefs = buildColumnDefs(
@@ -144,9 +138,16 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         rows);
     }
 
-    // eslint-disable-next-line no-debugger
-    //debugger;
     if (dataTableDOMRef.current && columns.length > 0) {
+      try {
+          // cleanup existing table, columns may have changed
+          const aDT = $(dataTableDOMRef.current).DataTable();
+          aDT.destroy();
+          $(dataTableDOMRef.current).empty();
+      } catch (err) {
+        // @ts-ignore
+        console.log('Exception: ' + err.message);
+      }
       const calculatedHeight = getDatatableHeight(props.height);
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
         //const dtOptions: Config = {
