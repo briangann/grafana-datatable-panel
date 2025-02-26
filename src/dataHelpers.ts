@@ -1,4 +1,4 @@
-import { DataFrame } from '@grafana/data';
+import { DataFrame, FieldType } from '@grafana/data';
 import { ConfigColumns, ConfigColumnDefs } from 'datatables.net';
 import _, { isNumber } from 'lodash';
 //import { DatatableOptions } from 'types';
@@ -10,13 +10,13 @@ function normalizeFieldName(field: string) {
     .toLowerCase();
 }
 
-export function dataFrameToDataTableFormat<T>(dataFrames: DataFrame[]): { columns: ConfigColumns[]; rows: T[] } {
+export function dataFrameToDataTableFormat<T>(rowNumbersEnabled: boolean, dataFrames: DataFrame[]): { columns: ConfigColumns[]; rows: T[] } {
   const dataFrame = dataFrames[0];
-
   const columns = dataFrame.fields.map((field) => {
     return {
       title: field.name,
       data: normalizeFieldName(field.name),
+      type: field.type,
     };
   });
   const rows = [] as T[];
@@ -29,6 +29,17 @@ export function dataFrameToDataTableFormat<T>(dataFrames: DataFrame[]): { column
       row[columns[j].data] = value;
     }
     rows.push(row as T);
+  }
+  if (rowNumbersEnabled) {
+    columns.unshift({
+      title: 'Row',
+      data: 'rowNumber',
+      type: FieldType.number,
+    });
+    for (let i = 0; i < dataFrame.length; i++) {
+      // @ts-ignore
+      rows[i].rowNumber = i;
+    }
   }
 
   return { columns, rows };
@@ -43,23 +54,8 @@ export const buildColumnDefs = (
   const columns: ConfigColumns[] = [];
   const columnDefs: ConfigColumnDefs[] = [];
   let rowNumberOffset = 0;
-  // eslint-disable-next-line no-debugger
-  //debugger;
-  if (rowNumbersEnabled) {
-    rowNumberOffset = 1;
-    columns.unshift({
-      title: '',
-      type: 'number',
-    });
-    columnDefs.push({
-      searchable: false,
-      orderable: false,
-      targets: 0,
-      width: '1%',
-    });
-  }
   for (let i = 0; i < rawColumns.length; i++) {
-    const columnAlias = rawColumns[i].name; // this.getColumnAlias(this.table.columns[i].text);
+    const columnAlias = rawColumns[i].title; // this.getColumnAlias(this.table.columns[i].text);
     const columnWidthHint = '10%' //this.getColumnWidthHint(this.table.columns[i].text);
     let columnClassName = '';
 
@@ -67,21 +63,21 @@ export const buildColumnDefs = (
     // best to use our format, then the "raw" epoch time as the sort ordering field
     // https://datatables.net/reference/option/columns.type
     let columnType = rawColumns[i].type;
-    if (columnType === 'date') {
-      columnType = 'num';
+    if (columnType === FieldType.time) {
+      columnType = FieldType.number;
     }
-    if (columnType === 'num' && alignNumbersToRightEnabled) {
+    if (columnType === FieldType.number && alignNumbersToRightEnabled) {
       columnClassName = 'dt-right'; // any reason not to align numbers right?
     }
     // TODO: add alignment options
-    if (columnType === 'string') {
+    if (columnType === FieldType.string) {
       columnClassName = 'dt-right';
     }
 
     // if we did not get a type prop from grafana at all, 
     // check at least if it's a number to have DT sort properly
-    if (!columnType && rows[0] && (typeof rows[0][i]) === 'number' ) {
-      columnType = 'num';
+    if (!columnType && rows[0] && (typeof rows[0][i]) === FieldType.number ) {
+      columnType = FieldType.number;
     }
 
     // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
@@ -127,8 +123,6 @@ export const buildColumnDefs = (
       },
       createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
         // orthogonal sort requires getting cell data differently
-        // eslint-disable-next-line no-debugger
-        debugger;
         const formattedData = $(td).html();
         // can only evaluate thresholds on a numerical value
         // also - hidden columns have null data
@@ -160,8 +154,6 @@ export const buildColumnDefs = (
           cell: greenState,
           value: '123.45',
         };
-        // eslint-disable-next-line no-debugger
-        //debugger;
         if (colorState.row) {
           // run all of the rowData through threshold check, get the "highest" index
           // and use that for the entire row
@@ -285,14 +277,10 @@ export const buildColumnDefs = (
     //}
     columnDefs.push(columnDefDict);
   }
-  // eslint-disable-next-line no-debugger
-  //debugger;
   return columnDefs;
 };
 
 const getCellColors = (colorState: any, columnNumber: any, cellData: any) => {
-  // eslint-disable-next-line no-debugger
-  debugger;
   if (cellData === null || cellData === undefined) {
     return null;
   }

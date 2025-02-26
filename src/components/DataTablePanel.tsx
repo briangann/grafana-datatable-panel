@@ -133,7 +133,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     let columnDefs: ConfigColumnDefs[] = [];
     let rows: any[] = [];
     if (dataFrames && dataFrames.length > 0) {
-      const result = dataFrameToDataTableFormat(dataFrames);
+      const result = dataFrameToDataTableFormat(props.options.rowNumbersEnabled, dataFrames);
       columns = result.columns;
       rows = result.rows;
       columnDefs = buildColumnDefs(
@@ -144,8 +144,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         rows);
     }
 
-    // eslint-disable-next-line no-debugger
-    //debugger;
     if (dataTableDOMRef.current && columns.length > 0) {
       const calculatedHeight = getDatatableHeight(props.height);
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
