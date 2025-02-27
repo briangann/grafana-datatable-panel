@@ -549,12 +549,16 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
         boxShadow: 'inset 0 0 0 9999px rgba(var(--dt-row-selected), 0.962)',
       },
       'table.dataTable.compact thead th, \
-        table.dataTable.compact thead td, \
-        table.dataTable.compact tfoot th, \
-        table.dataTable.compact tfoot td, \
-        table.dataTable.compact tbody th, \
-        table.dataTable.compact tbody td': {
+        table.dataTable.compact thead td': {
+        padding: '4px 17px 4px 4px',
+      },
+      'table.dataTable.compact tfoot th, \
+        table.dataTable.compact tfoot td': {
         padding: '4px',
+      },
+      'table.dataTable.compact tbody th, \
+        table.dataTable.compact tbody td': {
+          padding: '4px',
       },
       /*
        * Control feature layout

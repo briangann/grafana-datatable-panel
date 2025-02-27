@@ -40,10 +40,7 @@ interface Props extends PanelProps<DatatableOptions> { }
 
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
-  const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState([
-    "display",
-    "hover",
-  ]);
+  const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
   const divStyles = useStyles2(getDatatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
 
@@ -71,7 +68,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   // bottom paging buttons use 38px
   // showing XofX uses 22, same placement as paging buttons
   useEffect(() => {
-    let enabledClasses = Object.assign(dataTableClassesEnabled);
+    let enabledClasses = ['display'];
     if (props.options.compactRowsEnabled) {
       enabledClasses.push("compact");
     }
