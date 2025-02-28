@@ -62,6 +62,9 @@ importers:
       datatables.net-plugins:
         specifier: ^2.2.1
         version: 2.2.1
+      datatables.net-react:
+        specifier: ^1.0.0
+        version: 1.0.0
       datatables.net-scroller-dt:
         specifier: ^2.4.3
         version: 2.4.3
@@ -2167,6 +2170,9 @@ packages:
 
   datatables.net-plugins@2.2.1:
     resolution: {integrity: sha512-woU+apHmyfeFigb0mjiz7y2TP1arWmNwXRVWC/YNR3UGthWFX+Q024yc3lslswiwpgwZk0tzOziiM0qbGdriVg==}
+
+  datatables.net-react@1.0.0:
+    resolution: {integrity: sha512-Rhuxu5KEnEHC8rCbXhwcLZ+tbjWkCiI7X8nj5p6+6UT5RHqJpKYjDxLQZnva0sLLOCSvmjHS+3TatzckTAk+Pw==}
 
   datatables.net-scroller-dt@2.4.3:
     resolution: {integrity: sha512-DDeQRPKHdv1I/5NGifpfW58bonq+bWFEBHNIsPOZW13ILzFimqOVnilS8nz6KtBY2NnX6K7Rj0bifZkvjh23KQ==}
@@ -7529,6 +7535,8 @@ snapshots:
     dependencies:
       '@types/jquery': 3.5.29
       datatables.net: 2.2.2
+
+  datatables.net-react@1.0.0: {}
 
   datatables.net-scroller-dt@2.4.3:
     dependencies:
