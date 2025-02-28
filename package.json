@@ -112,7 +112,6 @@
     "datatables.net-keytable-dt": "^2.12.1",
     "datatables.net-keytable-jqui": "^2.12.1",
     "datatables.net-plugins": "^2.2.1",
-    "datatables.net-react": "^1.0.0",
     "datatables.net-scroller-dt": "^2.4.3",
     "datatables.net-scroller-jqui": "^2.4.3",
     "datatables.net-searchpanes-dt": "^2.3.3",
