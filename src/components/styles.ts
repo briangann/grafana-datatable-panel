@@ -285,7 +285,7 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
         table.dataTable td.dt-type-date': {
         textAlign: 'right',
       },
-      'able.dataTable thead th, \
+      'table.dataTable thead th, \
         table.dataTable thead td, \
         table.dataTable tfoot th, \
         table.dataTable tfoot td': {
@@ -386,12 +386,12 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
       'table.dataTable > tbody > tr.selected > *': {
         //boxShadow: 'inset 0 0 0 9999px rgba(13, 110, 253, 0.9)',
         boxShadow: 'inset 0 0 0 9999px rgba(var(--dt-row-selected), 0.9)',
-        color: 'rgb(255, 255, 255)',
-        //color: 'rgb(var(--dt-row-selected-text))',
+        //color: 'rgb(255, 255, 255)',
+        color: 'rgb(var(--dt-row-selected-text))',
       },
       'table.dataTable > tbody > tr.selected a': {
-        color: 'rgb(9, 10, 11)',
-        // color: 'rgb(var(--dt-row-selected-link))',
+        //color: 'rgb(9, 10, 11)',
+        color: 'rgb(var(--dt-row-selected-link))',
       },
       'table.dataTable > tbody > tr > th, \
         table.dataTable > tbody > tr > td': {
@@ -419,6 +419,17 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
       },
       'table.dataTable.cell-border > tbody > tr:first-child > *': {
         borderTop: '1px solid rgba(0, 0, 0, 0.3)',
+      },
+      'table.dataTable.stripe tbody tr.odd > \
+        table.dataTable.display tbody tr.odd': {
+        backgroundColor: '#524f4f',
+      },
+      'table.dataTable.stripe tbody tr.odd.selected \
+        table.dataTable.display tbody tr.odd.selected': {
+        backgroundColor: '#91949a',
+      },
+      'table.dataTable.stripe > tbody > tr:nth-child(odd) > *': {
+        backgroundColor: '#524f4f',
       },
       'table.dataTable.stripe > tbody > tr:nth-child(odd) > *, \
        table.dataTable.display > tbody > tr:nth-child(odd) > *': {
@@ -975,8 +986,6 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
   };
 `;
 
-export const getTableStyles = (theme: GrafanaTheme2) => css`
-    div.dt-container {
-      background-color: 'aliceblue';
-    }
+export const getDatatableStyles = (theme: GrafanaTheme2) => css`
+
 ]`;
