@@ -12,6 +12,23 @@ export const getDatatableStyles = (theme: GrafanaTheme2) => css`
 `;
 */
 
+export const datatableThemedStyles = (theme: GrafanaTheme2) =>
+  css({
+    width: '100%',
+    margin: '0 auto',
+    clear: 'both',
+    borderCollapse: 'separate',
+    borderSpacing: 0,
+    'table.dataTable.hover tbody tr:hover > *': {
+        backgroundColor: 'rgb(72, 72, 72) !important',
+    },
+    'table.dataTable.stripe > tbody > tr:nth-child(odd) > *': {
+      backgroundColor: 'rgb(42, 42, 42)',
+    },
+
+});
+
+
 export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
   css({
     width: '100%',
@@ -285,7 +302,7 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
         table.dataTable td.dt-type-date': {
         textAlign: 'right',
       },
-      'able.dataTable thead th, \
+      'table.dataTable thead th, \
         table.dataTable thead td, \
         table.dataTable tfoot th, \
         table.dataTable tfoot td': {
@@ -386,12 +403,12 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
       'table.dataTable > tbody > tr.selected > *': {
         //boxShadow: 'inset 0 0 0 9999px rgba(13, 110, 253, 0.9)',
         boxShadow: 'inset 0 0 0 9999px rgba(var(--dt-row-selected), 0.9)',
-        color: 'rgb(255, 255, 255)',
-        //color: 'rgb(var(--dt-row-selected-text))',
+        //color: 'rgb(255, 255, 255)',
+        color: 'rgb(var(--dt-row-selected-text))',
       },
       'table.dataTable > tbody > tr.selected a': {
-        color: 'rgb(9, 10, 11)',
-        // color: 'rgb(var(--dt-row-selected-link))',
+        //color: 'rgb(9, 10, 11)',
+        color: 'rgb(var(--dt-row-selected-link))',
       },
       'table.dataTable > tbody > tr > th, \
         table.dataTable > tbody > tr > td': {
@@ -419,6 +436,17 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
       },
       'table.dataTable.cell-border > tbody > tr:first-child > *': {
         borderTop: '1px solid rgba(0, 0, 0, 0.3)',
+      },
+      'table.dataTable.stripe tbody tr.odd > \
+        table.dataTable.display tbody tr.odd': {
+        backgroundColor: '#524f4f',
+      },
+      'table.dataTable.stripe tbody tr.odd.selected \
+        table.dataTable.display tbody tr.odd.selected': {
+        backgroundColor: '#91949a',
+      },
+      'table.dataTable.stripe > tbody > tr:nth-child(odd) > *': {
+        backgroundColor: '#524f4f',
       },
       'table.dataTable.stripe > tbody > tr:nth-child(odd) > *, \
        table.dataTable.display > tbody > tr:nth-child(odd) > *': {
@@ -549,12 +577,16 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
         boxShadow: 'inset 0 0 0 9999px rgba(var(--dt-row-selected), 0.962)',
       },
       'table.dataTable.compact thead th, \
-        table.dataTable.compact thead td, \
-        table.dataTable.compact tfoot th, \
-        table.dataTable.compact tfoot td, \
-        table.dataTable.compact tbody th, \
-        table.dataTable.compact tbody td': {
+        table.dataTable.compact thead td': {
+        padding: '4px 17px 4px 4px',
+      },
+      'table.dataTable.compact tfoot th, \
+        table.dataTable.compact tfoot td': {
         padding: '4px',
+      },
+      'table.dataTable.compact tbody th, \
+        table.dataTable.compact tbody td': {
+          padding: '4px',
       },
       /*
        * Control feature layout
@@ -971,8 +1003,6 @@ div.dt-container .dt-paging .dt-paging-button.current:hover {
   };
 `;
 
-export const getTableStyles = (theme: GrafanaTheme2) => css`
-    div.dt-container {
-      background-color: 'aliceblue';
-    }
+export const getDatatableStyles = (theme: GrafanaTheme2) => css`
+
 ]`;

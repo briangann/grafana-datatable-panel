@@ -2,6 +2,7 @@
 //import pdfmake from 'pdfmake';
 //import DataTable, { Config, ConfigColumns } from 'datatables.net-dt';
 import { Config, ConfigColumnDefs, ConfigColumns } from 'datatables.net-dt';
+
 import 'datatables.net-buttons-dt';
 import 'datatables.net-buttons/js/buttons.html5.mjs';
 import 'datatables.net-buttons/js/buttons.print.mjs';
@@ -11,13 +12,10 @@ import 'datatables.net-keytable-dt';
 import 'datatables.net-scroller-dt';
 import 'datatables.net-searchpanes-dt';
 
-
-// might not need this now!
-//import 'datatables.net-dt/css/dataTables.dataTables.min.css';
-
-//import 'datatables.net/js/dataTables.min';
-
-//OLD!!
+import 'datatables.net-dt/css/dataTables.dataTables.min.css';
+//import '../css/jquery.dataTables.min.css';
+//import 'datatables.net-jqui/css/dataTables.jqueryui.min.css'
+// OLD imports
 //import 'datatables.net-plugins/features/pageResize/dataTables.pageResize';
 //import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min';
 //import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
@@ -31,20 +29,15 @@ import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { buildColumnDefs, dataFrameToDataTableFormat } from 'dataHelpers';
-//TODO many more css files missing
-//import '../css/datatables.css';
-import { getDatatableThemedStyles } from './styles';
+import { datatableThemedStyles } from './styles';
 import { useStyles2 } from '@grafana/ui';
 
 interface Props extends PanelProps<DatatableOptions> { }
 
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
-  const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState([
-    "display",
-    "hover",
-  ]);
-  const divStyles = useStyles2(getDatatableThemedStyles);
+  const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
+  const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
 
   const dataTableWrapperId = `data-table-wrapper-${props.id}`;
@@ -71,15 +64,18 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   // bottom paging buttons use 38px
   // showing XofX uses 22, same placement as paging buttons
   useEffect(() => {
-    let enabledClasses = Object.assign(dataTableClassesEnabled);
+    let enabledClasses = ['display'];
     if (props.options.compactRowsEnabled) {
       enabledClasses.push("compact");
     }
-    if (props.options.hoverEnabled) {
-      enabledClasses.push('hover');
-    }
     if (!props.options.wrapToFitEnabled) {
       enabledClasses.push("nowrap");
+    }
+    if (props.options.stripedRowsEnabled) {
+      enabledClasses.push('stripe');
+    }
+    if (props.options.hoverEnabled) {
+      enabledClasses.push('hover');
     }
     if (props.options.orderColumnEnabled) {
       enabledClasses.push('order-column');
@@ -91,11 +87,10 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     if (props.options.showRowBordersEnabled) {
       enabledClasses.push('row-border');
     }
-    if (props.options.stripedRowsEnabled) {
-      enabledClasses.push('stripe');
-    }
 
-    setDatatableClassesEnabled(enabledClasses);
+    if (JSON.stringify(enabledClasses) !== JSON.stringify(dataTableClassesEnabled)) {
+      setDatatableClassesEnabled(enabledClasses);
+    }
     console.log('set table classes done!');
   }, [
     dataTableClassesEnabled,
@@ -217,7 +212,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     }}>
   */
   return (
-    <div id={dataTableWrapperId} className={divStyles}>
+    <div id={dataTableWrapperId} className={divStyles} style={{width: '100%', height: '100px'}}>
       {props.data &&
         <table
           id={dataTableId}
