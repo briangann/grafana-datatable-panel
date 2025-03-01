@@ -12,6 +12,23 @@ export const getDatatableStyles = (theme: GrafanaTheme2) => css`
 `;
 */
 
+export const datatableThemedStyles = (theme: GrafanaTheme2) =>
+  css({
+    width: '100%',
+    margin: '0 auto',
+    clear: 'both',
+    borderCollapse: 'separate',
+    borderSpacing: 0,
+    'table.dataTable.hover tbody tr:hover > *': {
+        backgroundColor: 'rgb(72, 72, 72) !important',
+    },
+    'table.dataTable.stripe > tbody > tr:nth-child(odd) > *': {
+      backgroundColor: 'rgb(42, 42, 42)',
+    },
+
+});
+
+
 export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
   css({
     width: '100%',

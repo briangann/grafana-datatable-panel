@@ -13,7 +13,8 @@ import 'datatables.net-scroller-dt';
 import 'datatables.net-searchpanes-dt';
 
 import 'datatables.net-dt/css/dataTables.dataTables.min.css';
-
+//import '../css/jquery.dataTables.min.css';
+//import 'datatables.net-jqui/css/dataTables.jqueryui.min.css'
 // OLD imports
 //import 'datatables.net-plugins/features/pageResize/dataTables.pageResize';
 //import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min';
@@ -28,7 +29,7 @@ import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { buildColumnDefs, dataFrameToDataTableFormat } from 'dataHelpers';
-import { getDatatableThemedStyles } from './styles';
+import { datatableThemedStyles } from './styles';
 import { useStyles2 } from '@grafana/ui';
 
 interface Props extends PanelProps<DatatableOptions> { }
@@ -36,7 +37,7 @@ interface Props extends PanelProps<DatatableOptions> { }
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
-  const divStyles = useStyles2(getDatatableThemedStyles);
+  const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
 
   const dataTableWrapperId = `data-table-wrapper-${props.id}`;
@@ -211,7 +212,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     }}>
   */
   return (
-    <div id={dataTableWrapperId} className={divStyles}>
+    <div id={dataTableWrapperId} className={divStyles} style={{width: '100%', height: '100px'}}>
       {props.data &&
         <table
           id={dataTableId}
