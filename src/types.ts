@@ -21,7 +21,6 @@ export interface DatatableOptions {
   searchEnabled: boolean;
   searchHighlightingEnabled: boolean;
   showCellBordersEnabled: boolean;
-  showHeaderEnabled: boolean,
   showRowBordersEnabled: boolean,
   sortByColumns: ColumnSorting[],
   stripedRowsEnabled: boolean;
