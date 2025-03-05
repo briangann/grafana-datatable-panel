@@ -109,8 +109,6 @@ export const buildColumnDefs = (
         return null;
       },
       render: function(data: any, type: any, val: any, meta: any) {
-        // eslint-disable-next-line no-debugger
-        debugger;
         if (type === undefined) {
           return null;
         }
@@ -124,8 +122,6 @@ export const buildColumnDefs = (
         return returnValue;
       },
       createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
-        // eslint-disable-next-line no-debugger
-        debugger;
         // orthogonal sort requires getting cell data differently
         const formattedData = $(td).html();
         // can only evaluate thresholds on a numerical value
