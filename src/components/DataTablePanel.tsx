@@ -126,6 +126,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       columns = result.columns;
       rows = result.rows;
       columnDefs = buildColumnDefs(
+        props.options.emptyDataEnabled,
+        props.options.emptyDataText,
         props.options.rowNumbersEnabled,
         props.options.fontSizePercent,
         props.options.alignNumbersToRightEnabled,
@@ -199,6 +201,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.alignNumbersToRightEnabled,
     props.options.datatablePagingType,
     props.options.fontSizePercent,
+    props.options.emptyDataEnabled,
+    props.options.emptyDataText,
     props.options.infoEnabled,
     props.options.lengthChangeEnabled,
     props.options.orderColumnEnabled,

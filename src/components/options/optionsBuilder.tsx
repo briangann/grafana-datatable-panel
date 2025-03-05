@@ -71,8 +71,9 @@ export async function optionsBuilder(
   });
 
   builder.addBooleanSwitch({
-    name: 'emptyDataEnabled',
+    name: 'Fill Empty Data with Custom Value',
     path: 'emptyDataEnabled',
+    description: 'When no data is available for a cell, set a custom value to display',
     defaultValue: true,
     category: ['Table Options'],
   });

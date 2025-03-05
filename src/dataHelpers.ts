@@ -46,6 +46,8 @@ export function dataFrameToDataTableFormat<T>(rowNumbersEnabled: boolean, dataFr
 }
 
 export const buildColumnDefs = (
+  emptyDataEnabled: boolean,
+  emptyDataText: string,
   rowNumbersEnabled: boolean,
   fontSizePercent: string,
   alignNumbersToRightEnabled: boolean,
@@ -91,7 +93,7 @@ export const buildColumnDefs = (
     });
     let columnDefDict: any = {
       targets: i + rowNumberOffset,
-      defaultContent: 'NO DATA', // TODO: replace with options, this prevents popup when data has not been loaded
+      defaultContent: emptyDataEnabled ? emptyDataText : '',
       data: function(row: any, type: any, val: any, meta: any) {
         if (type === undefined) {
           return null;
