@@ -35,7 +35,6 @@ interface AngularDatatableOptions {
   searchEnabled?: boolean;
   searchHighlightingEnabled?: boolean;
   showCellBorders?: boolean;
-  showHeader?: boolean,
   showRowBorders?: boolean,
   sort?: any;
   sortByColumns?: any;
