@@ -21,7 +21,7 @@ import 'datatables.net-dt/css/dataTables.dataTables.min.css';
 //import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
 //import 'datatables.net-plugins/css/dataTables.scrollResize.min.css';
 //import 'mark.js';
-//import 'datatables.mark.js';
+import 'datatables.mark.js';
 //import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.js';
 
 import { PanelProps } from '@grafana/data';
@@ -159,7 +159,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             [5, 10, 25, 50, 75, 100, -1],
             [5, 10, 25, 50, 75, 100, 'All'],
           ],
-          //mark: props.options.searchHighlightingEnabled || false,
+          mark: props.options.searchHighlightingEnabled || false,
           //order: orderSetting,
           //TODO these hardcoded height values come from observing the elements datatable creates
           // the scroll Y you pass will be the data part of the table itself, datatable will
@@ -179,7 +179,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             regex: true,
             smart: false,
           },
-          searching: true, //props.options.searchEnabled,
+          searching: props.options.searchEnabled,
           //select: selectSettings,
           stateSave: false,
         };
@@ -207,7 +207,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.lengthChangeEnabled,
     props.options.orderColumnEnabled,
     props.options.rowNumbersEnabled,
-    props.options.scroll]);
+    props.options.scroll,
+    props.options.searchEnabled,
+    props.options.searchHighlightingEnabled]);
 
   /*
   <div className={divStyles} style={{
