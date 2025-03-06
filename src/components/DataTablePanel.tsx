@@ -122,7 +122,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     let columnDefs: ConfigColumnDefs[] = [];
     let rows: any[] = [];
     if (dataFrames && dataFrames.length > 0) {
-      const result = dataFrameToDataTableFormat(props.options.rowNumbersEnabled, dataFrames);
+      const result = dataFrameToDataTableFormat(props.options.alignNumbersToRightEnabled, props.options.rowNumbersEnabled, dataFrames);
       columns = result.columns;
       rows = result.rows;
       columnDefs = buildColumnDefs(
