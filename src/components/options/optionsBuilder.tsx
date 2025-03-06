@@ -32,7 +32,6 @@ export async function optionsBuilder(
     description: 'Show stripes on rows'
   });
 
-  // TODO: implement
   builder.addBooleanSwitch({
     name: 'Hover',
     path: 'hoverEnabled',
@@ -77,6 +76,7 @@ export async function optionsBuilder(
     defaultValue: true,
     category: ['Table Options'],
   });
+
   builder.addTextInput({
     name: 'emptyDataText',
     path: 'emptyDataText',
@@ -86,15 +86,6 @@ export async function optionsBuilder(
   });
 
   // table options
-
-  // TODO: implement
-  builder.addBooleanSwitch({
-    name: 'orderColumnEnabled',
-    path: 'orderColumnEnabled',
-    defaultValue: true,
-    description: 'Highlight the column that the table data is currently ordered on',
-    category: ['Table Options'],
-  });
 
   // rowNumbers
   builder.addBooleanSwitch({
@@ -129,6 +120,17 @@ export async function optionsBuilder(
     category: ['Search Options'],
     description: 'Highlight matching text during search'
   });
+
+  builder.addSelect({
+    path: 'fontSizePercent',
+    name: 'Font Size',
+    description: 'Font Size',
+    defaultValue: FontSizes[2].value,
+    category: ['Visual Options'],
+    settings: {
+      options: FontSizes,
+    },
+  });
   // Info Enabled
   builder.addBooleanSwitch({
     name: 'Show Footer Info',
@@ -138,31 +140,14 @@ export async function optionsBuilder(
     description: 'Display Showing N of N entries footer'
   });
 
-  // Cell Borders
-  // Row Borders
   builder.addBooleanSwitch({
-    name: 'Show Cell Borders',
-    path: 'showCellBordersEnabled',
-    defaultValue: true,
-    category: ['Visual Options'],
-    description: 'Will display borders for each cell'
-  });
-  builder.addBooleanSwitch({
-    name: 'Show Row Borders',
-    path: 'showRowBordersEnabled',
-    defaultValue: true,
-    category: ['Visual Options'],
-    description: 'Will display borders for each row'
-  });
-
-  // Order Columm
-  builder.addBooleanSwitch({
-    name: 'Order Column',
+    name: 'Highlight Order Column',
     path: 'orderColumnEnabled',
     defaultValue: true,
     category: ['Visual Options'],
-    description: 'Highlight the column that the table data is currently ordered on'
+    description: 'Highlight the column that the table data is currently ordered on',
   });
+
 
   // Column Filters
   builder.addBooleanSwitch({
@@ -212,7 +197,7 @@ export async function optionsBuilder(
   builder.addMultiSelect({
     category: ['Data'],
     path: 'transformationAggregation',
-    name: 'Agregations',
+    name: 'Aggregations',
     defaultValue: 'current',
     showIf: (context) => context['transformation'] === 'timeseries-aggregations',
     settings: {
@@ -263,15 +248,5 @@ export async function optionsBuilder(
     editor: ColumnStylesEditor,
   });
 
-  builder.addSelect({
-    path: 'fontSizePercent',
-    name: 'Font Size',
-    description: 'Font Size',
-    defaultValue: FontSizes[2],
-    category: ['Data'],
-    settings: {
-      options: FontSizes,
-    },
-  });
 
 }

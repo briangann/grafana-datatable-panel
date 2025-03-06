@@ -12,15 +12,10 @@ import 'datatables.net-keytable-dt';
 import 'datatables.net-scroller-dt';
 import 'datatables.net-searchpanes-dt';
 
-//import '../css/jquery.dataTables.min.css';
-//import 'datatables.net-jqui/css/dataTables.jqueryui.min.css'
-// OLD imports
-//import 'datatables.net-plugins/features/pageResize/dataTables.pageResize';
-//import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min';
-//import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
-//import 'datatables.net-plugins/css/dataTables.scrollResize.min.css';
+import 'datatables.net-plugins/features/pageResize/dataTables.pageResize';
+import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min';
+import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
 import 'datatables.mark.js';
-//import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.js';
 
 import { PanelProps } from '@grafana/data';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
@@ -105,13 +100,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     if (props.options.orderColumnEnabled) {
       enabledClasses.push('order-column');
     }
-    // TODO: these two are mutually exclusive
-    if (props.options.showCellBordersEnabled) {
-      enabledClasses.push('cell-border');
-    }
-    if (props.options.showRowBordersEnabled) {
-      enabledClasses.push('row-border');
-    }
 
     if (JSON.stringify(enabledClasses) !== JSON.stringify(dataTableClassesEnabled)) {
       setDatatableClassesEnabled(enabledClasses);
@@ -122,8 +110,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.compactRowsEnabled,
     props.options.hoverEnabled,
     props.options.orderColumnEnabled,
-    props.options.showCellBordersEnabled,
-    props.options.showRowBordersEnabled,
     props.options.stripedRowsEnabled,
     props.options.wrapToFitEnabled]);
 
@@ -171,8 +157,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       }
       const calculatedHeight = getDatatableHeight(props.height);
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
-        //const dtOptions: Config = {
-        const dtOptions: any = {
+        const dtOptions: Config = {
           //buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
           columns: columns,
           columnDefs: columnDefs,
@@ -183,6 +168,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             [5, 10, 25, 50, 75, 100, -1],
             [5, 10, 25, 50, 75, 100, 'All'],
           ],
+          // @ts-ignore
           mark: props.options.searchHighlightingEnabled || false,
           //order: orderSetting,
           //TODO these hardcoded height values come from observing the elements datatable creates
@@ -251,9 +237,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     }}>
   */
   return (
-    <div id={dataTableWrapperId} className={divStyles} style={{width: '100%', height: '100px'}}>
+    <div id={dataTableWrapperId} className={divStyles} style={{width: '100%', height: '100%'}}>
       {props.data &&
-        <table
+        <table style={{width: '100%'}}
           id={dataTableId}
           ref={dataTableDOMRef}
           className={dataTableClassesEnabled.join(' ')}

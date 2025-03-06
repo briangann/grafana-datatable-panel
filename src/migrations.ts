@@ -96,8 +96,6 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     scroll: false,
     searchEnabled: false,
     searchHighlightingEnabled: false,
-    showCellBordersEnabled: false,
-    showRowBordersEnabled: false,
     sortByColumns: [],
     stripedRowsEnabled: false,
     columnStyles: [],
@@ -216,12 +214,10 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
   }
 
   if (angular.showCellBorders !== undefined) {
-    options.showCellBordersEnabled = angular.showCellBorders;
     delete angular.showCellBorders;
   }
 
   if (angular.showRowBorders !== undefined) {
-    options.showRowBordersEnabled = angular.showRowBorders;
     delete angular.showRowBorders;
   }
 
