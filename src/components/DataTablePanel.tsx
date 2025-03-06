@@ -157,8 +157,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       }
       const calculatedHeight = getDatatableHeight(props.height);
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
-        //const dtOptions: Config = {
-        const dtOptions: any = {
+        const dtOptions: Config = {
           //buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
           columns: columns,
           columnDefs: columnDefs,
@@ -169,6 +168,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             [5, 10, 25, 50, 75, 100, -1],
             [5, 10, 25, 50, 75, 100, 'All'],
           ],
+          // @ts-ignore
           mark: props.options.searchHighlightingEnabled || false,
           //order: orderSetting,
           //TODO these hardcoded height values come from observing the elements datatable creates
@@ -237,9 +237,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     }}>
   */
   return (
-    <div id={dataTableWrapperId} className={divStyles} style={{width: '100%', height: '100px'}}>
+    <div id={dataTableWrapperId} className={divStyles} style={{width: '100%', height: '100%'}}>
       {props.data &&
-        <table
+        <table style={{width: '100%'}}
           id={dataTableId}
           ref={dataTableDOMRef}
           className={dataTableClassesEnabled.join(' ')}

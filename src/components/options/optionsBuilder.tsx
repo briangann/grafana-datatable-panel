@@ -120,6 +120,17 @@ export async function optionsBuilder(
     category: ['Search Options'],
     description: 'Highlight matching text during search'
   });
+
+  builder.addSelect({
+    path: 'fontSizePercent',
+    name: 'Font Size',
+    description: 'Font Size',
+    defaultValue: FontSizes[2].value,
+    category: ['Visual Options'],
+    settings: {
+      options: FontSizes,
+    },
+  });
   // Info Enabled
   builder.addBooleanSwitch({
     name: 'Show Footer Info',
@@ -186,7 +197,7 @@ export async function optionsBuilder(
   builder.addMultiSelect({
     category: ['Data'],
     path: 'transformationAggregation',
-    name: 'Agregations',
+    name: 'Aggregations',
     defaultValue: 'current',
     showIf: (context) => context['transformation'] === 'timeseries-aggregations',
     settings: {
@@ -237,15 +248,5 @@ export async function optionsBuilder(
     editor: ColumnStylesEditor,
   });
 
-  builder.addSelect({
-    path: 'fontSizePercent',
-    name: 'Font Size',
-    description: 'Font Size',
-    defaultValue: FontSizes[2],
-    category: ['Data'],
-    settings: {
-      options: FontSizes,
-    },
-  });
 
 }

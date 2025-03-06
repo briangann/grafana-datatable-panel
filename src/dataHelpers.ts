@@ -124,6 +124,8 @@ export const buildColumnDefs = (
         return returnValue;
       },
       createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
+        // set the fontsize for the cell
+        $(td).css('font-size', fontSizePercent);
         // orthogonal sort requires getting cell data differently
         const formattedData = $(td).html();
         // can only evaluate thresholds on a numerical value
@@ -135,8 +137,6 @@ export const buildColumnDefs = (
           return;
         }
         cellData = formattedData;
-        // set the fontsize for the cell
-        $(td).css('font-size', fontSizePercent);
         // undefined types should have numerical data, any others are already formatted
         let actualColumn = col;
         if (rowNumbersEnabled) {
