@@ -20,7 +20,6 @@ import 'datatables.net-dt/css/dataTables.dataTables.min.css';
 //import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min';
 //import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
 //import 'datatables.net-plugins/css/dataTables.scrollResize.min.css';
-//import 'mark.js';
 import 'datatables.mark.js';
 //import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.js';
 

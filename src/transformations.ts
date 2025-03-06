@@ -14,7 +14,10 @@ export function transformData(
   options: DataTransformerConfig['options'] = {}
 ): Promise<DataFrame[]> {
   const transformationID = transformationIDMapping[transformation];
+  // TODO: fix this
+  // @ts-ignore
   return lastValueFrom(
+    // @ts-ignore
     transformDataFrame(
       [
         {
