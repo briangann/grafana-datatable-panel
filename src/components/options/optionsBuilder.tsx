@@ -138,23 +138,6 @@ export async function optionsBuilder(
     description: 'Display Showing N of N entries footer'
   });
 
-  // Cell Borders
-  // Row Borders
-  builder.addBooleanSwitch({
-    name: 'Show Cell Borders',
-    path: 'showCellBordersEnabled',
-    defaultValue: true,
-    category: ['Visual Options'],
-    description: 'Will display borders for each cell'
-  });
-  builder.addBooleanSwitch({
-    name: 'Show Row Borders',
-    path: 'showRowBordersEnabled',
-    defaultValue: true,
-    category: ['Visual Options'],
-    description: 'Will display borders for each row'
-  });
-
   // Order Columm
   builder.addBooleanSwitch({
     name: 'Order Column',

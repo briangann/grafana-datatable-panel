@@ -20,8 +20,6 @@ export interface DatatableOptions {
   scroll: boolean;
   searchEnabled: boolean;
   searchHighlightingEnabled: boolean;
-  showCellBordersEnabled: boolean;
-  showRowBordersEnabled: boolean,
   sortByColumns: ColumnSorting[],
   stripedRowsEnabled: boolean;
   columnStyles: ColumnStyling[];

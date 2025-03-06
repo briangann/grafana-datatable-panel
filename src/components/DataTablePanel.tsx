@@ -105,13 +105,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     if (props.options.orderColumnEnabled) {
       enabledClasses.push('order-column');
     }
-    // TODO: these two are mutually exclusive
-    if (props.options.showCellBordersEnabled) {
-      enabledClasses.push('cell-border');
-    }
-    if (props.options.showRowBordersEnabled) {
-      enabledClasses.push('row-border');
-    }
 
     if (JSON.stringify(enabledClasses) !== JSON.stringify(dataTableClassesEnabled)) {
       setDatatableClassesEnabled(enabledClasses);
@@ -122,8 +115,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.compactRowsEnabled,
     props.options.hoverEnabled,
     props.options.orderColumnEnabled,
-    props.options.showCellBordersEnabled,
-    props.options.showRowBordersEnabled,
     props.options.stripedRowsEnabled,
     props.options.wrapToFitEnabled]);
 
