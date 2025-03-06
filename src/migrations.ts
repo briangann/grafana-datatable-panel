@@ -35,7 +35,6 @@ interface AngularDatatableOptions {
   searchEnabled?: boolean;
   searchHighlightingEnabled?: boolean;
   showCellBorders?: boolean;
-  showHeader?: boolean,
   showRowBorders?: boolean,
   sort?: any;
   sortByColumns?: any;
@@ -98,7 +97,6 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     searchEnabled: false,
     searchHighlightingEnabled: false,
     showCellBordersEnabled: false,
-    showHeaderEnabled: false,
     showRowBordersEnabled: false,
     sortByColumns: [],
     stripedRowsEnabled: false,
@@ -220,11 +218,6 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
   if (angular.showCellBorders !== undefined) {
     options.showCellBordersEnabled = angular.showCellBorders;
     delete angular.showCellBorders;
-  }
-
-  if (angular.showHeader !== undefined) {
-    options.showHeaderEnabled = angular.showHeader;
-    delete angular.showHeader;
   }
 
   if (angular.showRowBorders !== undefined) {

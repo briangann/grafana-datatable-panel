@@ -1,7 +1,8 @@
-import { DataFrame, FieldType } from '@grafana/data';
+// FieldType across runtimes are not working
+import { DataFrame } from '@grafana/data';
 import { ConfigColumns, ConfigColumnDefs } from 'datatables.net';
 import _, { isNumber } from 'lodash';
-//import { DatatableOptions } from 'types';
+
 
 function normalizeFieldName(field: string) {
   return field
@@ -10,19 +11,21 @@ function normalizeFieldName(field: string) {
     .toLowerCase();
 }
 
-export function dataFrameToDataTableFormat<T>(rowNumbersEnabled: boolean, dataFrames: DataFrame[]): { columns: ConfigColumns[]; rows: T[] } {
+export function dataFrameToDataTableFormat<T>(alignNumbersToRightEnabled: boolean, rowNumbersEnabled: boolean, dataFrames: DataFrame[]): { columns: ConfigColumns[]; rows: T[] } {
   const dataFrame = dataFrames[0];
   const columns = dataFrame.fields.map((field) => {
+    const columnClassName = getColumnClassName(alignNumbersToRightEnabled, field.type as string)
     return {
       title: field.name,
       data: normalizeFieldName(field.name),
-      type: field.type,
+      type: field.type as string,
+      className: columnClassName,
     };
   });
   const rows = [] as T[];
 
   for (let i = 0; i < dataFrame.length; i++) {
-    const row = {};
+    const row = { };
     for (let j = 0; j < columns.length; j++) {
       const value = dataFrame.fields[j].values[i];
       //@ts-ignore
@@ -34,7 +37,8 @@ export function dataFrameToDataTableFormat<T>(rowNumbersEnabled: boolean, dataFr
     columns.unshift({
       title: 'Row',
       data: 'rowNumber',
-      type: FieldType.number,
+      type: 'number',
+      className: ''
     });
     for (let i = 0; i < dataFrame.length; i++) {
       // @ts-ignore
@@ -46,6 +50,8 @@ export function dataFrameToDataTableFormat<T>(rowNumbersEnabled: boolean, dataFr
 }
 
 export const buildColumnDefs = (
+  emptyDataEnabled: boolean,
+  emptyDataText: string,
   rowNumbersEnabled: boolean,
   fontSizePercent: string,
   alignNumbersToRightEnabled: boolean,
@@ -57,32 +63,28 @@ export const buildColumnDefs = (
   for (let i = 0; i < rawColumns.length; i++) {
     const columnAlias = rawColumns[i].title; // this.getColumnAlias(this.table.columns[i].text);
     const columnWidthHint = '10%' //this.getColumnWidthHint(this.table.columns[i].text);
-    let columnClassName = '';
 
+    let columnType = rawColumns[i].type;
+    let columnClassName = getColumnClassName(alignNumbersToRightEnabled, columnType)
     // column type "date" is very limited, and overrides our formatting
     // best to use our format, then the "raw" epoch time as the sort ordering field
     // https://datatables.net/reference/option/columns.type
-    let columnType = rawColumns[i].type;
-    if (columnType === FieldType.time) {
-      columnType = FieldType.number;
+    if (columnType === 'time') {
+      columnType = 'number';
     }
-    if (columnType === FieldType.number && alignNumbersToRightEnabled) {
+    if (columnType === 'number' && alignNumbersToRightEnabled) {
       columnClassName = 'dt-right'; // any reason not to align numbers right?
     }
-    // TODO: add alignment options
-    if (columnType === FieldType.string) {
-      columnClassName = 'dt-right';
-    }
-
-    // if we did not get a type prop from grafana at all, 
+    // if we did not get a type prop from grafana at all,
     // check at least if it's a number to have DT sort properly
-    if (!columnType && rows[0] && (typeof rows[0][i]) === FieldType.number ) {
-      columnType = FieldType.number;
+    if (!columnType && rows[0] && (typeof rows[0][i]) === 'number' ) {
+      columnType = 'number';
     }
 
+    rawColumns[i].className = columnClassName;
     // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
     // with full width
-    /* jshint loopfunc: true */
+    // NOTE the className here no longer appears to work, setting it later
     columns.push({
       title: columnAlias,
       type: columnType,
@@ -91,7 +93,7 @@ export const buildColumnDefs = (
     });
     let columnDefDict: any = {
       targets: i + rowNumberOffset,
-      defaultContent: 'NO DATA', // TODO: replace with options, this prevents popup when data has not been loaded
+      defaultContent: emptyDataEnabled ? emptyDataText : '',
       data: function(row: any, type: any, val: any, meta: any) {
         if (type === undefined) {
           return null;
@@ -279,6 +281,25 @@ export const buildColumnDefs = (
   }
   return columnDefs;
 };
+
+const getColumnClassName = (alignNumbersToRightEnabled: boolean, aColumn: any) => {
+  let columnClassName = '';
+
+  // column type "date" is very limited, and overrides our formatting
+  // best to use our format, then the "raw" epoch time as the sort ordering field
+  // https://datatables.net/reference/option/columns.type
+  let columnType = aColumn.type;
+  if (columnType === 'time') {
+    columnType = 'number';
+  }
+  if (columnType === 'number' && alignNumbersToRightEnabled) {
+    columnClassName = 'dt-right'; // any reason not to align numbers right?
+  }
+  if (columnType === 'string') {
+    columnClassName = 'dt-right';
+  }
+  return columnClassName;
+}
 
 const getCellColors = (colorState: any, columnNumber: any, cellData: any) => {
   if (cellData === null || cellData === undefined) {

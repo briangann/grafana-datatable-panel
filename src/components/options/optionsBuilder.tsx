@@ -40,14 +40,6 @@ export async function optionsBuilder(
     category: ['Table Options'],
     description: "Highlights row on hover (Requires Page Reload on toggle)"
   });
-  // TODO: implement
-  builder.addBooleanSwitch({
-    name: 'infoEnabled',
-    path: 'infoEnabled',
-    defaultValue: true,
-    category: ['Table Options'],
-    description: 'infoEnabled'
-  });
   builder.addBooleanSwitch({
     name: 'Scrolling',
     path: 'scroll',
@@ -79,8 +71,9 @@ export async function optionsBuilder(
   });
 
   builder.addBooleanSwitch({
-    name: 'emptyDataEnabled',
+    name: 'Fill Empty Data with Custom Value',
     path: 'emptyDataEnabled',
+    description: 'When no data is available for a cell, set a custom value to display',
     defaultValue: true,
     category: ['Table Options'],
   });
@@ -138,20 +131,11 @@ export async function optionsBuilder(
   });
   // Info Enabled
   builder.addBooleanSwitch({
-    name: 'infoEnabled',
+    name: 'Show Footer Info',
     path: 'infoEnabled',
     defaultValue: true,
     category: ['Visual Options'],
     description: 'Display Showing N of N entries footer'
-  });
-
-  // TODO: implement
-  builder.addBooleanSwitch({
-    name: 'showHeaderEnabled',
-    path: 'showHeaderEnabled',
-    defaultValue: true,
-    category: ['Visual Options'],
-    description: 'showHeaderEnabled'
   });
 
   // Cell Borders

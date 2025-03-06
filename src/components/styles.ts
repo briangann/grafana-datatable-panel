@@ -25,7 +25,6 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
     'table.dataTable.stripe > tbody > tr:nth-child(odd) > *': {
       backgroundColor: 'rgb(42, 42, 42)',
     },
-
 });
 
 
