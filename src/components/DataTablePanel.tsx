@@ -12,7 +12,6 @@ import 'datatables.net-keytable-dt';
 import 'datatables.net-scroller-dt';
 import 'datatables.net-searchpanes-dt';
 
-import 'datatables.net-dt/css/dataTables.dataTables.min.css';
 //import '../css/jquery.dataTables.min.css';
 //import 'datatables.net-jqui/css/dataTables.jqueryui.min.css'
 // OLD imports
@@ -49,6 +48,33 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   const dataFrames = useApplyTransformation(props.data.series);
 
+  const enableColumnFilters = (dataTable: any) => {
+      // @ts-ignore
+      const header = dataTable.table(0).header();
+      const newHeaders = $(header)
+        .children('tr')
+        .clone();
+      newHeaders
+        .find('th')
+        .removeClass()
+        .addClass('column-filter');
+      newHeaders.appendTo(header as Element);
+      $(header)
+        .find(`tr:eq(1) th`)
+        .each(function(i) {
+          let title = $(this).text();
+          $(this).html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
+
+          $('input', this).on('keyup change', function(this: any) {
+            if (dataTable.column(i).search() !== this.value) {
+              dataTable
+                .column(i)
+                .search(this.value)
+                .draw();
+            }
+          });
+        });
+  };
   /*
   setDatatableClassesEnabled([
     "display",
@@ -141,8 +167,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           aDT.destroy();
           $(dataTableDOMRef.current).empty();
       } catch (err) {
-        // @ts-ignore
-        console.log('Exception: ' + err.message);
+        console.log('Exception: ' + err);
       }
       const calculatedHeight = getDatatableHeight(props.height);
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
@@ -189,7 +214,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       }
     }
     const currentDom = dataTableDOMRef.current;
-
+    if (props.options.columnFiltersEnabled) {
+      if (currentDom) {
+        enableColumnFilters(jQuery(currentDom).DataTable());
+      }
+    }
     // make sure we clean up on unmount
     return () => {
       if (currentDom && jQuery.fn.dataTable.isDataTable(currentDom)) {
@@ -201,10 +230,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     dataTableClassesEnabled,
     props.height,
     props.options.alignNumbersToRightEnabled,
+    props.options.columnFiltersEnabled,
     props.options.datatablePagingType,
-    props.options.fontSizePercent,
     props.options.emptyDataEnabled,
     props.options.emptyDataText,
+    props.options.fontSizePercent,
     props.options.infoEnabled,
     props.options.lengthChangeEnabled,
     props.options.orderColumnEnabled,

@@ -168,7 +168,7 @@ export async function optionsBuilder(
   builder.addBooleanSwitch({
     name: 'Show Column Filters',
     path: 'columnFiltersEnabled',
-    defaultValue: true,
+    defaultValue: false,
     category: ['Visual Options'],
     description: 'Show filter on each column'
   });
