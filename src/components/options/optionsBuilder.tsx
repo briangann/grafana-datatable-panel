@@ -32,7 +32,6 @@ export async function optionsBuilder(
     description: 'Show stripes on rows'
   });
 
-  // TODO: implement
   builder.addBooleanSwitch({
     name: 'Hover',
     path: 'hoverEnabled',
@@ -77,6 +76,7 @@ export async function optionsBuilder(
     defaultValue: true,
     category: ['Table Options'],
   });
+
   builder.addTextInput({
     name: 'emptyDataText',
     path: 'emptyDataText',
@@ -86,15 +86,6 @@ export async function optionsBuilder(
   });
 
   // table options
-
-  // TODO: implement
-  builder.addBooleanSwitch({
-    name: 'orderColumnEnabled',
-    path: 'orderColumnEnabled',
-    defaultValue: true,
-    description: 'Highlight the column that the table data is currently ordered on',
-    category: ['Table Options'],
-  });
 
   // rowNumbers
   builder.addBooleanSwitch({
@@ -138,14 +129,14 @@ export async function optionsBuilder(
     description: 'Display Showing N of N entries footer'
   });
 
-  // Order Columm
   builder.addBooleanSwitch({
-    name: 'Order Column',
+    name: 'Highlight Order Column',
     path: 'orderColumnEnabled',
     defaultValue: true,
     category: ['Visual Options'],
-    description: 'Highlight the column that the table data is currently ordered on'
+    description: 'Highlight the column that the table data is currently ordered on',
   });
+
 
   // Column Filters
   builder.addBooleanSwitch({
