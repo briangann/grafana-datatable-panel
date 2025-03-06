@@ -12,15 +12,10 @@ import 'datatables.net-keytable-dt';
 import 'datatables.net-scroller-dt';
 import 'datatables.net-searchpanes-dt';
 
-//import '../css/jquery.dataTables.min.css';
-//import 'datatables.net-jqui/css/dataTables.jqueryui.min.css'
-// OLD imports
-//import 'datatables.net-plugins/features/pageResize/dataTables.pageResize';
-//import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min';
-//import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
-//import 'datatables.net-plugins/css/dataTables.scrollResize.min.css';
+import 'datatables.net-plugins/features/pageResize/dataTables.pageResize';
+import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min';
+import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
 import 'datatables.mark.js';
-//import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.js';
 
 import { PanelProps } from '@grafana/data';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
