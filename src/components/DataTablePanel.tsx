@@ -182,6 +182,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           //select: selectSettings,
           stateSave: false,
         };
+        if (props.options.rowsPerPage) {
+          dtOptions.pageLength = props.options.rowsPerPage;
+        }
         jQuery(dataTableDOMRef.current).DataTable(dtOptions as Config);
       }
     }
@@ -206,6 +209,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.lengthChangeEnabled,
     props.options.orderColumnEnabled,
     props.options.rowNumbersEnabled,
+    props.options.rowsPerPage,
     props.options.scroll,
     props.options.searchEnabled,
     props.options.searchHighlightingEnabled]);
