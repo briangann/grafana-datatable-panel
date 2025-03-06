@@ -18,11 +18,13 @@
     "fixedcolumns",
     "fixedheader",
     "jqui",
+    "keytable",
     "loopfunc",
     "markjs",
     "pdfmake",
     "rowcolumn",
     "rpmbuild",
+    "searchpanes",
     "sourcedir"
   ]
 }

@@ -1,5 +1,7 @@
 import { GrafanaTheme2 } from '@grafana/data';
 import { css } from '@emotion/css';
+import 'datatables.net-dt/css/dataTables.dataTables.min.css';
+
 //import '../css/datatables.css';
 //import '../css/dataTables.dataTables.css';
 /*
@@ -20,10 +22,10 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
     borderCollapse: 'separate',
     borderSpacing: 0,
     'table.dataTable.hover tbody tr:hover > *': {
-        backgroundColor: 'rgb(72, 72, 72) !important',
+        backgroundColor: theme.isDark ? 'rgb(72, 72, 72) !important' : 'rgb(202,202,202)',
     },
     'table.dataTable.stripe > tbody > tr:nth-child(odd) > *': {
-      backgroundColor: 'rgb(42, 42, 42)',
+      backgroundColor: theme.isDark ? 'rgb(42, 42, 42)' : 'rgb(222,222,222)',
     },
 });
 

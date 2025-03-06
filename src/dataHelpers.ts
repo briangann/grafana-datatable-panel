@@ -254,21 +254,15 @@ export const buildColumnDefs = (
           return;
         }
         if (colorState.cell || colorState.rowcolumn) {
-        //@ts-ignore
-        if (colorData && colorData.color !== undefined) {
-        //@ts-ignore
-        $(td).css('color', colorData.color);
+          if (colorData && colorData.color !== undefined) {
+            $(td).css('color', colorData.color);
           }
-        //@ts-ignore
-        if (colorData && colorData.bgColor !== undefined) {
-        //@ts-ignore
-        $(td).css('background-color', colorData.bgColor);
+          if (colorData && colorData.bgColor !== undefined) {
+            $(td).css('background-color', colorData.bgColor);
           }
         } else if (colorState.value) {
-        //@ts-ignore
-        if (colorData && colorData.color !== undefined) {
-        //@ts-ignore
-        $(td).css('color', colorData.color);
+          if (colorData && colorData.color !== undefined) {
+            $(td).css('color', colorData.color);
           }
         }
       },
