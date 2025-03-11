@@ -11,6 +11,7 @@ import 'datatables.net-fixedheader-dt';
 import 'datatables.net-keytable-dt';
 import 'datatables.net-scroller-dt';
 import 'datatables.net-searchpanes-dt';
+import 'datatables.net-select-dt';
 
 import 'datatables.net-plugins/features/pageResize/dataTables.pageResize';
 import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min';
@@ -21,14 +22,14 @@ import { PanelProps } from '@grafana/data';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
-import { buildColumnDefs, dataFrameToDataTableFormat } from 'dataHelpers';
+import { buildColumnDefs, dataFrameToDataTableFormat } from 'data/dataHelpers';
 import { datatableThemedStyles } from './styles';
 import { useStyles2 } from '@grafana/ui';
 
 interface Props extends PanelProps<DatatableOptions> { }
 
-export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
+export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
   const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
@@ -70,19 +71,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           });
         });
   };
-  /*
-  setDatatableClassesEnabled([
-    "display",
-    "hover",
-    "nowrap",
-    "compact"]);
-    */
-  // compute actual table
-  // if panel has a title and is displayed, uses 32px
-  // if paging selector is present, it uses 32px
-  // search uses 34px (same position as paging selector)
-  // bottom paging buttons use 38px
-  // showing XofX uses 22, same placement as paging buttons
   useEffect(() => {
     let enabledClasses = ['display'];
     if (props.options.compactRowsEnabled) {
@@ -104,7 +92,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     if (JSON.stringify(enabledClasses) !== JSON.stringify(dataTableClassesEnabled)) {
       setDatatableClassesEnabled(enabledClasses);
     }
-    console.log('set table classes done!');
+    //console.log('set table classes done!');
   }, [
     dataTableClassesEnabled,
     props.options.compactRowsEnabled,
@@ -127,15 +115,29 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       return computedHeight;
     };
 
-//    setDatatableClassesEnabled({ ...dataTableClassesEnabled, enabledClasses });
-
     let columns: ConfigColumns[] = [];
     let columnDefs: ConfigColumnDefs[] = [];
     let rows: any[] = [];
     if (dataFrames && dataFrames.length > 0) {
       const result = dataFrameToDataTableFormat(props.options.alignNumbersToRightEnabled, props.options.rowNumbersEnabled, dataFrames);
       columns = result.columns;
-      rows = result.rows;
+      // TODO: convert this to the expected format
+      let flattenedRows = [];
+      for (let i = 0; i < result.rows.length; i++) {
+        const aRow = result.rows[i];
+        // flatten
+        // iterate the columns in order
+        let flattenedRow = [];
+        for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+          const name = columns[colIndex].data as string;
+          // @ts-ignore
+          flattenedRow.push(aRow[name])
+        }
+        //console.log(flattenedRow);
+        flattenedRows.push(flattenedRow);
+      }
+      // this ends up with the formatted data in the correct format
+      rows = flattenedRows; // result.rows;
       columnDefs = buildColumnDefs(
         props.options.emptyDataEnabled,
         props.options.emptyDataText,
@@ -158,7 +160,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       const calculatedHeight = getDatatableHeight(props.height);
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
         const dtOptions: Config = {
-          //buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
+          buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
           columns: columns,
           columnDefs: columnDefs,
           data: rows,
@@ -171,6 +173,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           // @ts-ignore
           mark: props.options.searchHighlightingEnabled || false,
           //order: orderSetting,
+          select: { style: 'os' },
           //TODO these hardcoded height values come from observing the elements datatable creates
           // the scroll Y you pass will be the data part of the table itself, datatable will
           // create all the headers, pagination, etc... and it will not consider it into the

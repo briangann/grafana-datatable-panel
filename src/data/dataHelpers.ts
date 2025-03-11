@@ -1,5 +1,6 @@
 // FieldType across runtimes are not working
-import { DataFrame } from '@grafana/data';
+import { DataFrame, Field, FieldCalcs, FieldType, formattedValueToString, getFieldDisplayName, getValueFormat, reduceField, stringToJsRegex } from '@grafana/data';
+import { FormatColumnValue } from 'data/cellFormatter';
 import { ConfigColumns, ConfigColumnDefs } from 'datatables.net';
 import _, { isNumber } from 'lodash';
 
@@ -11,10 +12,78 @@ function normalizeFieldName(field: string) {
     .toLowerCase();
 }
 
+const GetValueByOperator = (
+  metricName: string,
+  operatorName: string,
+  calcs: FieldCalcs
+) => {
+  switch (operatorName) {
+    case 'name':
+      return metricName;
+    case 'last_time':
+      // if (data) {
+      //   return data.timestamp;
+      // } else {
+        return Date.now();
+      //}
+    default:
+      let aValue = calcs[operatorName];
+      return aValue;
+  }
+};
+
+// @ts-ignore
+const ugh = (frame: DataFrame) => {
+  const valueFields: Field[] = [];
+  let newestTimestamp = 0;
+  for (const aField of frame.fields) {
+    if (aField.type === FieldType.number) {
+      valueFields.push(aField);
+    }
+    else if (aField.type === FieldType.time) {
+      // get the "newest" timestamp from data
+      // check if timestamp is 0
+      let timestampIndex = aField.values.length - 1;
+      let aTimestamp = aField.values[timestampIndex];
+      if (newestTimestamp === 0) {
+        newestTimestamp = aTimestamp;
+      }
+      // check if data timestamp is newer
+      if (aTimestamp > newestTimestamp) {
+        newestTimestamp = aTimestamp;
+      }
+    }
+  }
+  if (newestTimestamp === 0) {
+    // use current time if none is found
+    newestTimestamp = new Date().getTime()
+  }
+  let globalOperator = 'last';
+  for (const valueField of valueFields) {
+    const valueFieldName = getFieldDisplayName(valueField!, frame);
+    const standardCalcs = reduceField({ field: valueField!, reducers: ['bogus'] });
+    //const operatorValue = GetValueByOperator(valueFieldName, null, globalOperator, standardCalcs);
+    const operatorValue = GetValueByOperator(valueFieldName, globalOperator, standardCalcs);
+
+    let maxDecimals = 4;
+    if (valueField!.config.decimals !== undefined && valueField!.config.decimals !== null) {
+      maxDecimals = valueField!.config.decimals;
+    }
+    const valueFormat = getValueFormat(valueField!.config.unit)(operatorValue, maxDecimals, undefined, undefined);
+    const valueFormatted = formattedValueToString(valueFormat);
+    console.log(`valueFieldName: ${valueFieldName}`);
+    console.log(`standardCalcs: ${standardCalcs}`);
+    console.log(`operatorValue: ${operatorValue}`);
+    console.log(`valueFormat: ${valueFormat}`);
+    console.log(`valueFormatted: ${valueFormatted}`);
+  }
+};
+
 export function dataFrameToDataTableFormat<T>(alignNumbersToRightEnabled: boolean, rowNumbersEnabled: boolean, dataFrames: DataFrame[]): { columns: ConfigColumns[]; rows: T[] } {
   const dataFrame = dataFrames[0];
+  ugh(dataFrame);
   const columns = dataFrame.fields.map((field) => {
-    const columnClassName = getColumnClassName(alignNumbersToRightEnabled, field.type as string)
+  const columnClassName = getColumnClassName(alignNumbersToRightEnabled, field.type as string)
     return {
       title: field.name,
       data: normalizeFieldName(field.name),
@@ -28,8 +97,15 @@ export function dataFrameToDataTableFormat<T>(alignNumbersToRightEnabled: boolea
     const row = { };
     for (let j = 0; j < columns.length; j++) {
       const value = dataFrame.fields[j].values[i];
+      const valueType = dataFrame.fields[j].type;
+      let formattedValue = value;
+      if (valueType !== 'string') {
+        // eslint-disable-next-line no-debugger
+        //debugger;
+        formattedValue = FormatColumnValue(null, j, i, value, valueType, "timeFrom", "timeTo");
+      }
       //@ts-ignore
-      row[columns[j].data] = value;
+      row[columns[j].data] = formattedValue;
     }
     rows.push(row as T);
   }
@@ -94,7 +170,9 @@ export const buildColumnDefs = (
     let columnDefDict: any = {
       targets: i + rowNumberOffset,
       defaultContent: emptyDataEnabled ? emptyDataText : '',
-      data: function(row: any, type: any, val: any, meta: any) {
+      data: function(row: any, type: any, set: any, meta: any) {
+        // eslint-disable-next-line no-debugger
+        debugger;
         if (type === undefined) {
           return null;
         }
@@ -104,9 +182,6 @@ export const buildColumnDefs = (
         //let returnValue = row[idx].display;
         if (row[idx]?.display !== undefined) {
           return row[idx].display;
-        }
-        if (row[idx]?.line !== undefined) {
-          return row[idx].line;
         }
         return null;
       },
@@ -120,7 +195,11 @@ export const buildColumnDefs = (
         }
         // use display type for return
         // TODO: this should be set to the formatted value, for now just return raw value
-        let returnValue = data; //val[idx].display;
+        // eslint-disable-next-line no-debugger
+        //debugger;
+        //console.log(rows[idx]);
+        //console.log(meta);
+        let returnValue = rows[meta.row][idx]; // val[idx].display;
         return returnValue;
       },
       createdCell: (td: any, cellData: any, rowData: any, row: any, col: any) => {
@@ -186,6 +265,8 @@ export const buildColumnDefs = (
               }
             }
           }
+          // TODO: this is being applied with no styles/thresholds
+          console.log(`color = ${rowColor}`);
           // style the entire row (the parent of the td is the tr)
           // this will color the rowNumber and Timestamp also
           $(td.parentNode)
@@ -345,7 +426,7 @@ const getStyleForColumn = (columnNumber: any, rawColumns: any, styles: any) => {
     if (column === undefined) {
       break;
     }
-    const regex = StringToJsRegex(style.pattern);
+    const regex = stringToJsRegex(style.pattern);
     if (column.text.match(regex)) {
       colStyle = style;
       break;
@@ -354,7 +435,7 @@ const getStyleForColumn = (columnNumber: any, rawColumns: any, styles: any) => {
   return colStyle;
 };
 
-const GetColorForValue = (value: any, style: any) => {
+export const GetColorForValue = (value: any, style: any) => {
   if (!style.thresholds) {
     return null;
   }
@@ -367,7 +448,7 @@ const GetColorForValue = (value: any, style: any) => {
 };
 
 // to determine the overall row color, the index of the threshold is needed
-const GetColorIndexForValue = (value: any, style: any) => {
+export const GetColorIndexForValue = (value: any, style: any) => {
   if (!style.thresholds) {
     return null;
   }
@@ -379,6 +460,7 @@ const GetColorIndexForValue = (value: any, style: any) => {
   return 0;
 };
 
+/*
 // taken from @grafana/data
 function StringToJsRegex(str: string): RegExp {
   if (str[0] !== '/') {
@@ -390,3 +472,4 @@ function StringToJsRegex(str: string): RegExp {
   }
   return new RegExp(match[1], match[2]);
 }
+  */

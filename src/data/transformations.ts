@@ -29,7 +29,7 @@ export function transformData(
     )
   );
 }
-export function getDataFramesFields(dataFrames: DataFrame[]): string[] {
+export function getDataFrameFields(dataFrames: DataFrame[]): string[] {
   return dataFrames.reduce<string[]>((acc, df) => {
     df.fields.map((field) => {
       if (!acc.includes(field.name)) {
