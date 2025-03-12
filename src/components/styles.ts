@@ -1,7 +1,6 @@
 import { GrafanaTheme2 } from '@grafana/data';
 import { css } from '@emotion/css';
 import 'datatables.net-dt/css/dataTables.dataTables.min.css';
-//import 'datatables.net-jqui/css/dataTables.jqueryui.min.css';
 
 
 export const datatableThemedStyles = (theme: GrafanaTheme2) =>
