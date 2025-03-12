@@ -3,7 +3,7 @@ import { applyFieldOverrides, DataFrame, Field, FieldCalcs, FieldType, formatted
 import { FormatColumnValue } from 'data/cellFormatter';
 import { ConfigColumns, ConfigColumnDefs } from 'datatables.net';
 import _, { isNumber } from 'lodash';
-import { ColumnWidthHint } from 'types';
+import { ColumnAliasField, ColumnWidthHint } from 'types';
 
 
 function normalizeFieldName(field: string) {
@@ -25,8 +25,8 @@ const GetValueByOperator = (
       // if (data) {
       //   return data.timestamp;
       // } else {
-        return Date.now();
-      //}
+      return Date.now();
+    //}
     default:
       let aValue = calcs[operatorName];
       return aValue;
@@ -119,7 +119,7 @@ export function dataFrameToDataTableFormat<T>(
   ApplyGrafanaOverrides(dataFrames, theme);
   const dataFrame = dataFrames[0];
   const columns = dataFrame.fields.map((field) => {
-  const columnClassName = getColumnClassName(alignNumbersToRightEnabled, field.type as string)
+    const columnClassName = getColumnClassName(alignNumbersToRightEnabled, field.type as string)
     return {
       title: field.name,
       data: normalizeFieldName(field.name),
@@ -130,7 +130,7 @@ export function dataFrameToDataTableFormat<T>(
   const rows = [] as T[];
 
   for (let i = 0; i < dataFrame.length; i++) {
-    const row = { };
+    const row = {};
     for (let j = 0; j < columns.length; j++) {
       const value = dataFrame.fields[j].values[i];
       const valueType = dataFrame.fields[j].type;
@@ -179,12 +179,36 @@ export const setColumnWidthHints = (configColumns: ConfigColumns[], columnWidthH
   return configColumns;
 }
 
+const getColumnAlias = (columnName: any, columnAliases: ColumnAliasField[]) => {
+  // default to the columnName
+  let columnAlias = columnName;
+  if (columnAliases.length > 0) {
+    for (let i = 0; i < columnAliases.length; i++) {
+      if (columnAliases[i].name === columnName) {
+        columnAlias = columnAliases[i].alias;
+        break;
+      }
+    }
+  }
+  return columnAlias;
+}
+
+export const setColumnAliases = (configColumns: ConfigColumns[], columnAliases: ColumnAliasField[]): ConfigColumns[] => {
+  for (let i = 0; i < configColumns.length; i++) {
+    const anAlias = getColumnAlias(configColumns[i].title, columnAliases);
+    if (anAlias) {
+      configColumns[i].title = anAlias;
+    }
+  }
+  return configColumns;
+}
+
 export const buildColumnDefs = (
   emptyDataEnabled: boolean,
   emptyDataText: string,
   rowNumbersEnabled: boolean,
   fontSizePercent: string,
-  columnWidthHints: ColumnWidthHint[],
+  columnAliases: ColumnAliasField[],
   alignNumbersToRightEnabled: boolean,
   rawColumns: ConfigColumns[], rows: any[]) => {
 
@@ -192,7 +216,7 @@ export const buildColumnDefs = (
   const columnDefs: ConfigColumnDefs[] = [];
   let rowNumberOffset = 0;
   for (let i = 0; i < rawColumns.length; i++) {
-    const columnAlias = rawColumns[i].title; // this.getColumnAlias(this.table.columns[i].text);
+    const columnAlias = getColumnAlias(rawColumns[i].title, columnAliases);
     let columnWidthHint = '';
     let columnType = rawColumns[i].type;
     let columnClassName = getColumnClassName(alignNumbersToRightEnabled, columnType)
@@ -207,7 +231,7 @@ export const buildColumnDefs = (
     }
     // if we did not get a type prop from grafana at all,
     // check at least if it's a number to have DT sort properly
-    if (!columnType && rows[0] && (typeof rows[0][i]) === 'number' ) {
+    if (!columnType && rows[0] && (typeof rows[0][i]) === 'number') {
       columnType = 'number';
     }
 
@@ -224,7 +248,7 @@ export const buildColumnDefs = (
     let columnDefDict: any = {
       targets: i + rowNumberOffset,
       defaultContent: emptyDataEnabled ? emptyDataText : '',
-      data: function(row: any, type: any, set: any, meta: any) {
+      data: function (row: any, type: any, set: any, meta: any) {
         if (type === undefined) {
           return null;
         }
@@ -237,7 +261,7 @@ export const buildColumnDefs = (
         }
         return null;
       },
-      render: function(data: any, type: any, val: any, meta: any) {
+      render: function (data: any, type: any, val: any, meta: any) {
         if (type === undefined) {
           return null;
         }
