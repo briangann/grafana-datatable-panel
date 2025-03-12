@@ -19,12 +19,12 @@ import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
 import 'datatables.mark.js';
 
 import { PanelProps } from '@grafana/data';
+import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { buildColumnDefs, dataFrameToDataTableFormat } from 'data/dataHelpers';
 import { datatableThemedStyles } from './styles';
-import { useStyles2 } from '@grafana/ui';
 
 interface Props extends PanelProps<DatatableOptions> { }
 
@@ -36,14 +36,13 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   const dataTableWrapperId = `data-table-wrapper-${props.id}`;
   const dataTableId = `data-table-renderer-${props.id}`;
+  const theme2 = useTheme2();
 
   //TODO actually pass what transformations to use from the options
   //currently simply doing a join by field (series to columns)
   //const { columns, rows } = (dataFrames && dataFrameToDataTableFormat(dataFrames)) || { columns: [], rows: [] };
   //let rowNumberOffset = 0;
-
-  const dataFrames = useApplyTransformation(props.data.series);
-
+  let dataFrames = useApplyTransformation(props.data.series);
   const enableColumnFilters = (dataTable: any) => {
       // @ts-ignore
       const header = dataTable.table(0).header();
@@ -118,8 +117,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     let columns: ConfigColumns[] = [];
     let columnDefs: ConfigColumnDefs[] = [];
     let rows: any[] = [];
+
     if (dataFrames && dataFrames.length > 0) {
-      const result = dataFrameToDataTableFormat(props.options.alignNumbersToRightEnabled, props.options.rowNumbersEnabled, dataFrames);
+      const result = dataFrameToDataTableFormat(props.options.alignNumbersToRightEnabled, props.options.rowNumbersEnabled, dataFrames, theme2);
       columns = result.columns;
       // TODO: convert this to the expected format
       let flattenedRows = [];
@@ -217,6 +217,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   }, [
     dataFrames,
     dataTableClassesEnabled,
+    theme2,
     props.height,
     props.options.alignNumbersToRightEnabled,
     props.options.columnFiltersEnabled,
