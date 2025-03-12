@@ -1,5 +1,5 @@
 // FieldType across runtimes are not working
-import { DataFrame, Field, FieldCalcs, FieldType, formattedValueToString, getFieldDisplayName, getValueFormat, reduceField, stringToJsRegex } from '@grafana/data';
+import { applyFieldOverrides, DataFrame, Field, FieldCalcs, FieldType, formattedValueToString, getDisplayProcessor, getFieldDisplayName, getValueFormat, GrafanaTheme2, reduceField, stringToJsRegex } from '@grafana/data';
 import { FormatColumnValue } from 'data/cellFormatter';
 import { ConfigColumns, ConfigColumnDefs } from 'datatables.net';
 import _, { isNumber } from 'lodash';
@@ -32,8 +32,9 @@ const GetValueByOperator = (
   }
 };
 
-// @ts-ignore
-const ugh = (frame: DataFrame) => {
+// WIP
+export const DataFrameToDisplay = (frames: DataFrame[]) => {
+  const frame = frames[0];
   const valueFields: Field[] = [];
   let newestTimestamp = 0;
   for (const aField of frame.fields) {
@@ -79,9 +80,43 @@ const ugh = (frame: DataFrame) => {
   }
 };
 
-export function dataFrameToDataTableFormat<T>(alignNumbersToRightEnabled: boolean, rowNumbersEnabled: boolean, dataFrames: DataFrame[]): { columns: ConfigColumns[]; rows: T[] } {
+// WIP
+export const ApplyGrafanaOverrides = (dataFrames: DataFrame[], theme: GrafanaTheme2) => {
+  if (dataFrames) {
+    dataFrames = applyFieldOverrides({
+      data: dataFrames,
+      fieldConfig: {
+        defaults: {},
+        overrides: []
+      },
+      theme,
+      replaceVariables: (value: string) => value,
+    });
+    console.log(dataFrames[0].fields);
+    for (let i = 0; i < dataFrames[0].fields.length; i++) {
+      const aField = dataFrames[0].fields[i];
+      const display = getDisplayProcessor({
+        field: aField,
+        theme,
+      });
+      //console.log(display);
+      // formatted output of one of the fields
+      console.log(`field name ${aField.name}`);
+      const fieldValue = aField.values[0];
+      const fv = formattedValueToString(display(fieldValue));
+      console.log(`fieldName ${aField.name} value ${fv}`);
+    }
+  }
+}
+
+export function dataFrameToDataTableFormat<T>(
+  alignNumbersToRightEnabled: boolean,
+  rowNumbersEnabled: boolean,
+  dataFrames: DataFrame[],
+  theme: GrafanaTheme2): { columns: ConfigColumns[]; rows: T[] } {
+  DataFrameToDisplay(dataFrames);
+  ApplyGrafanaOverrides(dataFrames, theme);
   const dataFrame = dataFrames[0];
-  ugh(dataFrame);
   const columns = dataFrame.fields.map((field) => {
   const columnClassName = getColumnClassName(alignNumbersToRightEnabled, field.type as string)
     return {
