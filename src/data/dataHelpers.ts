@@ -3,6 +3,7 @@ import { applyFieldOverrides, DataFrame, Field, FieldCalcs, FieldType, formatted
 import { FormatColumnValue } from 'data/cellFormatter';
 import { ConfigColumns, ConfigColumnDefs } from 'datatables.net';
 import _, { isNumber } from 'lodash';
+import { ColumnWidthHint } from 'types';
 
 
 function normalizeFieldName(field: string) {
@@ -135,8 +136,6 @@ export function dataFrameToDataTableFormat<T>(
       const valueType = dataFrame.fields[j].type;
       let formattedValue = value;
       if (valueType !== 'string') {
-        // eslint-disable-next-line no-debugger
-        //debugger;
         formattedValue = FormatColumnValue(null, j, i, value, valueType, "timeFrom", "timeTo");
       }
       //@ts-ignore
@@ -160,11 +159,32 @@ export function dataFrameToDataTableFormat<T>(
   return { columns, rows };
 }
 
+const getColumnWidthHint = (name: string, columnWidthHints: ColumnWidthHint[]) => {
+  for (let i = 0; i < columnWidthHints.length; i++) {
+    if (columnWidthHints[0].name === name) {
+      return columnWidthHints[0].width;
+    }
+  }
+  return null;
+}
+
+export const setColumnWidthHints = (configColumns: ConfigColumns[], columnWidthHints: ColumnWidthHint[]): ConfigColumns[] => {
+
+  for (let i = 0; i < configColumns.length; i++) {
+    const aHint = getColumnWidthHint(configColumns[i].title!, columnWidthHints);
+    if (aHint) {
+      configColumns[i].width = aHint;
+    }
+  }
+  return configColumns;
+}
+
 export const buildColumnDefs = (
   emptyDataEnabled: boolean,
   emptyDataText: string,
   rowNumbersEnabled: boolean,
   fontSizePercent: string,
+  columnWidthHints: ColumnWidthHint[],
   alignNumbersToRightEnabled: boolean,
   rawColumns: ConfigColumns[], rows: any[]) => {
 
@@ -173,8 +193,7 @@ export const buildColumnDefs = (
   let rowNumberOffset = 0;
   for (let i = 0; i < rawColumns.length; i++) {
     const columnAlias = rawColumns[i].title; // this.getColumnAlias(this.table.columns[i].text);
-    const columnWidthHint = '10%' //this.getColumnWidthHint(this.table.columns[i].text);
-
+    let columnWidthHint = '';
     let columnType = rawColumns[i].type;
     let columnClassName = getColumnClassName(alignNumbersToRightEnabled, columnType)
     // column type "date" is very limited, and overrides our formatting
@@ -206,8 +225,6 @@ export const buildColumnDefs = (
       targets: i + rowNumberOffset,
       defaultContent: emptyDataEnabled ? emptyDataText : '',
       data: function(row: any, type: any, set: any, meta: any) {
-        // eslint-disable-next-line no-debugger
-        debugger;
         if (type === undefined) {
           return null;
         }
