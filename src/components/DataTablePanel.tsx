@@ -23,7 +23,7 @@ import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
-import { buildColumnDefs, dataFrameToDataTableFormat } from 'data/dataHelpers';
+import { buildColumnDefs, dataFrameToDataTableFormat, setColumnWidthHints } from 'data/dataHelpers';
 import { datatableThemedStyles } from './styles';
 
 interface Props extends PanelProps<DatatableOptions> { }
@@ -121,6 +121,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     if (dataFrames && dataFrames.length > 0) {
       const result = dataFrameToDataTableFormat(props.options.alignNumbersToRightEnabled, props.options.rowNumbersEnabled, dataFrames, theme2);
       columns = result.columns;
+      // get the column widths
+      columns = setColumnWidthHints(columns, props.options.columnWidthHints);
       // TODO: convert this to the expected format
       let flattenedRows = [];
       for (let i = 0; i < result.rows.length; i++) {
@@ -143,6 +145,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         props.options.emptyDataText,
         props.options.rowNumbersEnabled,
         props.options.fontSizePercent,
+        props.options.columnWidthHints,
         props.options.alignNumbersToRightEnabled,
         columns,
         rows);
@@ -221,6 +224,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.height,
     props.options.alignNumbersToRightEnabled,
     props.options.columnFiltersEnabled,
+    props.options.columnWidthHints,
     props.options.datatablePagingType,
     props.options.emptyDataEnabled,
     props.options.emptyDataText,

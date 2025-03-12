@@ -65,7 +65,7 @@ export const FormatColumnValue = (data: any, colIndex: any, rowIndex: any, value
   // TODO: fix this!
   if (/\$__cell_\d+/.exec(value)) {
     // eslint-disable-next-line no-debugger
-    debugger;
+    //debugger;
     for (let i = data.columns - 1; i >= 0; i--) {
       formatted = formatted.replace(`$__cell_${i}`, data.rows[rowIndex][i]);
     }
