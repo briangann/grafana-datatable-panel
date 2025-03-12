@@ -1,6 +1,6 @@
 import { DataFrame } from '@grafana/data';
 import React from 'react';
-import { transformData } from 'transformations';
+import { transformData } from 'data/transformations';
 import { TransformationOptions } from 'types';
 
 export const useApplyTransformation = (dataSeries: DataFrame[]) => {

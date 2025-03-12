@@ -20,8 +20,6 @@ export interface DatatableOptions {
   scroll: boolean;
   searchEnabled: boolean;
   searchHighlightingEnabled: boolean;
-  showCellBordersEnabled: boolean;
-  showRowBordersEnabled: boolean,
   sortByColumns: ColumnSorting[],
   stripedRowsEnabled: boolean;
   columnStyles: ColumnStyling[];
@@ -119,4 +117,13 @@ export const FontSizes: SelectableValue[] = [
   { value: '200%', label: '200%' },
   { value: '220%', label: '220%' },
   { value: '250%', label: '250%' },
+];
+
+export const DateFormats = [
+  { text: 'YYYY-MM-DD HH:mm:ss', value: 'YYYY-MM-DD HH:mm:ss' },
+  { text: 'YYYY-MM-DD HH:mm:ss.SSS', value: 'YYYY-MM-DD HH:mm:ss.SSS' },
+  { text: 'MM/DD/YY h:mm:ss a', value: 'MM/DD/YY h:mm:ss a' },
+  { text: 'MMMM D, YYYY LT', value: 'MMMM D, YYYY LT' },
+  { text: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
+  { text: 'YYYY-MM-DDTHH:mm:ssZ', value: 'YYYY-MM-DDTHH:mm:ssZ'},
 ];

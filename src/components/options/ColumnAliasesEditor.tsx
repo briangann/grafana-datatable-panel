@@ -1,12 +1,12 @@
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
 import { Box, Button, IconButton, InlineField, Input, Select, Stack } from '@grafana/ui';
 import React, { FormEvent } from 'react';
-import { getDataFramesFields } from 'transformations';
+import { getDataFrameFields } from 'data/transformations';
 import { ColumnAliasField } from 'types';
 
 export function ColumnAliasesEditor(props: StandardEditorProps<ColumnAliasField[]>) {
   const { onChange, value = [] } = props;
-  const dataFields = getDataFramesFields(props.context.data);
+  const dataFields = getDataFrameFields(props.context.data);
   const availableFields = dataFields.reduce<SelectableValue[]>((acc, field) => {
     // Filter out fields that already have an alias
     if (value.find((alias) => alias.name === field)) {
