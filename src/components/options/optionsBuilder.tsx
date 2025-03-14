@@ -1,5 +1,5 @@
 import { PanelOptionsEditorBuilder, StandardEditorContext } from '@grafana/data';
-import { DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
+import { ColumnSortingOptions, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
 import { ColumnAliasesEditor } from './ColumnAliasesEditor';
 import { ColumnWidthHints } from './ColumnWidthHintsEditor';
 import { ColumnSortingEditor } from './ColumnSortingEditor';
@@ -235,7 +235,9 @@ export async function optionsBuilder(
     path: 'columnSorting',
     id: 'columnSorting',
     name: 'Column Sorting',
-    defaultValue: [],
+    defaultValue: [
+      { index: 0, order: ColumnSortingOptions.Descending },
+    ],
     editor: ColumnSortingEditor,
   });
 

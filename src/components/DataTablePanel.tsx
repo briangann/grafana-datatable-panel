@@ -1,7 +1,7 @@
 //import jszip from 'jszip';
 //import pdfmake from 'pdfmake';
 //import DataTable, { Config, ConfigColumns } from 'datatables.net-dt';
-import { Config, ConfigColumnDefs, ConfigColumns } from 'datatables.net-dt';
+import { Config, ConfigColumnDefs, ConfigColumns, Order } from 'datatables.net-dt';
 
 import 'datatables.net-buttons-dt';
 import 'datatables.net-buttons/js/buttons.html5.mjs';
@@ -152,6 +152,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         rows);
     }
 
+    // convert to order data structure used by datatable
+    let orderColumn: Order = [];
+    for (let i = 0; i< props.options.columnSorting.length; i++) {
+      orderColumn.push([props.options.columnSorting[i].index, props.options.columnSorting[i].order]);
+    }
     if (dataTableDOMRef.current && columns.length > 0) {
       try {
           // cleanup existing table, columns may have changed
@@ -162,6 +167,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         console.log('Exception: ' + err);
       }
       const calculatedHeight = getDatatableHeight(props.height);
+
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
         const dtOptions: Config = {
           buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
@@ -174,21 +180,15 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             [5, 10, 25, 50, 75, 100, -1],
             [5, 10, 25, 50, 75, 100, 'All'],
           ],
-          // @ts-ignore
+          // @ts-expect-error
           mark: props.options.searchHighlightingEnabled || false,
-          //order: orderSetting,
           select: { style: 'os' },
-          //TODO these hardcoded height values come from observing the elements datatable creates
-          // the scroll Y you pass will be the data part of the table itself, datatable will
-          // create all the headers, pagination, etc... and it will not consider it into the
-          // final height calculation. So we need to exclude it.
-          // this blogpost might have a better way to achieve this
-          // https://datatables.net/blog/2017/vertical-scroll-fitting
-          // leaving it here for now while I move on
-          //scroll: props.options.scroll,
           scroll: props.options.scroll,
           paging: !props.options.scroll,
           scrollY: `${calculatedHeight}px`,
+          ordering: true,
+          orderFixed: orderColumn,
+          orderMulti: true,
           pagingType: props.options.datatablePagingType,
           scrollCollapse: false,
           scrollX: true,
@@ -238,7 +238,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.rowsPerPage,
     props.options.scroll,
     props.options.searchEnabled,
-    props.options.searchHighlightingEnabled]);
+    props.options.searchHighlightingEnabled,
+    props.options.columnSorting]);
 
   /*
   <div className={divStyles} style={{
