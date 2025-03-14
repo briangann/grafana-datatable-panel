@@ -96,7 +96,7 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     scroll: false,
     searchEnabled: false,
     searchHighlightingEnabled: false,
-    sortByColumns: [],
+    columnSorting: [ {index: 0, order: ColumnSortingOptions.Descending} ],
     stripedRowsEnabled: false,
     columnStyles: [],
     transformation: TransformationOptions.TimeSeriesToColumns,
@@ -226,7 +226,7 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     delete angular.sort;
   }
   if (angular.sortByColumns !== undefined) {
-    options.sortByColumns = migrateSortByColumns(angular.sortByColumns);
+    options.columnSorting = migrateSortByColumns(angular.sortByColumns);
     delete angular.sortByColumns;
   }
 
