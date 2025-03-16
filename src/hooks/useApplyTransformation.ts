@@ -1,7 +1,6 @@
 import { DataFrame, DataTransformerID } from '@grafana/data';
 import React from 'react';
 import { transformData } from 'data/transformations';
-import { TransformationOptions } from 'types';
 
 export const useApplyTransformation = (dataSeries: DataFrame[], transformID: DataTransformerID) => {
   const [dataFrames, setDataFrames] = React.useState<DataFrame[] | undefined>();
