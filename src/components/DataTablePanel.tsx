@@ -25,7 +25,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { buildColumnDefs, dataFrameToDataTableFormat, setColumnAliases, setColumnWidthHints } from 'data/dataHelpers';
 import { datatableThemedStyles } from './styles';
-import { GetDataTransformerID } from 'data/types';
+import { GetDataTransformerID } from 'data/transformations';
 
 interface Props extends PanelProps<DatatableOptions> { }
 
