@@ -39,38 +39,34 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const dataTableId = `data-table-renderer-${props.id}`;
   const theme2 = useTheme2();
 
-  //TODO actually pass what transformations to use from the options
-  //currently simply doing a join by field (series to columns)
-  //const { columns, rows } = (dataFrames && dataFrameToDataTableFormat(dataFrames)) || { columns: [], rows: [] };
-  //let rowNumberOffset = 0;
+  // convert the option to a usable type
   const transformID = GetDataTransformerID(props.options.transformation);
   let dataFrames = useApplyTransformation(props.data.series, transformID);
   const enableColumnFilters = (dataTable: any) => {
-      // @ts-ignore
-      const header = dataTable.table(0).header();
-      const newHeaders = $(header)
-        .children('tr')
-        .clone();
-      newHeaders
-        .find('th')
-        .removeClass()
-        .addClass('column-filter');
-      newHeaders.appendTo(header as Element);
-      $(header)
-        .find(`tr:eq(1) th`)
-        .each(function(i) {
-          let title = $(this).text();
-          $(this).html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
+    const header = dataTable.table(0).header();
+    const newHeaders = $(header)
+      .children('tr')
+      .clone();
+    newHeaders
+      .find('th')
+      .removeClass()
+      .addClass('column-filter');
+    newHeaders.appendTo(header as Element);
+    $(header)
+      .find(`tr:eq(1) th`)
+      .each(function (i) {
+        let title = $(this).text();
+        $(this).html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
 
-          $('input', this).on('keyup change', function(this: any) {
-            if (dataTable.column(i).search() !== this.value) {
-              dataTable
-                .column(i)
-                .search(this.value)
-                .draw();
-            }
-          });
+        $('input', this).on('keyup change', function (this: any) {
+          if (dataTable.column(i).search() !== this.value) {
+            dataTable
+              .column(i)
+              .search(this.value)
+              .draw();
+          }
         });
+      });
   };
   useEffect(() => {
     let enabledClasses = ['display'];
@@ -156,15 +152,15 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
     // convert to order data structure used by datatable
     let orderColumn: Order = [];
-    for (let i = 0; i< props.options.columnSorting.length; i++) {
+    for (let i = 0; i < props.options.columnSorting.length; i++) {
       orderColumn.push([props.options.columnSorting[i].index, props.options.columnSorting[i].order]);
     }
     if (dataTableDOMRef.current && columns.length > 0) {
       try {
-          // cleanup existing table, columns may have changed
-          const aDT = $(dataTableDOMRef.current).DataTable();
-          aDT.destroy();
-          $(dataTableDOMRef.current).empty();
+        // cleanup existing table, columns may have changed
+        const aDT = $(dataTableDOMRef.current).DataTable();
+        aDT.destroy();
+        $(dataTableDOMRef.current).empty();
       } catch (err) {
         console.log('Exception: ' + err);
       }
@@ -250,9 +246,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     }}>
   */
   return (
-    <div id={dataTableWrapperId} className={divStyles} style={{width: '100%', height: '100%'}}>
+    <div id={dataTableWrapperId} className={divStyles} style={{ width: '100%', height: '100%' }}>
       {props.data &&
-        <table style={{width: '100%'}}
+        <table style={{ width: '100%' }}
           id={dataTableId}
           ref={dataTableDOMRef}
           className={dataTableClassesEnabled.join(' ')}
