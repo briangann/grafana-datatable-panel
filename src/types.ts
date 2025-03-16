@@ -27,16 +27,7 @@ export interface DatatableOptions {
   transformationAggregation: string;
   transformationColumns: string[];
   wrapToFitEnabled: boolean;
-}
-
-// export const xTransformationOptions = {
-//   TimeSeriesToColumns : 'timeseries-to-columns',
-//   TimeSeriesToRows : 'timeseries-to-rows',
-//   TimeSeriesAggregations : 'timeseries-aggregations',
-//   Annotations : 'annotations',
-//   Table : 'table',
-//   JSONData : 'json-data',
-// } as const;
+};
 
 export enum TransformationOptions {
   TimeSeriesToColumns = 'timeseries-to-columns',
@@ -60,7 +51,7 @@ export type ColumnWidthHint = {
 export enum ColumnSortingOptions {
   Ascending = 'asc',
   Descending = 'desc',
-}
+};
 
 export type ColumnSorting = {
   index: number;
@@ -75,7 +66,8 @@ export enum DatatablePagingType {
   FULL = 'full',
   FULL_NUMBERS = 'full_numbers',
   FIRST_LAST_NUMBERS = 'first_last_numbers',
-}
+};
+
 export const DatatablePagingOptions = [
   { value: DatatablePagingType.NUMBERS, label: 'Page number buttons only' },
   { value: DatatablePagingType.SIMPLE, label: 'Previous\' and \'Next\' buttons only' },
@@ -90,7 +82,7 @@ export enum ColumnStyleType {
   String = 'string',
   Date = 'date',
   Hidden = 'hidden',
-}
+};
 
 export enum ColumnStyleColoring {
   Disabled = 'disabled',
@@ -98,7 +90,7 @@ export enum ColumnStyleColoring {
   Value = 'value',
   Row = 'row',
   RowColumn = 'row-column',
-}
+};
 
 export type ColumnStyling = {
   nameOrRegex: string;
@@ -134,5 +126,5 @@ export const DateFormats = [
   { text: 'MM/DD/YY h:mm:ss a', value: 'MM/DD/YY h:mm:ss a' },
   { text: 'MMMM D, YYYY LT', value: 'MMMM D, YYYY LT' },
   { text: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
-  { text: 'YYYY-MM-DDTHH:mm:ssZ', value: 'YYYY-MM-DDTHH:mm:ssZ'},
+  { text: 'YYYY-MM-DDTHH:mm:ssZ', value: 'YYYY-MM-DDTHH:mm:ssZ' },
 ];
