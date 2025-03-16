@@ -25,6 +25,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { buildColumnDefs, dataFrameToDataTableFormat, setColumnAliases, setColumnWidthHints } from 'data/dataHelpers';
 import { datatableThemedStyles } from './styles';
+import { GetDataTransformerID } from 'data/types';
 
 interface Props extends PanelProps<DatatableOptions> { }
 
@@ -42,7 +43,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   //currently simply doing a join by field (series to columns)
   //const { columns, rows } = (dataFrames && dataFrameToDataTableFormat(dataFrames)) || { columns: [], rows: [] };
   //let rowNumberOffset = 0;
-  let dataFrames = useApplyTransformation(props.data.series);
+  const transformID = GetDataTransformerID(props.options.transformation);
+  let dataFrames = useApplyTransformation(props.data.series, transformID);
   const enableColumnFilters = (dataTable: any) => {
       // @ts-ignore
       const header = dataTable.table(0).header();

@@ -2,32 +2,33 @@ import { DataFrame, DataTransformerConfig, DataTransformerID, transformDataFrame
 import { lastValueFrom } from 'rxjs';
 import { TransformationOptions } from 'types';
 
-export const transformationIDMapping = {
-  [TransformationOptions.TimeSeriesToColumns]: DataTransformerID.joinByField,
-  [TransformationOptions.TimeSeriesToRows]: DataTransformerID.seriesToRows,
-  [TransformationOptions.Table]: DataTransformerID.timeSeriesTable,
-};
 
-export function transformData(
+export const GetDataTransformerID = (option: TransformationOptions) => {
+  switch (option) {
+    case TransformationOptions.TimeSeriesToColumns:
+      return DataTransformerID.joinByField;
+    case TransformationOptions.TimeSeriesToRows:
+      return DataTransformerID.seriesToRows;
+    case TransformationOptions.Table:
+      return DataTransformerID.timeSeriesTable;
+    default:
+      return DataTransformerID.joinByField;
+  }
+}
+
+export async function transformData(
   data: DataFrame[],
-  transformation: keyof typeof transformationIDMapping,
+  transformation: DataTransformerID,
   options: DataTransformerConfig['options'] = {}
 ): Promise<DataFrame[]> {
-  const transformationID = transformationIDMapping[transformation];
-  // TODO: fix this
+  const transformConfig = {
+    id: transformation,
+    options: options,
+  };
+  const transformedData = transformDataFrame([transformConfig], data);
+  // TODO: fix this ignore, it works but should not be required
   // @ts-ignore
-  return lastValueFrom(
-    // @ts-ignore
-    transformDataFrame(
-      [
-        {
-          id: transformationID,
-          options,
-        },
-      ],
-      data
-    )
-  );
+  return await lastValueFrom(transformedData);
 }
 export function getDataFrameFields(dataFrames: DataFrame[]): string[] {
   return dataFrames.reduce<string[]>((acc, df) => {

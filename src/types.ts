@@ -29,6 +29,15 @@ export interface DatatableOptions {
   wrapToFitEnabled: boolean;
 }
 
+// export const xTransformationOptions = {
+//   TimeSeriesToColumns : 'timeseries-to-columns',
+//   TimeSeriesToRows : 'timeseries-to-rows',
+//   TimeSeriesAggregations : 'timeseries-aggregations',
+//   Annotations : 'annotations',
+//   Table : 'table',
+//   JSONData : 'json-data',
+// } as const;
+
 export enum TransformationOptions {
   TimeSeriesToColumns = 'timeseries-to-columns',
   TimeSeriesToRows = 'timeseries-to-rows',
@@ -36,7 +45,7 @@ export enum TransformationOptions {
   Annotations = 'annotations',
   Table = 'table',
   JSONData = 'json-data',
-}
+};
 
 export type ColumnAliasField = {
   name: string;
