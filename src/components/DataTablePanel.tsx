@@ -18,7 +18,7 @@ import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min
 import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
 import 'datatables.mark.js';
 
-import { PanelProps } from '@grafana/data';
+import { PanelProps, textUtil } from '@grafana/data';
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
@@ -55,7 +55,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     $(header)
       .find(`tr:eq(1) th`)
       .each(function (i) {
-        let title = $(this).text();
+        let title = textUtil.sanitize($(this).text());
         $(this).html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
 
         $('input', this).on('keyup change', function (this: any) {
