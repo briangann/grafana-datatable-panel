@@ -1,8 +1,9 @@
 import { DataFrame, DataTransformerID } from '@grafana/data';
 import React from 'react';
 import { transformData } from 'data/transformations';
+import { AggregationOptions } from 'types';
 
-export const useApplyTransformation = (dataSeries: DataFrame[], transformID: DataTransformerID) => {
+export const useApplyTransformation = (dataSeries: DataFrame[], transformID: DataTransformerID, aggregations: typeof AggregationOptions) => {
   const [dataFrames, setDataFrames] = React.useState<DataFrame[] | undefined>();
 
   React.useEffect(() => {
@@ -17,11 +18,11 @@ export const useApplyTransformation = (dataSeries: DataFrame[], transformID: Dat
       // map id mapping to DataTransformerID } from '@grafana/data';
 
 
-      const rows = await transformData(dataSeries, transformID);
+      const rows = await transformData(dataSeries, transformID, aggregations);
       setDataFrames(rows);
     }
     fetchData();
-  }, [dataSeries, transformID]);
+  }, [dataSeries, transformID, aggregations]);
 
   return dataFrames;
 };

@@ -98,9 +98,9 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     searchHighlightingEnabled: false,
     columnSorting: [ {index: 0, order: ColumnSortingOptions.Descending} ],
     stripedRowsEnabled: false,
-    columnStyles: [],
+    columnStylesConfig: [],
     transformation: TransformationOptions.TimeSeriesToColumns,
-    transformationAggregation: '',
+    transformationAggregation: [],
     transformationColumns: [],
     wrapToFitEnabled: true,
   };
@@ -241,7 +241,7 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
   }
 
   if (angular.styles !== undefined) {
-    options.columnStyles = migrateStyles(angular.styles);
+    options.columnStylesConfig = migrateStyles(angular.styles);
     delete angular.styles;
   }
   // not used

@@ -41,7 +41,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   // convert the option to a usable type
   const transformID = GetDataTransformerID(props.options.transformation);
-  let dataFrames = useApplyTransformation(props.data.series, transformID);
+  let dataFrames = useApplyTransformation(props.data.series, transformID, props.options.transformationAggregation);
   const enableColumnFilters = (dataTable: any) => {
     const header = dataTable.table(0).header();
     const newHeaders = $(header)
@@ -117,7 +117,14 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     let rows: any[] = [];
 
     if (dataFrames && dataFrames.length > 0) {
-      const result = dataFrameToDataTableFormat(props.options.alignNumbersToRightEnabled, props.options.rowNumbersEnabled, dataFrames, theme2);
+      const result = dataFrameToDataTableFormat(
+        props.options.alignNumbersToRightEnabled,
+        props.options.rowNumbersEnabled,
+        props.options.transformation,
+        props.options.transformationAggregation,
+        dataFrames,
+        props.options.columnStylesConfig,
+        theme2);
       columns = result.columns;
       // get the column widths
       columns = setColumnWidthHints(columns, props.options.columnWidthHints);
@@ -224,6 +231,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.alignNumbersToRightEnabled,
     props.options.columnAliases,
     props.options.columnFiltersEnabled,
+    props.options.columnSorting,
+    props.options.columnStylesConfig,
     props.options.columnWidthHints,
     props.options.datatablePagingType,
     props.options.emptyDataEnabled,
@@ -237,7 +246,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.scroll,
     props.options.searchEnabled,
     props.options.searchHighlightingEnabled,
-    props.options.columnSorting]);
+    props.options.transformationAggregation,
+    props.options.transformation,
+    ]);
 
   /*
   <div className={divStyles} style={{

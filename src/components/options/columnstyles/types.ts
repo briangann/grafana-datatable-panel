@@ -1,6 +1,8 @@
+import { CascaderOption } from '@grafana/ui';
 import { Threshold } from '../thresholds/types';
 
 export interface ColumnStyleItemProps {
+  columnHints: CascaderOption[];
   style: ColumnStyleItemType;
   ID: string;
   enabled: boolean;

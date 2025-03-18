@@ -1,5 +1,5 @@
 import { PanelOptionsEditorBuilder, StandardEditorContext } from '@grafana/data';
-import { ColumnSortingOptions, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
+import { ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
 import { ColumnAliasesEditor } from './ColumnAliasesEditor';
 import { ColumnWidthHints } from './ColumnWidthHintsEditor';
 import { ColumnSortingEditor } from './ColumnSortingEditor';
@@ -243,10 +243,12 @@ export async function optionsBuilder(
 
   builder.addCustomEditor({
     category: ['Column Styles'],
-    path: 'columnStyles',
-    id: 'columnStyles',
+    path: 'columnStylesConfig',
+    id: 'columnStylesConfig',
     name: 'Column Styles',
-    defaultValue: [],
+    defaultValue: {
+      styles: [] as ColumnStyling[],
+    },
     editor: ColumnStylesEditor,
   });
 

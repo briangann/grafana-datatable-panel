@@ -22,9 +22,9 @@ export interface DatatableOptions {
   searchHighlightingEnabled: boolean;
   columnSorting: ColumnSorting[],
   stripedRowsEnabled: boolean;
-  columnStyles: ColumnStyling[];
+  columnStylesConfig: ColumnStyling[];
   transformation: TransformationOptions;
-  transformationAggregation: string;
+  transformationAggregation: typeof AggregationOptions;
   transformationColumns: string[];
   wrapToFitEnabled: boolean;
 };
@@ -36,6 +36,7 @@ export enum TransformationOptions {
   Annotations = 'annotations',
   Table = 'table',
   JSONData = 'json-data',
+  NoOp = 'noop',
 };
 
 export type ColumnAliasField = {
@@ -75,6 +76,15 @@ export const DatatablePagingOptions = [
   { value: DatatablePagingType.FULL, label: '\'First\', \'Previous\', \'Next\' and \'Last\' button' },
   { value: DatatablePagingType.FULL_NUMBERS, label: '\'First\', \'Previous\', \'Next\' and \'Last\' buttons, plus page numbers' },
   { value: DatatablePagingType.FIRST_LAST_NUMBERS, label: '\'First\' and \'Last\' buttons, plus page numbers' },
+];
+
+export const AggregationOptions = [
+    { value: 'avg', label: 'Average' },
+    { value: 'min', label: 'Min' },
+    { value: 'max', label: 'Max' },
+    { value: 'total', label: 'Total' },
+    { value: 'current', label: 'Current' },
+    { value: 'count', label: 'Count' },
 ];
 
 export enum ColumnStyleType {
