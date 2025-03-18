@@ -18,13 +18,14 @@ import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min
 import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
 import 'datatables.mark.js';
 
-import { PanelProps } from '@grafana/data';
+import { PanelProps, textUtil } from '@grafana/data';
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { buildColumnDefs, dataFrameToDataTableFormat, setColumnAliases, setColumnWidthHints } from 'data/dataHelpers';
 import { datatableThemedStyles } from './styles';
+import { GetDataTransformerID } from 'data/transformations';
 
 interface Props extends PanelProps<DatatableOptions> { }
 
@@ -38,37 +39,34 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const dataTableId = `data-table-renderer-${props.id}`;
   const theme2 = useTheme2();
 
-  //TODO actually pass what transformations to use from the options
-  //currently simply doing a join by field (series to columns)
-  //const { columns, rows } = (dataFrames && dataFrameToDataTableFormat(dataFrames)) || { columns: [], rows: [] };
-  //let rowNumberOffset = 0;
-  let dataFrames = useApplyTransformation(props.data.series);
+  // convert the option to a usable type
+  const transformID = GetDataTransformerID(props.options.transformation);
+  let dataFrames = useApplyTransformation(props.data.series, transformID, props.options.transformationAggregation);
   const enableColumnFilters = (dataTable: any) => {
-      // @ts-ignore
-      const header = dataTable.table(0).header();
-      const newHeaders = $(header)
-        .children('tr')
-        .clone();
-      newHeaders
-        .find('th')
-        .removeClass()
-        .addClass('column-filter');
-      newHeaders.appendTo(header as Element);
-      $(header)
-        .find(`tr:eq(1) th`)
-        .each(function(i) {
-          let title = $(this).text();
-          $(this).html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
+    const header = dataTable.table(0).header();
+    const newHeaders = $(header)
+      .children('tr')
+      .clone();
+    newHeaders
+      .find('th')
+      .removeClass()
+      .addClass('column-filter');
+    newHeaders.appendTo(header as Element);
+    $(header)
+      .find(`tr:eq(1) th`)
+      .each(function (i) {
+        let title = textUtil.sanitize($(this).text());
+        $(this).html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
 
-          $('input', this).on('keyup change', function(this: any) {
-            if (dataTable.column(i).search() !== this.value) {
-              dataTable
-                .column(i)
-                .search(this.value)
-                .draw();
-            }
-          });
+        $('input', this).on('keyup change', function (this: any) {
+          if (dataTable.column(i).search() !== this.value) {
+            dataTable
+              .column(i)
+              .search(this.value)
+              .draw();
+          }
         });
+      });
   };
   useEffect(() => {
     let enabledClasses = ['display'];
@@ -119,7 +117,14 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     let rows: any[] = [];
 
     if (dataFrames && dataFrames.length > 0) {
-      const result = dataFrameToDataTableFormat(props.options.alignNumbersToRightEnabled, props.options.rowNumbersEnabled, dataFrames, theme2);
+      const result = dataFrameToDataTableFormat(
+        props.options.alignNumbersToRightEnabled,
+        props.options.rowNumbersEnabled,
+        props.options.transformation,
+        props.options.transformationAggregation,
+        dataFrames,
+        props.options.columnStylesConfig,
+        theme2);
       columns = result.columns;
       // get the column widths
       columns = setColumnWidthHints(columns, props.options.columnWidthHints);
@@ -154,15 +159,15 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
     // convert to order data structure used by datatable
     let orderColumn: Order = [];
-    for (let i = 0; i< props.options.columnSorting.length; i++) {
+    for (let i = 0; i < props.options.columnSorting.length; i++) {
       orderColumn.push([props.options.columnSorting[i].index, props.options.columnSorting[i].order]);
     }
     if (dataTableDOMRef.current && columns.length > 0) {
       try {
-          // cleanup existing table, columns may have changed
-          const aDT = $(dataTableDOMRef.current).DataTable();
-          aDT.destroy();
-          $(dataTableDOMRef.current).empty();
+        // cleanup existing table, columns may have changed
+        const aDT = $(dataTableDOMRef.current).DataTable();
+        aDT.destroy();
+        $(dataTableDOMRef.current).empty();
       } catch (err) {
         console.log('Exception: ' + err);
       }
@@ -226,6 +231,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.alignNumbersToRightEnabled,
     props.options.columnAliases,
     props.options.columnFiltersEnabled,
+    props.options.columnSorting,
+    props.options.columnStylesConfig,
     props.options.columnWidthHints,
     props.options.datatablePagingType,
     props.options.emptyDataEnabled,
@@ -239,7 +246,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.scroll,
     props.options.searchEnabled,
     props.options.searchHighlightingEnabled,
-    props.options.columnSorting]);
+    props.options.transformationAggregation,
+    props.options.transformation,
+    ]);
 
   /*
   <div className={divStyles} style={{
@@ -248,9 +257,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     }}>
   */
   return (
-    <div id={dataTableWrapperId} className={divStyles} style={{width: '100%', height: '100%'}}>
+    <div id={dataTableWrapperId} className={divStyles} style={{ width: '100%', height: '100%' }}>
       {props.data &&
-        <table style={{width: '100%'}}
+        <table style={{ width: '100%' }}
           id={dataTableId}
           ref={dataTableDOMRef}
           className={dataTableClassesEnabled.join(' ')}

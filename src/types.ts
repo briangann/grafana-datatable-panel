@@ -22,12 +22,12 @@ export interface DatatableOptions {
   searchHighlightingEnabled: boolean;
   columnSorting: ColumnSorting[],
   stripedRowsEnabled: boolean;
-  columnStyles: ColumnStyling[];
+  columnStylesConfig: ColumnStyling[];
   transformation: TransformationOptions;
-  transformationAggregation: string;
+  transformationAggregation: typeof AggregationOptions;
   transformationColumns: string[];
   wrapToFitEnabled: boolean;
-}
+};
 
 export enum TransformationOptions {
   TimeSeriesToColumns = 'timeseries-to-columns',
@@ -36,7 +36,7 @@ export enum TransformationOptions {
   Annotations = 'annotations',
   Table = 'table',
   JSONData = 'json-data',
-}
+};
 
 export type ColumnAliasField = {
   name: string;
@@ -51,7 +51,7 @@ export type ColumnWidthHint = {
 export enum ColumnSortingOptions {
   Ascending = 'asc',
   Descending = 'desc',
-}
+};
 
 export type ColumnSorting = {
   index: number;
@@ -66,7 +66,8 @@ export enum DatatablePagingType {
   FULL = 'full',
   FULL_NUMBERS = 'full_numbers',
   FIRST_LAST_NUMBERS = 'first_last_numbers',
-}
+};
+
 export const DatatablePagingOptions = [
   { value: DatatablePagingType.NUMBERS, label: 'Page number buttons only' },
   { value: DatatablePagingType.SIMPLE, label: 'Previous\' and \'Next\' buttons only' },
@@ -76,12 +77,33 @@ export const DatatablePagingOptions = [
   { value: DatatablePagingType.FIRST_LAST_NUMBERS, label: '\'First\' and \'Last\' buttons, plus page numbers' },
 ];
 
+export const AggregationOptions = [
+    { value: 'mean', label: 'Average (Mean)' },
+    { value: 'count', label: 'Count' },
+    { value: 'current', label: 'Current' },
+    { value: 'delta', label: 'Delta' },
+    { value: 'diff', label: 'Diff' },
+    { value: 'diffperc', label: 'DiffPercent' },
+    { value: 'distinctCount', label: 'Distinct Count' },
+    { value: 'max', label: 'Max' },
+    { value: 'min', label: 'Min' },
+    { value: 'total', label: 'Total' },
+    { value: 'first', label: 'First' },
+    { value: 'firstNotNull', label: 'First (Not Null)' },
+    { value: 'last', label: 'Last' },
+    { value: 'lastNotNull', label: 'Last (Not Null)' },
+    { value: 'logmin', label: 'Logmin' },
+    { value: 'range', label: 'Range' },
+    { value: 'stdDev', label: 'Std Dev' },
+    { value: 'variance', label: 'Variance' },
+];
+
 export enum ColumnStyleType {
   Number = 'number',
   String = 'string',
   Date = 'date',
   Hidden = 'hidden',
-}
+};
 
 export enum ColumnStyleColoring {
   Disabled = 'disabled',
@@ -89,7 +111,7 @@ export enum ColumnStyleColoring {
   Value = 'value',
   Row = 'row',
   RowColumn = 'row-column',
-}
+};
 
 export type ColumnStyling = {
   nameOrRegex: string;
@@ -125,5 +147,5 @@ export const DateFormats = [
   { text: 'MM/DD/YY h:mm:ss a', value: 'MM/DD/YY h:mm:ss a' },
   { text: 'MMMM D, YYYY LT', value: 'MMMM D, YYYY LT' },
   { text: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
-  { text: 'YYYY-MM-DDTHH:mm:ssZ', value: 'YYYY-MM-DDTHH:mm:ssZ'},
+  { text: 'YYYY-MM-DDTHH:mm:ssZ', value: 'YYYY-MM-DDTHH:mm:ssZ' },
 ];

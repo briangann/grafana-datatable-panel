@@ -69,8 +69,8 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
                     ...style, metricName: val
                   }
                 )}
-                options={[]
-              } />
+                options={props.columnHints}
+            />
           </Field>
           <Field label="Alias" disabled={!style.enabled} hidden={true}>
             <Input

@@ -1,6 +1,7 @@
-import { ConfigColumns } from "datatables.net";
 
-
-export interface DatatableModel {
-  configColumns: ConfigColumns;
-}
+export interface DTColumnType {
+  title: string;
+  data: string;
+  type: string;
+  className: string;
+};

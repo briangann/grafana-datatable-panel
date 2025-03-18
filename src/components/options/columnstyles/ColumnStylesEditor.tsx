@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { StandardEditorProps } from '@grafana/data';
 import { v4 as UUIdv4 } from 'uuid';
-import { Button, Collapse } from '@grafana/ui';
+import { Button, CascaderOption, Collapse } from '@grafana/ui';
 import {
   DEFAULT_CRITICAL_COLOR_HEX,
   DEFAULT_NO_THRESHOLD_COLOR_HEX,
@@ -11,6 +11,7 @@ import {
 import { ColumnStyleItemTracker, ColumnStyleItemType } from './types';
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { Threshold } from '../thresholds/types';
+import { getColumnHints } from './columnHints';
 
 export interface ColumnStylesEditorSettings {
   styles: ColumnStyleItemType[];
@@ -19,14 +20,16 @@ export interface ColumnStylesEditorSettings {
 
 interface Props extends StandardEditorProps<string | string[] | null, ColumnStylesEditorSettings> {}
 
-export const ColumnStylesEditor: React.FC<Props> = ({ item, context, onChange }) => {
-  const [settings] = useState(context.options.columnStyles);
+export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
+  const [settings] = useState(context.options.columnStylesConfig);
+  const [columnHints, setColumnHints] = useState<CascaderOption[]>([]);
+
   const [tracker, _setTracker] = useState((): ColumnStyleItemTracker[] => {
-    if (!settings.columnStyles) {
+    if (!settings.styles) {
       return [] as ColumnStyleItemTracker[];
     }
     const items: ColumnStyleItemTracker[] = [];
-    settings.columnStyles.forEach((value: ColumnStyleItemType, index: number) => {
+    settings.styles.forEach((value: ColumnStyleItemType, index: number) => {
       items[index] = {
         style: value,
         order: index,
@@ -42,11 +45,11 @@ export const ColumnStylesEditor: React.FC<Props> = ({ item, context, onChange })
     v.forEach((element) => {
       allStyles.push(element.style);
     });
-    const styles = {
+    const columnStylesConfig = {
       styles: allStyles,
       enabled: settings.enabled,
     };
-    onChange(styles as any);
+    onChange(columnStylesConfig as any);
   };
 
   const [isOpen, setIsOpen] = useState((): boolean[] => {
@@ -189,6 +192,20 @@ export const ColumnStylesEditor: React.FC<Props> = ({ item, context, onChange })
     setIsOpen([...isOpen, true]);
   };
 
+  useEffect(() => {
+    if (context.data) {
+      let hints: CascaderOption[] = [];
+      let columnHints = getColumnHints(context.data);
+      for (const name of columnHints) {
+        hints.push({
+          label: name,
+          value: name,
+        });
+      }
+      setColumnHints(hints);
+    }
+  }, [context.data]);
+
   return (
     <>
       <Button fill="solid" variant="primary" icon="plus" onClick={addItem}>
@@ -215,6 +232,7 @@ export const ColumnStylesEditor: React.FC<Props> = ({ item, context, onChange })
                 moveUp={moveUp}
                 createDuplicate={createDuplicate}
                 context={context}
+                columnHints={columnHints}
               />
             </Collapse>
           );

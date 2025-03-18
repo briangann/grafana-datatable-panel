@@ -1,10 +1,23 @@
 // FieldType across runtimes are not working
-import { applyFieldOverrides, DataFrame, Field, FieldCalcs, FieldType, formattedValueToString, getDisplayProcessor, getFieldDisplayName, getValueFormat, GrafanaTheme2, reduceField, stringToJsRegex } from '@grafana/data';
+import {
+  applyFieldOverrides,
+  DataFrame,
+  Field,
+  FieldType,
+  formattedValueToString,
+  getDisplayProcessor,
+  GrafanaTheme2,
+  stringToJsRegex } from '@grafana/data';
 import { FormatColumnValue } from 'data/cellFormatter';
 import { ConfigColumns, ConfigColumnDefs } from 'datatables.net';
 import _, { isNumber } from 'lodash';
-import { ColumnAliasField, ColumnWidthHint } from 'types';
-
+import {
+  ColumnAliasField,
+  ColumnWidthHint,
+  TransformationOptions,
+  AggregationOptions,
+  ColumnStyling } from 'types';
+import { DTColumnType } from './types';
 
 function normalizeFieldName(field: string) {
   return field
@@ -13,27 +26,27 @@ function normalizeFieldName(field: string) {
     .toLowerCase();
 }
 
-const GetValueByOperator = (
-  metricName: string,
-  operatorName: string,
-  calcs: FieldCalcs
-) => {
-  switch (operatorName) {
-    case 'name':
-      return metricName;
-    case 'last_time':
-      // if (data) {
-      //   return data.timestamp;
-      // } else {
-      return Date.now();
-    //}
-    default:
-      let aValue = calcs[operatorName];
-      return aValue;
-  }
-};
 
-// WIP
+// const GetValueByOperator = (
+//   metricName: string,
+//   operatorName: string,
+//   calcs: FieldCalcs
+// ) => {
+//   switch (operatorName) {
+//     case 'name':
+//       return metricName;
+//     case 'last_time':
+//       // if (data) {
+//       //   return data.timestamp;
+//       // } else {
+//       return Date.now();
+//     //}
+//     default:
+//       let aValue = calcs[operatorName];
+//       return aValue;
+//   }
+// };
+
 export const DataFrameToDisplay = (frames: DataFrame[]) => {
   const frame = frames[0];
   const valueFields: Field[] = [];
@@ -60,25 +73,28 @@ export const DataFrameToDisplay = (frames: DataFrame[]) => {
     // use current time if none is found
     newestTimestamp = new Date().getTime()
   }
-  let globalOperator = 'last';
-  for (const valueField of valueFields) {
-    const valueFieldName = getFieldDisplayName(valueField!, frame);
-    const standardCalcs = reduceField({ field: valueField!, reducers: ['bogus'] });
-    //const operatorValue = GetValueByOperator(valueFieldName, null, globalOperator, standardCalcs);
-    const operatorValue = GetValueByOperator(valueFieldName, globalOperator, standardCalcs);
+  // already calculated
+  // let globalOperator = 'last';
+  // for (const valueField of valueFields) {
+  //   const valueFieldName = getFieldDisplayName(valueField!, frame);
+  //   const standardCalcs = reduceField({ field: valueField!, reducers: ['bogus'] });
+  //   //const operatorValue = GetValueByOperator(valueFieldName, null, globalOperator, standardCalcs);
+  //   const operatorValue = GetValueByOperator(valueFieldName, globalOperator, standardCalcs);
 
-    let maxDecimals = 4;
-    if (valueField!.config.decimals !== undefined && valueField!.config.decimals !== null) {
-      maxDecimals = valueField!.config.decimals;
-    }
-    const valueFormat = getValueFormat(valueField!.config.unit)(operatorValue, maxDecimals, undefined, undefined);
-    const valueFormatted = formattedValueToString(valueFormat);
-    console.log(`valueFieldName: ${valueFieldName}`);
-    console.log(`standardCalcs: ${standardCalcs}`);
-    console.log(`operatorValue: ${operatorValue}`);
-    console.log(`valueFormat: ${valueFormat}`);
-    console.log(`valueFormatted: ${valueFormatted}`);
-  }
+  //   let maxDecimals = 4;
+  //   if (valueField!.config.decimals !== undefined && valueField!.config.decimals !== null) {
+  //     maxDecimals = valueField!.config.decimals;
+  //   }
+  //   const valueFormat = getValueFormat(valueField!.config.unit)(operatorValue, maxDecimals, undefined, undefined);
+  //   const valueFormatted = formattedValueToString(valueFormat);
+  //   console.log(`valueFieldName: ${valueFieldName}`);
+  //   console.log(`standardCalcs: ` + JSON.stringify(standardCalcs));
+  //   console.log(`operatorValue: ${operatorValue}`);
+  //   console.log(`valueFormat: ` + JSON.stringify(valueFormat));
+  //   console.log(`valueFormatted: ${valueFormatted}`);
+  //   // eslint-disable-next-line no-debugger
+  //   debugger;
+  // }
 };
 
 // WIP
@@ -96,29 +112,42 @@ export const ApplyGrafanaOverrides = (dataFrames: DataFrame[], theme: GrafanaThe
     console.log(dataFrames[0].fields);
     for (let i = 0; i < dataFrames[0].fields.length; i++) {
       const aField = dataFrames[0].fields[i];
+
       const display = getDisplayProcessor({
         field: aField,
         theme,
       });
       //console.log(display);
       // formatted output of one of the fields
+      // TODO: cleanup this is not needed, will be done during render
       console.log(`field name ${aField.name}`);
       const fieldValue = aField.values[0];
       const fv = formattedValueToString(display(fieldValue));
-      console.log(`fieldName ${aField.name} value ${fv}`);
+      console.log(`fieldName ${aField.name} formatted str value ${fv}`);
+      aField.display = display;
     }
   }
 }
 
+const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnStyling[]) => {
+  for (const item of columns) {
+    console.log(JSON.stringify(item.title));
+  };
+  return columns;
+};
+
 export function dataFrameToDataTableFormat<T>(
   alignNumbersToRightEnabled: boolean,
   rowNumbersEnabled: boolean,
+  tableTransforms: TransformationOptions,
+  aggregations: typeof AggregationOptions,
   dataFrames: DataFrame[],
+  columnStyles: ColumnStyling[],
   theme: GrafanaTheme2): { columns: ConfigColumns[]; rows: T[] } {
   DataFrameToDisplay(dataFrames);
   ApplyGrafanaOverrides(dataFrames, theme);
   const dataFrame = dataFrames[0];
-  const columns = dataFrame.fields.map((field) => {
+  let columns: DTColumnType[] = dataFrame.fields.map((field) => {
     const columnClassName = getColumnClassName(alignNumbersToRightEnabled, field.type as string)
     return {
       title: field.name,
@@ -155,7 +184,7 @@ export function dataFrameToDataTableFormat<T>(
       rows[i].rowNumber = i;
     }
   }
-
+  columns = ApplyColumnStyles(columns, columnStyles);
   return { columns, rows };
 }
 

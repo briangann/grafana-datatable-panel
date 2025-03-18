@@ -1,34 +1,48 @@
 import { DataFrame, DataTransformerConfig, DataTransformerID, transformDataFrame } from '@grafana/data';
 import { lastValueFrom } from 'rxjs';
-import { TransformationOptions } from 'types';
+import { AggregationOptions, TransformationOptions } from 'types';
 
-export const transformationIDMapping = {
-  [TransformationOptions.TimeSeriesToColumns]: DataTransformerID.joinByField,
-  [TransformationOptions.TimeSeriesToRows]: DataTransformerID.seriesToRows,
-  [TransformationOptions.Table]: DataTransformerID.timeSeriesTable,
-};
 
-export function transformData(
+export const GetDataTransformerID = (option: TransformationOptions) => {
+  switch (option) {
+    case TransformationOptions.Annotations:
+      return DataTransformerID.rowsToFields;
+    case TransformationOptions.JSONData:
+      return DataTransformerID.joinByField;
+    case TransformationOptions.Table:
+      return DataTransformerID.timeSeriesTable;
+    case TransformationOptions.TimeSeriesAggregations:
+      return DataTransformerID.reduce;
+      //return DataTransformerID.calculateField;
+    case TransformationOptions.TimeSeriesToColumns:
+      return DataTransformerID.joinByField;
+    case TransformationOptions.TimeSeriesToRows:
+      return DataTransformerID.seriesToRows;
+    default:
+      return DataTransformerID.joinByField;
+  }
+}
+
+export async function transformData(
   data: DataFrame[],
-  transformation: keyof typeof transformationIDMapping,
+  transformation: DataTransformerID,
+  aggregations: typeof AggregationOptions,
   options: DataTransformerConfig['options'] = {}
 ): Promise<DataFrame[]> {
-  const transformationID = transformationIDMapping[transformation];
-  // TODO: fix this
+
+  if (transformation === DataTransformerID.reduce) {
+    options.reducers = aggregations; //.map(((anAggregation) => anAggregation.value));
+  }
+  const transformConfig = {
+    id: transformation,
+    options: options,
+  };
+  const transformedData = transformDataFrame([transformConfig], data);
+  // TODO: fix this ignore, it works but should not be required
   // @ts-ignore
-  return lastValueFrom(
-    // @ts-ignore
-    transformDataFrame(
-      [
-        {
-          id: transformationID,
-          options,
-        },
-      ],
-      data
-    )
-  );
+  return await lastValueFrom(transformedData);
 }
+
 export function getDataFrameFields(dataFrames: DataFrame[]): string[] {
   return dataFrames.reduce<string[]>((acc, df) => {
     df.fields.map((field) => {
