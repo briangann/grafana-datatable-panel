@@ -1,4 +1,4 @@
-import { DataFrame, DataTransformerConfig, DataTransformerID, ReducerID, transformDataFrame } from '@grafana/data';
+import { DataFrame, DataTransformerConfig, DataTransformerID, transformDataFrame } from '@grafana/data';
 import { lastValueFrom } from 'rxjs';
 import { AggregationOptions, TransformationOptions } from 'types';
 
@@ -9,8 +9,6 @@ export const GetDataTransformerID = (option: TransformationOptions) => {
       return DataTransformerID.rowsToFields;
     case TransformationOptions.JSONData:
       return DataTransformerID.joinByField;
-    case TransformationOptions.NoOp:
-      return DataTransformerID.noop;
     case TransformationOptions.Table:
       return DataTransformerID.timeSeriesTable;
     case TransformationOptions.TimeSeriesAggregations:
@@ -33,26 +31,7 @@ export async function transformData(
 ): Promise<DataFrame[]> {
 
   if (transformation === DataTransformerID.reduce) {
-    console.log('reducers are: ' + JSON.stringify(aggregations));
-    options.reducers = [
-      ReducerID.count,
-      ReducerID.delta,
-      ReducerID.diff,
-      ReducerID.diffperc,
-      ReducerID.distinctCount,
-      ReducerID.first,
-      ReducerID.firstNotNull,
-      ReducerID.last,
-      ReducerID.lastNotNull,
-      ReducerID.min,
-      ReducerID.max,
-      ReducerID.logmin,
-      ReducerID.mean,
-      ReducerID.range,
-      ReducerID.stdDev,
-      ReducerID.sum,
-      ReducerID.variance,
-    ];
+    options.reducers = aggregations; //.map(((anAggregation) => anAggregation.value));
   }
   const transformConfig = {
     id: transformation,

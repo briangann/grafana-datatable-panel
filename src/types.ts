@@ -36,7 +36,6 @@ export enum TransformationOptions {
   Annotations = 'annotations',
   Table = 'table',
   JSONData = 'json-data',
-  NoOp = 'noop',
 };
 
 export type ColumnAliasField = {
@@ -79,12 +78,24 @@ export const DatatablePagingOptions = [
 ];
 
 export const AggregationOptions = [
-    { value: 'avg', label: 'Average' },
-    { value: 'min', label: 'Min' },
-    { value: 'max', label: 'Max' },
-    { value: 'total', label: 'Total' },
-    { value: 'current', label: 'Current' },
+    { value: 'mean', label: 'Average (Mean)' },
     { value: 'count', label: 'Count' },
+    { value: 'current', label: 'Current' },
+    { value: 'delta', label: 'Delta' },
+    { value: 'diff', label: 'Diff' },
+    { value: 'diffperc', label: 'DiffPercent' },
+    { value: 'distinctCount', label: 'Distinct Count' },
+    { value: 'max', label: 'Max' },
+    { value: 'min', label: 'Min' },
+    { value: 'total', label: 'Total' },
+    { value: 'first', label: 'First' },
+    { value: 'firstNotNull', label: 'First (Not Null)' },
+    { value: 'last', label: 'Last' },
+    { value: 'lastNotNull', label: 'Last (Not Null)' },
+    { value: 'logmin', label: 'Logmin' },
+    { value: 'range', label: 'Range' },
+    { value: 'stdDev', label: 'Std Dev' },
+    { value: 'variance', label: 'Variance' },
 ];
 
 export enum ColumnStyleType {

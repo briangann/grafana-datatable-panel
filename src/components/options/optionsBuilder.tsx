@@ -1,5 +1,5 @@
 import { PanelOptionsEditorBuilder, StandardEditorContext } from '@grafana/data';
-import { ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
+import { AggregationOptions, ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
 import { ColumnAliasesEditor } from './ColumnAliasesEditor';
 import { ColumnWidthHints } from './ColumnWidthHintsEditor';
 import { ColumnSortingEditor } from './ColumnSortingEditor';
@@ -174,8 +174,8 @@ export async function optionsBuilder(
   builder.addSelect({
     category: ['Data'],
     path: 'transformation',
-    name: 'Table Transform',
-    description: 'How to transform the data coming from the datasource',
+    name: 'Transform',
+    description: 'How to transform the data coming from the datasource.',
     defaultValue: 'timeseries-to-columns',
     settings: {
       options: [
@@ -183,6 +183,8 @@ export async function optionsBuilder(
         { value: 'timeseries-to-rows', label: 'Timeseries to Rows' },
         { value: 'timeseries-aggregations', label: 'Timeseries Aggregations' },
         { value: 'annotations', label: 'Annotations' },
+        { value: 'json-data', label: 'JSON Data' },
+        { value: 'table', label: 'Table' },
       ],
     },
   });
@@ -201,14 +203,7 @@ export async function optionsBuilder(
     defaultValue: 'current',
     showIf: (context) => context['transformation'] === 'timeseries-aggregations',
     settings: {
-      options: [
-        { value: 'avg', label: 'Average' },
-        { value: 'min', label: 'Min' },
-        { value: 'max', label: 'Max' },
-        { value: 'total', label: 'Total' },
-        { value: 'current', label: 'Current' },
-        { value: 'count', label: 'Count' },
-      ],
+      options: AggregationOptions
     },
   });
 
