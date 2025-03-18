@@ -184,11 +184,7 @@ export function dataFrameToDataTableFormat<T>(
       rows[i].rowNumber = i;
     }
   }
-  // eslint-disable-next-line no-debugger
-  debugger;
   columns = ApplyColumnStyles(columns, columnStyles);
-  // eslint-disable-next-line no-debugger
-  debugger;
   return { columns, rows };
 }
 
