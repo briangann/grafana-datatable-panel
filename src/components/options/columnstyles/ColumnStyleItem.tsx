@@ -61,7 +61,7 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
           <Field label="Metric/RegEx" disabled={!style.enabled}>
             <Cascader
               initialValue={style.metricName}
-              allowCustomValue
+              allowCustomValue={true}
               placeholder=""
               onSelect={
                 (val: string) => setColumnStyle(
