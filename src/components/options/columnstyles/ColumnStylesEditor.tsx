@@ -12,7 +12,6 @@ import { ColumnStyleItemTracker, ColumnStyleItemType } from './types';
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { Threshold } from '../thresholds/types';
 import { getColumnHints } from './columnHints';
-import { getDataFrameFields } from 'data/transformations';
 
 export interface ColumnStylesEditorSettings {
   styles: ColumnStyleItemType[];
