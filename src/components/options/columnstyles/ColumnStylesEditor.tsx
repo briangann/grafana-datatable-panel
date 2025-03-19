@@ -12,6 +12,7 @@ import { ColumnStyleItemTracker, ColumnStyleItemType } from './types';
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { Threshold } from '../thresholds/types';
 import { getColumnHints } from './columnHints';
+import { getDataFrameFields } from 'data/transformations';
 
 export interface ColumnStylesEditorSettings {
   styles: ColumnStyleItemType[];
@@ -193,8 +194,9 @@ export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
   };
 
   useEffect(() => {
-    if (context.data) {
+    if (context.data.length > 0) {
       let hints: CascaderOption[] = [];
+      // TODO: the column hints should be determined AFTER the data has been converted
       let columnHints = getColumnHints(context.data);
       for (const name of columnHints) {
         hints.push({
