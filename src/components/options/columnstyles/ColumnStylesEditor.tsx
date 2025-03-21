@@ -66,7 +66,7 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
     const aStyle: ColumnStyleItemType = {
       label: `${original.label} Copy`,
       enabled: original.enabled,
-      metricName: original.metricName,
+      nameOrRegex: original.nameOrRegex,
       alias: original.alias,
       thresholds: original.thresholds,
       clickThrough: original.clickThrough,
@@ -79,6 +79,7 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
       decimals: original.decimals,
       colors: original.colors,
       order: order,
+      valueType: 'number',
     };
     const aTracker: ColumnStyleItemTracker = {
       style: aStyle,
@@ -153,7 +154,7 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
     const aStyle: ColumnStyleItemType = {
       label: `Style-${order}`,
       enabled: true,
-      metricName: '',
+      nameOrRegex: '',
       alias: '',
       thresholds: [] as Threshold[],
       clickThrough: '',
@@ -171,6 +172,7 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
         DEFAULT_NO_THRESHOLD_COLOR_HEX,
       ],
       order: order,
+      valueType: 'number',
     };
     const aTracker: ColumnStyleItemTracker = {
       style: aStyle,

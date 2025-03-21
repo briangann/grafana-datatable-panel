@@ -113,7 +113,7 @@ const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnStyleIte
   for (const item of columns) {
     for (let index = 0; index < columnStyles.length; index++) {
       const aStyle = columnStyles[index];
-      if (aStyle.metricName === item.title) {
+      if (aStyle.nameOrRegex === item.title) {
         console.log(`matched found for style`);
         // eslint-disable-next-line no-debugger
         debugger;

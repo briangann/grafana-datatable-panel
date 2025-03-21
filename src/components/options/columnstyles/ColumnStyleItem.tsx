@@ -60,13 +60,13 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
           </Field>
           <Field label="Metric/RegEx" disabled={!style.enabled}>
             <Cascader
-              initialValue={style.metricName}
+              initialValue={style.nameOrRegex}
               allowCustomValue={true}
               placeholder=""
               onSelect={
                 (val: string) => setColumnStyle(
                   {
-                    ...style, metricName: val
+                    ...style, nameOrRegex: val
                   }
                 )}
                 options={props.columnHints}
