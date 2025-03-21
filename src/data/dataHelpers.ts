@@ -16,8 +16,9 @@ import {
   ColumnWidthHint,
   TransformationOptions,
   AggregationOptions,
-  ColumnStyling } from 'types';
+} from 'types';
 import { DTColumnType } from './types';
+import { ColumnStyleItemType } from 'components/options/columnstyles/types';
 
 function normalizeFieldName(field: string) {
   return field
@@ -25,27 +26,6 @@ function normalizeFieldName(field: string) {
     .replace(/[^a-zA-Z0-9_]/g, '')
     .toLowerCase();
 }
-
-
-// const GetValueByOperator = (
-//   metricName: string,
-//   operatorName: string,
-//   calcs: FieldCalcs
-// ) => {
-//   switch (operatorName) {
-//     case 'name':
-//       return metricName;
-//     case 'last_time':
-//       // if (data) {
-//       //   return data.timestamp;
-//       // } else {
-//       return Date.now();
-//     //}
-//     default:
-//       let aValue = calcs[operatorName];
-//       return aValue;
-//   }
-// };
 
 export const DataFrameToDisplay = (frames: DataFrame[]) => {
   const frame = frames[0];
@@ -97,13 +77,13 @@ export const DataFrameToDisplay = (frames: DataFrame[]) => {
   // }
 };
 
-// WIP
 export const ApplyGrafanaOverrides = (dataFrames: DataFrame[], theme: GrafanaTheme2) => {
   if (dataFrames) {
     dataFrames = applyFieldOverrides({
       data: dataFrames,
       fieldConfig: {
-        defaults: {},
+        defaults: {
+        },
         overrides: []
       },
       theme,
@@ -112,7 +92,7 @@ export const ApplyGrafanaOverrides = (dataFrames: DataFrame[], theme: GrafanaThe
     console.log(dataFrames[0].fields);
     for (let i = 0; i < dataFrames[0].fields.length; i++) {
       const aField = dataFrames[0].fields[i];
-
+      aField.config.decimals = 4;
       const display = getDisplayProcessor({
         field: aField,
         theme,
@@ -129,9 +109,18 @@ export const ApplyGrafanaOverrides = (dataFrames: DataFrame[], theme: GrafanaThe
   }
 }
 
-const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnStyling[]) => {
+const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnStyleItemType[]) => {
   for (const item of columns) {
-    console.log(JSON.stringify(item.title));
+    for (let index = 0; index < columnStyles.length; index++) {
+      const aStyle = columnStyles[index];
+      if (aStyle.metricName === item.title) {
+        console.log(`matched found for style`);
+        // eslint-disable-next-line no-debugger
+        debugger;
+        // matched move on to next column
+        break;
+      }
+    }
   };
   return columns;
 };
@@ -142,7 +131,7 @@ export function dataFrameToDataTableFormat<T>(
   tableTransforms: TransformationOptions,
   aggregations: typeof AggregationOptions,
   dataFrames: DataFrame[],
-  columnStyles: ColumnStyling[],
+  columnStyles: ColumnStyleItemType[],
   theme: GrafanaTheme2): { columns: ConfigColumns[]; rows: T[] } {
   DataFrameToDisplay(dataFrames);
   ApplyGrafanaOverrides(dataFrames, theme);
@@ -154,6 +143,7 @@ export function dataFrameToDataTableFormat<T>(
       data: normalizeFieldName(field.name),
       type: field.type as string,
       className: columnClassName,
+      fieldConfig: field.config,
     };
   });
   const rows = [] as T[];
@@ -163,9 +153,11 @@ export function dataFrameToDataTableFormat<T>(
     for (let j = 0; j < columns.length; j++) {
       const value = dataFrame.fields[j].values[i];
       const valueType = dataFrame.fields[j].type;
+      const fieldConfig = dataFrame.fields[j].config;
       let formattedValue = value;
       if (valueType !== 'string') {
-        formattedValue = FormatColumnValue(null, j, i, value, valueType, "timeFrom", "timeTo");
+        // this needs to be done AFTER all of the rows/columns are collected
+        formattedValue = FormatColumnValue(null, fieldConfig, j, i, value, valueType, "timeFrom", "timeTo");
       }
       //@ts-ignore
       row[columns[j].data] = formattedValue;
@@ -177,7 +169,8 @@ export function dataFrameToDataTableFormat<T>(
       title: 'Row',
       data: 'rowNumber',
       type: 'number',
-      className: ''
+      className: '',
+      fieldConfig: {},
     });
     for (let i = 0; i < dataFrame.length; i++) {
       // @ts-ignore

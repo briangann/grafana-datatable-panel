@@ -13,23 +13,17 @@ import { ColumnStyleItem } from './ColumnStyleItem';
 import { Threshold } from '../thresholds/types';
 import { getColumnHints } from './columnHints';
 
-export interface ColumnStylesEditorSettings {
-  styles: ColumnStyleItemType[];
-  enabled: boolean;
-}
+export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onChange }) => {
 
-interface Props extends StandardEditorProps<string | string[] | null, ColumnStylesEditorSettings> {}
-
-export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
   const [settings] = useState(context.options.columnStylesConfig);
   const [columnHints, setColumnHints] = useState<CascaderOption[]>([]);
 
   const [tracker, _setTracker] = useState((): ColumnStyleItemTracker[] => {
-    if (!settings.styles) {
+    if (!settings) {
       return [] as ColumnStyleItemTracker[];
     }
     const items: ColumnStyleItemTracker[] = [];
-    settings.styles.forEach((value: ColumnStyleItemType, index: number) => {
+    settings.forEach((value: ColumnStyleItemType, index: number) => {
       items[index] = {
         style: value,
         order: index,
@@ -45,11 +39,7 @@ export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
     v.forEach((element) => {
       allStyles.push(element.style);
     });
-    const columnStylesConfig = {
-      styles: allStyles,
-      enabled: settings.enabled,
-    };
-    onChange(columnStylesConfig as any);
+    onChange(allStyles as any);
   };
 
   const [isOpen, setIsOpen] = useState((): boolean[] => {

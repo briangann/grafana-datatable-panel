@@ -241,9 +241,7 @@ export async function optionsBuilder(
     path: 'columnStylesConfig',
     id: 'columnStylesConfig',
     name: 'Column Styles',
-    defaultValue: {
-      styles: [] as ColumnStyling[],
-    },
+    defaultValue: [] as ColumnStyling[],
     editor: ColumnStylesEditor,
   });
 
