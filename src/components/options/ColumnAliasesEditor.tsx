@@ -57,6 +57,7 @@ export function ColumnAliasesEditor(props: StandardEditorProps<ColumnAliasField[
               // TODO: We don't want this width here. it should be somehow auto
               width={15}
               options={options}
+              allowCustomValue={true}
               aria-label={`Current selected column ${alias.name}`}
               value={alias.name || ''}
               onChange={(event) => handleSelectChange(event, index)}

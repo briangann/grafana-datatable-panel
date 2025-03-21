@@ -1,4 +1,5 @@
 import { SelectableValue } from "@grafana/data";
+import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
 export interface DatatableOptions {
   alignNumbersToRightEnabled: boolean;
@@ -22,7 +23,7 @@ export interface DatatableOptions {
   searchHighlightingEnabled: boolean;
   columnSorting: ColumnSorting[],
   stripedRowsEnabled: boolean;
-  columnStylesConfig: ColumnStyling[];
+  columnStylesConfig: ColumnStyleItemType[];
   transformation: TransformationOptions;
   transformationAggregation: typeof AggregationOptions;
   transformationColumns: string[];

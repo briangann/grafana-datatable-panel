@@ -51,11 +51,12 @@ export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) 
     return (
       <div key={index} style={{ width: '100%' }}>
         <Stack justifyContent="start" direction="row" alignItems="start">
-          <InlineField label="Column" tooltip="The column to apply width hints to">
+          <InlineField label="Column" tooltip="The column to apply width hints to. Use original name if an alias has been applied.">
             <Select
               // TODO: We don't want this width here. it should be somehow auto
               width={15}
               options={options}
+              allowCustomValue={true}
               aria-label={`Current selected column ${item.name}`}
               value={item.name || ''}
               onChange={(event) => handleSelectChange(event, index)}

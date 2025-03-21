@@ -38,7 +38,7 @@ export const DEFAULT_NO_DATA_COLOR_HEX = '#808080'; // "grey"
  */
 export const GLOBAL_UNIT_FORMAT = 'short';
 /**
- * Number of decimals to display in polygon
+ * Number of decimals to display
  */
 export const GLOBAL_DISPLAY_DECIMALS = 2;
 

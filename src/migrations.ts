@@ -4,12 +4,12 @@ import {
   ColumnAliasField,
   ColumnSorting,
   ColumnSortingOptions,
-  ColumnStyling,
   ColumnWidthHint,
   DatatableOptions,
   DatatablePagingType,
   TransformationOptions
 } from './types';
+import { ColumnStyleItemType } from 'components/options/columnstyles/types';
 
 interface AngularDatatableOptions {
   alignNumbersToRightEnabled?: boolean;
@@ -329,21 +329,30 @@ const migrateSortByColumns = (sortByColumns: any[]): ColumnSorting[] => {
   return migrated;
 };
 
-const migrateStyles = (styles: any[]): ColumnStyling[] => {
-  const migrated = [] as ColumnStyling[];
+// TODO: migration to new type
+const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
+  const migrated = [] as ColumnStyleItemType[];
   for (let index = 0; index < styles.length; index++) {
     const element = styles[index];
-    const item: ColumnStyling = {
+    const item: ColumnStyleItemType = {
       colorBy: element.colorMode,
       colors: element.colors,
-      dateFormat: element.dateFormat,
       decimals: element.decimals,
       mappingType: element.mappingType,
       nameOrRegex: element.pattern,
       thresholds: element.thresholds,
-      type: element.type,
-      unit: element.unit,
-      ignoreNull: false
+      valueType: element.type,
+      unitFormat: element.unit,
+      label: '',
+      alias: '',
+      scaledDecimals: null,
+      enabled: true,
+      clickThrough: '',
+      clickThroughSanitize: true,
+      clickThroughOpenNewTab: true,
+      clickThroughCustomTargetEnabled: false,
+      clickThroughCustomTarget: '',
+      order: element.order,
     };
     migrated.push(item);
   }

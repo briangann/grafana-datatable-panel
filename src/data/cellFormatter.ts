@@ -1,5 +1,6 @@
 import {
   dateTime,
+  FieldConfig,
   getValueFormat,
 } from "@grafana/data";
 import _ from 'lodash';
@@ -43,7 +44,7 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
  * @param  {[type]} value    [description]
  * @return {[type]}          [description]
  */
-export const FormatColumnValue = (data: any, colIndex: any, rowIndex: any, value: any, valueType: string, timeFrom: string, timeTo: string) => {
+export const FormatColumnValue = (data: any, fieldConfig: FieldConfig, colIndex: any, rowIndex: any, value: any, valueType: string, timeFrom: string, timeTo: string) => {
   //console.log(valueType);
   // the valueFormatter for "time" expects a string already formatted
   // this needs to check if the value is an epoch, and convert that...
@@ -61,14 +62,33 @@ export const FormatColumnValue = (data: any, colIndex: any, rowIndex: any, value
     return JSON.stringify(value);
   }
   const aFormatter = getValueFormat(valueType);
-  let formatted = aFormatter(value).text;
-  // TODO: fix this!
-  if (/\$__cell_\d+/.exec(value)) {
-    // eslint-disable-next-line no-debugger
-    //debugger;
-    for (let i = data.columns - 1; i >= 0; i--) {
-      formatted = formatted.replace(`$__cell_${i}`, data.rows[rowIndex][i]);
-    }
+
+  let maxDecimals = 4;
+  if (fieldConfig.decimals !== undefined && fieldConfig.decimals !== null) {
+      maxDecimals = fieldConfig.decimals;
   }
+
+  let formatted = aFormatter(value, maxDecimals).text;
   return formatted;
 };
+
+export const ProcessMacroForClickthrough = (columns: any, rows: any, rowIndex: any, value: any, valueType: string, maxDecimals: number) => {
+  // eslint-disable-next-line no-debugger
+  debugger;
+  const aFormatter = getValueFormat(valueType);
+  let foo = value.mean;
+  foo = `$__cell_3`;
+  const aRegex = RegExp(/\$__cell_\d+/);
+  // @ts-ignore
+  let formatted = aFormatter(foo, maxDecimals).text;
+  if (foo.match(aRegex)) {
+    // eslint-disable-next-line no-debugger
+    //debugger;
+    for (let i = columns.length - 1; i >= 0; i--) {
+      const cellContent = rows[rowIndex].mean;
+      console.log(cellContent);
+      foo = foo.replace(`$__cell_${i}`, rows[rowIndex].mean);
+    }
+  }
+  return foo;
+}
