@@ -13,7 +13,7 @@ export interface ColumnStyleItemProps {
   moveDown: any;
   createDuplicate: any;
   context: any;
-}
+};
 
 export interface ColumnStyleItemType {
   label: string;
@@ -34,10 +34,10 @@ export interface ColumnStyleItemType {
   colorBy?: ColumnStyleColoring;
   mappingType?: number;
   valueType: any;
-}
+};
 
 export interface ColumnStyleItemTracker {
   style: ColumnStyleItemType;
   order: number;
   ID: string;
-}
+};

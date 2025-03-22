@@ -7,8 +7,9 @@ import {
   ColumnWidthHint,
   DatatableOptions,
   DatatablePagingType,
-  TransformationOptions
+  TransformationOptions,
 } from './types';
+import { Threshold } from 'components/options/thresholds/types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
 
 interface AngularDatatableOptions {
@@ -104,7 +105,9 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     transformationColumns: [],
     wrapToFitEnabled: true,
   };
-
+  console.log(`migrating...`);
+  // eslint-disable-next-line no-debugger
+  //debugger;
   if (angular.alignNumbersToRightEnabled !== undefined) {
     options.alignNumbersToRightEnabled = angular.alignNumbersToRightEnabled;
     delete angular.alignNumbersToRightEnabled;
@@ -332,6 +335,8 @@ const migrateSortByColumns = (sortByColumns: any[]): ColumnSorting[] => {
 // TODO: migration to new type
 const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
   const migrated = [] as ColumnStyleItemType[];
+  // eslint-disable-next-line no-debugger
+  //debugger;
   for (let index = 0; index < styles.length; index++) {
     const element = styles[index];
     const item: ColumnStyleItemType = {
@@ -340,10 +345,10 @@ const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
       decimals: element.decimals,
       mappingType: element.mappingType,
       nameOrRegex: element.pattern,
-      thresholds: element.thresholds,
+      thresholds: migrateThresholds(element.thresholds),
       valueType: element.type,
       unitFormat: element.unit,
-      label: '',
+      label: `Migrated-Style-${index}`,
       alias: '',
       scaledDecimals: null,
       enabled: true,
@@ -352,10 +357,16 @@ const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
       clickThroughOpenNewTab: true,
       clickThroughCustomTargetEnabled: false,
       clickThroughCustomTarget: '',
-      order: element.order,
+      order: index,
     };
     migrated.push(item);
   }
+  return migrated;
+};
+
+// TODO: migrate old thresholds
+const migrateThresholds = (thresholds: string): Threshold[] => {
+  let migrated: Threshold[] = [];
   return migrated;
 };
 

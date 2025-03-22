@@ -114,6 +114,15 @@ export enum ColumnStyleColoring {
   RowColumn = 'row-column',
 };
 
+// Only for numerical data
+export const ColorModeOptions = [
+  { label: 'Disabled', value: ColumnStyleColoring.Disabled },
+  { label: 'Cell', value: ColumnStyleColoring.Cell },
+  { label: 'Value', value: ColumnStyleColoring.Value },
+  { label: 'Row', value: ColumnStyleColoring.Row },
+  { label: 'Row Column', value: ColumnStyleColoring.RowColumn },
+];
+
 export type ColumnStyling = {
   nameOrRegex: string;
   type: ColumnStyleType;
