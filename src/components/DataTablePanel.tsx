@@ -23,15 +23,22 @@ import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
-import { buildColumnDefs, dataFrameToDataTableFormat, setColumnAliases, setColumnWidthHints } from 'data/dataHelpers';
+import { buildColumnDefs, ConvertDataFrameToDataTableFormat } from 'data/dataHelpers';
+import { ApplyColumnWidthHints } from 'data/columnWidthHints';
 import { datatableThemedStyles } from './styles';
 import { GetDataTransformerID } from 'data/transformations';
+import { DTColumnType } from 'data/types';
+import { ApplyColumnAliases } from 'data/columnAliasing';
 
 interface Props extends PanelProps<DatatableOptions> { }
 
 
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
+  const [columnDefs, setColumnDefs] = useState<ConfigColumnDefs[]>([]);
+  const [columns, setColumns] = useState<ConfigColumns[]>([]);
+  const [rows, setRows] = useState<any[]>([]);
+
   const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
 
@@ -100,6 +107,63 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   // actually render the table
   useEffect(() => {
+    let tmpColumns: DTColumnType[] = [];
+    let tmpRows: any[] = [];
+
+    if (dataFrames && dataFrames.length > 0) {
+      // this is the main processor
+      // buildColumnDefs needs to use the result, and not build its own
+      const result = ConvertDataFrameToDataTableFormat(
+        props.options.alignNumbersToRightEnabled,
+        props.options.rowNumbersEnabled,
+        props.options.transformation,
+        props.options.transformationAggregation,
+        dataFrames,
+        props.options.columnStylesConfig,
+        theme2);
+      tmpColumns = result.columns;
+      // get the column widths
+      tmpColumns = ApplyColumnWidthHints(tmpColumns, props.options.columnWidthHints);
+      tmpColumns = ApplyColumnAliases(tmpColumns, props.options.columnAliases);
+      // TODO: convert this to the expected format
+      let flattenedRows = [];
+      for (let i = 0; i < result.rows.length; i++) {
+        const aRow = result.rows[i];
+        // flatten
+        // iterate the columns in order
+        let flattenedRow = [];
+        for (let colIndex = 0; colIndex < tmpColumns.length; colIndex++) {
+          const name = tmpColumns[colIndex].data as string;
+          // @ts-ignore
+          flattenedRow.push(aRow[name])
+        }
+        flattenedRows.push(flattenedRow);
+      }
+      // this ends up with the formatted data in the correct format
+      /*
+      For time and a single metric, rows look like this
+        [
+        "2025-03-24T00:45:47+00:00",
+        "13.3718"
+        ]
+      */
+      tmpRows = flattenedRows; // result.rows;
+      // need the style for this...
+      const calcColumnDefs = buildColumnDefs(
+        props.options.emptyDataEnabled,
+        props.options.emptyDataText,
+        props.options.rowNumbersEnabled,
+        props.options.fontSizePercent,
+        props.options.alignNumbersToRightEnabled,
+        tmpColumns,
+        tmpRows);
+      setColumnDefs(calcColumnDefs);
+      setColumns(tmpColumns);
+      setRows(tmpRows);
+    }
+  },[dataFrames, props.options.alignNumbersToRightEnabled, props.options.columnAliases, props.options.columnStylesConfig, props.options.columnWidthHints, props.options.emptyDataEnabled, props.options.emptyDataText, props.options.fontSizePercent, props.options.rowNumbersEnabled, props.options.transformation, props.options.transformationAggregation, theme2]);
+
+    useEffect(() => {
 
     // 32 = panel title when displayed
     // 8 = panel content wrapper padding (all the way around) - need this for width too!
@@ -111,51 +175,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       let computedHeight = height - 32 - 8 - 5 - 44 - 38;
       return computedHeight;
     };
-
-    let columns: ConfigColumns[] = [];
-    let columnDefs: ConfigColumnDefs[] = [];
-    let rows: any[] = [];
-
-    if (dataFrames && dataFrames.length > 0) {
-      const result = dataFrameToDataTableFormat(
-        props.options.alignNumbersToRightEnabled,
-        props.options.rowNumbersEnabled,
-        props.options.transformation,
-        props.options.transformationAggregation,
-        dataFrames,
-        props.options.columnStylesConfig,
-        theme2);
-      columns = result.columns;
-      // get the column widths
-      columns = setColumnWidthHints(columns, props.options.columnWidthHints);
-      columns = setColumnAliases(columns, props.options.columnAliases);
-      // TODO: convert this to the expected format
-      let flattenedRows = [];
-      for (let i = 0; i < result.rows.length; i++) {
-        const aRow = result.rows[i];
-        // flatten
-        // iterate the columns in order
-        let flattenedRow = [];
-        for (let colIndex = 0; colIndex < columns.length; colIndex++) {
-          const name = columns[colIndex].data as string;
-          // @ts-ignore
-          flattenedRow.push(aRow[name])
-        }
-        //console.log(flattenedRow);
-        flattenedRows.push(flattenedRow);
-      }
-      // this ends up with the formatted data in the correct format
-      rows = flattenedRows; // result.rows;
-      columnDefs = buildColumnDefs(
-        props.options.emptyDataEnabled,
-        props.options.emptyDataText,
-        props.options.rowNumbersEnabled,
-        props.options.fontSizePercent,
-        props.options.columnAliases,
-        props.options.alignNumbersToRightEnabled,
-        columns,
-        rows);
-    }
 
     // convert to order data structure used by datatable
     let orderColumn: Order = [];
@@ -227,6 +246,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     dataFrames,
     dataTableClassesEnabled,
     theme2,
+    columns,
+    rows,
+    columnDefs,
     props.height,
     props.options.alignNumbersToRightEnabled,
     props.options.columnAliases,

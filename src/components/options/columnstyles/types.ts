@@ -1,6 +1,5 @@
 import { CascaderOption } from '@grafana/ui';
 import { Threshold } from '../thresholds/types';
-import { ColumnStyleColoring } from 'types';
 
 export interface ColumnStyleItemProps {
   columnHints: CascaderOption[];
@@ -31,7 +30,7 @@ export interface ColumnStyleItemType {
   clickThroughCustomTargetEnabled: boolean;
   clickThroughCustomTarget: string;
   order: number;
-  colorBy?: ColumnStyleColoring;
+  colorMode?: string;
   mappingType?: number;
   valueType: any;
 };

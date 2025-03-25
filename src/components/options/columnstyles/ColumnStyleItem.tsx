@@ -108,8 +108,8 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
             <Select
               disabled={!style.enabled}
               menuShouldPortal={true}
-              value={style.colorBy}
-              onChange={(val: any) => setColumnStyle({ ...style, colorBy: val.value })}
+              value={style.colorMode}
+              onChange={(val: any) => setColumnStyle({ ...style, colorMode: val.value })}
               options={ColorModeOptions}
             />
           </Field>

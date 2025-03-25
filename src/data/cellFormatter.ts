@@ -72,23 +72,20 @@ export const FormatColumnValue = (data: any, fieldConfig: FieldConfig, colIndex:
   return formatted;
 };
 
+// TODO: this is not complete
 export const ProcessMacroForClickthrough = (columns: any, rows: any, rowIndex: any, value: any, valueType: string, maxDecimals: number) => {
-  // eslint-disable-next-line no-debugger
-  debugger;
   const aFormatter = getValueFormat(valueType);
-  let foo = value.mean;
-  foo = `$__cell_3`;
+  let fixme = value.mean;
+  fixme = `$__cell_3`;
   const aRegex = RegExp(/\$__cell_\d+/);
   // @ts-ignore
-  let formatted = aFormatter(foo, maxDecimals).text;
-  if (foo.match(aRegex)) {
-    // eslint-disable-next-line no-debugger
-    //debugger;
+  let formatted = aFormatter(fixme, maxDecimals).text;
+  if (fixme.match(aRegex)) {
     for (let i = columns.length - 1; i >= 0; i--) {
       const cellContent = rows[rowIndex].mean;
       console.log(cellContent);
-      foo = foo.replace(`$__cell_${i}`, rows[rowIndex].mean);
+      fixme = fixme.replace(`$__cell_${i}`, rows[rowIndex].mean);
     }
   }
-  return foo;
+  return fixme;
 }

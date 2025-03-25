@@ -105,9 +105,6 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     transformationColumns: [],
     wrapToFitEnabled: true,
   };
-  console.log(`migrating...`);
-  // eslint-disable-next-line no-debugger
-  //debugger;
   if (angular.alignNumbersToRightEnabled !== undefined) {
     options.alignNumbersToRightEnabled = angular.alignNumbersToRightEnabled;
     delete angular.alignNumbersToRightEnabled;
@@ -335,12 +332,10 @@ const migrateSortByColumns = (sortByColumns: any[]): ColumnSorting[] => {
 // TODO: migration to new type
 const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
   const migrated = [] as ColumnStyleItemType[];
-  // eslint-disable-next-line no-debugger
-  //debugger;
   for (let index = 0; index < styles.length; index++) {
     const element = styles[index];
     const item: ColumnStyleItemType = {
-      colorBy: element.colorMode,
+      colorMode: element.colorMode,
       colors: element.colors,
       decimals: element.decimals,
       mappingType: element.mappingType,
