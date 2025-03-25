@@ -12,11 +12,11 @@ export interface ColumnStyleItemProps {
   moveDown: any;
   createDuplicate: any;
   context: any;
-}
+};
 
 export interface ColumnStyleItemType {
   label: string;
-  metricName: string;
+  nameOrRegex: string;
   alias: string;
   thresholds: Threshold[];
   colors: string[];
@@ -30,10 +30,13 @@ export interface ColumnStyleItemType {
   clickThroughCustomTargetEnabled: boolean;
   clickThroughCustomTarget: string;
   order: number;
-}
+  colorMode?: string;
+  mappingType?: number;
+  valueType: any;
+};
 
 export interface ColumnStyleItemTracker {
   style: ColumnStyleItemType;
   order: number;
   ID: string;
-}
+};

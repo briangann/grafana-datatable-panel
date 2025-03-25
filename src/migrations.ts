@@ -4,12 +4,13 @@ import {
   ColumnAliasField,
   ColumnSorting,
   ColumnSortingOptions,
-  ColumnStyling,
   ColumnWidthHint,
   DatatableOptions,
   DatatablePagingType,
-  TransformationOptions
+  TransformationOptions,
 } from './types';
+import { Threshold } from 'components/options/thresholds/types';
+import { ColumnStyleItemType } from 'components/options/columnstyles/types';
 
 interface AngularDatatableOptions {
   alignNumbersToRightEnabled?: boolean;
@@ -104,7 +105,6 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     transformationColumns: [],
     wrapToFitEnabled: true,
   };
-
   if (angular.alignNumbersToRightEnabled !== undefined) {
     options.alignNumbersToRightEnabled = angular.alignNumbersToRightEnabled;
     delete angular.alignNumbersToRightEnabled;
@@ -329,24 +329,39 @@ const migrateSortByColumns = (sortByColumns: any[]): ColumnSorting[] => {
   return migrated;
 };
 
-const migrateStyles = (styles: any[]): ColumnStyling[] => {
-  const migrated = [] as ColumnStyling[];
+// TODO: migration to new type
+const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
+  const migrated = [] as ColumnStyleItemType[];
   for (let index = 0; index < styles.length; index++) {
     const element = styles[index];
-    const item: ColumnStyling = {
-      colorBy: element.colorMode,
+    const item: ColumnStyleItemType = {
+      colorMode: element.colorMode,
       colors: element.colors,
-      dateFormat: element.dateFormat,
       decimals: element.decimals,
       mappingType: element.mappingType,
       nameOrRegex: element.pattern,
-      thresholds: element.thresholds,
-      type: element.type,
-      unit: element.unit,
-      ignoreNull: false
+      thresholds: migrateThresholds(element.thresholds),
+      valueType: element.type,
+      unitFormat: element.unit,
+      label: `Migrated-Style-${index}`,
+      alias: '',
+      scaledDecimals: null,
+      enabled: true,
+      clickThrough: '',
+      clickThroughSanitize: true,
+      clickThroughOpenNewTab: true,
+      clickThroughCustomTargetEnabled: false,
+      clickThroughCustomTarget: '',
+      order: index,
     };
     migrated.push(item);
   }
+  return migrated;
+};
+
+// TODO: migrate old thresholds
+const migrateThresholds = (thresholds: string): Threshold[] => {
+  let migrated: Threshold[] = [];
   return migrated;
 };
 

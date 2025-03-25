@@ -1,4 +1,5 @@
 import { SelectableValue } from "@grafana/data";
+import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
 export interface DatatableOptions {
   alignNumbersToRightEnabled: boolean;
@@ -22,7 +23,7 @@ export interface DatatableOptions {
   searchHighlightingEnabled: boolean;
   columnSorting: ColumnSorting[],
   stripedRowsEnabled: boolean;
-  columnStylesConfig: ColumnStyling[];
+  columnStylesConfig: ColumnStyleItemType[];
   transformation: TransformationOptions;
   transformationAggregation: typeof AggregationOptions;
   transformationColumns: string[];
@@ -112,6 +113,15 @@ export enum ColumnStyleColoring {
   Row = 'row',
   RowColumn = 'row-column',
 };
+
+// Only for numerical data
+export const ColorModeOptions = [
+  { label: 'Disabled', value: ColumnStyleColoring.Disabled },
+  { label: 'Cell', value: ColumnStyleColoring.Cell },
+  { label: 'Value', value: ColumnStyleColoring.Value },
+  { label: 'Row', value: ColumnStyleColoring.Row },
+  { label: 'Row Column', value: ColumnStyleColoring.RowColumn },
+];
 
 export type ColumnStyling = {
   nameOrRegex: string;

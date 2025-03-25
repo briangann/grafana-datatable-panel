@@ -13,23 +13,17 @@ import { ColumnStyleItem } from './ColumnStyleItem';
 import { Threshold } from '../thresholds/types';
 import { getColumnHints } from './columnHints';
 
-export interface ColumnStylesEditorSettings {
-  styles: ColumnStyleItemType[];
-  enabled: boolean;
-}
+export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onChange }) => {
 
-interface Props extends StandardEditorProps<string | string[] | null, ColumnStylesEditorSettings> {}
-
-export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
   const [settings] = useState(context.options.columnStylesConfig);
   const [columnHints, setColumnHints] = useState<CascaderOption[]>([]);
 
   const [tracker, _setTracker] = useState((): ColumnStyleItemTracker[] => {
-    if (!settings.styles) {
+    if (!settings) {
       return [] as ColumnStyleItemTracker[];
     }
     const items: ColumnStyleItemTracker[] = [];
-    settings.styles.forEach((value: ColumnStyleItemType, index: number) => {
+    settings.forEach((value: ColumnStyleItemType, index: number) => {
       items[index] = {
         style: value,
         order: index,
@@ -45,11 +39,7 @@ export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
     v.forEach((element) => {
       allStyles.push(element.style);
     });
-    const columnStylesConfig = {
-      styles: allStyles,
-      enabled: settings.enabled,
-    };
-    onChange(columnStylesConfig as any);
+    onChange(allStyles as any);
   };
 
   const [isOpen, setIsOpen] = useState((): boolean[] => {
@@ -76,7 +66,7 @@ export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
     const aStyle: ColumnStyleItemType = {
       label: `${original.label} Copy`,
       enabled: original.enabled,
-      metricName: original.metricName,
+      nameOrRegex: original.nameOrRegex,
       alias: original.alias,
       thresholds: original.thresholds,
       clickThrough: original.clickThrough,
@@ -89,6 +79,7 @@ export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
       decimals: original.decimals,
       colors: original.colors,
       order: order,
+      valueType: 'number',
     };
     const aTracker: ColumnStyleItemTracker = {
       style: aStyle,
@@ -163,7 +154,7 @@ export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
     const aStyle: ColumnStyleItemType = {
       label: `Style-${order}`,
       enabled: true,
-      metricName: '',
+      nameOrRegex: '',
       alias: '',
       thresholds: [] as Threshold[],
       clickThrough: '',
@@ -181,6 +172,7 @@ export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
         DEFAULT_NO_THRESHOLD_COLOR_HEX,
       ],
       order: order,
+      valueType: 'number',
     };
     const aTracker: ColumnStyleItemTracker = {
       style: aStyle,
@@ -193,8 +185,9 @@ export const ColumnStylesEditor: React.FC<Props> = ({ context, onChange }) => {
   };
 
   useEffect(() => {
-    if (context.data) {
+    if (context.data.length > 0) {
       let hints: CascaderOption[] = [];
+      // TODO: the column hints should be determined AFTER the data has been converted
       let columnHints = getColumnHints(context.data);
       for (const name of columnHints) {
         hints.push({

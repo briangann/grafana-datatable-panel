@@ -41,11 +41,11 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
     onChange(newSorting);
   }
 
-  const currentSortings = value.map((items: ColumnSorting, index: number) => {
+  const currentSortSettings = value.map((items: ColumnSorting, index: number) => {
     return (
       <div key={index} style={{ width: '100%' }}>
         <Stack justifyContent="start" direction="row" alignItems="start">
-          <InlineField label="Column" tooltip="Name of the column to sort">
+          <InlineField label="Column" tooltip="Column Number to Sort, Starts with 0">
             <Input
               type="number"
               value={items.index}
@@ -70,7 +70,7 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
 
   return (
     <div>
-      {currentSortings}
+      {currentSortSettings}
       <Box marginTop={1}>
         <Button fill="solid" variant="primary" icon="plus" onClick={handleNewColumnSorting}>
           Add Column Sort

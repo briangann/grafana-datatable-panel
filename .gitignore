@@ -40,3 +40,4 @@ playwright-report
 .stignore
 .stfolder/
 provisioning-private/
+importable/
