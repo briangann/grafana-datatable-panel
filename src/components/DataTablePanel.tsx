@@ -161,7 +161,19 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       setColumns(tmpColumns);
       setRows(tmpRows);
     }
-  },[dataFrames, props.options.alignNumbersToRightEnabled, props.options.columnAliases, props.options.columnStylesConfig, props.options.columnWidthHints, props.options.emptyDataEnabled, props.options.emptyDataText, props.options.fontSizePercent, props.options.rowNumbersEnabled, props.options.transformation, props.options.transformationAggregation, theme2]);
+  },[
+    dataFrames,
+    props.options.alignNumbersToRightEnabled,
+    props.options.columnAliases,
+    props.options.columnStylesConfig,
+    props.options.columnWidthHints,
+    props.options.emptyDataEnabled,
+    props.options.emptyDataText,
+    props.options.fontSizePercent,
+    props.options.rowNumbersEnabled,
+    props.options.transformation,
+    props.options.transformationAggregation,
+    theme2]);
 
     useEffect(() => {
 
