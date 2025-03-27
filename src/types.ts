@@ -25,7 +25,7 @@ export interface DatatableOptions {
   stripedRowsEnabled: boolean;
   columnStylesConfig: ColumnStyleItemType[];
   transformation: TransformationOptions;
-  transformationAggregation: AggregationType[];
+  transformationAggregations: AggregationType[];
   wrapToFitEnabled: boolean;
 };
 
@@ -80,7 +80,6 @@ export const DatatablePagingOptions = [
 export enum AggregationType {
   MEAN = 'mean',
   COUNT = 'count',
-  CURRENT = 'current',
   DELTA = 'delta',
   DIFF = 'diff',
   DIFF_PERCENT = 'diffperc',
@@ -101,7 +100,6 @@ export enum AggregationType {
 export const AggregationOptions: SelectableValue[]= [
   { value: AggregationType.MEAN, label: 'Average (Mean)' },
   { value: AggregationType.COUNT, label: 'Count' },
-  { value: AggregationType.CURRENT, label: 'Current' },
   { value: AggregationType.DELTA, label: 'Delta' },
   { value: AggregationType.DIFF, label: 'Diff' },
   { value: AggregationType.DIFF_PERCENT, label: 'DiffPercent' },

@@ -191,10 +191,10 @@ export async function optionsBuilder(
 
   builder.addMultiSelect({
     category: ['Data'],
-    path: 'transformationAggregation',
+    path: 'transformationAggregations',
     name: 'Aggregations',
     defaultValue: [
-      AggregationType.CURRENT,
+      AggregationType.LAST,
     ],
     showIf: (context) => context['transformation'] === 'timeseries-aggregations',
     settings: {

@@ -48,7 +48,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   // convert the option to a usable type
   const transformID = GetDataTransformerID(props.options.transformation);
-  let dataFrames = useApplyTransformation(props.data.series, transformID, props.options.transformationAggregation);
+  let dataFrames = useApplyTransformation(props.data.series, transformID, props.options.transformationAggregations);
   const enableColumnFilters = (dataTable: any) => {
     const header = dataTable.table(0).header();
     const newHeaders = $(header)
@@ -117,7 +117,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         props.options.alignNumbersToRightEnabled,
         props.options.rowNumbersEnabled,
         props.options.transformation,
-        props.options.transformationAggregation,
+        props.options.transformationAggregations,
         dataFrames,
         props.options.columnStylesConfig,
         theme2);
@@ -172,7 +172,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.fontSizePercent,
     props.options.rowNumbersEnabled,
     props.options.transformation,
-    props.options.transformationAggregation,
+    props.options.transformationAggregations,
     theme2]);
 
     useEffect(() => {
@@ -287,7 +287,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.scroll,
     props.options.searchEnabled,
     props.options.searchHighlightingEnabled,
-    props.options.transformationAggregation,
+    props.options.transformationAggregations,
     props.options.transformation,
     ]);
 

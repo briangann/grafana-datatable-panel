@@ -102,7 +102,7 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     stripedRowsEnabled: false,
     columnStylesConfig: [],
     transformation: TransformationOptions.TimeSeriesToColumns,
-    transformationAggregation: [AggregationOptions[2].value], // CURRENT
+    transformationAggregations: [AggregationOptions[11].value], // Last
     wrapToFitEnabled: true,
   };
   if (angular.alignNumbersToRightEnabled !== undefined) {
