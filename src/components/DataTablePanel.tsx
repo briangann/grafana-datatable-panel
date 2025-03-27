@@ -191,7 +191,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         console.log('Exception: ' + err);
       }
       const calculatedHeight = getDatatableHeight(props.height);
-
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
         const dtOptions: Config = {
           buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
@@ -208,12 +207,20 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           mark: props.options.searchHighlightingEnabled || false,
           select: { style: 'os' },
           scroll: props.options.scroll,
-          paging: !props.options.scroll,
           scrollY: `${calculatedHeight}px`,
           ordering: true,
           orderFixed: orderColumn,
           orderMulti: true,
+          paging: !props.options.scroll,
           pagingType: props.options.datatablePagingType,
+          language: {
+            paginate: {
+                previous: 'Previous',
+                next: 'Next',
+                first: 'First',
+                last: 'Last',
+            }
+          },
           scrollCollapse: false,
           scrollX: true,
           search: {
