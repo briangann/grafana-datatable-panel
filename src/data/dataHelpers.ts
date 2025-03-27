@@ -12,7 +12,7 @@ import _ from 'lodash';
 import {
   ColumnStyleColoring,
   TransformationOptions,
-  AggregationOptions,
+  AggregationType,
 } from 'types';
 import { DTColumnType } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
@@ -80,7 +80,7 @@ export function ConvertDataFrameToDataTableFormat<T>(
   alignNumbersToRightEnabled: boolean,
   rowNumbersEnabled: boolean,
   tableTransforms: TransformationOptions,
-  aggregations: typeof AggregationOptions,
+  aggregations: AggregationType[],
   dataFrames: DataFrame[],
   columnStyles: ColumnStyleItemType[],
   theme: GrafanaTheme2): { columns: DTColumnType[]; rows: T[] } {

@@ -25,7 +25,7 @@ export interface DatatableOptions {
   stripedRowsEnabled: boolean;
   columnStylesConfig: ColumnStyleItemType[];
   transformation: TransformationOptions;
-  transformationAggregation: typeof AggregationOptions;
+  transformationAggregation: AggregationType[];
   wrapToFitEnabled: boolean;
 };
 
@@ -77,25 +77,46 @@ export const DatatablePagingOptions = [
   { value: DatatablePagingType.FIRST_LAST_NUMBERS, label: '\'First\' and \'Last\' buttons, plus page numbers' },
 ];
 
-export const AggregationOptions = [
-    { value: 'mean', label: 'Average (Mean)' },
-    { value: 'count', label: 'Count' },
-    { value: 'current', label: 'Current' },
-    { value: 'delta', label: 'Delta' },
-    { value: 'diff', label: 'Diff' },
-    { value: 'diffperc', label: 'DiffPercent' },
-    { value: 'distinctCount', label: 'Distinct Count' },
-    { value: 'max', label: 'Max' },
-    { value: 'min', label: 'Min' },
-    { value: 'total', label: 'Total' },
-    { value: 'first', label: 'First' },
-    { value: 'firstNotNull', label: 'First (Not Null)' },
-    { value: 'last', label: 'Last' },
-    { value: 'lastNotNull', label: 'Last (Not Null)' },
-    { value: 'logmin', label: 'Logmin' },
-    { value: 'range', label: 'Range' },
-    { value: 'stdDev', label: 'Std Dev' },
-    { value: 'variance', label: 'Variance' },
+export enum AggregationType {
+  MEAN = 'mean',
+  COUNT = 'count',
+  CURRENT = 'current',
+  DELTA = 'delta',
+  DIFF = 'diff',
+  DIFF_PERCENT = 'diffperc',
+  DISTINCT_COUNT = 'distinctCount',
+  MAX = 'max',
+  MIN = 'min',
+  TOTAL = 'total',
+  FIRST = 'first',
+  FIRST_NOT_NULL = 'firstNotNull',
+  LAST = 'last',
+  LAST_NOT_NULL = 'lastNotNull',
+  LOG_MIN = 'logmin',
+  RANGE = 'range',
+  STD_DEV = 'stdDev',
+  VARIANCE = 'variance',
+};
+
+export const AggregationOptions: SelectableValue[]= [
+  { value: AggregationType.MEAN, label: 'Average (Mean)' },
+  { value: AggregationType.COUNT, label: 'Count' },
+  { value: AggregationType.CURRENT, label: 'Current' },
+  { value: AggregationType.DELTA, label: 'Delta' },
+  { value: AggregationType.DIFF, label: 'Diff' },
+  { value: AggregationType.DIFF_PERCENT, label: 'DiffPercent' },
+  { value: AggregationType.DISTINCT_COUNT, label: 'Distinct Count' },
+  { value: AggregationType.MAX, label: 'Max' },
+  { value: AggregationType.MIN, label: 'Min' },
+  { value: AggregationType.TOTAL, label: 'Total' },
+  { value: AggregationType.FIRST, label: 'First' },
+  { value: AggregationType.FIRST_NOT_NULL, label: 'First (Not Null)' },
+  { value: AggregationType.LAST, label: 'Last' },
+  { value: AggregationType.LAST_NOT_NULL, label: 'Last (Not Null)' },
+  { value: AggregationType.LOG_MIN, label: 'Logmin' },
+  { value: AggregationType.RANGE, label: 'Range' },
+  { value: AggregationType.STD_DEV, label: 'Std Dev' },
+  { value: AggregationType.VARIANCE, label: 'Variance' },
 ];
 
 export enum ColumnStyleType {

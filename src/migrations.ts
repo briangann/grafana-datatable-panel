@@ -1,6 +1,7 @@
 import { PanelModel } from '@grafana/data';
 
 import {
+  AggregationOptions,
   ColumnAliasField,
   ColumnSorting,
   ColumnSortingOptions,
@@ -101,7 +102,7 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     stripedRowsEnabled: false,
     columnStylesConfig: [],
     transformation: TransformationOptions.TimeSeriesToColumns,
-    transformationAggregation: [],
+    transformationAggregation: [AggregationOptions[2].value], // CURRENT
     wrapToFitEnabled: true,
   };
   if (angular.alignNumbersToRightEnabled !== undefined) {

@@ -1,5 +1,5 @@
 import { PanelOptionsEditorBuilder, StandardEditorContext } from '@grafana/data';
-import { AggregationOptions, ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
+import { AggregationOptions, AggregationType, ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
 import { ColumnAliasesEditor } from './ColumnAliasesEditor';
 import { ColumnWidthHints } from './ColumnWidthHintsEditor';
 import { ColumnSortingEditor } from './ColumnSortingEditor';
@@ -193,10 +193,12 @@ export async function optionsBuilder(
     category: ['Data'],
     path: 'transformationAggregation',
     name: 'Aggregations',
-    defaultValue: 'current',
+    defaultValue: [
+      AggregationType.CURRENT,
+    ],
     showIf: (context) => context['transformation'] === 'timeseries-aggregations',
     settings: {
-      options: AggregationOptions
+      options: AggregationOptions,
     },
   });
 
