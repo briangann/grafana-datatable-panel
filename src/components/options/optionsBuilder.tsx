@@ -189,13 +189,6 @@ export async function optionsBuilder(
     },
   });
 
-  builder.addFieldNamePicker({
-    category: ['Data'],
-    path: 'transformationColumns',
-    name: 'Columns',
-    showIf: (context) => context['transformation'] === 'timeseries-to-columns',
-  });
-
   builder.addMultiSelect({
     category: ['Data'],
     path: 'transformationAggregation',

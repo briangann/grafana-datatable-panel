@@ -102,7 +102,6 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     columnStylesConfig: [],
     transformation: TransformationOptions.TimeSeriesToColumns,
     transformationAggregation: [],
-    transformationColumns: [],
     wrapToFitEnabled: true,
   };
   if (angular.alignNumbersToRightEnabled !== undefined) {

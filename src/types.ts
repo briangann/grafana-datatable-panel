@@ -26,7 +26,6 @@ export interface DatatableOptions {
   columnStylesConfig: ColumnStyleItemType[];
   transformation: TransformationOptions;
   transformationAggregation: typeof AggregationOptions;
-  transformationColumns: string[];
   wrapToFitEnabled: boolean;
 };
 
