@@ -416,7 +416,7 @@ const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: a
     //colStyle = aColumnStyle; // getStyleForColumn(columnNumber, cellData, styles);
   }
 
-  if (aColumnStyle && aColumnStyle.colorMode != null) {
+  if (aColumnStyle && aColumnStyle.colorMode != null && aColumnStyle.thresholds.length > 0) {
     // check color for either cell or row
     if (aColumnStyle.colorMode === ColumnStyleColoring.Cell ||
       aColumnStyle.colorMode === ColumnStyleColoring.Row ||
