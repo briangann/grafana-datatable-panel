@@ -5,15 +5,12 @@ import { AggregationType, TransformationOptions } from 'types';
 
 export const GetDataTransformerID = (option: TransformationOptions) => {
   switch (option) {
-    case TransformationOptions.Annotations:
-      return DataTransformerID.rowsToFields;
     case TransformationOptions.JSONData:
       return DataTransformerID.joinByField;
     case TransformationOptions.Table:
-      return DataTransformerID.timeSeriesTable;
+      return DataTransformerID.merge;
     case TransformationOptions.TimeSeriesAggregations:
       return DataTransformerID.reduce;
-      //return DataTransformerID.calculateField;
     case TransformationOptions.TimeSeriesToColumns:
       return DataTransformerID.joinByField;
     case TransformationOptions.TimeSeriesToRows:
