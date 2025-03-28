@@ -33,7 +33,6 @@ export enum TransformationOptions {
   TimeSeriesToColumns = 'timeseries-to-columns',
   TimeSeriesToRows = 'timeseries-to-rows',
   TimeSeriesAggregations = 'timeseries-aggregations',
-  Annotations = 'annotations',
   Table = 'table',
   JSONData = 'json-data',
 };

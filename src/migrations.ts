@@ -377,9 +377,6 @@ const migrateTransform = (transform: string): TransformationOptions => {
     case 'timeseries_to_rows':
       migrated = TransformationOptions.TimeSeriesToRows;
       break;
-    case 'doc':
-      migrated = TransformationOptions.Annotations;
-      break;
     case 'table':
       migrated = TransformationOptions.Table;
       break;
