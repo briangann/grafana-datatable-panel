@@ -182,7 +182,6 @@ export async function optionsBuilder(
         { value: 'timeseries-to-columns', label: 'Timeseries to Columns' },
         { value: 'timeseries-to-rows', label: 'Timeseries to Rows' },
         { value: 'timeseries-aggregations', label: 'Timeseries Aggregations' },
-        { value: 'annotations', label: 'Annotations' },
         { value: 'json-data', label: 'JSON Data' },
         { value: 'table', label: 'Table' },
       ],
