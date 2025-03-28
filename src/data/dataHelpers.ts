@@ -148,8 +148,6 @@ export const buildColumnDefs = (
   const columnDefs: ConfigColumnDefs[] = [];
   let rowNumberOffset = 0;
   for (let i = 0; i < dtColumns.length; i++) {
-    // @ts-ignore
-    let columnWidthHint = '';
     let columnType = dtColumns[i].type!;
     let columnClassName = getColumnClassName(alignNumbersToRightEnabled, columnType)
     // column type "date" is very limited, and overrides our formatting
@@ -184,6 +182,7 @@ export const buildColumnDefs = (
     //   columnStyle: null
     // });
     let columnDefDict: any = {
+      width: dtColumns[i].widthHint,
       targets: i + rowNumberOffset,
       defaultContent: emptyDataEnabled ? emptyDataText : '',
       data: function (row: any, type: any, set: any, meta: any) {
