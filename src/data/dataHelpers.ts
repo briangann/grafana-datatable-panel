@@ -12,7 +12,7 @@ import _ from 'lodash';
 import {
   ColumnStyleColoring,
   TransformationOptions,
-  AggregationOptions,
+  AggregationType,
 } from 'types';
 import { DTColumnType } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
@@ -80,7 +80,7 @@ export function ConvertDataFrameToDataTableFormat<T>(
   alignNumbersToRightEnabled: boolean,
   rowNumbersEnabled: boolean,
   tableTransforms: TransformationOptions,
-  aggregations: typeof AggregationOptions,
+  aggregations: AggregationType[],
   dataFrames: DataFrame[],
   columnStyles: ColumnStyleItemType[],
   theme: GrafanaTheme2): { columns: DTColumnType[]; rows: T[] } {
@@ -148,8 +148,6 @@ export const buildColumnDefs = (
   const columnDefs: ConfigColumnDefs[] = [];
   let rowNumberOffset = 0;
   for (let i = 0; i < dtColumns.length; i++) {
-    // @ts-ignore
-    let columnWidthHint = '';
     let columnType = dtColumns[i].type!;
     let columnClassName = getColumnClassName(alignNumbersToRightEnabled, columnType)
     // column type "date" is very limited, and overrides our formatting
@@ -184,6 +182,7 @@ export const buildColumnDefs = (
     //   columnStyle: null
     // });
     let columnDefDict: any = {
+      width: dtColumns[i].widthHint,
       targets: i + rowNumberOffset,
       defaultContent: emptyDataEnabled ? emptyDataText : '',
       data: function (row: any, type: any, set: any, meta: any) {
@@ -417,7 +416,7 @@ const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: a
     //colStyle = aColumnStyle; // getStyleForColumn(columnNumber, cellData, styles);
   }
 
-  if (aColumnStyle && aColumnStyle.colorMode != null) {
+  if (aColumnStyle && aColumnStyle.colorMode != null && aColumnStyle.thresholds.length > 0) {
     // check color for either cell or row
     if (aColumnStyle.colorMode === ColumnStyleColoring.Cell ||
       aColumnStyle.colorMode === ColumnStyleColoring.Row ||

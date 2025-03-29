@@ -1,9 +1,9 @@
 import { DataFrame, DataTransformerID } from '@grafana/data';
 import React from 'react';
 import { transformData } from 'data/transformations';
-import { AggregationOptions } from 'types';
+import { AggregationType } from 'types';
 
-export const useApplyTransformation = (dataSeries: DataFrame[], transformID: DataTransformerID, aggregations: typeof AggregationOptions) => {
+export const useApplyTransformation = (dataSeries: DataFrame[], transformID: DataTransformerID, aggregations: AggregationType[]) => {
   const [dataFrames, setDataFrames] = React.useState<DataFrame[] | undefined>();
 
   React.useEffect(() => {

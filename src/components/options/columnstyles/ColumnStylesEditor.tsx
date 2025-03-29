@@ -12,6 +12,7 @@ import { ColumnStyleItemTracker, ColumnStyleItemType } from './types';
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { Threshold } from '../thresholds/types';
 import { getColumnHints } from './columnHints';
+import { ColumnStyleColoring } from 'types';
 
 export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onChange }) => {
 
@@ -171,6 +172,7 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
         DEFAULT_CRITICAL_COLOR_HEX,
         DEFAULT_NO_THRESHOLD_COLOR_HEX,
       ],
+      colorMode: ColumnStyleColoring.Cell,
       order: order,
       valueType: 'number',
     };
