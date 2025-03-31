@@ -1,5 +1,5 @@
 import { PanelOptionsEditorBuilder, StandardEditorContext } from '@grafana/data';
-import { AggregationOptions, ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
+import { AggregationOptions, AggregationType, ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
 import { ColumnAliasesEditor } from './ColumnAliasesEditor';
 import { ColumnWidthHints } from './ColumnWidthHintsEditor';
 import { ColumnSortingEditor } from './ColumnSortingEditor';
@@ -182,28 +182,22 @@ export async function optionsBuilder(
         { value: 'timeseries-to-columns', label: 'Timeseries to Columns' },
         { value: 'timeseries-to-rows', label: 'Timeseries to Rows' },
         { value: 'timeseries-aggregations', label: 'Timeseries Aggregations' },
-        { value: 'annotations', label: 'Annotations' },
         { value: 'json-data', label: 'JSON Data' },
         { value: 'table', label: 'Table' },
       ],
     },
   });
 
-  builder.addFieldNamePicker({
-    category: ['Data'],
-    path: 'transformationColumns',
-    name: 'Columns',
-    showIf: (context) => context['transformation'] === 'timeseries-to-columns',
-  });
-
   builder.addMultiSelect({
     category: ['Data'],
-    path: 'transformationAggregation',
+    path: 'transformationAggregations',
     name: 'Aggregations',
-    defaultValue: 'current',
+    defaultValue: [
+      AggregationType.LAST,
+    ],
     showIf: (context) => context['transformation'] === 'timeseries-aggregations',
     settings: {
-      options: AggregationOptions
+      options: AggregationOptions,
     },
   });
 

@@ -1,19 +1,16 @@
 import { DataFrame, DataTransformerConfig, DataTransformerID, transformDataFrame } from '@grafana/data';
 import { lastValueFrom } from 'rxjs';
-import { AggregationOptions, TransformationOptions } from 'types';
+import { AggregationType, TransformationOptions } from 'types';
 
 
 export const GetDataTransformerID = (option: TransformationOptions) => {
   switch (option) {
-    case TransformationOptions.Annotations:
-      return DataTransformerID.rowsToFields;
     case TransformationOptions.JSONData:
       return DataTransformerID.joinByField;
     case TransformationOptions.Table:
-      return DataTransformerID.timeSeriesTable;
+      return DataTransformerID.merge;
     case TransformationOptions.TimeSeriesAggregations:
       return DataTransformerID.reduce;
-      //return DataTransformerID.calculateField;
     case TransformationOptions.TimeSeriesToColumns:
       return DataTransformerID.joinByField;
     case TransformationOptions.TimeSeriesToRows:
@@ -26,7 +23,7 @@ export const GetDataTransformerID = (option: TransformationOptions) => {
 export async function transformData(
   data: DataFrame[],
   transformation: DataTransformerID,
-  aggregations: typeof AggregationOptions,
+  aggregations:  AggregationType[],
   options: DataTransformerConfig['options'] = {}
 ): Promise<DataFrame[]> {
 

@@ -48,7 +48,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   // convert the option to a usable type
   const transformID = GetDataTransformerID(props.options.transformation);
-  let dataFrames = useApplyTransformation(props.data.series, transformID, props.options.transformationAggregation);
+  let dataFrames = useApplyTransformation(props.data.series, transformID, props.options.transformationAggregations);
   const enableColumnFilters = (dataTable: any) => {
     const header = dataTable.table(0).header();
     const newHeaders = $(header)
@@ -117,7 +117,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         props.options.alignNumbersToRightEnabled,
         props.options.rowNumbersEnabled,
         props.options.transformation,
-        props.options.transformationAggregation,
+        props.options.transformationAggregations,
         dataFrames,
         props.options.columnStylesConfig,
         theme2);
@@ -161,7 +161,19 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       setColumns(tmpColumns);
       setRows(tmpRows);
     }
-  },[dataFrames, props.options.alignNumbersToRightEnabled, props.options.columnAliases, props.options.columnStylesConfig, props.options.columnWidthHints, props.options.emptyDataEnabled, props.options.emptyDataText, props.options.fontSizePercent, props.options.rowNumbersEnabled, props.options.transformation, props.options.transformationAggregation, theme2]);
+  },[
+    dataFrames,
+    props.options.alignNumbersToRightEnabled,
+    props.options.columnAliases,
+    props.options.columnStylesConfig,
+    props.options.columnWidthHints,
+    props.options.emptyDataEnabled,
+    props.options.emptyDataText,
+    props.options.fontSizePercent,
+    props.options.rowNumbersEnabled,
+    props.options.transformation,
+    props.options.transformationAggregations,
+    theme2]);
 
     useEffect(() => {
 
@@ -191,7 +203,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         console.log('Exception: ' + err);
       }
       const calculatedHeight = getDatatableHeight(props.height);
-
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
         const dtOptions: Config = {
           buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
@@ -208,12 +219,20 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           mark: props.options.searchHighlightingEnabled || false,
           select: { style: 'os' },
           scroll: props.options.scroll,
-          paging: !props.options.scroll,
           scrollY: `${calculatedHeight}px`,
           ordering: true,
           orderFixed: orderColumn,
           orderMulti: true,
+          paging: !props.options.scroll,
           pagingType: props.options.datatablePagingType,
+          language: {
+            paginate: {
+                previous: 'Previous',
+                next: 'Next',
+                first: 'First',
+                last: 'Last',
+            }
+          },
           scrollCollapse: false,
           scrollX: true,
           search: {
@@ -268,7 +287,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.scroll,
     props.options.searchEnabled,
     props.options.searchHighlightingEnabled,
-    props.options.transformationAggregation,
+    props.options.transformationAggregations,
     props.options.transformation,
     ]);
 
