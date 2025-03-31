@@ -335,24 +335,26 @@ const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
   for (let index = 0; index < styles.length; index++) {
     const element = styles[index];
     const item: ColumnStyleItemType = {
+      alias: element.alias,
+      clickThrough: element.clickThrough,
+      clickThroughSanitize: element.clickThroughSanitize,
+      clickThroughOpenNewTab: element.clickThroughOpenNewTab,
+      clickThroughCustomTargetEnabled: element.clickThroughCustomTargetEnabled,
+      clickThroughCustomTarget: element.clickThroughCustomTargetEnabled,
       colorMode: element.colorMode,
       colors: element.colors,
+      dateFormat: element.dateFormat,
       decimals: element.decimals,
+      enabled: element.enabled,
+      ignoreNullValues: element.ignoreNullValues,
+      label: `Migrated-Style-${index}`,
       mappingType: element.mappingType,
       nameOrRegex: element.pattern,
-      thresholds: migrateThresholds(element.thresholds),
-      valueType: element.type,
-      unitFormat: element.unit,
-      label: `Migrated-Style-${index}`,
-      alias: '',
-      scaledDecimals: null,
-      enabled: true,
-      clickThrough: '',
-      clickThroughSanitize: true,
-      clickThroughOpenNewTab: true,
-      clickThroughCustomTargetEnabled: false,
-      clickThroughCustomTarget: '',
       order: index,
+      scaledDecimals: element.scaledDecimals,
+      styleItemType: migrateItemType(element.type),
+      thresholds: migrateThresholds(element.thresholds),
+      unitFormat: element.unit,
     };
     migrated.push(item);
   }
@@ -363,6 +365,21 @@ const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
 const migrateThresholds = (thresholds: string): Threshold[] => {
   let migrated: Threshold[] = [];
   return migrated;
+};
+
+const migrateItemType = (itemType: string): string => {
+  switch (itemType) {
+    case 'date':
+      return 'date';
+    case 'hidden':
+      return 'hidden';
+    case 'number':
+      return 'metric';
+    case 'string':
+      return 'string';
+    default:
+      return 'metric';
+  }
 };
 
 const migrateTransform = (transform: string): TransformationOptions => {

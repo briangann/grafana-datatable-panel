@@ -12,7 +12,7 @@ import { ColumnStyleItemTracker, ColumnStyleItemType } from './types';
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { Threshold } from '../thresholds/types';
 import { getColumnHints } from './columnHints';
-import { ColumnStyleColoring } from 'types';
+import { ColumnStyleColoring, DateFormats } from 'types';
 
 export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onChange }) => {
 
@@ -77,10 +77,12 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
       clickThroughCustomTarget: original.clickThroughCustomTarget,
       unitFormat: original.unitFormat,
       scaledDecimals: original.scaledDecimals,
+      dateFormat: original.dateFormat,
       decimals: original.decimals,
       colors: original.colors,
       order: order,
-      valueType: 'number',
+      ignoreNullValues: original.ignoreNullValues,
+      styleItemType: original.styleItemType
     };
     const aTracker: ColumnStyleItemTracker = {
       style: aStyle,
@@ -163,6 +165,7 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
       clickThroughSanitize: true,
       clickThroughCustomTargetEnabled: false,
       clickThroughCustomTarget: '',
+      dateFormat: DateFormats[0].value,
       unitFormat: 'short',
       scaledDecimals: null,
       decimals: '2',
@@ -174,7 +177,8 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
       ],
       colorMode: ColumnStyleColoring.Cell,
       order: order,
-      valueType: 'number',
+      ignoreNullValues: false,
+      styleItemType: 'metric',
     };
     const aTracker: ColumnStyleItemTracker = {
       style: aStyle,

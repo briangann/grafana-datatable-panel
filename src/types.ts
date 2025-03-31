@@ -169,10 +169,10 @@ export const FontSizes: SelectableValue[] = [
 ];
 
 export const DateFormats = [
-  { text: 'YYYY-MM-DD HH:mm:ss', value: 'YYYY-MM-DD HH:mm:ss' },
-  { text: 'YYYY-MM-DD HH:mm:ss.SSS', value: 'YYYY-MM-DD HH:mm:ss.SSS' },
-  { text: 'MM/DD/YY h:mm:ss a', value: 'MM/DD/YY h:mm:ss a' },
-  { text: 'MMMM D, YYYY LT', value: 'MMMM D, YYYY LT' },
-  { text: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
-  { text: 'YYYY-MM-DDTHH:mm:ssZ', value: 'YYYY-MM-DDTHH:mm:ssZ' },
+  { label: 'YYYY-MM-DD HH:mm:ss', value: 'YYYY-MM-DD HH:mm:ss' },
+  { label: 'YYYY-MM-DD HH:mm:ss.SSS', value: 'YYYY-MM-DD HH:mm:ss.SSS' },
+  { label: 'MM/DD/YY h:mm:ss a', value: 'MM/DD/YY h:mm:ss a' },
+  { label: 'MMMM D, YYYY LT', value: 'MMMM D, YYYY LT' },
+  { label: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
+  { label: 'YYYY-MM-DDTHH:mm:ssZ', value: 'YYYY-MM-DDTHH:mm:ssZ' },
 ];

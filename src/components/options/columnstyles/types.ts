@@ -31,8 +31,10 @@ export interface ColumnStyleItemType {
   clickThroughCustomTarget: string;
   order: number;
   colorMode?: string;
+  dateFormat?: string;
   mappingType?: number;
-  valueType: any;
+  ignoreNullValues: boolean;
+  styleItemType: string;
 };
 
 export interface ColumnStyleItemTracker {
