@@ -1,18 +1,10 @@
 import {
-  DateTime,
   dateTime,
-  dateTimeForTimeZone,
-  DateTimeInput,
   Field,
-  FormatInput,
   formattedValueToString,
   getValueFormat,
   GrafanaTheme2,
-  isDateTime,
 } from "@grafana/data";
-import {
-  TimeZone,
-} from "@grafana/schema";
 
 import _ from 'lodash';
 import { DateFormats } from "types";
