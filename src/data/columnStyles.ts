@@ -6,7 +6,6 @@ export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnS
     for (let index = 0; index < columnStyles.length; index++) {
       const aStyle = columnStyles[index];
       // convert to regexp
-
       let expression = `${aStyle.nameOrRegex}`;
       // remove leading and ending slashes
       if (expression.startsWith(`/`)) {
@@ -27,5 +26,4 @@ export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnS
       }
     }
   };
-  return columns;
 };
