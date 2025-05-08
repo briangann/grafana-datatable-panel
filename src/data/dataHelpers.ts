@@ -5,7 +5,7 @@ import {
   FieldType,
   GrafanaTheme2
 } from '@grafana/data';
-import { FormatColumnValue } from 'data/cellFormatter';
+import { ApplyUnitsAndDecimals, FormatColumnValue } from 'data/cellRenderer';
 import { ApplyGrafanaOverrides } from './overrides';
 import { ConfigColumnDefs } from 'datatables.net';
 import _ from 'lodash';
@@ -104,16 +104,15 @@ export function ConvertDataFrameToDataTableFormat<T>(
   for (let i = 0; i < dataFrame.length; i++) {
     const row = {};
     for (let j = 0; j < columns.length; j++) {
-      const value = dataFrame.fields[j].values[i];
-      const valueType = dataFrame.fields[j].type;
-      const fieldConfig = dataFrame.fields[j].config;
-      let formattedValue = value;
+      const frameFields = dataFrame.fields[j];
+      let value = frameFields.values[i];
+      const valueType = frameFields.type;
       if (valueType !== 'string') {
-        // this needs to be done AFTER all of the rows/columns are collected
-        formattedValue = FormatColumnValue(null, fieldConfig, j, i, value, valueType, "timeFrom", "timeTo");
+        value = FormatColumnValue(frameFields, j, i, value, valueType, "timeFrom", "timeTo", theme);
       }
-      //@ts-ignore
-      row[columns[j].data] = formattedValue;
+      const colName = columns[j].data;
+      // @ts-ignore
+      row[colName] = value;
     }
     rows.push(row as T);
   }
@@ -132,7 +131,10 @@ export function ConvertDataFrameToDataTableFormat<T>(
       rows[i].rowNumber = i;
     }
   }
-  columns = ApplyColumnStyles(columns, columnStyles);
+  ApplyColumnStyles(columns, columnStyles);
+  ApplyUnitsAndDecimals(columns, rows);
+  // eslint-disable-next-line no-debugger
+  debugger;
   return { columns, rows };
 }
 
@@ -202,6 +204,8 @@ export const buildColumnDefs = (
         if (type === undefined) {
           return null;
         }
+        // eslint-disable-next-line no-debugger
+        debugger;
         const idx = meta.col;
         if (type === 'type') {
           return val[idx];
@@ -214,12 +218,19 @@ export const buildColumnDefs = (
         //console.log(meta);
         //let returnValue = rows[meta.row][idx]; // val[idx].display;
         let returnValue = val[meta.col];
+        if (returnValue.valueFormatted) {
+          return returnValue.valueFormatted;
+        }
         return returnValue;
       },
-      createdCell: (cell: any, cellDataAlwaysEmpty: any, rowData: any, rowIndex: any, colIndex: any) => {
+      createdCell: (cell: any, cellDataAlwaysEmpty: any, rowData: any, rowIndex: number, colIndex: number) => {
         // set the fontsize for the cell
         // cellData is empty since we use render()
-        const aColumn = dtColumns[colIndex];
+        console.log(colIndex);
+        let aColumn = dtColumns[colIndex];
+        console.log(aColumn);
+        // @ts-ignore
+        let aColumn2 = dtColumns[2];
         $(cell).css('font-size', fontSizePercent);
         // orthogonal sort requires getting cell data differently
         const cellContent = $(cell).html();
@@ -231,6 +242,7 @@ export const buildColumnDefs = (
         // can only evaluate thresholds on a numerical value
         if (isNaN(Number(cellContent))) {
           //console.log(`createdCell: ${cellContent} is not a number...`);
+          // can render a style for non-numerical content
           return;
         }
         // undefined types should have numerical data, any others are already formatted
@@ -244,6 +256,8 @@ export const buildColumnDefs = (
         let rowColorIndex = null;
         let rowColorData = null;
         let colorMode = aColumn.columnStyle?.colorMode;
+        // eslint-disable-next-line no-debugger
+        debugger;
         if (colorMode === ColumnStyleColoring.Row) {
           // run all of the rowData through threshold check, get the "highest" index
           // and use that for the entire row
@@ -262,6 +276,8 @@ export const buildColumnDefs = (
               //console.log(`no style found for column ${columnNumber}`);
               continue;
             }
+            // eslint-disable-next-line no-debugger
+            debugger;
             rowColorData = getCellColors(
               x,
               columnNumber,
@@ -407,6 +423,8 @@ const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: a
   let colorIndex = null;
   //let colStyle = null;
   let value = null;
+  // eslint-disable-next-line no-debugger
+  debugger;
   // check if the content has a numeric value after the split
   if (!isNaN(Number(items[0]))) {
     // run value through threshold function
