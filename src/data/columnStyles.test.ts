@@ -40,8 +40,6 @@ describe('Column Styles', () => {
   describe('Applies Time style', () => {
     it('returns time style', () => {
       ApplyColumnStyles(columns, columnStyles);
-      // eslint-disable-next-line no-debugger
-      debugger;
       expect(columns[0].columnStyle).toEqual(columnStyles[0]);
     });
   });

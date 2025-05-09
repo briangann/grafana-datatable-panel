@@ -10,6 +10,7 @@ import _ from 'lodash';
 import { DateFormats } from "types";
 import { DTColumnType } from "./types";
 import moment from 'moment-timezone';
+import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
 export const ReplaceTimeMacros = (timeFrom: string, timeTo: string, content: string) => {
@@ -70,18 +71,17 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
  *
  * @return  {string}                    [Formatted Value]
  */
-export const FormatColumnValue = (field: Field, colIndex: number, rowIndex: number, value: any, valueType: string, timeFrom: string, timeTo: string, theme: GrafanaTheme2): string => {
-  //console.log(valueType);
-  // the valueFormatter for "time" expects a string already formatted
-  // this needs to check if the value is an epoch, and convert that...
-
+export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyleItemType|null, field: Field, colIndex: number, rowIndex: number, value: any, valueType: string, timeFrom: string, timeTo: string, theme: GrafanaTheme2): string => {
   // if is an epoch and type time (numeric string and len > 12)
   if ((valueType === 'time') && !isNaN(value as any)) {
     const parsed = parseInt(value, 10);
-    // TODO: fix this
-    // May need to adjust for local time zone here
-    const fo = TimeFormatter('utc', parsed, DateFormats[5].value);
-    return fo;
+    let dateFormat = DateFormats[5].value;
+    if (columnStyle && columnStyle.dateFormat) {
+      dateFormat = columnStyle.dateFormat;
+    }
+    // timezone comes from user preferences
+    const formatted = TimeFormatter(userTimeZone, parsed, dateFormat);
+    return formatted;
   }
 
   if (valueType === 'other') {
@@ -99,7 +99,7 @@ export const FormatColumnValue = (field: Field, colIndex: number, rowIndex: numb
 };
 
 // TODO: this is not complete
-export const ProcessMacroForClickthrough = (columns: any, rows: any, rowIndex: any, value: any, valueType: string, maxDecimals: number) => {
+export const ProcessMacroForClickthrough = (columns: any, rows: any, rowIndex: number, value: any, valueType: string, maxDecimals: number) => {
   const aFormatter = getValueFormat(valueType);
   let fixme = value.mean;
   fixme = `$__cell_3`;
@@ -144,6 +144,7 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
 
     valueFormatted = formatted.text;
     valueRoundedAndFormatted = roundValue(value, decimals) || value;
+    valueRounded= roundValue(value, decimals) || value;
     // spaces are included with the formatFunc
     if (formatted.suffix) {
       valueFormatted += formatted.suffix;

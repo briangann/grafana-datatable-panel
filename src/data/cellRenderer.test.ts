@@ -2,7 +2,7 @@
  * Tests for Rendering a Cell
  */
 import { DateFormats } from 'types';
-import { FormatColumnValue, ReplaceTimeMacros, TimeFormatter } from './cellRenderer';
+import { applyFormat, FormatColumnValue, ReplaceTimeMacros, TimeFormatter } from './cellRenderer';
 import { Field, FieldConfig, FieldType, GrafanaTheme2 } from '@grafana/data';
 describe('Cell Renderer', () => {
   const theme2 = {} as unknown as GrafanaTheme2;
@@ -16,6 +16,8 @@ describe('Cell Renderer', () => {
       };
       it('returns valid formatted time', () => {
         const result = FormatColumnValue(
+          'utc',
+          null,
           aField,
           1,
           0,
@@ -41,6 +43,8 @@ describe('Cell Renderer', () => {
       };
       it('returns formatted value', () => {
         const result = FormatColumnValue(
+          'utc',
+          null,
           aField,
           1,
           0,
@@ -67,6 +71,8 @@ describe('Cell Renderer', () => {
       };
       it('returns formatted value', () => {
         const result = FormatColumnValue(
+          'utc',
+          null,
           aField,
           1,
           0,
@@ -118,6 +124,21 @@ describe('Cell Renderer', () => {
 
   describe('Test ProcessMacroForClickthrough', () => {
     describe('Test replace $__cell_N', () => {
+    });
+  });
+
+  describe('Test ApplyUnitsAndDecimals', () => {
+    describe('Test replace $__cell_N', () => {
+    });
+  });
+
+
+  describe('Test applyFormat', () => {
+    describe('Test with kwh units', () => {
+      const result = applyFormat(123.456, 2, 'kwh');
+      expect(result.valueFormatted).toEqual('123.46 kwh');
+      expect(result.valueRounded).toEqual(123.46);
+      expect(result.valueRoundedAndFormatted).toEqual('123.46 kwh');
     });
   });
 });

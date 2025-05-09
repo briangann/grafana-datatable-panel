@@ -51,32 +51,11 @@ export const DataFrameToDisplay = (frames: DataFrame[]) => {
     // use current time if none is found
     newestTimestamp = new Date().getTime()
   }
-  // already calculated
-  // let globalOperator = 'last';
-  // for (const valueField of valueFields) {
-  //   const valueFieldName = getFieldDisplayName(valueField!, frame);
-  //   const standardCalcs = reduceField({ field: valueField!, reducers: ['bogus'] });
-  //   //const operatorValue = GetValueByOperator(valueFieldName, null, globalOperator, standardCalcs);
-  //   const operatorValue = GetValueByOperator(valueFieldName, globalOperator, standardCalcs);
-
-  //   let maxDecimals = 4;
-  //   if (valueField!.config.decimals !== undefined && valueField!.config.decimals !== null) {
-  //     maxDecimals = valueField!.config.decimals;
-  //   }
-  //   const valueFormat = getValueFormat(valueField!.config.unit)(operatorValue, maxDecimals, undefined, undefined);
-  //   const valueFormatted = formattedValueToString(valueFormat);
-  //   console.log(`valueFieldName: ${valueFieldName}`);
-  //   console.log(`standardCalcs: ` + JSON.stringify(standardCalcs));
-  //   console.log(`operatorValue: ${operatorValue}`);
-  //   console.log(`valueFormat: ` + JSON.stringify(valueFormat));
-  //   console.log(`valueFormatted: ${valueFormatted}`);
-  //   // eslint-disable-next-line no-debugger
-  //   debugger;
-  // }
 };
 
 
 export function ConvertDataFrameToDataTableFormat<T>(
+  userTimeZone: string,
   alignNumbersToRightEnabled: boolean,
   rowNumbersEnabled: boolean,
   tableTransforms: TransformationOptions,
@@ -99,16 +78,20 @@ export function ConvertDataFrameToDataTableFormat<T>(
       widthHint: '',
     };
   });
+
+  ApplyColumnStyles(columns, columnStyles);
+
   const rows = [] as T[];
 
   for (let i = 0; i < dataFrame.length; i++) {
     const row = {};
     for (let j = 0; j < columns.length; j++) {
+      const aColumn = columns[j];
       const frameFields = dataFrame.fields[j];
       let value = frameFields.values[i];
       const valueType = frameFields.type;
       if (valueType !== 'string') {
-        value = FormatColumnValue(frameFields, j, i, value, valueType, "timeFrom", "timeTo", theme);
+        value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, "timeFrom", "timeTo", theme);
       }
       const colName = columns[j].data;
       // @ts-ignore
@@ -131,10 +114,7 @@ export function ConvertDataFrameToDataTableFormat<T>(
       rows[i].rowNumber = i;
     }
   }
-  ApplyColumnStyles(columns, columnStyles);
   ApplyUnitsAndDecimals(columns, rows);
-  // eslint-disable-next-line no-debugger
-  debugger;
   return { columns, rows };
 }
 
@@ -170,19 +150,6 @@ export const buildColumnDefs = (
     dtColumns[i].className = columnClassName;
     // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
     // with full width
-    // NOTE the className here no longer appears to work, setting it later
-    // can we get the columnStyle here? merge rawColumn Data?
-    // eslint-disable-next-line no-debugger
-    //debugger;
-    // columns.push({
-    //   title: columnAlias,
-    //   type: columnType,
-    //   widthHint: columnWidthHint,
-    //   className: columnClassName,
-    //   data: '',
-    //   fieldConfig: {},
-    //   columnStyle: null
-    // });
     let columnDefDict: any = {
       width: dtColumns[i].widthHint,
       targets: i + rowNumberOffset,
@@ -192,9 +159,6 @@ export const buildColumnDefs = (
           return null;
         }
         const idx = meta.col;
-        // use display type for return
-        // TODO; display has not been set yet
-        //let returnValue = row[idx].display;
         if (row[idx]?.display !== undefined) {
           return row[idx].display;
         }
@@ -204,19 +168,11 @@ export const buildColumnDefs = (
         if (type === undefined) {
           return null;
         }
-        // eslint-disable-next-line no-debugger
-        debugger;
+        // TODO: call render function vs just returning formatted value
         const idx = meta.col;
         if (type === 'type') {
           return val[idx];
         }
-        // use display type for return
-        // TODO: this should be set to the formatted value, for now just return raw value
-        // eslint-disable-next-line no-debugger
-        //debugger;
-        //console.log(rows[idx]);
-        //console.log(meta);
-        //let returnValue = rows[meta.row][idx]; // val[idx].display;
         let returnValue = val[meta.col];
         if (returnValue.valueFormatted) {
           return returnValue.valueFormatted;
@@ -256,8 +212,6 @@ export const buildColumnDefs = (
         let rowColorIndex = null;
         let rowColorData = null;
         let colorMode = aColumn.columnStyle?.colorMode;
-        // eslint-disable-next-line no-debugger
-        debugger;
         if (colorMode === ColumnStyleColoring.Row) {
           // run all of the rowData through threshold check, get the "highest" index
           // and use that for the entire row
@@ -270,16 +224,14 @@ export const buildColumnDefs = (
           // this should be configurable...
           color = 'white';
           for (let columnNumber = 0; columnNumber < dtColumns.length; columnNumber++) {
-            let x = dtColumns[columnNumber].columnStyle;
+            let aColumnStyle = dtColumns[columnNumber].columnStyle;
             // need the style to get the color
-            if (!x) {
+            if (!aColumnStyle) {
               //console.log(`no style found for column ${columnNumber}`);
               continue;
             }
-            // eslint-disable-next-line no-debugger
-            debugger;
             rowColorData = getCellColors(
-              x,
+              aColumnStyle,
               columnNumber,
               rowData[columnNumber + rowNumberOffset]
             );
@@ -423,8 +375,6 @@ const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: a
   let colorIndex = null;
   //let colStyle = null;
   let value = null;
-  // eslint-disable-next-line no-debugger
-  debugger;
   // check if the content has a numeric value after the split
   if (!isNaN(Number(items[0]))) {
     // run value through threshold function

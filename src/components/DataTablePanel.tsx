@@ -19,6 +19,8 @@ import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
 import 'datatables.mark.js';
 
 import { PanelProps, textUtil } from '@grafana/data';
+import { defaultTimeZone } from '@grafana/schema';
+
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
@@ -45,6 +47,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const dataTableWrapperId = `data-table-wrapper-${props.id}`;
   const dataTableId = `data-table-renderer-${props.id}`;
   const theme2 = useTheme2();
+  const userTimeZone = props.replaceVariables('$__timezone') || defaultTimeZone;
 
   // convert the option to a usable type
   const transformID = GetDataTransformerID(props.options.transformation);
@@ -114,6 +117,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       // this is the main processor
       // buildColumnDefs needs to use the result, and not build its own
       const result = ConvertDataFrameToDataTableFormat(
+        userTimeZone,
         props.options.alignNumbersToRightEnabled,
         props.options.rowNumbersEnabled,
         props.options.transformation,
@@ -163,6 +167,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     }
   },[
     dataFrames,
+    userTimeZone,
     props.options.alignNumbersToRightEnabled,
     props.options.columnAliases,
     props.options.columnStylesConfig,
