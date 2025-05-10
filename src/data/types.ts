@@ -6,7 +6,7 @@ export interface DTColumnType {
   data: string;
   type: string;
   className: string;
-  fieldConfig: FieldConfig<any>;
+  fieldConfig?: FieldConfig<any>;
   columnStyle: ColumnStyleItemType | null;
-  widthHint: string;
+  widthHint?: string;
 };

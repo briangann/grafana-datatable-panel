@@ -6,7 +6,6 @@ export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnS
     for (let index = 0; index < columnStyles.length; index++) {
       const aStyle = columnStyles[index];
       // convert to regexp
-
       let expression = `${aStyle.nameOrRegex}`;
       // remove leading and ending slashes
       if (expression.startsWith(`/`)) {
@@ -16,10 +15,7 @@ export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnS
         expression = expression.slice(0, -1);
       }
       const rx = new RegExp(expression);
-      //const matches = rx.test(item.title);
-      //console.log(matches);
       if (item.title.match(rx)) {
-        //console.log(`ApplyColumnStyles: style match found for column ${item}`);
         // set the column style for the item, to be used in rendering
         item.columnStyle = aStyle;
         // matched move on to next column
@@ -27,5 +23,4 @@ export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnS
       }
     }
   };
-  return columns;
 };

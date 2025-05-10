@@ -19,6 +19,7 @@ import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
 import 'datatables.mark.js';
 
 import { PanelProps, textUtil } from '@grafana/data';
+
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
@@ -46,6 +47,24 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const dataTableId = `data-table-renderer-${props.id}`;
   const theme2 = useTheme2();
 
+  const getTimeZone = () => {
+    const { timeZone: dashboardTimeZone } = props;
+    if (dashboardTimeZone === '') {
+      // try global vars
+      const globalTimezone = props.replaceVariables('$__timezone');
+      //console.log(`global timezone ${globalTimezone}`);
+      if (globalTimezone === '') {
+        // default to UTC
+        return ('utc');
+      }
+      return (globalTimezone);
+    } else {
+      //console.log(`timezone of dashboard ${dashboardTimeZone}`);
+      return (dashboardTimeZone);
+    }
+  }
+  // get timezone of dashboard or global setting
+  const useTimeZone = getTimeZone();
   // convert the option to a usable type
   const transformID = GetDataTransformerID(props.options.transformation);
   let dataFrames = useApplyTransformation(props.data.series, transformID, props.options.transformationAggregations);
@@ -114,6 +133,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       // this is the main processor
       // buildColumnDefs needs to use the result, and not build its own
       const result = ConvertDataFrameToDataTableFormat(
+        useTimeZone,
         props.options.alignNumbersToRightEnabled,
         props.options.rowNumbersEnabled,
         props.options.transformation,
@@ -161,8 +181,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       setColumns(tmpColumns);
       setRows(tmpRows);
     }
-  },[
+  }, [
     dataFrames,
+    useTimeZone,
     props.options.alignNumbersToRightEnabled,
     props.options.columnAliases,
     props.options.columnStylesConfig,
@@ -175,7 +196,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.transformationAggregations,
     theme2]);
 
-    useEffect(() => {
+  useEffect(() => {
 
     // 32 = panel title when displayed
     // 8 = panel content wrapper padding (all the way around) - need this for width too!
@@ -200,7 +221,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         aDT.destroy();
         $(dataTableDOMRef.current).empty();
       } catch (err) {
-        console.log('Exception: ' + err);
+        console.error('Exception: ' + err);
       }
       const calculatedHeight = getDatatableHeight(props.height);
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
@@ -227,10 +248,10 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           pagingType: props.options.datatablePagingType,
           language: {
             paginate: {
-                previous: 'Previous',
-                next: 'Next',
-                first: 'First',
-                last: 'Last',
+              previous: 'Previous',
+              next: 'Next',
+              first: 'First',
+              last: 'Last',
             }
           },
           scrollCollapse: false,
@@ -289,7 +310,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.searchHighlightingEnabled,
     props.options.transformationAggregations,
     props.options.transformation,
-    ]);
+  ]);
 
   /*
   <div className={divStyles} style={{

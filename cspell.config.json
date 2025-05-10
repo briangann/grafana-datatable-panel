@@ -28,7 +28,10 @@
     "pdfmake",
     "rowcolumn",
     "rpmbuild",
+    "scroller",
     "searchpanes",
-    "sourcedir"
+    "showreport",
+    "sourcedir",
+    "subresource"
   ]
 }

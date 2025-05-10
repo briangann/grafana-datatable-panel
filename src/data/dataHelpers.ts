@@ -5,7 +5,7 @@ import {
   FieldType,
   GrafanaTheme2
 } from '@grafana/data';
-import { FormatColumnValue } from 'data/cellFormatter';
+import { ApplyUnitsAndDecimals, FormatColumnValue } from 'data/cellRenderer';
 import { ApplyGrafanaOverrides } from './overrides';
 import { ConfigColumnDefs } from 'datatables.net';
 import _ from 'lodash';
@@ -13,6 +13,7 @@ import {
   ColumnStyleColoring,
   TransformationOptions,
   AggregationType,
+  ColumnStyleType,
 } from 'types';
 import { DTColumnType } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
@@ -51,32 +52,11 @@ export const DataFrameToDisplay = (frames: DataFrame[]) => {
     // use current time if none is found
     newestTimestamp = new Date().getTime()
   }
-  // already calculated
-  // let globalOperator = 'last';
-  // for (const valueField of valueFields) {
-  //   const valueFieldName = getFieldDisplayName(valueField!, frame);
-  //   const standardCalcs = reduceField({ field: valueField!, reducers: ['bogus'] });
-  //   //const operatorValue = GetValueByOperator(valueFieldName, null, globalOperator, standardCalcs);
-  //   const operatorValue = GetValueByOperator(valueFieldName, globalOperator, standardCalcs);
-
-  //   let maxDecimals = 4;
-  //   if (valueField!.config.decimals !== undefined && valueField!.config.decimals !== null) {
-  //     maxDecimals = valueField!.config.decimals;
-  //   }
-  //   const valueFormat = getValueFormat(valueField!.config.unit)(operatorValue, maxDecimals, undefined, undefined);
-  //   const valueFormatted = formattedValueToString(valueFormat);
-  //   console.log(`valueFieldName: ${valueFieldName}`);
-  //   console.log(`standardCalcs: ` + JSON.stringify(standardCalcs));
-  //   console.log(`operatorValue: ${operatorValue}`);
-  //   console.log(`valueFormat: ` + JSON.stringify(valueFormat));
-  //   console.log(`valueFormatted: ${valueFormatted}`);
-  //   // eslint-disable-next-line no-debugger
-  //   debugger;
-  // }
 };
 
 
 export function ConvertDataFrameToDataTableFormat<T>(
+  userTimeZone: string,
   alignNumbersToRightEnabled: boolean,
   rowNumbersEnabled: boolean,
   tableTransforms: TransformationOptions,
@@ -99,21 +79,24 @@ export function ConvertDataFrameToDataTableFormat<T>(
       widthHint: '',
     };
   });
+
+  ApplyColumnStyles(columns, columnStyles);
+
   const rows = [] as T[];
 
   for (let i = 0; i < dataFrame.length; i++) {
     const row = {};
     for (let j = 0; j < columns.length; j++) {
-      const value = dataFrame.fields[j].values[i];
-      const valueType = dataFrame.fields[j].type;
-      const fieldConfig = dataFrame.fields[j].config;
-      let formattedValue = value;
+      const aColumn = columns[j];
+      const frameFields = dataFrame.fields[j];
+      let value = frameFields.values[i];
+      const valueType = frameFields.type;
       if (valueType !== 'string') {
-        // this needs to be done AFTER all of the rows/columns are collected
-        formattedValue = FormatColumnValue(null, fieldConfig, j, i, value, valueType, "timeFrom", "timeTo");
+        value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, "timeFrom", "timeTo", theme);
       }
-      //@ts-ignore
-      row[columns[j].data] = formattedValue;
+      const colName = columns[j].data;
+      // @ts-ignore
+      row[colName] = value;
     }
     rows.push(row as T);
   }
@@ -132,7 +115,7 @@ export function ConvertDataFrameToDataTableFormat<T>(
       rows[i].rowNumber = i;
     }
   }
-  columns = ApplyColumnStyles(columns, columnStyles);
+  ApplyUnitsAndDecimals(columns, rows);
   return { columns, rows };
 }
 
@@ -168,19 +151,6 @@ export const buildColumnDefs = (
     dtColumns[i].className = columnClassName;
     // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
     // with full width
-    // NOTE the className here no longer appears to work, setting it later
-    // can we get the columnStyle here? merge rawColumn Data?
-    // eslint-disable-next-line no-debugger
-    //debugger;
-    // columns.push({
-    //   title: columnAlias,
-    //   type: columnType,
-    //   widthHint: columnWidthHint,
-    //   className: columnClassName,
-    //   data: '',
-    //   fieldConfig: {},
-    //   columnStyle: null
-    // });
     let columnDefDict: any = {
       width: dtColumns[i].widthHint,
       targets: i + rowNumberOffset,
@@ -190,9 +160,6 @@ export const buildColumnDefs = (
           return null;
         }
         const idx = meta.col;
-        // use display type for return
-        // TODO; display has not been set yet
-        //let returnValue = row[idx].display;
         if (row[idx]?.display !== undefined) {
           return row[idx].display;
         }
@@ -202,35 +169,28 @@ export const buildColumnDefs = (
         if (type === undefined) {
           return null;
         }
+        // TODO: call render function vs just returning formatted value
         const idx = meta.col;
         if (type === 'type') {
           return val[idx];
         }
-        // use display type for return
-        // TODO: this should be set to the formatted value, for now just return raw value
-        // eslint-disable-next-line no-debugger
-        //debugger;
-        //console.log(rows[idx]);
-        //console.log(meta);
-        //let returnValue = rows[meta.row][idx]; // val[idx].display;
         let returnValue = val[meta.col];
+        if (returnValue.valueFormatted) {
+          return returnValue.valueFormatted;
+        }
         return returnValue;
       },
-      createdCell: (cell: any, cellDataAlwaysEmpty: any, rowData: any, rowIndex: any, colIndex: any) => {
+      createdCell: (cell: any, cellDataAlwaysEmpty: any, rowData: any, rowIndex: number, colIndex: number) => {
         // set the fontsize for the cell
         // cellData is empty since we use render()
-        const aColumn = dtColumns[colIndex];
+        let aColumn = dtColumns[colIndex];
+        // @ts-ignore
+        let aColumn2 = dtColumns[2];
         $(cell).css('font-size', fontSizePercent);
         // orthogonal sort requires getting cell data differently
         const cellContent = $(cell).html();
-        //console.log(cellContent);
         // hidden columns have null data
         if (cellContent === null) {
-          return;
-        }
-        // can only evaluate thresholds on a numerical value
-        if (isNaN(Number(cellContent))) {
-          //console.log(`createdCell: ${cellContent} is not a number...`);
           return;
         }
         // undefined types should have numerical data, any others are already formatted
@@ -252,18 +212,22 @@ export const buildColumnDefs = (
           }
           rowColorIndex = -1;
           rowColorData = null;
-          rowColor = 'teal';
+          rowColor = 'teal'; // will stand out with a default like this, useful for debugging
           // this should be configurable...
           color = 'white';
           for (let columnNumber = 0; columnNumber < dtColumns.length; columnNumber++) {
-            let x = dtColumns[columnNumber].columnStyle;
+            let aColumnStyle = dtColumns[columnNumber].columnStyle;
             // need the style to get the color
-            if (!x) {
+            if (!aColumnStyle) {
               //console.log(`no style found for column ${columnNumber}`);
               continue;
             }
+            // only process color values for numbers
+            if (aColumnStyle.styleItemType !== ColumnStyleType.Metric) {
+              continue;
+            }
             rowColorData = getCellColors(
-              x,
+              aColumnStyle,
               columnNumber,
               rowData[columnNumber + rowNumberOffset]
             );
@@ -272,9 +236,6 @@ export const buildColumnDefs = (
             }
 
             if (rowColorData.bgColorIndex !== null) {
-              //console.log(`testing rowColorIndex = ${rowColorIndex}`);
-              //console.log(`testing rowColorData.bgColorIndex = ${rowColorData.bgColorIndex}`);
-              //console.log(`testing rowColorData.bgColor = ${rowColorData.bgColorIndex}`);
               if (rowColorData.bgColorIndex > rowColorIndex) {
                 rowColorIndex = rowColorData.bgColorIndex;
                 rowColor = rowColorData.bgColor;
@@ -302,9 +263,17 @@ export const buildColumnDefs = (
           color = 'white';
           for (let columnNumber = 0; columnNumber < dtColumns.length; columnNumber++) {
             if (dtColumns[columnNumber].type === undefined) {
-              //let x = dtColumns[columnNumber].columnStyle;
-              //console.log(x);
-              if (dtColumns[columnNumber].columnStyle!) {
+              if (dtColumns[columnNumber].columnStyle !== null) {
+                let aColumnStyle = dtColumns[columnNumber].columnStyle;
+                // need the style to get the color
+                if (!aColumnStyle) {
+                  //console.log(`no style found for column ${columnNumber}`);
+                  continue;
+                }
+                // only process color values for numbers
+                if (aColumnStyle.styleItemType !== ColumnStyleType.Metric) {
+                  continue;
+                }
                 rowColorData = getCellColors(
                   dtColumns[columnNumber].columnStyle!,
                   columnNumber,
@@ -349,6 +318,9 @@ export const buildColumnDefs = (
         //    1) Cell coloring is enabled, the above row color is skipped
         //    2) RowColumn is enabled, the above row color is process, but we also
         //    set the cell colors individually
+        // if (aColumn.columnStyle && aColumn.columnStyle.styleItemType !== ColumnStyleType.Number) {
+        //   return;
+        // }
         const colorData = getCellColors(aColumn.columnStyle, actualColumn, cellContent);
         if (!colorData) {
           return;
@@ -395,25 +367,27 @@ const getColumnClassName = (alignNumbersToRightEnabled: boolean, columnType: str
 }
 
 const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: any, cellData: any) => {
-  //console.log(`getCellColors: cellData = ${cellData}`);
   if (aColumnStyle === null || cellData === null || cellData === undefined) {
     return null;
   }
-  const items = cellData.split(/([^0-9.,]+)/);
+  let useData = cellData;
+  if (cellData.valueRaw) {
+    useData = cellData.valueRaw;
+    //console.log(`using valueRaw... ${cellData.valueRaw}`);
+  } else {
+    // this should not happen
+    return null;
+  }
+  const items = useData.split(/([^0-9.,]+)/);
   // only color cell if the content is a number?
   let bgColor = null;
   let bgColorIndex = null;
   let color = null;
   let colorIndex = null;
-  //let colStyle = null;
   let value = null;
   // check if the content has a numeric value after the split
   if (!isNaN(Number(items[0]))) {
-    // run value through threshold function
-    //console.log(`parsing ${items[0]}`);
     value = parseFloat(items[0].replace(',', '.'));
-    //const styles: any[] = [];
-    //colStyle = aColumnStyle; // getStyleForColumn(columnNumber, cellData, styles);
   }
 
   if (aColumnStyle && aColumnStyle.colorMode != null && aColumnStyle.thresholds.length > 0) {
@@ -421,23 +395,17 @@ const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: a
     if (aColumnStyle.colorMode === ColumnStyleColoring.Cell ||
       aColumnStyle.colorMode === ColumnStyleColoring.Row ||
       aColumnStyle.colorMode === ColumnStyleColoring.RowColumn) {
-      // bgColor = _this.colorState.cell;
       if (value !== null && !isNaN(value)) {
         bgColor = GetColorForValue(value, aColumnStyle);
         bgColorIndex = GetColorIndexForValue(value, aColumnStyle);
-      } else {
-        console.log(`skipped... ${value}`);
       }
       color = 'white';
     }
     // just the value color is set
     if (aColumnStyle.colorMode === ColumnStyleColoring.Value) {
-      //color = _this.colorState.value;
       if (value !== null && !isNaN(value)) {
         color = GetColorForValue(value, aColumnStyle);
         colorIndex = GetColorIndexForValue(value, aColumnStyle);
-      } else {
-        console.log(`skipped... ${value}`);
       }
     }
   }
@@ -448,23 +416,6 @@ const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: a
     colorIndex: colorIndex,
   };
 };
-
-// const getStyleForColumn = (columnNumber: any, rawColumns: any, styles: any) => {
-//   let colStyle = null;
-//   for (let i = 0; i < styles.length; i++) {
-//     const style = styles[i];
-//     const column = rawColumns[columnNumber];
-//     if (column === undefined) {
-//       break;
-//     }
-//     const regex = stringToJsRegex(style.pattern);
-//     if (column.text.match(regex)) {
-//       colStyle = style;
-//       break;
-//     }
-//   }
-//   return colStyle;
-// };
 
 export const GetColorForValue = (value: number, style: ColumnStyleItemType) => {
   if (!style.thresholds) {
