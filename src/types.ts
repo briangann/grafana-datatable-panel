@@ -117,7 +117,7 @@ export const AggregationOptions: SelectableValue[]= [
 ];
 
 export enum ColumnStyleType {
-  Number = 'number',
+  Metric = 'metric',
   String = 'string',
   Date = 'date',
   Hidden = 'hidden',

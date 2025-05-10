@@ -51,9 +51,16 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
   //
   // const timestampFormatted = dateTimeForTimeZone(timeZone, timestamp);
   // console.log(timestampFormatted.toISOString(true));
-  const formattedWithTimezone = moment.tz(
+
+  // TODO: bug
+  // when timezone is browser, moment.tz can't be used
+  //
+  let formattedWithTimezone = dateTime(timestamp).format(timestampFormat);
+  if (timeZone !== 'browser') {
+    formattedWithTimezone = moment.tz(
     dateTime(timestamp).utc().toISOString(true),
     timestampFormat, timeZone).format(timestampFormat);
+  }
   return formattedWithTimezone;
 }
 
@@ -157,6 +164,7 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
   }
   return (
     {
+      valueRaw: value,
       valueFormatted: valueFormatted,
       valueRounded: valueRounded,
       valueRoundedAndFormatted: valueRoundedAndFormatted,

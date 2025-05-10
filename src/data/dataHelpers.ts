@@ -13,6 +13,7 @@ import {
   ColumnStyleColoring,
   TransformationOptions,
   AggregationType,
+  ColumnStyleType,
 } from 'types';
 import { DTColumnType } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
@@ -182,23 +183,14 @@ export const buildColumnDefs = (
       createdCell: (cell: any, cellDataAlwaysEmpty: any, rowData: any, rowIndex: number, colIndex: number) => {
         // set the fontsize for the cell
         // cellData is empty since we use render()
-        console.log(colIndex);
         let aColumn = dtColumns[colIndex];
-        console.log(aColumn);
         // @ts-ignore
         let aColumn2 = dtColumns[2];
         $(cell).css('font-size', fontSizePercent);
         // orthogonal sort requires getting cell data differently
         const cellContent = $(cell).html();
-        //console.log(cellContent);
         // hidden columns have null data
         if (cellContent === null) {
-          return;
-        }
-        // can only evaluate thresholds on a numerical value
-        if (isNaN(Number(cellContent))) {
-          //console.log(`createdCell: ${cellContent} is not a number...`);
-          // can render a style for non-numerical content
           return;
         }
         // undefined types should have numerical data, any others are already formatted
@@ -220,7 +212,7 @@ export const buildColumnDefs = (
           }
           rowColorIndex = -1;
           rowColorData = null;
-          rowColor = 'teal';
+          rowColor = 'teal'; // will stand out with a default like this, useful for debugging
           // this should be configurable...
           color = 'white';
           for (let columnNumber = 0; columnNumber < dtColumns.length; columnNumber++) {
@@ -228,6 +220,10 @@ export const buildColumnDefs = (
             // need the style to get the color
             if (!aColumnStyle) {
               //console.log(`no style found for column ${columnNumber}`);
+              continue;
+            }
+            // only process color values for numbers
+            if (aColumnStyle.styleItemType !== ColumnStyleType.Metric) {
               continue;
             }
             rowColorData = getCellColors(
@@ -240,9 +236,6 @@ export const buildColumnDefs = (
             }
 
             if (rowColorData.bgColorIndex !== null) {
-              //console.log(`testing rowColorIndex = ${rowColorIndex}`);
-              //console.log(`testing rowColorData.bgColorIndex = ${rowColorData.bgColorIndex}`);
-              //console.log(`testing rowColorData.bgColor = ${rowColorData.bgColorIndex}`);
               if (rowColorData.bgColorIndex > rowColorIndex) {
                 rowColorIndex = rowColorData.bgColorIndex;
                 rowColor = rowColorData.bgColor;
@@ -270,9 +263,17 @@ export const buildColumnDefs = (
           color = 'white';
           for (let columnNumber = 0; columnNumber < dtColumns.length; columnNumber++) {
             if (dtColumns[columnNumber].type === undefined) {
-              //let x = dtColumns[columnNumber].columnStyle;
-              //console.log(x);
-              if (dtColumns[columnNumber].columnStyle!) {
+              if (dtColumns[columnNumber].columnStyle !== null) {
+                let aColumnStyle = dtColumns[columnNumber].columnStyle;
+                // need the style to get the color
+                if (!aColumnStyle) {
+                  //console.log(`no style found for column ${columnNumber}`);
+                  continue;
+                }
+                // only process color values for numbers
+                if (aColumnStyle.styleItemType !== ColumnStyleType.Metric) {
+                  continue;
+                }
                 rowColorData = getCellColors(
                   dtColumns[columnNumber].columnStyle!,
                   columnNumber,
@@ -317,6 +318,9 @@ export const buildColumnDefs = (
         //    1) Cell coloring is enabled, the above row color is skipped
         //    2) RowColumn is enabled, the above row color is process, but we also
         //    set the cell colors individually
+        // if (aColumn.columnStyle && aColumn.columnStyle.styleItemType !== ColumnStyleType.Number) {
+        //   return;
+        // }
         const colorData = getCellColors(aColumn.columnStyle, actualColumn, cellContent);
         if (!colorData) {
           return;
@@ -363,25 +367,27 @@ const getColumnClassName = (alignNumbersToRightEnabled: boolean, columnType: str
 }
 
 const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: any, cellData: any) => {
-  //console.log(`getCellColors: cellData = ${cellData}`);
   if (aColumnStyle === null || cellData === null || cellData === undefined) {
     return null;
   }
-  const items = cellData.split(/([^0-9.,]+)/);
+  let useData = cellData;
+  if (cellData.valueRaw) {
+    useData = cellData.valueRaw;
+    //console.log(`using valueRaw... ${cellData.valueRaw}`);
+  } else {
+    // this should not happen
+    return null;
+  }
+  const items = useData.split(/([^0-9.,]+)/);
   // only color cell if the content is a number?
   let bgColor = null;
   let bgColorIndex = null;
   let color = null;
   let colorIndex = null;
-  //let colStyle = null;
   let value = null;
   // check if the content has a numeric value after the split
   if (!isNaN(Number(items[0]))) {
-    // run value through threshold function
-    //console.log(`parsing ${items[0]}`);
     value = parseFloat(items[0].replace(',', '.'));
-    //const styles: any[] = [];
-    //colStyle = aColumnStyle; // getStyleForColumn(columnNumber, cellData, styles);
   }
 
   if (aColumnStyle && aColumnStyle.colorMode != null && aColumnStyle.thresholds.length > 0) {
@@ -389,23 +395,17 @@ const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: a
     if (aColumnStyle.colorMode === ColumnStyleColoring.Cell ||
       aColumnStyle.colorMode === ColumnStyleColoring.Row ||
       aColumnStyle.colorMode === ColumnStyleColoring.RowColumn) {
-      // bgColor = _this.colorState.cell;
       if (value !== null && !isNaN(value)) {
         bgColor = GetColorForValue(value, aColumnStyle);
         bgColorIndex = GetColorIndexForValue(value, aColumnStyle);
-      } else {
-        console.log(`skipped... ${value}`);
       }
       color = 'white';
     }
     // just the value color is set
     if (aColumnStyle.colorMode === ColumnStyleColoring.Value) {
-      //color = _this.colorState.value;
       if (value !== null && !isNaN(value)) {
         color = GetColorForValue(value, aColumnStyle);
         colorIndex = GetColorIndexForValue(value, aColumnStyle);
-      } else {
-        console.log(`skipped... ${value}`);
       }
     }
   }
@@ -416,23 +416,6 @@ const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: a
     colorIndex: colorIndex,
   };
 };
-
-// const getStyleForColumn = (columnNumber: any, rawColumns: any, styles: any) => {
-//   let colStyle = null;
-//   for (let i = 0; i < styles.length; i++) {
-//     const style = styles[i];
-//     const column = rawColumns[columnNumber];
-//     if (column === undefined) {
-//       break;
-//     }
-//     const regex = stringToJsRegex(style.pattern);
-//     if (column.text.match(regex)) {
-//       colStyle = style;
-//       break;
-//     }
-//   }
-//   return colStyle;
-// };
 
 export const GetColorForValue = (value: number, style: ColumnStyleItemType) => {
   if (!style.thresholds) {
