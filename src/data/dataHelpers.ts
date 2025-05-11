@@ -8,13 +8,7 @@ import {
 import { ApplyUnitsAndDecimals, FormatColumnValue } from 'data/cellRenderer';
 import { ApplyGrafanaOverrides } from './overrides';
 import { ConfigColumnDefs } from 'datatables.net';
-import _ from 'lodash';
-import {
-  ColumnStyleColoring,
-  TransformationOptions,
-  AggregationType,
-  ColumnStyleType,
-} from 'types';
+import { ColumnStyleColoring, ColumnStyleType } from 'types';
 import { DTColumnType } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
@@ -59,8 +53,6 @@ export function ConvertDataFrameToDataTableFormat<T>(
   userTimeZone: string,
   alignNumbersToRightEnabled: boolean,
   rowNumbersEnabled: boolean,
-  tableTransforms: TransformationOptions,
-  aggregations: AggregationType[],
   dataFrames: DataFrame[],
   columnStyles: ColumnStyleItemType[],
   theme: GrafanaTheme2): { columns: DTColumnType[]; rows: T[] } {

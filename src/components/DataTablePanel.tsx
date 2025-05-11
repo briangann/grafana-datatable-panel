@@ -33,12 +33,22 @@ import { ApplyColumnAliases } from 'data/columnAliasing';
 
 interface Props extends PanelProps<DatatableOptions> { }
 
+interface DTData {
+  ColumnDefs: ConfigColumnDefs[],
+  Columns: ConfigColumns[],
+  Rows: any[],
+};
 
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
-  const [columnDefs, setColumnDefs] = useState<ConfigColumnDefs[]>([]);
-  const [columns, setColumns] = useState<ConfigColumns[]>([]);
-  const [rows, setRows] = useState<any[]>([]);
+  const [dtData, setDTData] = useState<DTData>({
+    ColumnDefs: [],
+    Columns: [],
+    Rows: [],
+  })
+  //const [columnDefs, setColumnDefs] = useState<ConfigColumnDefs[]>([]);
+  //const [columns, setColumns] = useState<ConfigColumns[]>([]);
+  //const [rows, setRows] = useState<any[]>([]);
 
   const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
@@ -126,60 +136,40 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   // actually render the table
   useEffect(() => {
-    let tmpColumns: DTColumnType[] = [];
-    let tmpRows: any[] = [];
+    let dtColumns: DTColumnType[] = [];
+    let flattenedRows: any[] = [];
 
     if (dataFrames && dataFrames.length > 0) {
       // this is the main processor
       // buildColumnDefs needs to use the result, and not build its own
+      // FIXME: major logic issue
+      // but this needs columnDefs also... so this is circular ugh
       const result = ConvertDataFrameToDataTableFormat(
         useTimeZone,
         props.options.alignNumbersToRightEnabled,
         props.options.rowNumbersEnabled,
-        props.options.transformation,
-        props.options.transformationAggregations,
         dataFrames,
         props.options.columnStylesConfig,
         theme2);
-      tmpColumns = result.columns;
+      dtColumns = result.columns;
       // get the column widths
-      tmpColumns = ApplyColumnWidthHints(tmpColumns, props.options.columnWidthHints);
-      tmpColumns = ApplyColumnAliases(tmpColumns, props.options.columnAliases);
-      // TODO: convert this to the expected format
-      let flattenedRows = [];
-      for (let i = 0; i < result.rows.length; i++) {
-        const aRow = result.rows[i];
-        // flatten
-        // iterate the columns in order
-        let flattenedRow = [];
-        for (let colIndex = 0; colIndex < tmpColumns.length; colIndex++) {
-          const name = tmpColumns[colIndex].data as string;
-          // @ts-ignore
-          flattenedRow.push(aRow[name])
-        }
-        flattenedRows.push(flattenedRow);
-      }
-      // this ends up with the formatted data in the correct format
-      /*
-      For time and a single metric, rows look like this
-        [
-        "2025-03-24T00:45:47+00:00",
-        "13.3718"
-        ]
-      */
-      tmpRows = flattenedRows; // result.rows;
-      // need the style for this...
+      dtColumns = ApplyColumnWidthHints(dtColumns, props.options.columnWidthHints);
+      dtColumns = ApplyColumnAliases(dtColumns, props.options.columnAliases);
+      flattenedRows = GetFlattenRows(result.rows, dtColumns);
       const calcColumnDefs = buildColumnDefs(
         props.options.emptyDataEnabled,
         props.options.emptyDataText,
         props.options.rowNumbersEnabled,
         props.options.fontSizePercent,
         props.options.alignNumbersToRightEnabled,
-        tmpColumns,
-        tmpRows);
-      setColumnDefs(calcColumnDefs);
-      setColumns(tmpColumns);
-      setRows(tmpRows);
+        dtColumns,
+        flattenedRows);
+      // update state
+      setDTData({
+        ColumnDefs: calcColumnDefs,
+        Columns: dtColumns,
+        Rows: flattenedRows,
+      })
     }
   }, [
     dataFrames,
@@ -214,7 +204,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     for (let i = 0; i < props.options.columnSorting.length; i++) {
       orderColumn.push([props.options.columnSorting[i].index, props.options.columnSorting[i].order]);
     }
-    if (dataTableDOMRef.current && columns.length > 0) {
+    if (dataTableDOMRef.current && dtData.Columns.length > 0) {
       try {
         // cleanup existing table, columns may have changed
         const aDT = $(dataTableDOMRef.current).DataTable();
@@ -227,9 +217,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
         const dtOptions: Config = {
           buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
-          columns: columns,
-          columnDefs: columnDefs,
-          data: rows,
+          columns: dtData.Columns,
+          columnDefs: dtData.ColumnDefs,
+          data: dtData.Rows,
           info: props.options.infoEnabled,
           lengthChange: props.options.lengthChangeEnabled,
           lengthMenu: [
@@ -285,10 +275,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   }, [
     dataFrames,
     dataTableClassesEnabled,
-    theme2,
-    columns,
-    rows,
-    columnDefs,
+    dtData,
     props.height,
     props.options.alignNumbersToRightEnabled,
     props.options.columnAliases,
@@ -331,3 +318,20 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     </div>
   );
 };
+
+const GetFlattenRows = (rows: any, columns: DTColumnType[]) => {
+  let flattenedRows = [];
+  for (let i = 0; i < rows.length; i++) {
+    const aRow = rows[i];
+    // flatten
+    // iterate the columns in order
+    let flattenedRow = [];
+    for (let colIndex = 0; colIndex < columns.length; colIndex++) {
+      const name = columns[colIndex].data as string;
+      // @ts-ignore
+      flattenedRow.push(aRow[name])
+    }
+    flattenedRows.push(flattenedRow);
+  }
+  return flattenedRows;
+}
