@@ -50,10 +50,10 @@ export const DataFrameToDisplay = (frames: DataFrame[]) => {
 
 
 export function ConvertDataFrameToDataTableFormat<T>(
+  dataFrames: DataFrame[],
   userTimeZone: string,
   alignNumbersToRightEnabled: boolean,
   rowNumbersEnabled: boolean,
-  dataFrames: DataFrame[],
   columnStyles: ColumnStyleItemType[],
   theme: GrafanaTheme2): { columns: DTColumnType[]; rows: T[] } {
   DataFrameToDisplay(dataFrames);
@@ -111,7 +111,7 @@ export function ConvertDataFrameToDataTableFormat<T>(
   return { columns, rows };
 }
 
-export const buildColumnDefs = (
+export const BuildColumnDefs = (
   emptyDataEnabled: boolean,
   emptyDataText: string,
   rowNumbersEnabled: boolean,
