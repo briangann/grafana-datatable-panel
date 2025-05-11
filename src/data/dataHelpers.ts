@@ -57,7 +57,7 @@ export function ConvertDataFrameToDataTableFormat<T>(
   columnStyles: ColumnStyleItemType[],
   theme: GrafanaTheme2): { columns: DTColumnType[]; rows: T[] } {
   DataFrameToDisplay(dataFrames);
-  ApplyGrafanaOverrides(dataFrames, theme);
+  dataFrames = ApplyGrafanaOverrides(dataFrames, theme);
   const dataFrame = dataFrames[0];
   let columns: DTColumnType[] = dataFrame.fields.map((field) => {
     const columnClassName = getColumnClassName(alignNumbersToRightEnabled, field.type as string)
@@ -141,8 +141,8 @@ export const BuildColumnDefs = (
     }
 
     dtColumns[i].className = columnClassName;
-    // NOTE: the width below is a "hint" and will be overridden as needed, this lets most tables show timestamps
-    // with full width
+    // NOTE: the width below is a "hint" and will be overridden as needed,
+    // this lets most tables show timestamps with full width
     let columnDefDict: any = {
       width: dtColumns[i].widthHint,
       targets: i + rowNumberOffset,
@@ -161,6 +161,20 @@ export const BuildColumnDefs = (
         if (type === undefined) {
           return null;
         }
+        const aColumn = dtColumns[meta.col];
+        if (aColumn === undefined) {
+          console.log('aColumn undefined');
+          return null;
+        }
+        //console.log(aColumn);
+        let colorMode = aColumn.columnStyle?.colorMode;
+        //console.log(colorMode);
+        if (colorMode === undefined) {
+          console.log('colorMode undefined');
+          return null;
+        }
+        // eslint-disable-next-line no-debugger
+        debugger;
         // TODO: call render function vs just returning formatted value
         const idx = meta.col;
         if (type === 'type') {
@@ -173,11 +187,9 @@ export const BuildColumnDefs = (
         return returnValue;
       },
       createdCell: (cell: any, cellDataAlwaysEmpty: any, rowData: any, rowIndex: number, colIndex: number) => {
-        // set the fontsize for the cell
         // cellData is empty since we use render()
-        let aColumn = dtColumns[colIndex];
-        // @ts-ignore
-        let aColumn2 = dtColumns[2];
+        const aColumn = dtColumns[colIndex];
+        // set the fontsize for the cell
         $(cell).css('font-size', fontSizePercent);
         // orthogonal sort requires getting cell data differently
         const cellContent = $(cell).html();
