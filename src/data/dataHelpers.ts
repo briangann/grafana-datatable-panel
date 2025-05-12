@@ -111,15 +111,6 @@ export const ConvertDataFrameToDataTableFormat = (
   return { columns, rows };
 }
 
-// const doStuff = (dtColumns: DTColumnType[], cell: any, fontSizePercent: any, colIndex: number) => {
-//   // eslint-disable-next-line no-debugger
-//   debugger;
-//   $(cell).css('font-size', fontSizePercent);
-//   //const aColumn = dtColumns[colIndex];
-//   let colorMode = dtColumns[colIndex].columnStyle?.colorMode;
-//   console.log(colorMode);
-// }
-
 export const BuildColumnDefs = (
   emptyDataEnabled: boolean,
   emptyDataText: string,
@@ -154,7 +145,8 @@ export const BuildColumnDefs = (
     const columnDefDict: any = {
       width: dtData.Columns[i].widthHint,
       targets: i + rowNumberOffset,
-      defaultContent: emptyDataEnabled ? emptyDataText : '',
+      defaultContent: dtData.Columns,
+      //defaultContent: emptyDataEnabled ? emptyDataText : '',
       data: function (row: any, type: any, set: any, meta: any) {
         if (type === undefined) {
           return null;
@@ -174,16 +166,6 @@ export const BuildColumnDefs = (
           console.log('aColumn undefined');
           return null;
         }
-        // //console.log(aColumn);
-        // let colorMode = aColumn.columnStyle?.colorMode;
-        // //console.log(colorMode);
-        // if (colorMode === undefined) {
-        //   console.log('colorMode undefined');
-        //   //return null;
-        // }
-        // // eslint-disable-next-line no-debugger
-        // debugger;
-        // TODO: call render function vs just returning formatted value
         const idx = meta.col;
         if (type === 'type') {
           return val[idx];
@@ -194,12 +176,14 @@ export const BuildColumnDefs = (
         }
         return returnValue;
       },
-      createdCell: function(cell: any, cellDataAlwaysEmpty: any, rowData: any, rowIndex: number, colIndex: number) {
-        // cellData is empty since we use render()
-        // eslint-disable-next-line no-debugger
-        debugger;
-        const aColumn = dtData.Columns[colIndex];
-        const colorMode = aColumn.columnStyle?.colorMode;
+      createdCell: function(cell: any, columnsInCellData: any, rowData: any, rowIndex: number, colIndex: number) {
+        // cellData is populated with Columns, which we can use for content thresholds
+        const aColumn = columnsInCellData[colIndex];
+        // no formatting needed without a style
+        if (aColumn.columnStyle === null) {
+          return;
+        }
+        const colorMode = aColumn.columnStyle.colorMode;
         console.log(aColumn);
         // set the fontsize for the cell
         $(cell).css('font-size', fontSizePercent);
@@ -220,7 +204,7 @@ export const BuildColumnDefs = (
         let rowColorIndex = null;
         let rowColorData = null;
         //colorMode = aColumn.columnStyle?.colorMode;
-        if (colorMode === ColumnStyleColoring.Row) {
+        if (colorMode === "row") {
           // run all of the rowData through threshold check, get the "highest" index
           // and use that for the entire row
           if (rowData === null) {
@@ -266,7 +250,7 @@ export const BuildColumnDefs = (
             .attr('style', function(i,s) { return s + fmtColors });
         }
 
-        if (colorMode === ColumnStyleColoring.RowColumn) {
+        if (colorMode === 'row-column') {
           // run all of the rowData through threshold check, get the "highest" index
           // and use that for the entire row
           if (rowData === null) {
@@ -277,10 +261,10 @@ export const BuildColumnDefs = (
           rowColor = 'blue'; // colorState.rowcolumn;
           // this should be configurable...
           color = 'white';
-          for (let columnNumber = 0; columnNumber < dtData.Columns.length; columnNumber++) {
-            if (dtData.Columns[columnNumber].type === undefined) {
-              if (dtData.Columns[columnNumber].columnStyle !== null) {
-                let aColumnStyle = dtData.Columns[columnNumber].columnStyle;
+          for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
+            if (columnsInCellData[columnNumber].type === undefined) {
+              if (columnsInCellData[columnNumber].columnStyle !== null) {
+                let aColumnStyle = columnsInCellData[columnNumber].columnStyle;
                 // need the style to get the color
                 if (!aColumnStyle) {
                   //console.log(`no style found for column ${columnNumber}`);
@@ -291,7 +275,7 @@ export const BuildColumnDefs = (
                   continue;
                 }
                 rowColorData = getCellColors(
-                  dtData.Columns[columnNumber].columnStyle!,
+                  columnsInCellData[columnNumber].columnStyle!,
                   columnNumber,
                   rowData[columnNumber + rowNumberOffset]
                 );
@@ -309,7 +293,7 @@ export const BuildColumnDefs = (
           }
           // style the rowNumber and Timestamp column
           // the cell colors will be determined in the next phase
-          if (dtData.Columns[0].type !== undefined) {
+          if (columnsInCellData[0].type !== undefined) {
             const children = $(cell.parentNode).children();
             let aChild = children[0];
             $(aChild).css('color', color);
@@ -334,14 +318,15 @@ export const BuildColumnDefs = (
         //    1) Cell coloring is enabled, the above row color is skipped
         //    2) RowColumn is enabled, the above row color is process, but we also
         //    set the cell colors individually
-        // if (aColumn.columnStyle && aColumn.columnStyle.styleItemType !== ColumnStyleType.Number) {
-        //   return;
-        // }
-        const colorData = getCellColors(aColumn.columnStyle, actualColumn, cellContent);
+        //
+        // instead of using cellContent, use the formatted data from dtData.Rows
+        const aRow = dtData.Rows[rowIndex];
+        const cellValueFormatted = aRow[colIndex];
+        const colorData = getCellColors(aColumn.columnStyle, actualColumn, cellValueFormatted);
         if (!colorData) {
           return;
         }
-        if (colorMode === ColumnStyleColoring.Cell || colorMode === ColumnStyleColoring.RowColumn) {
+        if (colorMode === 'cell' || colorMode === 'row-column') {
           if (colorData && colorData.color !== null) {
             $(cell).css('color', colorData.color);
           }

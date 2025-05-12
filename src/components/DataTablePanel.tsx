@@ -169,10 +169,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         console.log(`have dataFrames!`);
         let dtColumns: DTColumnType[] = [];
         let flattenedRows: any[] = [];
-        // this is the main processor
-        // buildColumnDefs needs to use the result, and not build its own
-        // FIXME: major logic issue
-        // but this needs columnDefs also... so this is circular ugh
         const result = ConvertDataFrameToDataTableFormat(
           dataFrames,
           props.timeZone,
@@ -180,20 +176,17 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           props.options.rowNumbersEnabled,
           props.options.columnStylesConfig,
           theme2);
-        // eslint-disable-next-line no-debugger
-        //debugger;
         dtColumns = result.columns;
         // get the column widths
         dtColumns = ApplyColumnWidthHints(dtColumns, props.options.columnWidthHints);
         dtColumns = ApplyColumnAliases(dtColumns, props.options.columnAliases);
         flattenedRows = GetFlattenRows(result.rows, dtColumns);
         // update state
-        // maybe split off columnDefs since they need styles applied, and that can't happen?
         setCachedProcessedData({
           Columns: dtColumns,
           Rows: flattenedRows,
         });
-        console.log(`set cached processed data!`);
+        //console.log(`set cached processed data!`);
       }
     }
   }, [
