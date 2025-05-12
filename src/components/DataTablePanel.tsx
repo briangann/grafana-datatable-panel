@@ -1,7 +1,7 @@
 //import jszip from 'jszip';
 //import pdfmake from 'pdfmake';
 //import DataTable, { Config, ConfigColumns } from 'datatables.net-dt';
-import { Config, ConfigColumnDefs, ConfigColumns, Order } from 'datatables.net-dt';
+import { Config, ConfigColumnDefs, Order } from 'datatables.net-dt';
 
 import 'datatables.net-buttons-dt';
 import 'datatables.net-buttons/js/buttons.html5.mjs';
@@ -18,13 +18,13 @@ import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize.min
 import 'datatables.net-plugins/features/scrollResize/dataTables.scrollResize';
 import 'datatables.mark.js';
 
-import { PanelProps, textUtil } from '@grafana/data';
+import { LoadingState, PanelProps, textUtil } from '@grafana/data';
 
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
-import { buildColumnDefs, ConvertDataFrameToDataTableFormat } from 'data/dataHelpers';
+import { BuildColumnDefs, ConvertDataFrameToDataTableFormat } from 'data/dataHelpers';
 import { ApplyColumnWidthHints } from 'data/columnWidthHints';
 import { datatableThemedStyles } from './styles';
 import { GetDataTransformerID } from 'data/transformations';
@@ -33,19 +33,21 @@ import { ApplyColumnAliases } from 'data/columnAliasing';
 
 interface Props extends PanelProps<DatatableOptions> { }
 
-interface DTData {
-  ColumnDefs: ConfigColumnDefs[],
-  Columns: ConfigColumns[],
+export interface DTData {
+  Columns: DTColumnType[],
   Rows: any[],
 };
 
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
+
   const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
-  const [dtData, setDTData] = useState<DTData>({
-    ColumnDefs: [],
-    Columns: [],
-    Rows: [],
-  })
+  const [cachedProcessedData, setCachedProcessedData] = useState<DTData>();
+  const [cachedColumnDefs, setCachedColumnDefs] = useState<ConfigColumnDefs[]>();
+  // const [dtData, setDTData] = useState<DTData>({
+  //   ColumnDefs: [],
+  //   Columns: [],
+  //   Rows: [],
+  // })
   //const [columnDefs, setColumnDefs] = useState<ConfigColumnDefs[]>([]);
   //const [columns, setColumns] = useState<ConfigColumns[]>([]);
   //const [rows, setRows] = useState<any[]>([]);
@@ -57,27 +59,10 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const dataTableId = `data-table-renderer-${props.id}`;
   const theme2 = useTheme2();
 
-  const getTimeZone = () => {
-    const { timeZone: dashboardTimeZone } = props;
-    if (dashboardTimeZone === '') {
-      // try global vars
-      const globalTimezone = props.replaceVariables('$__timezone');
-      //console.log(`global timezone ${globalTimezone}`);
-      if (globalTimezone === '') {
-        // default to UTC
-        return ('utc');
-      }
-      return (globalTimezone);
-    } else {
-      //console.log(`timezone of dashboard ${dashboardTimeZone}`);
-      return (dashboardTimeZone);
-    }
-  }
-  // get timezone of dashboard or global setting
-  const useTimeZone = getTimeZone();
   // convert the option to a usable type
   const transformID = GetDataTransformerID(props.options.transformation);
-  let dataFrames = useApplyTransformation(props.data.series, transformID, props.options.transformationAggregations);
+  const dataFrames = useApplyTransformation(props.data.series, transformID, props.options.transformationAggregations);
+
   const enableColumnFilters = (dataTable: any) => {
     const header = dataTable.table(0).header();
     const newHeaders = $(header)
@@ -105,28 +90,31 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       });
   };
   useEffect(() => {
-    let enabledClasses = ['display'];
-    if (props.options.compactRowsEnabled) {
-      enabledClasses.push("compact");
-    }
-    if (!props.options.wrapToFitEnabled) {
-      enabledClasses.push("nowrap");
-    }
-    if (props.options.stripedRowsEnabled) {
-      enabledClasses.push('stripe');
-    }
-    if (props.options.hoverEnabled) {
-      enabledClasses.push('hover');
-    }
-    if (props.options.orderColumnEnabled) {
-      enabledClasses.push('order-column');
-    }
+    if (cachedProcessedData !== undefined && cachedColumnDefs !== undefined) {
+      let enabledClasses = ['display'];
+      if (props.options.compactRowsEnabled) {
+        enabledClasses.push("compact");
+      }
+      if (!props.options.wrapToFitEnabled) {
+        enabledClasses.push("nowrap");
+      }
+      if (props.options.stripedRowsEnabled) {
+        enabledClasses.push('stripe');
+      }
+      if (props.options.hoverEnabled) {
+        enabledClasses.push('hover');
+      }
+      if (props.options.orderColumnEnabled) {
+        enabledClasses.push('order-column');
+      }
 
-    if (JSON.stringify(enabledClasses) !== JSON.stringify(dataTableClassesEnabled)) {
-      setDatatableClassesEnabled(enabledClasses);
+      if (JSON.stringify(enabledClasses) !== JSON.stringify(dataTableClassesEnabled)) {
+        setDatatableClassesEnabled(enabledClasses);
+      }
     }
-    //console.log('set table classes done!');
   }, [
+    cachedProcessedData,
+    cachedColumnDefs,
     dataTableClassesEnabled,
     props.options.compactRowsEnabled,
     props.options.hoverEnabled,
@@ -134,46 +122,85 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.stripedRowsEnabled,
     props.options.wrapToFitEnabled]);
 
-  // actually render the table
   useEffect(() => {
-    let dtColumns: DTColumnType[] = [];
-    let flattenedRows: any[] = [];
-
-    if (dataFrames && dataFrames.length > 0) {
-      // this is the main processor
-      // buildColumnDefs needs to use the result, and not build its own
-      // FIXME: major logic issue
-      // but this needs columnDefs also... so this is circular ugh
-      const result = ConvertDataFrameToDataTableFormat(
-        useTimeZone,
-        props.options.alignNumbersToRightEnabled,
-        props.options.rowNumbersEnabled,
-        dataFrames,
-        props.options.columnStylesConfig,
-        theme2);
-      dtColumns = result.columns;
-      // get the column widths
-      dtColumns = ApplyColumnWidthHints(dtColumns, props.options.columnWidthHints);
-      dtColumns = ApplyColumnAliases(dtColumns, props.options.columnAliases);
-      flattenedRows = GetFlattenRows(result.rows, dtColumns);
-      const calcColumnDefs = buildColumnDefs(
+    if (cachedProcessedData !== undefined) {
+      const calcColumnDefs = BuildColumnDefs(
         props.options.emptyDataEnabled,
         props.options.emptyDataText,
         props.options.rowNumbersEnabled,
         props.options.fontSizePercent,
         props.options.alignNumbersToRightEnabled,
-        dtColumns,
-        flattenedRows);
-      // update state
-      setDTData({
-        ColumnDefs: calcColumnDefs,
-        Columns: dtColumns,
-        Rows: flattenedRows,
-      })
+        cachedProcessedData);
+      setCachedColumnDefs(calcColumnDefs);
+    }
+  }, [
+    cachedProcessedData,
+    props.options.alignNumbersToRightEnabled,
+    props.options.emptyDataEnabled,
+    props.options.emptyDataText,
+    props.options.fontSizePercent,
+    props.options.rowNumbersEnabled]);
+
+  useEffect(() => {
+    // const getTimeZone = () => {
+    //   console.log(`gettz`);
+    //   const dashboardTimeZone = props.timeZone;
+    //   if (dashboardTimeZone === '') {
+    //     // try global vars
+    //     const globalTimezone = props.replaceVariables('$__timezone');
+    //     //console.log(`global timezone ${globalTimezone}`);
+    //     if (globalTimezone === '') {
+    //       // default to UTC
+    //       return ('utc');
+    //     }
+    //     return (globalTimezone);
+    //   } else {
+    //     //console.log(`timezone of dashboard ${dashboardTimeZone}`);
+    //     return (dashboardTimeZone);
+    //   }
+    // }
+
+    if (props.data.state === LoadingState.Done) {
+      console.log(`loading done!`);
+      if (dataFrames && dataFrames.length > 0) {
+        // get timezone of dashboard or global setting
+        //const useTimeZone = getTimeZone();
+
+        console.log(`have dataFrames!`);
+        let dtColumns: DTColumnType[] = [];
+        let flattenedRows: any[] = [];
+        // this is the main processor
+        // buildColumnDefs needs to use the result, and not build its own
+        // FIXME: major logic issue
+        // but this needs columnDefs also... so this is circular ugh
+        const result = ConvertDataFrameToDataTableFormat(
+          dataFrames,
+          props.timeZone,
+          props.options.alignNumbersToRightEnabled,
+          props.options.rowNumbersEnabled,
+          props.options.columnStylesConfig,
+          theme2);
+        // eslint-disable-next-line no-debugger
+        //debugger;
+        dtColumns = result.columns;
+        // get the column widths
+        dtColumns = ApplyColumnWidthHints(dtColumns, props.options.columnWidthHints);
+        dtColumns = ApplyColumnAliases(dtColumns, props.options.columnAliases);
+        flattenedRows = GetFlattenRows(result.rows, dtColumns);
+        // update state
+        // maybe split off columnDefs since they need styles applied, and that can't happen?
+        setCachedProcessedData({
+          Columns: dtColumns,
+          Rows: flattenedRows,
+        });
+        console.log(`set cached processed data!`);
+      }
     }
   }, [
     dataFrames,
-    useTimeZone,
+    props.timeZone,
+    props.data.state,
+    props.data.series,
     props.options.alignNumbersToRightEnabled,
     props.options.columnAliases,
     props.options.columnStylesConfig,
@@ -187,95 +214,100 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     theme2]);
 
   useEffect(() => {
+    if (cachedProcessedData !== undefined && cachedColumnDefs !== undefined) {
 
-    // 32 = panel title when displayed
-    // 8 = panel content wrapper padding (all the way around) - need this for width too!
-    // 5 = select rows to display padding top/bottom
-    // 44 = when dt-search or select rows displayed
-    // 38 = bottom buttons
-    //let computedHeight = height - 32 - 8 - 5 - 44 - 38;
-    const getDatatableHeight = (height: number) => {
-      let computedHeight = height - 32 - 8 - 5 - 44 - 38;
-      return computedHeight;
-    };
+      // 32 = panel title when displayed
+      // 8 = panel content wrapper padding (all the way around) - need this for width too!
+      // 5 = select rows to display padding top/bottom
+      // 44 = when dt-search or select rows displayed
+      // 38 = bottom buttons
+      //let computedHeight = height - 32 - 8 - 5 - 44 - 38;
+      const getDatatableHeight = (height: number) => {
+        let computedHeight = height - 32 - 8 - 5 - 44 - 38;
+        return computedHeight;
+      };
 
-    // convert to order data structure used by datatable
-    let orderColumn: Order = [];
-    for (let i = 0; i < props.options.columnSorting.length; i++) {
-      orderColumn.push([props.options.columnSorting[i].index, props.options.columnSorting[i].order]);
-    }
-    if (dataTableDOMRef.current && dtData.Columns.length > 0) {
-      try {
-        // cleanup existing table, columns may have changed
-        const aDT = $(dataTableDOMRef.current).DataTable();
-        aDT.destroy();
-        $(dataTableDOMRef.current).empty();
-      } catch (err) {
-        console.error('Exception: ' + err);
+      // convert to order data structure used by datatable
+      let orderColumn: Order = [];
+      for (let i = 0; i < props.options.columnSorting.length; i++) {
+        orderColumn.push([props.options.columnSorting[i].index, props.options.columnSorting[i].order]);
       }
-      const calculatedHeight = getDatatableHeight(props.height);
-      if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
-        const dtOptions: Config = {
-          buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
-          columns: dtData.Columns,
-          columnDefs: dtData.ColumnDefs,
-          data: dtData.Rows,
-          info: props.options.infoEnabled,
-          lengthChange: props.options.lengthChangeEnabled,
-          lengthMenu: [
-            [5, 10, 25, 50, 75, 100, -1],
-            [5, 10, 25, 50, 75, 100, 'All'],
-          ],
-          // @ts-expect-error
-          mark: props.options.searchHighlightingEnabled || false,
-          select: { style: 'os' },
-          scroll: props.options.scroll,
-          scrollY: `${calculatedHeight}px`,
-          ordering: true,
-          orderFixed: orderColumn,
-          orderMulti: true,
-          paging: !props.options.scroll,
-          pagingType: props.options.datatablePagingType,
-          language: {
-            paginate: {
-              previous: 'Previous',
-              next: 'Next',
-              first: 'First',
-              last: 'Last',
-            }
-          },
-          scrollCollapse: false,
-          scrollX: true,
-          search: {
-            regex: true,
-            smart: false,
-          },
-          searching: props.options.searchEnabled,
-          //select: selectSettings,
-          stateSave: false,
-        };
-        if (props.options.rowsPerPage) {
-          dtOptions.pageLength = props.options.rowsPerPage;
+      if (dataTableDOMRef.current && cachedProcessedData.Columns.length > 0) {
+        try {
+          // cleanup existing table, columns may have changed
+          const aDT = $(dataTableDOMRef.current).DataTable();
+          aDT.destroy();
+          $(dataTableDOMRef.current).empty();
+        } catch (err) {
+          console.error('Exception: ' + err);
         }
-        jQuery(dataTableDOMRef.current).DataTable(dtOptions as Config);
+        const calculatedHeight = getDatatableHeight(props.height);
+        if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
+          const dtOptions: Config = {
+            buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
+            columns: cachedProcessedData.Columns,
+            columnDefs: cachedColumnDefs,
+            data: cachedProcessedData.Rows,
+            info: props.options.infoEnabled,
+            lengthChange: props.options.lengthChangeEnabled,
+            lengthMenu: [
+              [5, 10, 25, 50, 75, 100, -1],
+              [5, 10, 25, 50, 75, 100, 'All'],
+            ],
+            // @ts-expect-error
+            mark: props.options.searchHighlightingEnabled || false,
+            select: { style: 'os' },
+            scroll: props.options.scroll,
+            scrollY: `${calculatedHeight}px`,
+            ordering: true,
+            orderFixed: orderColumn,
+            orderMulti: true,
+            paging: !props.options.scroll,
+            pagingType: props.options.datatablePagingType,
+            language: {
+              paginate: {
+                previous: 'Previous',
+                next: 'Next',
+                first: 'First',
+                last: 'Last',
+              }
+            },
+            scrollCollapse: false,
+            scrollX: true,
+            search: {
+              regex: true,
+              smart: false,
+            },
+            searching: props.options.searchEnabled,
+            //select: selectSettings,
+            stateSave: false,
+          };
+          if (props.options.rowsPerPage) {
+            dtOptions.pageLength = props.options.rowsPerPage;
+          }
+          jQuery(dataTableDOMRef.current).DataTable(dtOptions as Config);
+        }
       }
-    }
-    const currentDom = dataTableDOMRef.current;
-    if (props.options.columnFiltersEnabled) {
-      if (currentDom) {
-        enableColumnFilters(jQuery(currentDom).DataTable());
+      const currentDom = dataTableDOMRef.current;
+      if (props.options.columnFiltersEnabled) {
+        if (currentDom) {
+          enableColumnFilters(jQuery(currentDom).DataTable());
+        }
       }
+      // make sure we clean up on unmount
+      return () => {
+        if (currentDom && jQuery.fn.dataTable.isDataTable(currentDom)) {
+          jQuery(currentDom).DataTable().destroy();
+        }
+      };
     }
-    // make sure we clean up on unmount
     return () => {
-      if (currentDom && jQuery.fn.dataTable.isDataTable(currentDom)) {
-        jQuery(currentDom).DataTable().destroy();
-      }
-    };
+      return;
+    }
   }, [
-    dataFrames,
     dataTableClassesEnabled,
-    dtData,
+    cachedProcessedData,
+    cachedColumnDefs,
     props.height,
     props.options.alignNumbersToRightEnabled,
     props.options.columnAliases,
@@ -299,12 +331,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.transformation,
   ]);
 
-  /*
-  <div className={divStyles} style={{
-      width: '100%',
-      height: props.height,
-    }}>
-  */
+  if (cachedProcessedData === undefined || cachedColumnDefs === undefined) {
+    return (
+      <>Loading... please wait</>
+    )
+  }
   return (
     <div id={dataTableWrapperId} className={divStyles} style={{ width: '100%', height: '100%' }}>
       {props.data &&

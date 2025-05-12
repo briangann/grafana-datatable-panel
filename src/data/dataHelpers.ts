@@ -12,6 +12,7 @@ import { ColumnStyleColoring, ColumnStyleType } from 'types';
 import { DTColumnType } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
+import { DTData } from 'components/DataTablePanel';
 
 function normalizeFieldName(field: string) {
   return field
@@ -49,13 +50,13 @@ export const DataFrameToDisplay = (frames: DataFrame[]) => {
 };
 
 
-export function ConvertDataFrameToDataTableFormat<T>(
+export const ConvertDataFrameToDataTableFormat = (
   dataFrames: DataFrame[],
   userTimeZone: string,
   alignNumbersToRightEnabled: boolean,
   rowNumbersEnabled: boolean,
   columnStyles: ColumnStyleItemType[],
-  theme: GrafanaTheme2): { columns: DTColumnType[]; rows: T[] } {
+  theme: GrafanaTheme2): { columns: DTColumnType[]; rows: any[] } => {
   DataFrameToDisplay(dataFrames);
   dataFrames = ApplyGrafanaOverrides(dataFrames, theme);
   const dataFrame = dataFrames[0];
@@ -71,10 +72,9 @@ export function ConvertDataFrameToDataTableFormat<T>(
       widthHint: '',
     };
   });
-
   ApplyColumnStyles(columns, columnStyles);
 
-  const rows = [] as T[];
+  const rows = [] as any[];
 
   for (let i = 0; i < dataFrame.length; i++) {
     const row = {};
@@ -90,7 +90,7 @@ export function ConvertDataFrameToDataTableFormat<T>(
       // @ts-ignore
       row[colName] = value;
     }
-    rows.push(row as T);
+    rows.push(row as any);
   }
   if (rowNumbersEnabled) {
     columns.unshift({
@@ -111,19 +111,27 @@ export function ConvertDataFrameToDataTableFormat<T>(
   return { columns, rows };
 }
 
+// const doStuff = (dtColumns: DTColumnType[], cell: any, fontSizePercent: any, colIndex: number) => {
+//   // eslint-disable-next-line no-debugger
+//   debugger;
+//   $(cell).css('font-size', fontSizePercent);
+//   //const aColumn = dtColumns[colIndex];
+//   let colorMode = dtColumns[colIndex].columnStyle?.colorMode;
+//   console.log(colorMode);
+// }
+
 export const BuildColumnDefs = (
   emptyDataEnabled: boolean,
   emptyDataText: string,
   rowNumbersEnabled: boolean,
   fontSizePercent: string,
   alignNumbersToRightEnabled: boolean,
-  dtColumns: DTColumnType[],
-  flattenedRows: any[]): ConfigColumnDefs[] => {
+  dtData: DTData): ConfigColumnDefs[] => {
 
   const columnDefs: ConfigColumnDefs[] = [];
   let rowNumberOffset = 0;
-  for (let i = 0; i < dtColumns.length; i++) {
-    let columnType = dtColumns[i].type!;
+  for (let i = 0; i < dtData.Columns.length; i++) {
+    let columnType = dtData.Columns[i].type!;
     let columnClassName = getColumnClassName(alignNumbersToRightEnabled, columnType)
     // column type "date" is very limited, and overrides our formatting
     // best to use our format, then the "raw" epoch time as the sort ordering field
@@ -136,15 +144,15 @@ export const BuildColumnDefs = (
     }
     // if we did not get a type prop from grafana at all,
     // check at least if it's a number to have DT sort properly
-    if (columnType !== undefined && flattenedRows[0] && (typeof flattenedRows[0][i]) === 'number') {
+    if (columnType !== undefined && dtData.Rows[0] && (typeof dtData.Rows[0][i]) === 'number') {
       columnType = 'number';
     }
 
-    dtColumns[i].className = columnClassName;
+    dtData.Columns[i].className = columnClassName;
     // NOTE: the width below is a "hint" and will be overridden as needed,
     // this lets most tables show timestamps with full width
-    let columnDefDict: any = {
-      width: dtColumns[i].widthHint,
+    const columnDefDict: any = {
+      width: dtData.Columns[i].widthHint,
       targets: i + rowNumberOffset,
       defaultContent: emptyDataEnabled ? emptyDataText : '',
       data: function (row: any, type: any, set: any, meta: any) {
@@ -161,20 +169,20 @@ export const BuildColumnDefs = (
         if (type === undefined) {
           return null;
         }
-        const aColumn = dtColumns[meta.col];
+        const aColumn = dtData.Columns[meta.col];
         if (aColumn === undefined) {
           console.log('aColumn undefined');
           return null;
         }
-        //console.log(aColumn);
-        let colorMode = aColumn.columnStyle?.colorMode;
-        //console.log(colorMode);
-        if (colorMode === undefined) {
-          console.log('colorMode undefined');
-          return null;
-        }
-        // eslint-disable-next-line no-debugger
-        debugger;
+        // //console.log(aColumn);
+        // let colorMode = aColumn.columnStyle?.colorMode;
+        // //console.log(colorMode);
+        // if (colorMode === undefined) {
+        //   console.log('colorMode undefined');
+        //   //return null;
+        // }
+        // // eslint-disable-next-line no-debugger
+        // debugger;
         // TODO: call render function vs just returning formatted value
         const idx = meta.col;
         if (type === 'type') {
@@ -186,9 +194,13 @@ export const BuildColumnDefs = (
         }
         return returnValue;
       },
-      createdCell: (cell: any, cellDataAlwaysEmpty: any, rowData: any, rowIndex: number, colIndex: number) => {
+      createdCell: function(cell: any, cellDataAlwaysEmpty: any, rowData: any, rowIndex: number, colIndex: number) {
         // cellData is empty since we use render()
-        const aColumn = dtColumns[colIndex];
+        // eslint-disable-next-line no-debugger
+        debugger;
+        const aColumn = dtData.Columns[colIndex];
+        const colorMode = aColumn.columnStyle?.colorMode;
+        console.log(aColumn);
         // set the fontsize for the cell
         $(cell).css('font-size', fontSizePercent);
         // orthogonal sort requires getting cell data differently
@@ -207,7 +219,7 @@ export const BuildColumnDefs = (
         let color = null;
         let rowColorIndex = null;
         let rowColorData = null;
-        let colorMode = aColumn.columnStyle?.colorMode;
+        //colorMode = aColumn.columnStyle?.colorMode;
         if (colorMode === ColumnStyleColoring.Row) {
           // run all of the rowData through threshold check, get the "highest" index
           // and use that for the entire row
@@ -219,8 +231,8 @@ export const BuildColumnDefs = (
           rowColor = 'teal'; // will stand out with a default like this, useful for debugging
           // this should be configurable...
           color = 'white';
-          for (let columnNumber = 0; columnNumber < dtColumns.length; columnNumber++) {
-            let aColumnStyle = dtColumns[columnNumber].columnStyle;
+          for (let columnNumber = 0; columnNumber < dtData.Columns.length; columnNumber++) {
+            let aColumnStyle = dtData.Columns[columnNumber].columnStyle;
             // need the style to get the color
             if (!aColumnStyle) {
               //console.log(`no style found for column ${columnNumber}`);
@@ -265,10 +277,10 @@ export const BuildColumnDefs = (
           rowColor = 'blue'; // colorState.rowcolumn;
           // this should be configurable...
           color = 'white';
-          for (let columnNumber = 0; columnNumber < dtColumns.length; columnNumber++) {
-            if (dtColumns[columnNumber].type === undefined) {
-              if (dtColumns[columnNumber].columnStyle !== null) {
-                let aColumnStyle = dtColumns[columnNumber].columnStyle;
+          for (let columnNumber = 0; columnNumber < dtData.Columns.length; columnNumber++) {
+            if (dtData.Columns[columnNumber].type === undefined) {
+              if (dtData.Columns[columnNumber].columnStyle !== null) {
+                let aColumnStyle = dtData.Columns[columnNumber].columnStyle;
                 // need the style to get the color
                 if (!aColumnStyle) {
                   //console.log(`no style found for column ${columnNumber}`);
@@ -279,7 +291,7 @@ export const BuildColumnDefs = (
                   continue;
                 }
                 rowColorData = getCellColors(
-                  dtColumns[columnNumber].columnStyle!,
+                  dtData.Columns[columnNumber].columnStyle!,
                   columnNumber,
                   rowData[columnNumber + rowNumberOffset]
                 );
@@ -297,7 +309,7 @@ export const BuildColumnDefs = (
           }
           // style the rowNumber and Timestamp column
           // the cell colors will be determined in the next phase
-          if (dtColumns[0].type !== undefined) {
+          if (dtData.Columns[0].type !== undefined) {
             const children = $(cell.parentNode).children();
             let aChild = children[0];
             $(aChild).css('color', color);
