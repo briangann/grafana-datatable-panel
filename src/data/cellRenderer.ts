@@ -116,7 +116,7 @@ export const ProcessMacroForClickthrough = (columns: any, rows: any, rowIndex: n
   if (fixme.match(aRegex)) {
     for (let i = columns.length - 1; i >= 0; i--) {
       const cellContent = rows[rowIndex].mean;
-      //console.log(cellContent);
+      console.log(cellContent);
       fixme = fixme.replace(`$__cell_${i}`, rows[rowIndex].mean);
     }
   }
