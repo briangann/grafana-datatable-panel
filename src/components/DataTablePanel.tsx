@@ -161,12 +161,10 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     // }
 
     if (props.data.state === LoadingState.Done) {
-      console.log(`loading done!`);
       if (dataFrames && dataFrames.length > 0) {
         // get timezone of dashboard or global setting
         //const useTimeZone = getTimeZone();
 
-        console.log(`have dataFrames!`);
         let dtColumns: DTColumnType[] = [];
         let flattenedRows: any[] = [];
         const result = ConvertDataFrameToDataTableFormat(
@@ -186,7 +184,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           Columns: dtColumns,
           Rows: flattenedRows,
         });
-        //console.log(`set cached processed data!`);
       }
     }
   }, [
