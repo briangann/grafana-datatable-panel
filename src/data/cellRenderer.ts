@@ -14,20 +14,18 @@ import moment from 'moment-timezone';
 import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
-export const ReplaceTimeMacros = (timeFrom: string, timeTo: string, content: string) => {
+export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
   let newContent = content;
+  // eslint-disable-next-line no-debugger
+  debugger;
   if (content.match(/\$__from/g)) {
-    // replace all occurrences
-    newContent = newContent.replace('$__from', timeFrom);
+    newContent = newContent.replace('$__from', timeRange.raw.from.toString());
   }
   if (content.match(/\$__to/g)) {
-    // replace all occurrences
-    newContent = newContent.replace('$__to', timeTo);
+    newContent = newContent.replace('$__to', timeRange.raw.to.toString());
   }
   if (content.match(/\$__keepTime/g)) {
-    // replace all occurrences
-    const keepTime = `from=${timeFrom}&to=${timeTo}`;
-    newContent = newContent.replace('$__keepTime', keepTime);
+    newContent = newContent.replace(`$__keepTime`, `from=${timeRange.raw.from}&to=${timeRange.raw.to}`);
   }
   return newContent;
 };
@@ -109,7 +107,7 @@ export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyle
 };
 
 // TODO: this is not complete
-export const ProcessMacrosForClickthrough = (
+export const ProcessClickthroughMacros = (
   columnStyle: ColumnStyleItemType|null,
   columns: any,
   rows: any,
@@ -121,26 +119,24 @@ export const ProcessMacrosForClickthrough = (
   // check for $__keepTime
   // eslint-disable-next-line no-debugger
   debugger;
-  if (!columnStyle?.clickThrough) {
-    return null;
-  }
-  const keepTimeRegex = RegExp(/\$__keepTime/);
-  let clickThrough = columnStyle?.clickThrough;
-  if (clickThrough.match(keepTimeRegex)) {
-    clickThrough = clickThrough.replace(`$__keepTime`, `from=${timeRange.raw.from}&to=${timeRange.raw.to}`);
-  }
-  const aRegex = RegExp(/\$__cell_\d+/);
-  if (clickThrough.match(aRegex)) {
-    for (let i = columns.length - 1; i >= 0; i--) {
-      // this is text content, whatever is in the row should be formatted
-      // eslint-disable-next-line no-debugger
-      debugger;
-      const cellContent = rows[rowIndex].mean;
-      console.log(cellContent);
-      clickThrough = clickThrough.replace(`$__cell_${i}`, rows[rowIndex].mean);
+  if (columnStyle?.clickThrough) {
+    let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.clickThrough)
+    // check for $__cell and $__cell_N
+    const aRegex = RegExp(/\$__cell_\d+/);
+    if (clickThrough.match(aRegex)) {
+      for (let i = columns.length - 1; i >= 0; i--) {
+        // this is text content, whatever is in the row should be formatted
+        // eslint-disable-next-line no-debugger
+        debugger;
+        const cellContent = rows[rowIndex].valueFormatted;
+        console.log(cellContent);
+        clickThrough = clickThrough.replace(`$__cell_${i}`, rows[rowIndex].mean);
+      }
     }
+    // check for $__pattern_N using split-by
+    return clickThrough;
   }
-  return clickThrough;
+  return null;
 }
 
 export const ApplyUnitsAndDecimals = (columns: DTColumnType[], rows: any[]) => {

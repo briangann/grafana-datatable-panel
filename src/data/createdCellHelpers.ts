@@ -2,7 +2,7 @@ import { DTData } from "components/DataTablePanel";
 import { ColumnStyleType } from "types";
 import { getCellColors } from "./dataHelpers";
 import { DTColumnType } from "./types";
-import { ProcessMacrosForClickthrough } from "./cellRenderer";
+import { ProcessClickthroughMacros } from "./cellRenderer";
 import { ColumnStyleItemType } from "components/options/columnstyles/types";
 import { TimeRange } from "@grafana/data";
 
@@ -129,7 +129,7 @@ export const ProcessStringValueStyle = (
   timeRange: TimeRange): string|null => {
   // eslint-disable-next-line no-debugger
   //debugger;
-  const clickThrough = ProcessMacrosForClickthrough(columnStyle, columnsInCellData, rowData, colIndex, rowIndex, value, 'string', timeRange);
+  const clickThrough = ProcessClickthroughMacros(columnStyle, columnsInCellData, rowData, colIndex, rowIndex, value, 'string', timeRange);
   if (clickThrough !== undefined) {
     return clickThrough;
   }

@@ -3,7 +3,7 @@
  */
 import { DateFormats } from 'types';
 import { applyFormat, FormatColumnValue, ReplaceTimeMacros, TimeFormatter } from './cellRenderer';
-import { Field, FieldConfig, FieldType, GrafanaTheme2 } from '@grafana/data';
+import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
 describe('Cell Renderer', () => {
   const theme2 = {} as unknown as GrafanaTheme2;
   describe('Test FormatColumnValue', () => {
@@ -70,6 +70,7 @@ describe('Cell Renderer', () => {
         values: []
       };
       it('returns formatted value', () => {
+        const timeRange = getDefaultTimeRange();
         const result = FormatColumnValue(
           'utc',
           null,
@@ -78,8 +79,8 @@ describe('Cell Renderer', () => {
           0,
           123.456,
           'number',
-          'fromTime',
-          'toTime',
+          timeRange.raw.from.toString(),
+          timeRange.raw.to.toString(),
           theme2,
         );
         expect(result).toEqual('123.456 kwh');
@@ -101,24 +102,21 @@ describe('Cell Renderer', () => {
   describe('Test ReplaceTimeMacros', () => {
     describe('Test replace $__from', () => {
       let content = 'content with $__from';
-      const timeFrom = 'x';
-      const timeTo = 'y';
-      const result = ReplaceTimeMacros(timeFrom, timeTo, content);
-      expect(result).toEqual('content with x');
+      const timeRange = getDefaultTimeRange();
+      const result = ReplaceTimeMacros(timeRange, content);
+      expect(result).toEqual('content with now-15m');
     });
     describe('Test replace $__to', () => {
       let content = 'content with $__to';
-      const timeFrom = 'x';
-      const timeTo = 'y';
-      const result = ReplaceTimeMacros(timeFrom, timeTo, content);
-      expect(result).toEqual('content with y');
+      const timeRange = getDefaultTimeRange();
+      const result = ReplaceTimeMacros(timeRange, content);
+      expect(result).toEqual('content with now');
     });
     describe('Test replace $__keepTime', () => {
       let content = 'content with $__keepTime';
-      const timeFrom = 'x';
-      const timeTo = 'y';
-      const result = ReplaceTimeMacros(timeFrom, timeTo, content);
-      expect(result).toEqual('content with from=x&to=y');
+      const timeRange = getDefaultTimeRange();
+      const result = ReplaceTimeMacros(timeRange, content);
+      expect(result).toEqual('content with from=now-15m&to=now');
     });
   });
 
@@ -142,3 +140,13 @@ describe('Cell Renderer', () => {
     });
   });
 });
+
+function getDefaultTimeRange(): TimeRange {
+  const fromDateTime = dateTime().subtract(15, 'minutes');
+  const toDateTime = dateTime();
+  return {
+    from: fromDateTime,
+    to: toDateTime,
+    raw: { from: 'now-15m', to: 'now' },
+  };
+}
