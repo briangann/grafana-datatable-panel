@@ -3,7 +3,8 @@ import {
   DataFrame,
   Field,
   FieldType,
-  GrafanaTheme2
+  GrafanaTheme2,
+  TimeRange
 } from '@grafana/data';
 import { ApplyUnitsAndDecimals, FormatColumnValue } from 'data/cellRenderer';
 import { ApplyGrafanaOverrides } from './overrides';
@@ -13,7 +14,7 @@ import { DTColumnType } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
 import { DTData } from 'components/DataTablePanel';
-import { processRowColumnStyle, processRowStyle } from './createdCellHelpers';
+import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './createdCellHelpers';
 
 function normalizeFieldName(field: string) {
   return field
@@ -54,6 +55,7 @@ export const DataFrameToDisplay = (frames: DataFrame[]) => {
 export const ConvertDataFrameToDataTableFormat = (
   dataFrames: DataFrame[],
   userTimeZone: string,
+  timeRange: TimeRange,
   alignNumbersToRightEnabled: boolean,
   rowNumbersEnabled: boolean,
   columnStyles: ColumnStyleItemType[],
@@ -84,9 +86,15 @@ export const ConvertDataFrameToDataTableFormat = (
       const frameFields = dataFrame.fields[j];
       let value = frameFields.values[i];
       const valueType = frameFields.type;
+      console.log(`${valueType}`);
       if (valueType !== 'string') {
         value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, "timeFrom", "timeTo", theme);
       }
+      // if (valueType === 'string') {
+      //   // eslint-disable-next-line no-debugger
+      //   debugger;
+      //   value = ProcessStringValueStyle(aColumn.columnStyle, columns, rows, j, i, value, timeRange)
+      // }
       const colName = columns[j].data;
       // @ts-ignore
       row[colName] = value;
@@ -109,6 +117,7 @@ export const ConvertDataFrameToDataTableFormat = (
     }
   }
   ApplyUnitsAndDecimals(columns, rows);
+
   return { columns, rows };
 }
 
@@ -118,6 +127,7 @@ export const BuildColumnDefs = (
   rowNumbersEnabled: boolean,
   fontSizePercent: string,
   alignNumbersToRightEnabled: boolean,
+  timeRange: TimeRange,
   dtData: DTData): ConfigColumnDefs[] => {
 
   const columnDefs: ConfigColumnDefs[] = [];
@@ -183,6 +193,7 @@ export const BuildColumnDefs = (
         if (aColumn.columnStyle === null) {
           return;
         }
+
         const colorMode = aColumn.columnStyle.colorMode;
         // set the fontsize for the cell
         $(cell).css('font-size', fontSizePercent);
@@ -196,6 +207,33 @@ export const BuildColumnDefs = (
         let actualColumn = colIndex;
         if (rowNumbersEnabled) {
           actualColumn -= 1;
+        }
+        // instead of using cellContent, use the formatted data from dtData.Rows
+        const aRow = dtData.Rows[rowIndex];
+        const cellValueFormatted = aRow[colIndex];
+
+        //
+        // There are 4 style types
+        // Metric
+        //    this has thresholds with 4 color modes
+        // String (url etc)
+        // Date
+        // Hidden
+        //
+        // TODO: speed this up by checking the cell type first
+        // if it is a string...
+        if (typeof aRow[colIndex].valueRaw === 'string') {
+          // eslint-disable-next-line no-debugger
+          //debugger;
+          const clickThrough = ProcessStringValueStyle(aColumn.columnStyle, columnsInCellData, rowData, colIndex, rowIndex, cellValueFormatted, timeRange);
+          if (clickThrough !== null) {
+            console.log(`${clickThrough}`);
+            // eslint-disable-next-line no-debugger
+            debugger;
+            // now update the cell with the link
+            const newCell = '<a href="' + clickThrough + '" target="_blank">' + cellContent + '</a>';
+            $(cell).html(newCell);
+          }
         }
 
         /*
@@ -219,9 +257,6 @@ export const BuildColumnDefs = (
         //    2) RowColumn is enabled, the above row color is process, but we also
         //    set the cell colors individually
         //
-        // instead of using cellContent, use the formatted data from dtData.Rows
-        const aRow = dtData.Rows[rowIndex];
-        const cellValueFormatted = aRow[colIndex];
         const colorData = getCellColors(aColumn.columnStyle, actualColumn, cellValueFormatted);
         if (!colorData) {
           return;

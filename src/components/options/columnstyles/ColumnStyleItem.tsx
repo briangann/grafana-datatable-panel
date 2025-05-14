@@ -211,6 +211,14 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
             />
           </Field>
 
+          <Field label="Style Item Type" disabled={!style.enabled}>
+            <Select
+              options={ColumnStyleOptions}
+              value={style.styleItemType}
+              onChange={(item) => setColumnStyle({ ...style, styleItemType: item.value })}
+            />
+          </Field>
+
           <Field label="Metric/RegEx" disabled={!style.enabled}>
           <Cascader
             initialValue={style.nameOrRegex}
@@ -224,14 +232,6 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
               )}
             options={props.columnHints}
           />
-          </Field>
-
-          <Field label="Style Item Type" disabled={!style.enabled}>
-            <Select
-              options={ColumnStyleOptions}
-              value={style.styleItemType}
-              onChange={(item) => setColumnStyle({ ...style, styleItemType: item.value })}
-            />
           </Field>
 
           {style.styleItemType === 'metric' && metricItemType() }

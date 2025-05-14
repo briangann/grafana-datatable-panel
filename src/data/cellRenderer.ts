@@ -4,6 +4,7 @@ import {
   formattedValueToString,
   getValueFormat,
   GrafanaTheme2,
+  TimeRange,
 } from "@grafana/data";
 
 import _ from 'lodash';
@@ -91,6 +92,8 @@ export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyle
     return formatted;
   }
 
+  // value type String
+
   if (valueType === 'other') {
     return JSON.stringify(value);
   }
@@ -106,21 +109,38 @@ export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyle
 };
 
 // TODO: this is not complete
-export const ProcessMacroForClickthrough = (columns: any, rows: any, rowIndex: number, value: any, valueType: string, maxDecimals: number) => {
-  const aFormatter = getValueFormat(valueType);
-  let fixme = value.mean;
-  fixme = `$__cell_3`;
+export const ProcessMacrosForClickthrough = (
+  columnStyle: ColumnStyleItemType|null,
+  columns: any,
+  rows: any,
+  colIndex: number,
+  rowIndex: number,
+  value: any,
+  valueType: string,
+  timeRange: TimeRange) => {
+  // check for $__keepTime
+  // eslint-disable-next-line no-debugger
+  debugger;
+  if (!columnStyle?.clickThrough) {
+    return null;
+  }
+  const keepTimeRegex = RegExp(/\$__keepTime/);
+  let clickThrough = columnStyle?.clickThrough;
+  if (clickThrough.match(keepTimeRegex)) {
+    clickThrough = clickThrough.replace(`$__keepTime`, `from=${timeRange.raw.from}&to=${timeRange.raw.to}`);
+  }
   const aRegex = RegExp(/\$__cell_\d+/);
-  // @ts-ignore
-  let formatted = aFormatter(fixme, maxDecimals).text;
-  if (fixme.match(aRegex)) {
+  if (clickThrough.match(aRegex)) {
     for (let i = columns.length - 1; i >= 0; i--) {
+      // this is text content, whatever is in the row should be formatted
+      // eslint-disable-next-line no-debugger
+      debugger;
       const cellContent = rows[rowIndex].mean;
       console.log(cellContent);
-      fixme = fixme.replace(`$__cell_${i}`, rows[rowIndex].mean);
+      clickThrough = clickThrough.replace(`$__cell_${i}`, rows[rowIndex].mean);
     }
   }
-  return fixme;
+  return clickThrough;
 }
 
 export const ApplyUnitsAndDecimals = (columns: DTColumnType[], rows: any[]) => {

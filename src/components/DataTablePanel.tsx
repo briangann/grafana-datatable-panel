@@ -130,11 +130,13 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         props.options.rowNumbersEnabled,
         props.options.fontSizePercent,
         props.options.alignNumbersToRightEnabled,
+        props.timeRange,
         cachedProcessedData);
       setCachedColumnDefs(calcColumnDefs);
     }
   }, [
     cachedProcessedData,
+    props.timeRange,
     props.options.alignNumbersToRightEnabled,
     props.options.emptyDataEnabled,
     props.options.emptyDataText,
@@ -170,6 +172,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         const result = ConvertDataFrameToDataTableFormat(
           dataFrames,
           props.timeZone,
+          props.timeRange,
           props.options.alignNumbersToRightEnabled,
           props.options.rowNumbersEnabled,
           props.options.columnStylesConfig,
@@ -189,6 +192,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   }, [
     dataFrames,
     props.timeZone,
+    props.timeRange,
     props.data.state,
     props.data.series,
     props.options.alignNumbersToRightEnabled,
