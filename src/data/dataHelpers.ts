@@ -224,8 +224,9 @@ export const BuildColumnDefs = (
         // if it is a string...
         if (typeof aRow[colIndex].valueRaw === 'string') {
           // eslint-disable-next-line no-debugger
-          //debugger;
-          const clickThrough = ProcessStringValueStyle(aColumn.columnStyle, columnsInCellData, rowData, colIndex, rowIndex, cellValueFormatted, timeRange);
+          debugger;
+          // TODO: could pass the cell through?
+          const clickThrough = ProcessStringValueStyle(aColumn.columnStyle, columnsInCellData, rowData, rowIndex, cellValueFormatted, timeRange);
           if (clickThrough !== null) {
             console.log(`${clickThrough}`);
             // eslint-disable-next-line no-debugger

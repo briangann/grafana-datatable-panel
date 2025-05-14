@@ -2,7 +2,7 @@ import { DTData } from "components/DataTablePanel";
 import { ColumnStyleType } from "types";
 import { getCellColors } from "./dataHelpers";
 import { DTColumnType } from "./types";
-import { ProcessClickthroughMacros } from "./cellRenderer";
+import { ProcessClickthrough } from "./cellRenderer";
 import { ColumnStyleItemType } from "components/options/columnstyles/types";
 import { TimeRange } from "@grafana/data";
 
@@ -15,7 +15,7 @@ export const processRowStyle = (
 
   let rowColorIndex = -1;
   let rowColorData = null;
-  let rowColor = null; // will stand out with a default like this, useful for debugging
+  let rowColor = null;
   // this should be configurable...
   let color = 'white';
 
@@ -123,13 +123,12 @@ export const ProcessStringValueStyle = (
   columnStyle: ColumnStyleItemType|null,
   columnsInCellData: DTColumnType[],
   rowData: any,
-  colIndex: number,
   rowIndex: number,
   value: any,
   timeRange: TimeRange): string|null => {
   // eslint-disable-next-line no-debugger
   //debugger;
-  const clickThrough = ProcessClickthroughMacros(columnStyle, columnsInCellData, rowData, colIndex, rowIndex, value, 'string', timeRange);
+  const clickThrough = ProcessClickthrough(columnStyle, columnsInCellData, rowData, rowIndex, value, timeRange);
   if (clickThrough !== undefined) {
     return clickThrough;
   }

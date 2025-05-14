@@ -34,7 +34,8 @@ describe('Column Styles', () => {
       clickThroughCustomTarget: '',
       order: 0,
       ignoreNullValues: false,
-      styleItemType: ''
+      styleItemType: '',
+      splitByPattern: '',
     }
   ];
   describe('Applies Time style', () => {
