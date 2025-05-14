@@ -352,6 +352,7 @@ const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
       nameOrRegex: element.pattern,
       order: index,
       scaledDecimals: element.scaledDecimals,
+      splitByPattern: element.splitByPattern,
       styleItemType: migrateItemType(element.type),
       thresholds: migrateThresholds(element.thresholds),
       unitFormat: element.unit,

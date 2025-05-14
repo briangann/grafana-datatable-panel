@@ -77,6 +77,7 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
       clickThroughCustomTarget: original.clickThroughCustomTarget,
       unitFormat: original.unitFormat,
       scaledDecimals: original.scaledDecimals,
+      splitByPattern: original.splitByPattern,
       dateFormat: original.dateFormat,
       decimals: original.decimals,
       colors: original.colors,
@@ -178,6 +179,7 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
       colorMode: ColumnStyleColoring.Cell,
       order: order,
       ignoreNullValues: false,
+      splitByPattern: '',
       styleItemType: 'metric',
     };
     const aTracker: ColumnStyleItemTracker = {

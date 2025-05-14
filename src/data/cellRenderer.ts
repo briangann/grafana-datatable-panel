@@ -4,6 +4,7 @@ import {
   formattedValueToString,
   getValueFormat,
   GrafanaTheme2,
+  stringToJsRegex,
   TimeRange,
 } from "@grafana/data";
 
@@ -42,8 +43,8 @@ export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
 export const TimeFormatter = (timeZone: string, timestamp: number, timestampFormat: string): string => {
   if (timeZone === 'utc') {
     const timestampFormatted = dateTime(timestamp)
-    .utc()
-    .format(timestampFormat);
+      .utc()
+      .format(timestampFormat);
     return timestampFormatted;
   }
   // this appears to be bugged
@@ -57,8 +58,8 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
   let formattedWithTimezone = dateTime(timestamp).format(timestampFormat);
   if (timeZone !== 'browser') {
     formattedWithTimezone = moment.tz(
-    dateTime(timestamp).utc().toISOString(true),
-    timestampFormat, timeZone).format(timestampFormat);
+      dateTime(timestamp).utc().toISOString(true),
+      timestampFormat, timeZone).format(timestampFormat);
   }
   return formattedWithTimezone;
 }
@@ -77,7 +78,7 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
  *
  * @return  {string}                    [Formatted Value]
  */
-export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyleItemType|null, field: Field, colIndex: number, rowIndex: number, value: any, valueType: string, timeFrom: string, timeTo: string, theme: GrafanaTheme2): string => {
+export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyleItemType | null, field: Field, colIndex: number, rowIndex: number, value: any, valueType: string, timeFrom: string, timeTo: string, theme: GrafanaTheme2): string => {
   // if is an epoch and type time (numeric string and len > 12)
   if ((valueType === 'time') && !isNaN(value as any)) {
     const parsed = parseInt(value, 10);
@@ -99,7 +100,7 @@ export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyle
 
   let maxDecimals = 4;
   if (field.config.decimals !== undefined && field.config.decimals !== null) {
-      maxDecimals = field.config.decimals;
+    maxDecimals = field.config.decimals;
   }
 
   let formatted = formattedValueToString(aFormatter(value, maxDecimals));
@@ -107,36 +108,73 @@ export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyle
 };
 
 // TODO: this is not complete
-export const ProcessClickthroughMacros = (
-  columnStyle: ColumnStyleItemType|null,
+// sanitize / url construction is done after this
+export const ProcessClickthrough = (
+  columnStyle: ColumnStyleItemType | null,
   columns: any,
   rows: any,
-  colIndex: number,
   rowIndex: number,
   value: any,
-  valueType: string,
   timeRange: TimeRange) => {
-  // check for $__keepTime
+
   // eslint-disable-next-line no-debugger
   debugger;
   if (columnStyle?.clickThrough) {
-    let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.clickThrough)
-    // check for $__cell and $__cell_N
-    const aRegex = RegExp(/\$__cell_\d+/);
-    if (clickThrough.match(aRegex)) {
-      for (let i = columns.length - 1; i >= 0; i--) {
-        // this is text content, whatever is in the row should be formatted
-        // eslint-disable-next-line no-debugger
-        debugger;
-        const cellContent = rows[rowIndex].valueFormatted;
-        console.log(cellContent);
-        clickThrough = clickThrough.replace(`$__cell_${i}`, rows[rowIndex].mean);
-      }
-    }
-    // check for $__pattern_N using split-by
+    let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.clickThrough);
+    // cell content is used in the split-by pattern option 
+    const cellContent = rows[rowIndex];
+    clickThrough = ReplaceCellSplitByPattern(clickThrough, cellContent, columnStyle.splitByPattern)
+    clickThrough = ReplaceCellMacros(clickThrough, value, columns, rows);
+    // TODO: allowing template variables would be a great addition
     return clickThrough;
   }
   return null;
+}
+
+// check for $__pattern_N using split-by
+export const ReplaceCellSplitByPattern = (
+  clickThrough: string,
+  cellContent: any,
+  splitByPattern: string
+) => {
+  let formatted = clickThrough;
+  // Replace patterns
+  const splitByPatternRegex = stringToJsRegex(splitByPattern);
+  const values = cellContent.split(splitByPatternRegex);
+  values.map((val: any, i: any) => (formatted = formatted.replace(`$__pattern_${i}`, val)));
+
+  return formatted;
+}
+export const ReplaceCellMacros = (
+  clickThrough: string,
+  cellContent: string,
+  rows: any,
+  rowIndex: number,
+): string => {
+
+  let formatted = clickThrough;
+  //
+  // Replace $__cell with this cell's content $__cell word boundary
+  //
+  formatted = formatted.replace(/\$__cell\b/, cellContent);
+
+  //
+  // process $__cell_N
+  //
+  const cellNRegex = RegExp(/\$__cell_\d+/g);
+  const matches = clickThrough.match(cellNRegex);
+  if (matches) {
+    for (let matchIndex = 1; matchIndex < matches.length; matchIndex++) {
+      //console.log(`rowIndex: ${rowIndex} matchIndex: ${matchIndex}`);
+      const matchedCellNumber = parseInt(matches[matchIndex], 10);
+      if (!isNaN(matchedCellNumber)) {
+        const matchedCellContent = rows[rowIndex][matchedCellNumber];
+        //console.log(`matchedCellNumber: ${matchedCellNumber} matchedCellContent: ${matchedCellContent}`);
+        formatted = formatted.replace(`$__cell_${matchedCellNumber}`, matchedCellContent);
+      }
+    }
+  }
+  return formatted;
 }
 
 export const ApplyUnitsAndDecimals = (columns: DTColumnType[], rows: any[]) => {
@@ -153,7 +191,7 @@ export const ApplyUnitsAndDecimals = (columns: DTColumnType[], rows: any[]) => {
       }
     }
   }
-  return {columns, rows};
+  return { columns, rows };
 }
 
 export const applyFormat = (value: any, maxDecimals: number, unitFormat: string) => {
@@ -167,7 +205,7 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
 
     valueFormatted = formatted.text;
     valueRoundedAndFormatted = roundValue(value, decimals) || value;
-    valueRounded= roundValue(value, decimals) || value;
+    valueRounded = roundValue(value, decimals) || value;
     // spaces are included with the formatFunc
     if (formatted.suffix) {
       valueFormatted += formatted.suffix;
