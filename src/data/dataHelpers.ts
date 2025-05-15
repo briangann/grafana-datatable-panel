@@ -90,11 +90,6 @@ export const ConvertDataFrameToDataTableFormat = (
       if (valueType !== 'string') {
         value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, "timeFrom", "timeTo", theme);
       }
-      // if (valueType === 'string') {
-      //   // eslint-disable-next-line no-debugger
-      //   debugger;
-      //   value = ProcessStringValueStyle(aColumn.columnStyle, columns, rows, j, i, value, timeRange)
-      // }
       const colName = columns[j].data;
       // @ts-ignore
       row[colName] = value;
@@ -223,7 +218,6 @@ export const BuildColumnDefs = (
         // TODO: speed this up by checking the cell type first
         // if it is a string...
         if (typeof aRow[colIndex].valueRaw === 'string') {
-          // TODO: could pass the cell through?
           const clickThrough = ProcessStringValueStyle(aColumn.columnStyle, columnsInCellData, rowData, rowIndex, cellValueFormatted, timeRange);
           if (clickThrough !== null) {
             console.log(`${clickThrough}`);

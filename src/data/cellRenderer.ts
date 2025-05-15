@@ -146,19 +146,15 @@ export const ProcessClickthrough = (
   columns: any,
   rows: any,
   rowIndex: number,
-  value: any,
+  processedItem: any,
   timeRange: TimeRange) => {
 
   if (columnStyle?.clickThrough) {
     let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.clickThrough);
-    // cell content is used in the split-by pattern option 
-    const cellContent = rows[rowIndex];
-    // eslint-disable-next-line no-debugger
-    debugger;
     if (columnStyle.splitByPattern) {
-      clickThrough = ReplaceCellSplitByPattern(clickThrough, cellContent, columnStyle.splitByPattern)
+      clickThrough = ReplaceCellSplitByPattern(clickThrough, processedItem, columnStyle.splitByPattern)
     }
-    clickThrough = ReplaceCellMacros(clickThrough, value, columns, rows);
+    clickThrough = ReplaceCellMacros(clickThrough, processedItem, columns, rows);
     // TODO: allowing template variables would be a great addition
     return clickThrough;
   }
@@ -172,8 +168,6 @@ export const ReplaceCellSplitByPattern = (
   splitByPattern: string
 ) => {
   let formatted = clickThrough;
-  // eslint-disable-next-line no-debugger
-  debugger;
   if (!cellContent || cellContent.valueFormatted.length === 0) {
     return formatted;
   }
