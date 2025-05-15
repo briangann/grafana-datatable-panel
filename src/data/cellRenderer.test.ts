@@ -27,7 +27,7 @@ describe('Cell Renderer', () => {
           'time2',
           theme2,
         );
-        expect(result).toEqual('2025-04-12T19:27:35+00:00');
+        expect(result.valueFormatted).toEqual('2025-04-12T19:27:35+00:00');
       });
     });
 
@@ -55,7 +55,7 @@ describe('Cell Renderer', () => {
           theme2,
         );
         // show just return a string with the value inside
-        expect(result).toEqual('123.456');
+        expect(result.valueFormatted).toEqual('123.456');
       });
     });
 
@@ -83,7 +83,7 @@ describe('Cell Renderer', () => {
           timeRange.raw.to.toString(),
           theme2,
         );
-        expect(result).toEqual('123.456 kwh');
+        expect(result.valueFormatted).toEqual('123.456 kwh');
       });
     });
   });
@@ -91,11 +91,11 @@ describe('Cell Renderer', () => {
   describe('Test TimeFormatter', () => {
     describe('Test numeric to UTC formatting', () => {
       const result = TimeFormatter('utc', 1744486055000, DateFormats[5].value);
-      expect(result).toEqual('2025-04-12T19:27:35+00:00');
+      expect(result.valueFormatted).toEqual('2025-04-12T19:27:35+00:00');
     });
     describe('Test numeric to America/Denver formatting', () => {
       const result = TimeFormatter('America/Denver', 1744486055000, 'YYYY-MM-DDTHH:mm:ssZ');
-      expect(result).toEqual('2025-04-12T13:27:35-06:00');
+      expect(result.valueFormatted).toEqual('2025-04-12T13:27:35-06:00');
     });
   });
 

@@ -10,7 +10,7 @@ import {
 
 import _ from 'lodash';
 import { DateFormats } from "types";
-import { DTColumnType } from "./types";
+import { DTColumnType, FormattedColumnValue } from "./types";
 import moment from 'moment-timezone';
 import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
@@ -40,12 +40,18 @@ export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
  *
  * @return  {string}                   [return description]
  */
-export const TimeFormatter = (timeZone: string, timestamp: number, timestampFormat: string): string => {
+export const TimeFormatter = (timeZone: string, timestamp: number, timestampFormat: string): FormattedColumnValue => {
   if (timeZone === 'utc') {
     const timestampFormatted = dateTime(timestamp)
       .utc()
       .format(timestampFormat);
-    return timestampFormatted;
+    const formatted: FormattedColumnValue = {
+      valueRaw: timestamp,
+      valueFormatted: timestampFormatted,
+      valueRounded: null,
+      valueRoundedAndFormatted: timestampFormatted,
+    }
+    return formatted;
   }
   // this appears to be bugged
   //
@@ -61,7 +67,14 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
       dateTime(timestamp).utc().toISOString(true),
       timestampFormat, timeZone).format(timestampFormat);
   }
-  return formattedWithTimezone;
+      const formatted: FormattedColumnValue = {
+      valueRaw: timestamp,
+      valueFormatted: formattedWithTimezone,
+      valueRounded: null,
+      valueRoundedAndFormatted: formattedWithTimezone,
+    }
+
+  return formatted;
 }
 
 /**
@@ -78,7 +91,17 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
  *
  * @return  {string}                    [Formatted Value]
  */
-export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyleItemType | null, field: Field, colIndex: number, rowIndex: number, value: any, valueType: string, timeFrom: string, timeTo: string, theme: GrafanaTheme2): string => {
+export const FormatColumnValue = (
+  userTimeZone: string,
+  columnStyle: ColumnStyleItemType | null,
+  field: Field,
+  colIndex: number,
+  rowIndex: number,
+  value: any,
+  valueType: string,
+  timeFrom: string,
+  timeTo: string,
+  theme: GrafanaTheme2): FormattedColumnValue => {
   // if is an epoch and type time (numeric string and len > 12)
   if ((valueType === 'time') && !isNaN(value as any)) {
     const parsed = parseInt(value, 10);
@@ -91,10 +114,14 @@ export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyle
     return formatted;
   }
 
-  // value type String
-
   if (valueType === 'other') {
-    return JSON.stringify(value);
+    const formatted: FormattedColumnValue = {
+      valueRaw: value,
+      valueFormatted: JSON.stringify(value),
+      valueRounded: null,
+      valueRoundedAndFormatted: null,
+    }
+    return formatted;
   }
   const aFormatter = getValueFormat(field.config.unit);
 
@@ -103,7 +130,14 @@ export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyle
     maxDecimals = field.config.decimals;
   }
 
-  let formatted = formattedValueToString(aFormatter(value, maxDecimals));
+  let formattedToString = formattedValueToString(aFormatter(value, maxDecimals));
+      const formatted: FormattedColumnValue = {
+      valueRaw: value,
+      valueFormatted: formattedToString,
+      valueRounded: null,
+      valueRoundedAndFormatted: null,
+    }
+
   return formatted;
 };
 
@@ -123,7 +157,9 @@ export const ProcessClickthrough = (
     let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.clickThrough);
     // cell content is used in the split-by pattern option 
     const cellContent = rows[rowIndex];
-    clickThrough = ReplaceCellSplitByPattern(clickThrough, cellContent, columnStyle.splitByPattern)
+    if (columnStyle.splitByPattern) {
+      clickThrough = ReplaceCellSplitByPattern(clickThrough, cellContent, columnStyle.splitByPattern)
+    }
     clickThrough = ReplaceCellMacros(clickThrough, value, columns, rows);
     // TODO: allowing template variables would be a great addition
     return clickThrough;
@@ -134,13 +170,18 @@ export const ProcessClickthrough = (
 // check for $__pattern_N using split-by
 export const ReplaceCellSplitByPattern = (
   clickThrough: string,
-  cellContent: any,
+  cellContent: FormattedColumnValue,
   splitByPattern: string
 ) => {
   let formatted = clickThrough;
+  // eslint-disable-next-line no-debugger
+  debugger;
+  if (!cellContent || cellContent.valueFormatted.length === 0) {
+    return formatted;
+  }
   // Replace patterns
   const splitByPatternRegex = stringToJsRegex(splitByPattern);
-  const values = cellContent.split(splitByPatternRegex);
+  const values = cellContent.valueFormatted.split(splitByPatternRegex);
   values.map((val: any, i: any) => (formatted = formatted.replace(`$__pattern_${i}`, val)));
 
   return formatted;
@@ -196,7 +237,7 @@ export const ApplyUnitsAndDecimals = (columns: DTColumnType[], rows: any[]) => {
 
 export const applyFormat = (value: any, maxDecimals: number, unitFormat: string) => {
   let valueFormatted = '';
-  let valueRounded = '';
+  let valueRounded = NaN;
   let valueRoundedAndFormatted = '';
   const formatFunc = getValueFormat(unitFormat);
   if (formatFunc) {
@@ -216,14 +257,13 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
       valueRoundedAndFormatted = formatted.prefix + valueRoundedAndFormatted;
     }
   }
-  return (
-    {
+  const result: FormattedColumnValue = {
       valueRaw: value,
       valueFormatted: valueFormatted,
       valueRounded: valueRounded,
       valueRoundedAndFormatted: valueRoundedAndFormatted,
-    }
-  )
+    };
+  return result;
 }
 
 const roundValue = (num: number, decimals: number): number | null => {

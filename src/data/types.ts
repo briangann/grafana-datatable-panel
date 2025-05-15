@@ -10,3 +10,10 @@ export interface DTColumnType {
   columnStyle: ColumnStyleItemType | null;
   widthHint?: string;
 };
+
+export interface FormattedColumnValue {
+  valueRaw: number | string | null,
+  valueFormatted: string,
+  valueRounded: number | null,
+  valueRoundedAndFormatted: string | null,
+};
