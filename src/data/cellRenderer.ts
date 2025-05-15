@@ -138,8 +138,6 @@ export const FormatColumnValue = (
     useUnit = columnStyle.unitFormat;
   }
 
-  //const aFormatter = getValueFormat(useUnit);
-
   let maxDecimals = 4;
   if (field.config.decimals !== undefined && field.config.decimals !== null) {
     maxDecimals = field.config.decimals;
@@ -149,7 +147,6 @@ export const FormatColumnValue = (
   }
 
   const formatted = applyFormat(value, maxDecimals, useUnit)
-  console.log(formatted);
   return formatted;
 };
 
@@ -223,25 +220,6 @@ export const ReplaceCellMacros = (
   }
   return formatted;
 }
-
-// export const ApplyUnitsAndDecimals = (columns: DTColumnType[], rows: any[]) => {
-//   for (const item of columns) {
-//     const aStyle = item.columnStyle;
-//     if (aStyle) {
-//       let decimals = Number(item.columnStyle?.decimals).valueOf();
-//       let unit = aStyle?.unitFormat || 'short';
-//       let colName = item.data;
-//       for (const aRow of rows) {
-//         let value = aRow[colName];
-//         // eslint-disable-next-line no-debugger
-//         debugger;
-//         const formatted = applyFormat(value, decimals, unit)
-//         aRow[colName] = formatted;
-//       }
-//     }
-//   }
-//   return { columns, rows };
-// }
 
 export const applyFormat = (value: any, maxDecimals: number, unitFormat: string) => {
   let valueFormatted = '';
