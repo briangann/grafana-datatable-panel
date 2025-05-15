@@ -13,7 +13,8 @@ describe('Column Styles', () => {
       data: '123',
       type: 'time',
       className: '',
-      columnStyle: null
+      columnStyle: null,
+      visible: true,
     }
   ];
   const columnStyles: ColumnStyleItemType[] = [
