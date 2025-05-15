@@ -43,14 +43,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
   const [cachedProcessedData, setCachedProcessedData] = useState<DTData>();
   const [cachedColumnDefs, setCachedColumnDefs] = useState<ConfigColumnDefs[]>();
-  // const [dtData, setDTData] = useState<DTData>({
-  //   ColumnDefs: [],
-  //   Columns: [],
-  //   Rows: [],
-  // })
-  //const [columnDefs, setColumnDefs] = useState<ConfigColumnDefs[]>([]);
-  //const [columns, setColumns] = useState<ConfigColumns[]>([]);
-  //const [rows, setRows] = useState<any[]>([]);
 
   const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
@@ -89,6 +81,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         });
       });
   };
+
   useEffect(() => {
     if (cachedProcessedData !== undefined && cachedColumnDefs !== undefined) {
       let enabledClasses = ['display'];
@@ -111,6 +104,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       if (JSON.stringify(enabledClasses) !== JSON.stringify(dataTableClassesEnabled)) {
         setDatatableClassesEnabled(enabledClasses);
       }
+
     }
   }, [
     cachedProcessedData,
