@@ -73,6 +73,7 @@ export const ConvertDataFrameToDataTableFormat = (
       fieldConfig: field.config,
       columnStyle: null,
       widthHint: '',
+      visible: true,
     };
   });
   ApplyColumnStyles(columns, columnStyles);
@@ -86,7 +87,6 @@ export const ConvertDataFrameToDataTableFormat = (
       const frameFields = dataFrame.fields[j];
       let value = frameFields.values[i];
       const valueType = frameFields.type;
-      console.log(`${valueType}`);
       value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, theme);
       const colName = columns[j].data;
       // @ts-ignore
@@ -103,10 +103,18 @@ export const ConvertDataFrameToDataTableFormat = (
       fieldConfig: {},
       columnStyle: null,
       widthHint: '',
+      visible: true,
     });
     for (let i = 0; i < dataFrame.length; i++) {
       // @ts-ignore
       rows[i].rowNumber = i;
+    }
+    // hide columns
+    for (let index = 0; index < columns.length; index++) {
+      const element = columns[index];
+      if (element.columnStyle?.styleItemType === ColumnStyleType.Hidden) {
+        element.visible = false;
+      }
     }
   }
 
@@ -185,7 +193,6 @@ export const BuildColumnDefs = (
         if (aColumn.columnStyle === null) {
           return;
         }
-
         const colorMode = aColumn.columnStyle.colorMode;
         // set the fontsize for the cell
         $(cell).css('font-size', fontSizePercent);
@@ -269,6 +276,17 @@ export const BuildColumnDefs = (
     //if (ignoreNullValues) {
     //  columnDefDict.defaultContent = '-';
     //}
+          // hide columns that are marked hidden
+    // for (let i = 0; i < aColumn.Columns.length; i++) {
+    //   if (cachedProcessedData.Columns[i].hidden) {
+    //     newDT.column(i + rowNumberOffset).visible(false);
+    //   }
+    // }
+    //let ignoreNullValues = this.getColumnIgnoreNullValue(i);
+    //if (ignoreNullValues) {
+    //  columnDefDict.defaultContent = '-';
+    //}
+
     columnDefs.push(columnDefDict);
   }
   return columnDefs;

@@ -9,6 +9,7 @@ export interface DTColumnType {
   fieldConfig?: FieldConfig<any>;
   columnStyle: ColumnStyleItemType | null;
   widthHint?: string;
+  visible: boolean;
 };
 
 export interface FormattedColumnValue {

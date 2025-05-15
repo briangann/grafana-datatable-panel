@@ -7,19 +7,23 @@ export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnS
       const aStyle = columnStyles[index];
       // convert to regexp
       let expression = `${aStyle.nameOrRegex}`;
-      // remove leading and ending slashes
-      if (expression.startsWith(`/`)) {
+      if (expression.startsWith(`/`) && expression.endsWith(`/`)) {
+        // remove leading and ending slashes
         expression = expression.slice(1);
-      }
-      if (expression.endsWith(`/`)) {
         expression = expression.slice(0, -1);
-      }
-      const rx = new RegExp(expression);
-      if (item.title.match(rx)) {
-        // set the column style for the item, to be used in rendering
-        item.columnStyle = aStyle;
-        // matched move on to next column
-        break;
+        const rx = new RegExp(expression);
+        if (item.title.match(rx)) {
+          // set the column style for the item, to be used in rendering
+          item.columnStyle = aStyle;
+          // matched move on to next column
+          break;
+        }
+      } else {
+        // not regex, exact match required
+        if (item.title === expression) {
+          item.columnStyle = aStyle;
+          break;
+        }
       }
     }
   };
