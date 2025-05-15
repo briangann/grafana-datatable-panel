@@ -17,8 +17,6 @@ import { ColumnStyleItemType } from "components/options/columnstyles/types";
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
 export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
   let newContent = content;
-  // eslint-disable-next-line no-debugger
-  debugger;
   if (content.match(/\$__from/g)) {
     newContent = newContent.replace('$__from', timeRange.raw.from.toString());
   }
@@ -151,12 +149,12 @@ export const ProcessClickthrough = (
   value: any,
   timeRange: TimeRange) => {
 
-  // eslint-disable-next-line no-debugger
-  debugger;
   if (columnStyle?.clickThrough) {
     let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.clickThrough);
     // cell content is used in the split-by pattern option 
     const cellContent = rows[rowIndex];
+    // eslint-disable-next-line no-debugger
+    debugger;
     if (columnStyle.splitByPattern) {
       clickThrough = ReplaceCellSplitByPattern(clickThrough, cellContent, columnStyle.splitByPattern)
     }

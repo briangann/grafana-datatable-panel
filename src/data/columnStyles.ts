@@ -4,8 +4,6 @@ import { DTColumnType } from "./types";
 export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnStyleItemType[]) => {
   for (const item of columns) {
     for (let index = 0; index < columnStyles.length; index++) {
-      // eslint-disable-next-line no-debugger
-     // debugger;
       const aStyle = columnStyles[index];
       // convert to regexp
       let expression = `${aStyle.nameOrRegex}`;

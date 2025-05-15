@@ -223,8 +223,6 @@ export const BuildColumnDefs = (
         // TODO: speed this up by checking the cell type first
         // if it is a string...
         if (typeof aRow[colIndex].valueRaw === 'string') {
-          // eslint-disable-next-line no-debugger
-          debugger;
           // TODO: could pass the cell through?
           const clickThrough = ProcessStringValueStyle(aColumn.columnStyle, columnsInCellData, rowData, rowIndex, cellValueFormatted, timeRange);
           if (clickThrough !== null) {

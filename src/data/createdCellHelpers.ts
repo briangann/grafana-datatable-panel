@@ -126,8 +126,6 @@ export const ProcessStringValueStyle = (
   rowIndex: number,
   value: any,
   timeRange: TimeRange): string|null => {
-  // eslint-disable-next-line no-debugger
-  debugger;
   const clickThrough = ProcessClickthrough(columnStyle, columnsInCellData, rowData, rowIndex, value, timeRange);
   if (clickThrough !== undefined) {
     return clickThrough;
