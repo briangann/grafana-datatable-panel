@@ -23,8 +23,6 @@ describe('Cell Renderer', () => {
           0,
           1744486055000,
           'time',
-          'time1',
-          'time2',
           theme2,
         );
         expect(result.valueFormatted).toEqual('2025-04-12T19:27:35+00:00');
@@ -50,8 +48,6 @@ describe('Cell Renderer', () => {
           0,
           123.456,
           'other',
-          'fromTime',
-          'toTime',
           theme2,
         );
         // show just return a string with the value inside
@@ -70,7 +66,6 @@ describe('Cell Renderer', () => {
         values: []
       };
       it('returns formatted value', () => {
-        const timeRange = getDefaultTimeRange();
         const result = FormatColumnValue(
           'utc',
           null,
@@ -79,8 +74,6 @@ describe('Cell Renderer', () => {
           0,
           123.456,
           'number',
-          timeRange.raw.from.toString(),
-          timeRange.raw.to.toString(),
           theme2,
         );
         expect(result.valueFormatted).toEqual('123.456 kwh');

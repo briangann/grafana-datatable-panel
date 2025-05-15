@@ -6,11 +6,11 @@ import {
   GrafanaTheme2,
   TimeRange
 } from '@grafana/data';
-import { ApplyUnitsAndDecimals, FormatColumnValue } from 'data/cellRenderer';
+import { FormatColumnValue } from 'data/cellRenderer';
 import { ApplyGrafanaOverrides } from './overrides';
 import { ConfigColumnDefs } from 'datatables.net';
-import { ColumnStyleColoring } from 'types';
-import { DTColumnType } from './types';
+import { ColumnStyleColoring, ColumnStyleType } from 'types';
+import { DTColumnType, FormattedColumnValue } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
 import { DTData } from 'components/DataTablePanel';
@@ -87,9 +87,7 @@ export const ConvertDataFrameToDataTableFormat = (
       let value = frameFields.values[i];
       const valueType = frameFields.type;
       console.log(`${valueType}`);
-      if (valueType !== 'string') {
-        value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, "timeFrom", "timeTo", theme);
-      }
+      value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, theme);
       const colName = columns[j].data;
       // @ts-ignore
       row[colName] = value;
@@ -111,7 +109,6 @@ export const ConvertDataFrameToDataTableFormat = (
       rows[i].rowNumber = i;
     }
   }
-  ApplyUnitsAndDecimals(columns, rows);
 
   return { columns, rows };
 }
@@ -205,7 +202,7 @@ export const BuildColumnDefs = (
         }
         // instead of using cellContent, use the formatted data from dtData.Rows
         const aRow = dtData.Rows[rowIndex];
-        const cellValueFormatted = aRow[colIndex];
+        const cellValueFormatted = aRow[colIndex] as FormattedColumnValue;
 
         //
         // There are 4 style types
@@ -295,45 +292,48 @@ const getColumnClassName = (alignNumbersToRightEnabled: boolean, columnType: str
   return columnClassName;
 }
 
-export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: any, cellData: any) => {
+export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: any, cellData: FormattedColumnValue) => {
   if (aColumnStyle === null || cellData === null || cellData === undefined) {
     return null;
   }
-  let useData = cellData;
-  if (cellData.valueRaw) {
-    useData = cellData.valueRaw;
-  } else {
-    // this should not happen
+  // only color cell if the content is a number
+  if (aColumnStyle.styleItemType !== ColumnStyleType.Metric) {
     return null;
   }
-  const items = useData.split(/([^0-9.,]+)/);
-  // only color cell if the content is a number?
+  // let useData = cellData;
+  // if (cellData.valueRaw) {
+  //   useData = cellData.valueRaw;
+  // } else {
+  //   // this should not happen
+  //   return null;
+  // }
+  //const items = useData.valueFormatted.split(/([^0-9.,]+)/);
   let bgColor = null;
   let bgColorIndex = null;
   let color = null;
   let colorIndex = null;
-  let value = null;
+  //let value = null;
   // check if the content has a numeric value after the split
-  if (!isNaN(Number(items[0]))) {
-    value = parseFloat(items[0].replace(',', '.'));
-  }
+  // if (!isNaN(Number(cellData.valueFormatted))) {
+  //   value = parseFloat(items[0].replace(',', '.'));
+  // }
 
   if (aColumnStyle && aColumnStyle.colorMode != null && aColumnStyle.thresholds.length > 0) {
     // check color for either cell or row
     if (aColumnStyle.colorMode === ColumnStyleColoring.Cell ||
       aColumnStyle.colorMode === ColumnStyleColoring.Row ||
       aColumnStyle.colorMode === ColumnStyleColoring.RowColumn) {
-      if (value !== null && !isNaN(value)) {
-        bgColor = GetColorForValue(value, aColumnStyle);
-        bgColorIndex = GetColorIndexForValue(value, aColumnStyle);
+      if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
+        bgColor = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
+        bgColorIndex = GetColorIndexForValue(cellData.valueRaw as number, aColumnStyle);
       }
       color = 'white';
     }
     // just the value color is set
     if (aColumnStyle.colorMode === ColumnStyleColoring.Value) {
-      if (value !== null && !isNaN(value)) {
-        color = GetColorForValue(value, aColumnStyle);
-        colorIndex = GetColorIndexForValue(value, aColumnStyle);
+      if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
+        color = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
+        colorIndex = GetColorIndexForValue(cellData.valueRaw, aColumnStyle);
       }
     }
   }

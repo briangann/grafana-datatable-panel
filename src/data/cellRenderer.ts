@@ -1,7 +1,6 @@
 import {
   dateTime,
   Field,
-  formattedValueToString,
   getValueFormat,
   GrafanaTheme2,
   stringToJsRegex,
@@ -10,7 +9,7 @@ import {
 
 import _ from 'lodash';
 import { DateFormats } from "types";
-import { DTColumnType, FormattedColumnValue } from "./types";
+import { FormattedColumnValue } from "./types";
 import moment from 'moment-timezone';
 import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
@@ -97,10 +96,8 @@ export const FormatColumnValue = (
   rowIndex: number,
   value: any,
   valueType: string,
-  timeFrom: string,
-  timeTo: string,
   theme: GrafanaTheme2): FormattedColumnValue => {
-  // if is an epoch and type time (numeric string and len > 12)
+
   if ((valueType === 'time') && !isNaN(value as any)) {
     const parsed = parseInt(value, 10);
     let dateFormat = DateFormats[5].value;
@@ -112,6 +109,7 @@ export const FormatColumnValue = (
     return formatted;
   }
 
+  // encode the object into a readable string
   if (valueType === 'other') {
     const formatted: FormattedColumnValue = {
       valueRaw: value,
@@ -121,21 +119,37 @@ export const FormatColumnValue = (
     }
     return formatted;
   }
-  const aFormatter = getValueFormat(field.config.unit);
+  // a string value is just copied
+  if (valueType === 'string') {
+    const formatted: FormattedColumnValue = {
+      valueRaw: value,
+      valueFormatted: value,
+      valueRounded: null,
+      valueRoundedAndFormatted: null,
+    }
+    return formatted;
+  }
+  // numbers are formatted here
+  let useUnit = 'short';
+  if (field.config.unit) {
+    useUnit = field.config.unit;
+  }
+  if (columnStyle && columnStyle.unitFormat) {
+    useUnit = columnStyle.unitFormat;
+  }
+
+  //const aFormatter = getValueFormat(useUnit);
 
   let maxDecimals = 4;
   if (field.config.decimals !== undefined && field.config.decimals !== null) {
     maxDecimals = field.config.decimals;
   }
+  if (columnStyle && columnStyle.decimals) {
+    maxDecimals = Number(columnStyle.decimals).valueOf();
+  }
 
-  let formattedToString = formattedValueToString(aFormatter(value, maxDecimals));
-      const formatted: FormattedColumnValue = {
-      valueRaw: value,
-      valueFormatted: formattedToString,
-      valueRounded: null,
-      valueRoundedAndFormatted: null,
-    }
-
+  const formatted = applyFormat(value, maxDecimals, useUnit)
+  console.log(formatted);
   return formatted;
 };
 
@@ -210,22 +224,24 @@ export const ReplaceCellMacros = (
   return formatted;
 }
 
-export const ApplyUnitsAndDecimals = (columns: DTColumnType[], rows: any[]) => {
-  for (const item of columns) {
-    const aStyle = item.columnStyle;
-    if (aStyle) {
-      let decimals = Number(item.columnStyle?.decimals).valueOf();
-      let unit = aStyle?.unitFormat || 'short';
-      let colName = item.data;
-      for (const aRow of rows) {
-        let value = aRow[colName];
-        const formatted = applyFormat(value, decimals, unit)
-        aRow[colName] = formatted;
-      }
-    }
-  }
-  return { columns, rows };
-}
+// export const ApplyUnitsAndDecimals = (columns: DTColumnType[], rows: any[]) => {
+//   for (const item of columns) {
+//     const aStyle = item.columnStyle;
+//     if (aStyle) {
+//       let decimals = Number(item.columnStyle?.decimals).valueOf();
+//       let unit = aStyle?.unitFormat || 'short';
+//       let colName = item.data;
+//       for (const aRow of rows) {
+//         let value = aRow[colName];
+//         // eslint-disable-next-line no-debugger
+//         debugger;
+//         const formatted = applyFormat(value, decimals, unit)
+//         aRow[colName] = formatted;
+//       }
+//     }
+//   }
+//   return { columns, rows };
+// }
 
 export const applyFormat = (value: any, maxDecimals: number, unitFormat: string) => {
   let valueFormatted = '';
@@ -249,6 +265,8 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
       valueRoundedAndFormatted = formatted.prefix + valueRoundedAndFormatted;
     }
   }
+  // eslint-disable-next-line no-debugger
+  debugger;
   const result: FormattedColumnValue = {
       valueRaw: value,
       valueFormatted: valueFormatted,

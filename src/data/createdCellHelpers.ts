@@ -1,7 +1,7 @@
 import { DTData } from "components/DataTablePanel";
 import { ColumnStyleType } from "types";
 import { getCellColors } from "./dataHelpers";
-import { DTColumnType } from "./types";
+import { DTColumnType, FormattedColumnValue } from "./types";
 import { ProcessClickthrough } from "./cellRenderer";
 import { ColumnStyleItemType } from "components/options/columnstyles/types";
 import { TimeRange } from "@grafana/data";
@@ -124,7 +124,7 @@ export const ProcessStringValueStyle = (
   columnsInCellData: DTColumnType[],
   rowData: any,
   rowIndex: number,
-  value: any,
+  value: FormattedColumnValue,
   timeRange: TimeRange): string|null => {
   const clickThrough = ProcessClickthrough(columnStyle, columnsInCellData, rowData, rowIndex, value, timeRange);
   if (clickThrough !== undefined) {
