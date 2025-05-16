@@ -20,9 +20,8 @@ export const plugin = new PanelPlugin<DatatableOptions>(DataTablePanel)
       FieldConfigProperty.NoValue,
       FieldConfigProperty.Thresholds,
       FieldConfigProperty.Unit,
+      FieldConfigProperty.Mappings,
     ],
-    standardOptions: {
-      [FieldConfigProperty.Mappings]: {},
-    },
+    standardOptions: {},
   })
   .setPanelOptions(optionsBuilder);
