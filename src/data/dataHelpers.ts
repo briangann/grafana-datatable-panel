@@ -220,7 +220,7 @@ export const BuildColumnDefs = (
         // Hidden
         //
         // TODO: speed this up by checking the cell type first
-        // if it is a string...
+        //
         if (typeof aRow[colIndex].valueRaw === 'string') {
           const clickThrough = ProcessStringValueStyle(aColumn.columnStyle, columnsInCellData, rowData, rowIndex, cellValueFormatted, timeRange);
           if (clickThrough !== null) {
