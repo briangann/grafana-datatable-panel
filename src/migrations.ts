@@ -67,18 +67,14 @@ export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOption
     // have settings, return them unchanged
     return panel.options;
   }
+  //
+  // mapping are inside styles, there are no global mappings
+  // and only styles of type "string" should be migrated
+  const newMappings = migrateValueAndRangeMaps(panel);
+  panel.fieldConfig.defaults.mappings = newMappings;
   // @ts-ignore
   const newDefaults = migrateDefaults(panel);
   let options = newDefaults;
-  //
-  const newMappings = migrateValueAndRangeMaps(panel);
-  panel.fieldConfig.defaults.mappings = newMappings;
-    //@ts-ignore
-  delete panel.mappingType;
-  //@ts-ignore
-  delete panel.rangeMaps;
-  //@ts-ignore
-  delete panel.valueMaps;
   //
   // clean up undefined
   // @ts-ignore
@@ -421,18 +417,41 @@ const migrateTransform = (transform: string): TransformationOptions => {
   return migrated;
 };
 
+
 export const migrateValueAndRangeMaps = (panel: any) => {
-  // value maps first
-  panel.mappingType = 1;
   let newValueMappings: ValueMapping[] = [];
-  if (panel.valueMaps !== undefined) {
-    newValueMappings = convertOldAngularValueMappings(panel);
-  }
-  // range maps second
-  panel.mappingType = 2;
   let newRangeMappings: ValueMapping[] = [];
-  if (panel.rangeMaps !== undefined) {
-    newRangeMappings = convertOldAngularValueMappings(panel);
+  //if (panel.rangeMaps !== undefined) {
+  if (panel.styles && panel.styles.length > 0) {
+    // eslint-disable-next-line no-debugger
+    debugger;
+    for (let index = 0; index < panel.styles.length; index++) {
+      const element = panel.styles[index];
+      // this is explicity set since there can be unused mappings saved in a style, only the active
+      // mapping is needed
+      if (element && element.mappingType === 1) {
+        // this is a range map
+        const oldValueMaps = panel.styles[index];
+        // delete any range maps
+        delete oldValueMaps.rangeMaps;
+        if (oldValueMaps.valueMaps) {
+          const convertedValueMaps = convertOldAngularValueMappings(oldValueMaps);
+          console.log(JSON.stringify(convertedValueMaps));
+          newValueMappings = newValueMappings.concat(convertedValueMaps);
+        }
+      }
+      if (element && element.mappingType === 2) {
+        // this is a range map
+        const oldRangeMaps = panel.styles[index];
+        // delete any value maps
+        delete oldRangeMaps.valueMaps;
+        if (oldRangeMaps.rangeMaps) {
+          const convertedRangeMaps = convertOldAngularValueMappings(oldRangeMaps);
+          console.log(JSON.stringify(newRangeMappings));
+          newRangeMappings = newRangeMappings.concat(convertedRangeMaps);
+        }
+      }
+    }
   }
   // append together
   const newMappings = newValueMappings.concat(newRangeMappings);
