@@ -1,32 +1,29 @@
 import {
   dateTime,
   Field,
-  formattedValueToString,
   getValueFormat,
   GrafanaTheme2,
+  stringToJsRegex,
+  TimeRange,
 } from "@grafana/data";
 
 import _ from 'lodash';
 import { DateFormats } from "types";
-import { DTColumnType } from "./types";
+import { FormattedColumnValue } from "./types";
 import moment from 'moment-timezone';
 import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
-export const ReplaceTimeMacros = (timeFrom: string, timeTo: string, content: string) => {
+export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
   let newContent = content;
   if (content.match(/\$__from/g)) {
-    // replace all occurrences
-    newContent = newContent.replace('$__from', timeFrom);
+    newContent = newContent.replace('$__from', timeRange.raw.from.toString());
   }
   if (content.match(/\$__to/g)) {
-    // replace all occurrences
-    newContent = newContent.replace('$__to', timeTo);
+    newContent = newContent.replace('$__to', timeRange.raw.to.toString());
   }
   if (content.match(/\$__keepTime/g)) {
-    // replace all occurrences
-    const keepTime = `from=${timeFrom}&to=${timeTo}`;
-    newContent = newContent.replace('$__keepTime', keepTime);
+    newContent = newContent.replace(`$__keepTime`, `from=${timeRange.raw.from}&to=${timeRange.raw.to}`);
   }
   return newContent;
 };
@@ -40,12 +37,18 @@ export const ReplaceTimeMacros = (timeFrom: string, timeTo: string, content: str
  *
  * @return  {string}                   [return description]
  */
-export const TimeFormatter = (timeZone: string, timestamp: number, timestampFormat: string): string => {
+export const TimeFormatter = (timeZone: string, timestamp: number, timestampFormat: string): FormattedColumnValue => {
   if (timeZone === 'utc') {
     const timestampFormatted = dateTime(timestamp)
-    .utc()
-    .format(timestampFormat);
-    return timestampFormatted;
+      .utc()
+      .format(timestampFormat);
+    const formatted: FormattedColumnValue = {
+      valueRaw: timestamp,
+      valueFormatted: timestampFormatted,
+      valueRounded: null,
+      valueRoundedAndFormatted: timestampFormatted,
+    }
+    return formatted;
   }
   // this appears to be bugged
   //
@@ -58,10 +61,17 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
   let formattedWithTimezone = dateTime(timestamp).format(timestampFormat);
   if (timeZone !== 'browser') {
     formattedWithTimezone = moment.tz(
-    dateTime(timestamp).utc().toISOString(true),
-    timestampFormat, timeZone).format(timestampFormat);
+      dateTime(timestamp).utc().toISOString(true),
+      timestampFormat, timeZone).format(timestampFormat);
   }
-  return formattedWithTimezone;
+      const formatted: FormattedColumnValue = {
+      valueRaw: timestamp,
+      valueFormatted: formattedWithTimezone,
+      valueRounded: null,
+      valueRoundedAndFormatted: formattedWithTimezone,
+    }
+
+  return formatted;
 }
 
 /**
@@ -78,8 +88,16 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
  *
  * @return  {string}                    [Formatted Value]
  */
-export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyleItemType|null, field: Field, colIndex: number, rowIndex: number, value: any, valueType: string, timeFrom: string, timeTo: string, theme: GrafanaTheme2): string => {
-  // if is an epoch and type time (numeric string and len > 12)
+export const FormatColumnValue = (
+  userTimeZone: string,
+  columnStyle: ColumnStyleItemType | null,
+  field: Field,
+  colIndex: number,
+  rowIndex: number,
+  value: any,
+  valueType: string,
+  theme: GrafanaTheme2): FormattedColumnValue => {
+
   if ((valueType === 'time') && !isNaN(value as any)) {
     const parsed = parseInt(value, 10);
     let dateFormat = DateFormats[5].value;
@@ -91,58 +109,123 @@ export const FormatColumnValue = (userTimeZone: string, columnStyle: ColumnStyle
     return formatted;
   }
 
+  // encode the object into a readable string
   if (valueType === 'other') {
-    return JSON.stringify(value);
+    const formatted: FormattedColumnValue = {
+      valueRaw: value,
+      valueFormatted: JSON.stringify(value),
+      valueRounded: null,
+      valueRoundedAndFormatted: null,
+    }
+    return formatted;
   }
-  const aFormatter = getValueFormat(field.config.unit);
+  // a string value is just copied
+  if (valueType === 'string') {
+    let formatted: FormattedColumnValue = {
+      valueRaw: value,
+      valueFormatted: value,
+      valueRounded: null,
+      valueRoundedAndFormatted: null,
+    }
+    // might be useful to do the mappings here vs on conversion from dataframes
+    //formatted = ApplyMappings(formatted, null);
+    return formatted;
+  }
+  // numbers are formatted here
+  let useUnit = 'short';
+  if (field.config.unit) {
+    useUnit = field.config.unit;
+  }
+  if (columnStyle && columnStyle.unitFormat) {
+    useUnit = columnStyle.unitFormat;
+  }
 
   let maxDecimals = 4;
   if (field.config.decimals !== undefined && field.config.decimals !== null) {
-      maxDecimals = field.config.decimals;
+    maxDecimals = field.config.decimals;
+  }
+  if (columnStyle && columnStyle.decimals) {
+    maxDecimals = Number(columnStyle.decimals).valueOf();
   }
 
-  let formatted = formattedValueToString(aFormatter(value, maxDecimals));
+  const formatted = applyFormat(value, maxDecimals, useUnit)
   return formatted;
 };
 
 // TODO: this is not complete
-export const ProcessMacroForClickthrough = (columns: any, rows: any, rowIndex: number, value: any, valueType: string, maxDecimals: number) => {
-  const aFormatter = getValueFormat(valueType);
-  let fixme = value.mean;
-  fixme = `$__cell_3`;
-  const aRegex = RegExp(/\$__cell_\d+/);
-  // @ts-ignore
-  let formatted = aFormatter(fixme, maxDecimals).text;
-  if (fixme.match(aRegex)) {
-    for (let i = columns.length - 1; i >= 0; i--) {
-      const cellContent = rows[rowIndex].mean;
-      console.log(cellContent);
-      fixme = fixme.replace(`$__cell_${i}`, rows[rowIndex].mean);
+// sanitize / url construction is done after this
+export const ProcessClickthrough = (
+  columnStyle: ColumnStyleItemType | null,
+  columns: any,
+  rows: any,
+  rowIndex: number,
+  processedItem: any,
+  timeRange: TimeRange) => {
+
+  if (columnStyle?.clickThrough) {
+    let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.clickThrough);
+    if (columnStyle.splitByPattern) {
+      clickThrough = ReplaceCellSplitByPattern(clickThrough, processedItem, columnStyle.splitByPattern)
     }
+    clickThrough = ReplaceCellMacros(clickThrough, processedItem, columns, rows);
+    // TODO: allowing template variables would be a great addition
+    return clickThrough;
   }
-  return fixme;
+  return null;
 }
 
-export const ApplyUnitsAndDecimals = (columns: DTColumnType[], rows: any[]) => {
-  for (const item of columns) {
-    const aStyle = item.columnStyle;
-    if (aStyle) {
-      let decimals = Number(item.columnStyle?.decimals).valueOf();
-      let unit = aStyle?.unitFormat || 'short';
-      let colName = item.data;
-      for (const aRow of rows) {
-        let value = aRow[colName];
-        const formatted = applyFormat(value, decimals, unit)
-        aRow[colName] = formatted;
+// check for $__pattern_N using split-by
+export const ReplaceCellSplitByPattern = (
+  clickThrough: string,
+  cellContent: FormattedColumnValue,
+  splitByPattern: string
+) => {
+  let formatted = clickThrough;
+  if (!cellContent || cellContent.valueFormatted.length === 0) {
+    return formatted;
+  }
+  // Replace patterns
+  const splitByPatternRegex = stringToJsRegex(splitByPattern);
+  const values = cellContent.valueFormatted.split(splitByPatternRegex);
+  values.map((val: any, i: any) => (formatted = formatted.replace(`$__pattern_${i}`, val)));
+
+  return formatted;
+}
+export const ReplaceCellMacros = (
+  clickThrough: string,
+  cellContent: string,
+  rows: any,
+  rowIndex: number,
+): string => {
+
+  let formatted = clickThrough;
+  //
+  // Replace $__cell with this cell's content $__cell word boundary
+  //
+  formatted = formatted.replace(/\$__cell\b/, cellContent);
+
+  //
+  // process $__cell_N
+  //
+  const cellNRegex = RegExp(/\$__cell_\d+/g);
+  const matches = clickThrough.match(cellNRegex);
+  if (matches) {
+    for (let matchIndex = 1; matchIndex < matches.length; matchIndex++) {
+      //console.log(`rowIndex: ${rowIndex} matchIndex: ${matchIndex}`);
+      const matchedCellNumber = parseInt(matches[matchIndex], 10);
+      if (!isNaN(matchedCellNumber)) {
+        const matchedCellContent = rows[rowIndex][matchedCellNumber];
+        //console.log(`matchedCellNumber: ${matchedCellNumber} matchedCellContent: ${matchedCellContent}`);
+        formatted = formatted.replace(`$__cell_${matchedCellNumber}`, matchedCellContent);
       }
     }
   }
-  return {columns, rows};
+  return formatted;
 }
 
 export const applyFormat = (value: any, maxDecimals: number, unitFormat: string) => {
   let valueFormatted = '';
-  let valueRounded = '';
+  let valueRounded = NaN;
   let valueRoundedAndFormatted = '';
   const formatFunc = getValueFormat(unitFormat);
   if (formatFunc) {
@@ -151,7 +234,7 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
 
     valueFormatted = formatted.text;
     valueRoundedAndFormatted = roundValue(value, decimals) || value;
-    valueRounded= roundValue(value, decimals) || value;
+    valueRounded = roundValue(value, decimals) || value;
     // spaces are included with the formatFunc
     if (formatted.suffix) {
       valueFormatted += formatted.suffix;
@@ -162,14 +245,15 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
       valueRoundedAndFormatted = formatted.prefix + valueRoundedAndFormatted;
     }
   }
-  return (
-    {
+  // eslint-disable-next-line no-debugger
+  debugger;
+  const result: FormattedColumnValue = {
       valueRaw: value,
       valueFormatted: valueFormatted,
       valueRounded: valueRounded,
       valueRoundedAndFormatted: valueRoundedAndFormatted,
-    }
-  )
+    };
+  return result;
 }
 
 const roundValue = (num: number, decimals: number): number | null => {

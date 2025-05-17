@@ -9,4 +9,12 @@ export interface DTColumnType {
   fieldConfig?: FieldConfig<any>;
   columnStyle: ColumnStyleItemType | null;
   widthHint?: string;
+  visible: boolean;
+};
+
+export interface FormattedColumnValue {
+  valueRaw: number | string | null,
+  valueFormatted: string,
+  valueRounded: number | null,
+  valueRoundedAndFormatted: string | null,
 };

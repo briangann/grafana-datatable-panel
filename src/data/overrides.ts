@@ -6,8 +6,9 @@ import {
 
 
 export const ApplyGrafanaOverrides = (dataFrames: DataFrame[], theme: GrafanaTheme2) => {
+  let newDataFrames: DataFrame[] = [];
   if (dataFrames) {
-    dataFrames = applyFieldOverrides({
+    newDataFrames = applyFieldOverrides({
       data: dataFrames,
       fieldConfig: {
         defaults: {
@@ -17,8 +18,8 @@ export const ApplyGrafanaOverrides = (dataFrames: DataFrame[], theme: GrafanaThe
       theme,
       replaceVariables: (value: string) => value,
     });
-    for (let i = 0; i < dataFrames[0].fields.length; i++) {
-      const aField = dataFrames[0].fields[i];
+    for (let i = 0; i < newDataFrames[0].fields.length; i++) {
+      const aField = newDataFrames[0].fields[i];
       aField.config.decimals = 4;
       const display = getDisplayProcessor({
         field: aField,
@@ -31,4 +32,5 @@ export const ApplyGrafanaOverrides = (dataFrames: DataFrame[], theme: GrafanaThe
       aField.display = display;
     }
   }
+  return newDataFrames;
 }

@@ -13,7 +13,8 @@ describe('Column Styles', () => {
       data: '123',
       type: 'time',
       className: '',
-      columnStyle: null
+      columnStyle: null,
+      visible: true,
     }
   ];
   const columnStyles: ColumnStyleItemType[] = [
@@ -34,7 +35,8 @@ describe('Column Styles', () => {
       clickThroughCustomTarget: '',
       order: 0,
       ignoreNullValues: false,
-      styleItemType: ''
+      styleItemType: '',
+      splitByPattern: '',
     }
   ];
   describe('Applies Time style', () => {

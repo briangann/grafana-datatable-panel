@@ -3,7 +3,7 @@
  */
 import { DateFormats } from 'types';
 import { applyFormat, FormatColumnValue, ReplaceTimeMacros, TimeFormatter } from './cellRenderer';
-import { Field, FieldConfig, FieldType, GrafanaTheme2 } from '@grafana/data';
+import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
 describe('Cell Renderer', () => {
   const theme2 = {} as unknown as GrafanaTheme2;
   describe('Test FormatColumnValue', () => {
@@ -23,11 +23,9 @@ describe('Cell Renderer', () => {
           0,
           1744486055000,
           'time',
-          'time1',
-          'time2',
           theme2,
         );
-        expect(result).toEqual('2025-04-12T19:27:35+00:00');
+        expect(result.valueFormatted).toEqual('2025-04-12T19:27:35+00:00');
       });
     });
 
@@ -50,12 +48,10 @@ describe('Cell Renderer', () => {
           0,
           123.456,
           'other',
-          'fromTime',
-          'toTime',
           theme2,
         );
         // show just return a string with the value inside
-        expect(result).toEqual('123.456');
+        expect(result.valueFormatted).toEqual('123.456');
       });
     });
 
@@ -78,11 +74,9 @@ describe('Cell Renderer', () => {
           0,
           123.456,
           'number',
-          'fromTime',
-          'toTime',
           theme2,
         );
-        expect(result).toEqual('123.456 kwh');
+        expect(result.valueFormatted).toEqual('123.456 kwh');
       });
     });
   });
@@ -90,35 +84,32 @@ describe('Cell Renderer', () => {
   describe('Test TimeFormatter', () => {
     describe('Test numeric to UTC formatting', () => {
       const result = TimeFormatter('utc', 1744486055000, DateFormats[5].value);
-      expect(result).toEqual('2025-04-12T19:27:35+00:00');
+      expect(result.valueFormatted).toEqual('2025-04-12T19:27:35+00:00');
     });
     describe('Test numeric to America/Denver formatting', () => {
       const result = TimeFormatter('America/Denver', 1744486055000, 'YYYY-MM-DDTHH:mm:ssZ');
-      expect(result).toEqual('2025-04-12T13:27:35-06:00');
+      expect(result.valueFormatted).toEqual('2025-04-12T13:27:35-06:00');
     });
   });
 
   describe('Test ReplaceTimeMacros', () => {
     describe('Test replace $__from', () => {
       let content = 'content with $__from';
-      const timeFrom = 'x';
-      const timeTo = 'y';
-      const result = ReplaceTimeMacros(timeFrom, timeTo, content);
-      expect(result).toEqual('content with x');
+      const timeRange = getDefaultTimeRange();
+      const result = ReplaceTimeMacros(timeRange, content);
+      expect(result).toEqual('content with now-15m');
     });
     describe('Test replace $__to', () => {
       let content = 'content with $__to';
-      const timeFrom = 'x';
-      const timeTo = 'y';
-      const result = ReplaceTimeMacros(timeFrom, timeTo, content);
-      expect(result).toEqual('content with y');
+      const timeRange = getDefaultTimeRange();
+      const result = ReplaceTimeMacros(timeRange, content);
+      expect(result).toEqual('content with now');
     });
     describe('Test replace $__keepTime', () => {
       let content = 'content with $__keepTime';
-      const timeFrom = 'x';
-      const timeTo = 'y';
-      const result = ReplaceTimeMacros(timeFrom, timeTo, content);
-      expect(result).toEqual('content with from=x&to=y');
+      const timeRange = getDefaultTimeRange();
+      const result = ReplaceTimeMacros(timeRange, content);
+      expect(result).toEqual('content with from=now-15m&to=now');
     });
   });
 
@@ -142,3 +133,13 @@ describe('Cell Renderer', () => {
     });
   });
 });
+
+function getDefaultTimeRange(): TimeRange {
+  const fromDateTime = dateTime().subtract(15, 'minutes');
+  const toDateTime = dateTime();
+  return {
+    from: fromDateTime,
+    to: toDateTime,
+    raw: { from: 'now-15m', to: 'now' },
+  };
+}

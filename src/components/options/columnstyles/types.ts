@@ -34,6 +34,7 @@ export interface ColumnStyleItemType {
   dateFormat?: string;
   mappingType?: number;
   ignoreNullValues: boolean;
+  splitByPattern: string,
   styleItemType: string;
 };
 

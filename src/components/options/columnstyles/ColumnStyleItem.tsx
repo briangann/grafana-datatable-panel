@@ -36,6 +36,7 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
   ];
 
   const [clickThroughURL, setClickThroughURL] = useState(props.style.clickThrough);
+  const [splitByPattern, setSplitByPattern] = useState(props.style.splitByPattern);
 
   const removeItem = () => {
     props.remover(style.order);
@@ -113,6 +114,14 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
             placeholder="https://"
             onChange={(e) => setClickThroughURL(e.currentTarget.value)}
             onBlur={(e) => setColumnStyle({ ...style, clickThrough: e.currentTarget.value })}
+          />
+        </Field>
+        <Field label="Split By RegEx" description="Split cell content by regular expression" hidden={style.clickThrough.length === 0} disabled={!style.enabled}>
+          <Input
+            value={splitByPattern}
+            placeholder=""
+            onChange={(e) => setSplitByPattern(e.currentTarget.value)}
+            onBlur={(e) => setColumnStyle({ ...style, splitByPattern: e.currentTarget.value })}
           />
         </Field>
         <Field label="Sanitize URL" description="Sanitize URL before evaluating" hidden={style.clickThrough.length === 0} disabled={!style.enabled}>
@@ -211,6 +220,14 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
             />
           </Field>
 
+          <Field label="Style Item Type" disabled={!style.enabled}>
+            <Select
+              options={ColumnStyleOptions}
+              value={style.styleItemType}
+              onChange={(item) => setColumnStyle({ ...style, styleItemType: item.value })}
+            />
+          </Field>
+
           <Field label="Metric/RegEx" disabled={!style.enabled}>
           <Cascader
             initialValue={style.nameOrRegex}
@@ -224,14 +241,6 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
               )}
             options={props.columnHints}
           />
-          </Field>
-
-          <Field label="Style Item Type" disabled={!style.enabled}>
-            <Select
-              options={ColumnStyleOptions}
-              value={style.styleItemType}
-              onChange={(item) => setColumnStyle({ ...style, styleItemType: item.value })}
-            />
           </Field>
 
           {style.styleItemType === 'metric' && metricItemType() }
