@@ -2,6 +2,7 @@
 import {
   DataFrame,
   Field,
+  FieldConfigSource,
   FieldType,
   GrafanaTheme2,
   TimeRange
@@ -15,6 +16,7 @@ import { ColumnStyleItemType } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
 import { DTData } from 'components/DataTablePanel';
 import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './createdCellHelpers';
+import { ApplyMappings, GetMappings } from './mappingProcessor';
 
 function normalizeFieldName(field: string) {
   return field
@@ -54,6 +56,7 @@ export const DataFrameToDisplay = (frames: DataFrame[]) => {
 
 export const ConvertDataFrameToDataTableFormat = (
   dataFrames: DataFrame[],
+  fieldConfig: FieldConfigSource<any>,
   userTimeZone: string,
   timeRange: TimeRange,
   alignNumbersToRightEnabled: boolean,
@@ -88,6 +91,18 @@ export const ConvertDataFrameToDataTableFormat = (
       let value = frameFields.values[i];
       const valueType = frameFields.type;
       value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, theme);
+      // run through mappings
+      const mappings = GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings);
+      //console.log(JSON.stringify(mappings));
+      // get the mapped value
+      const mappedValue = ApplyMappings(value, mappings);
+      //console.log(`original value ${value.valueFormatted} to mapped value ${mappedValue}`);
+      if (mappedValue !== null) {
+        console.log(`mapped value = ${mappedValue}`);
+        console.log(`mapped value json =` + JSON.stringify(mappedValue));
+        // the color value included in the mapping is ignored (for now)
+        value = mappedValue.text;
+      }
       const colName = columns[j].data;
       // @ts-ignore
       row[colName] = value;

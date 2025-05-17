@@ -139,7 +139,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     // const getTimeZone = () => {
-    //   console.log(`gettz`);
+    //   console.log(`get tz`);
     //   const dashboardTimeZone = props.timeZone;
     //   if (dashboardTimeZone === '') {
     //     // try global vars
@@ -165,6 +165,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         let flattenedRows: any[] = [];
         const result = ConvertDataFrameToDataTableFormat(
           dataFrames,
+          props.fieldConfig,
           props.timeZone,
           props.timeRange,
           props.options.alignNumbersToRightEnabled,
@@ -185,6 +186,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     }
   }, [
     dataFrames,
+    props.fieldConfig,
     props.timeZone,
     props.timeRange,
     props.data.state,

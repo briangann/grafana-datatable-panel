@@ -121,12 +121,14 @@ export const FormatColumnValue = (
   }
   // a string value is just copied
   if (valueType === 'string') {
-    const formatted: FormattedColumnValue = {
+    let formatted: FormattedColumnValue = {
       valueRaw: value,
       valueFormatted: value,
       valueRounded: null,
       valueRoundedAndFormatted: null,
     }
+    // might be useful to do the mappings here vs on conversion from dataframes
+    //formatted = ApplyMappings(formatted, null);
     return formatted;
   }
   // numbers are formatted here
