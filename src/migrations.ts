@@ -1,4 +1,8 @@
-import { PanelModel } from '@grafana/data';
+import {
+  convertOldAngularValueMappings,
+  PanelModel,
+  ValueMapping }
+from '@grafana/data';
 
 import {
   AggregationOptions,
@@ -66,7 +70,16 @@ export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOption
   // @ts-ignore
   const newDefaults = migrateDefaults(panel);
   let options = newDefaults;
-
+  //
+  const newMappings = migrateValueAndRangeMaps(panel);
+  panel.fieldConfig.defaults.mappings = newMappings;
+    //@ts-ignore
+  delete panel.mappingType;
+  //@ts-ignore
+  delete panel.rangeMaps;
+  //@ts-ignore
+  delete panel.valueMaps;
+  //
   // clean up undefined
   // @ts-ignore
   Object.keys(panel).forEach((key) => (panel[key] === undefined ? delete panel[key] : {}));
@@ -406,4 +419,23 @@ const migrateTransform = (transform: string): TransformationOptions => {
       break;
   }
   return migrated;
+};
+
+export const migrateValueAndRangeMaps = (panel: any) => {
+  // value maps first
+  panel.mappingType = 1;
+  let newValueMappings: ValueMapping[] = [];
+  if (panel.valueMaps !== undefined) {
+    newValueMappings = convertOldAngularValueMappings(panel);
+  }
+  // range maps second
+  panel.mappingType = 2;
+  let newRangeMappings: ValueMapping[] = [];
+  if (panel.rangeMaps !== undefined) {
+    newRangeMappings = convertOldAngularValueMappings(panel);
+  }
+  // append together
+  const newMappings = newValueMappings.concat(newRangeMappings);
+  // get uniques only
+  return [...new Map(newMappings.map((v) => [JSON.stringify(v), v])).values()];
 };
