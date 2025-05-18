@@ -110,13 +110,13 @@ export const ConvertDataFrameToDataTableFormat = (
   }
   if (rowNumbersEnabled) {
     columns.unshift({
-      title: 'Row',
+      title: 'row',
       data: 'rowNumber',
       type: 'number',
       className: '',
       fieldConfig: {},
       columnStyle: null,
-      widthHint: '',
+      widthHint: '1%',
       visible: true,
     });
     for (let i = 0; i < dataFrame.length; i++) {
