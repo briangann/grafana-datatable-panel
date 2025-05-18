@@ -16,6 +16,7 @@ import {
 } from './types';
 import { Threshold } from 'components/options/thresholds/types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
+//import { DEFAULT_CRITICAL_COLOR_RGBA, DEFAULT_OK_COLOR_RGBA, DEFAULT_WARNING_COLOR_RGBA } from 'components/options/defaults';
 
 interface AngularDatatableOptions {
   alignNumbersToRightEnabled?: boolean;
@@ -354,7 +355,7 @@ const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
       colors: element.colors,
       dateFormat: element.dateFormat,
       decimals: element.decimals,
-      enabled: element.enabled,
+      enabled: true, // did not have this option before
       ignoreNullValues: element.ignoreNullValues,
       label: `Migrated-Style-${index}`,
       mappingType: element.mappingType,
@@ -363,7 +364,7 @@ const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
       scaledDecimals: element.scaledDecimals,
       splitByPattern: element.splitByPattern,
       styleItemType: migrateItemType(element.type),
-      thresholds: migrateThresholds(element.thresholds),
+      thresholds: migrateThresholds(element.colors, element.thresholds),
       unitFormat: element.unit,
     };
     migrated.push(item);
@@ -371,9 +372,82 @@ const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
   return migrated;
 };
 
-// TODO: migrate old thresholds
-const migrateThresholds = (thresholds: string): Threshold[] => {
+// from:
+// style: {
+// "colors": [
+//         "rgba(245, 54, 54, 0.9)",
+//         "rgba(237, 129, 40, 0.89)",
+//         "rgba(50, 172, 45, 0.97)"
+//       ],
+// "thresholds": [
+//         "10",
+//         "50"
+//       ],
+// }
+// to:
+//
+//  "thresholds": [
+//           {
+//             "color": "#299c46",
+//             "state": 0,
+//             "value": 0
+//           },
+//           {
+//             "color": "#ed8128",
+//             "state": 1,
+//             "value": 1
+//           },
+//           {
+//             "color": "#f53636",
+//             "state": 2,
+//             "value": 2
+//           },
+//           {
+//             "color": "#299c46",
+//             "state": 3,
+//             "value": 3
+//           }
+//         ],
+//
+
+const colorToState = (color: string) => {
+  // use the OLD default colors to migrate, and not the new ones
+  switch (color) {
+    case 'rgba(50, 172, 45, 0.97)':
+      return 0; // ok state
+    case 'rgba(237, 129, 40, 0.89)':
+      return 1; // warning state
+    case 'rgba(245, 54, 54, 0.9)':
+      return 2; // critical state
+    default:
+      return 3; // custom
+  }
+}
+const migrateThresholds = (colors: string[], thresholds: string[]): Threshold[] => {
   let migrated: Threshold[] = [];
+  if (thresholds === undefined) {
+    return [];
+  }
+  for (let index = 0; index < thresholds.length; index++) {
+    const aThreshold = thresholds[index];
+    const aColor = colors[index];
+    let state = colorToState(aColor);
+    const migratedThreshold: Threshold = {
+      color: aColor,
+      state: state,
+      value: parseFloat(aThreshold),
+    }
+    migrated.push(migratedThreshold);
+  }
+  if (migrated.length === 2) {
+    // one more with final color
+    const defaultFinalThreshold: Threshold = {
+      color: colors[2],
+      state: colorToState(colors[2]),
+      value: parseFloat(thresholds[thresholds.length-1]),
+    }
+    migrated.push(defaultFinalThreshold);
+  }
   return migrated;
 };
 
