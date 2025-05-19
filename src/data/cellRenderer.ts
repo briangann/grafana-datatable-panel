@@ -55,21 +55,23 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
   // const timestampFormatted = dateTimeForTimeZone(timeZone, timestamp);
   // console.log(timestampFormatted.toISOString(true));
 
-  // TODO: bug
-  // when timezone is browser, moment.tz can't be used
+  // when timezone is browser, convert using Intl package to resolve it
+  // to the actual name moment-tz can use
   //
   let formattedWithTimezone = dateTime(timestamp).format(timestampFormat);
-  if (timeZone !== 'browser') {
-    formattedWithTimezone = moment.tz(
-      dateTime(timestamp).utc().toISOString(true),
-      timestampFormat, timeZone).format(timestampFormat);
+  let useTimezone = timeZone;
+  if (timeZone === 'browser') {
+    useTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   }
-      const formatted: FormattedColumnValue = {
-      valueRaw: timestamp,
-      valueFormatted: formattedWithTimezone,
-      valueRounded: null,
-      valueRoundedAndFormatted: formattedWithTimezone,
-    }
+  formattedWithTimezone = moment.tz(
+    dateTime(timestamp).utc().toISOString(true),
+    timestampFormat, useTimezone).format(timestampFormat);
+  const formatted: FormattedColumnValue = {
+    valueRaw: timestamp,
+    valueFormatted: formattedWithTimezone,
+    valueRounded: null,
+    valueRoundedAndFormatted: formattedWithTimezone,
+  }
 
   return formatted;
 }
@@ -248,11 +250,11 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
   // eslint-disable-next-line no-debugger
   debugger;
   const result: FormattedColumnValue = {
-      valueRaw: value,
-      valueFormatted: valueFormatted,
-      valueRounded: valueRounded,
-      valueRoundedAndFormatted: valueRoundedAndFormatted,
-    };
+    valueRaw: value,
+    valueFormatted: valueFormatted,
+    valueRounded: valueRounded,
+    valueRoundedAndFormatted: valueRoundedAndFormatted,
+  };
   return result;
 }
 
