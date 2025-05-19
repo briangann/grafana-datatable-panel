@@ -58,7 +58,15 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
     'table.dataTable.order-column > tbody tr > .sorting_1, \
       table.dataTable.order-column > tbody tr > .sorting_2, \
       table.dataTable.order-column > tbody tr > .sorting_3': {
-      backgroundColor: theme.isDark ? 'rgb(82, 82, 82) !important' : 'rgb(182,182,182) !important',
+      backgroundColor: theme.isDark ? 'rgb(30, 30, 30) !important' : 'rgb(182,182,182) !important',
+    },
+    'table.dataTable.order-column tbody tr.selected > .sorting_1, \
+      table.dataTable.order-column tbody tr.selected > .sorting_2, \
+      table.dataTable.order-column tbody tr.selected > .sorting_3, \
+      table.dataTable.display tbody tr.selected > .sorting_1, \
+      table.dataTable.display tbody tr.selected > .sorting_2, \
+      table.dataTable.display tbody tr.selected > .sorting_3': {
+        backgroundColor: theme.isDark ? '#232121' : '#f5f5f5',
     },
     'div.dt-container .dt-paging .dt-paging-button.disabled, \
       div.dt-container .dt-paging .dt-paging-button.disabled:hover, \
@@ -91,6 +99,12 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
       marginLeft: '3px',
       width: '150px',
     },
+    'div.dt-container .dt-paging .dt-paging-button.current, \
+      div.dt-container .dt-paging .dt-paging-button.current:hover': {
+        color:'#1fb2e5 !important',
+        border: '1px solid #797979',
+        backgroundColor: 'inherit',
+      },
 
 
 

@@ -440,7 +440,7 @@ const migrateThresholds = (colors: string[], thresholds: string[]): Threshold[] 
     migrated.push(migratedThreshold);
   }
   if (migrated.length === 2) {
-    // one more with final color
+    // one more with final color just in case
     const defaultFinalThreshold: Threshold = {
       color: colors[2],
       state: colorToState(colors[2]),
