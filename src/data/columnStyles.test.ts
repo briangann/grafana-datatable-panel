@@ -2,9 +2,10 @@
  * Tests for Column Styling
  */
 
-import { ColumnStyleItemType } from 'components/options/columnstyles/types';
+import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
 import { DTColumnType } from './types';
+import { DateFormats } from 'types';
 
 describe('Column Styles', () => {
   const columns: DTColumnType[] = [
@@ -20,23 +21,31 @@ describe('Column Styles', () => {
   const columnStyles: ColumnStyleItemType[] = [
     {
       label: 'Style-0',
-      nameOrRegex: 'time',
-      alias: '',
-      thresholds: [],
-      colors: [],
-      unitFormat: '',
-      decimals: '',
-      scaledDecimals: null,
+      activeStyle: ColumnStyles.METRIC,
       enabled: true,
-      clickThrough: '',
-      clickThroughSanitize: true,
-      clickThroughOpenNewTab: true,
-      clickThroughCustomTargetEnabled: false,
-      clickThroughCustomTarget: '',
+      nameOrRegex: 'time',
       order: 0,
-      ignoreNullValues: false,
-      styleItemType: '',
-      splitByPattern: '',
+      metricStyle: {
+        alias: '',
+        thresholds: [],
+        colors: [],
+        unitFormat: '',
+        decimals: '',
+        scaledDecimals: null,
+        ignoreNullValues: true,
+      },
+      stringStyle: {
+        clickThrough: '',
+        clickThroughSanitize: true,
+        clickThroughOpenNewTab: true,
+        clickThroughCustomTargetEnabled: false,
+        clickThroughCustomTarget: '',
+        splitByPattern: '',
+      },
+      dateStyle: {
+        dateFormat: DateFormats[5].value,
+      },
+      hiddenStyle: {},
     }
   ];
   describe('Applies Time style', () => {

@@ -1,8 +1,9 @@
 import {
   convertOldAngularValueMappings,
   PanelModel,
-  ValueMapping }
-from '@grafana/data';
+  ValueMapping
+}
+  from '@grafana/data';
 
 import {
   AggregationOptions,
@@ -15,7 +16,7 @@ import {
   TransformationOptions,
 } from './types';
 import { Threshold } from 'components/options/thresholds/types';
-import { ColumnStyleItemType } from 'components/options/columnstyles/types';
+import { ColumnStyleDate, ColumnStyleHidden, ColumnStyleItemType, ColumnStyleMetric, ColumnStyles, ColumnStyleString } from 'components/options/columnstyles/types';
 //import { DEFAULT_CRITICAL_COLOR_RGBA, DEFAULT_OK_COLOR_RGBA, DEFAULT_WARNING_COLOR_RGBA } from 'components/options/defaults';
 
 interface AngularDatatableOptions {
@@ -108,7 +109,7 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     scroll: false,
     searchEnabled: false,
     searchHighlightingEnabled: false,
-    columnSorting: [ {index: 0, order: ColumnSortingOptions.Descending} ],
+    columnSorting: [{ index: 0, order: ColumnSortingOptions.Descending }],
     stripedRowsEnabled: false,
     columnStylesConfig: [],
     transformation: TransformationOptions.TimeSeriesToColumns,
@@ -339,33 +340,38 @@ const migrateSortByColumns = (sortByColumns: any[]): ColumnSorting[] => {
   return migrated;
 };
 
-// TODO: migration to new type
 const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
   const migrated = [] as ColumnStyleItemType[];
   for (let index = 0; index < styles.length; index++) {
     const element = styles[index];
     const item: ColumnStyleItemType = {
-      alias: element.alias,
-      clickThrough: element.clickThrough,
-      clickThroughSanitize: element.clickThroughSanitize,
-      clickThroughOpenNewTab: element.clickThroughOpenNewTab,
-      clickThroughCustomTargetEnabled: element.clickThroughCustomTargetEnabled,
-      clickThroughCustomTarget: element.clickThroughCustomTargetEnabled,
-      colorMode: element.colorMode,
-      colors: element.colors,
-      dateFormat: element.dateFormat,
-      decimals: element.decimals,
       enabled: true, // did not have this option before
-      ignoreNullValues: element.ignoreNullValues,
       label: `Migrated-Style-${index}`,
-      mappingType: element.mappingType,
       nameOrRegex: element.pattern,
       order: index,
-      scaledDecimals: element.scaledDecimals,
-      splitByPattern: element.splitByPattern,
-      styleItemType: migrateItemType(element.type),
-      thresholds: migrateThresholds(element.colors, element.thresholds),
-      unitFormat: element.unit,
+      activeStyle: migrateItemType(element.type),
+      dateStyle: {
+        dateFormat: element.dateFormat,
+      } as ColumnStyleDate,
+      hiddenStyle: {} as ColumnStyleHidden,
+      metricStyle: {
+        alias: element.alias,
+        thresholds: migrateThresholds(element.colors, element.thresholds),
+        colors: element.colors,
+        colorMode: element.colorMode,
+        decimals: element.decimals,
+        scaledDecimals: element.scaledDecimals,
+        unitFormat: element.unitFormat,
+        ignoreNullValues: true,
+      } as ColumnStyleMetric,
+      stringStyle: {
+        clickThrough: element.clickThrough,
+        clickThroughCustomTarget: element.clickThroughCustomTarget,
+        clickThroughCustomTargetEnabled: element.clickThroughCustomTargetEnabled,
+        clickThroughOpenNewTab: element.clickThroughOpenNewTab,
+        clickThroughSanitize: element.clickThroughSanitize,
+        splitByPattern: element.splitByPattern,
+      } as ColumnStyleString,
     };
     migrated.push(item);
   }
@@ -444,25 +450,25 @@ const migrateThresholds = (colors: string[], thresholds: string[]): Threshold[] 
     const defaultFinalThreshold: Threshold = {
       color: colors[2],
       state: colorToState(colors[2]),
-      value: parseFloat(thresholds[thresholds.length-1]),
+      value: parseFloat(thresholds[thresholds.length - 1]),
     }
     migrated.push(defaultFinalThreshold);
   }
   return migrated;
 };
 
-const migrateItemType = (itemType: string): string => {
+const migrateItemType = (itemType: string): ColumnStyles => {
   switch (itemType) {
     case 'date':
-      return 'date';
+      return ColumnStyles.DATE;
     case 'hidden':
-      return 'hidden';
+      return ColumnStyles.HIDDEN;
     case 'number':
-      return 'metric';
+      return ColumnStyles.METRIC;
     case 'string':
-      return 'string';
+      return ColumnStyles.STRING;
     default:
-      return 'metric';
+      return ColumnStyles.METRIC;
   }
 };
 

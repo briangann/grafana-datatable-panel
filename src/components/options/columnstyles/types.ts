@@ -14,28 +14,51 @@ export interface ColumnStyleItemProps {
   context: any;
 };
 
-export interface ColumnStyleItemType {
-  label: string;
-  nameOrRegex: string;
+export interface ColumnStyleHidden {
+};
+
+export interface ColumnStyleDate {
+  dateFormat?: string;
+};
+
+export interface ColumnStyleMetric {
   alias: string;
   thresholds: Threshold[];
   colors: string[];
-  unitFormat: string;
+  colorMode?: string;
   decimals: string;
   scaledDecimals: number | null;
-  enabled: boolean;
-  clickThrough: string | '';
+  unitFormat: string;
+  ignoreNullValues: boolean;
+};
+export interface ColumnStyleString {
+  clickThrough: string;
   clickThroughSanitize: boolean;
   clickThroughOpenNewTab: boolean;
   clickThroughCustomTargetEnabled: boolean;
   clickThroughCustomTarget: string;
-  order: number;
-  colorMode?: string;
-  dateFormat?: string;
   mappingType?: number;
-  ignoreNullValues: boolean;
   splitByPattern: string,
-  styleItemType: string;
+};
+
+export enum ColumnStyles {
+  DATE = 'date',
+  HIDDEN = 'hidden',
+  METRIC = 'metric',
+  STRING = 'string',
+}
+export interface ColumnStyleItemType {
+  // common properties
+  activeStyle: ColumnStyles;
+  enabled: boolean;
+  label: string;
+  nameOrRegex: string;
+  order: number;
+  // allows switching the styles without losing data
+  dateStyle: ColumnStyleDate;
+  hiddenStyle: ColumnStyleHidden;
+  metricStyle: ColumnStyleMetric;
+  stringStyle: ColumnStyleString;
 };
 
 export interface ColumnStyleItemTracker {

@@ -35,8 +35,8 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
     { label: 'Hidden', value: 'hidden' },
   ];
 
-  const [clickThroughURL, setClickThroughURL] = useState(props.style.clickThrough);
-  const [splitByPattern, setSplitByPattern] = useState(props.style.splitByPattern);
+  const [clickThroughURL, setClickThroughURL] = useState(props.style.stringStyle.clickThrough);
+  const [splitByPattern, setSplitByPattern] = useState(props.style.stringStyle.splitByPattern);
 
   const removeItem = () => {
     props.remover(style.order);
@@ -53,7 +53,15 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
   };
 
   const setThresholds = (val: Threshold[]) => {
-    setColumnStyle({ ...style, thresholds: val });
+    setColumnStyle({ ...style, metricStyle: {
+      thresholds: val,
+      alias: style.metricStyle.alias,
+      colors: style.metricStyle.colors,
+      decimals: style.metricStyle.decimals,
+      scaledDecimals: style.metricStyle.scaledDecimals,
+      unitFormat: style.metricStyle.unitFormat,
+      ignoreNullValues: style.metricStyle.ignoreNullValues,
+    }});
   };
 
   const metricItemType = () => {
@@ -61,43 +69,59 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
       <>
         <Field label="Alias" disabled={!style.enabled} hidden={true}>
           <Input
-            value={style.alias}
+            value={style.metricStyle.alias}
             placeholder=""
-            onChange={(e) => setColumnStyle({ ...style, alias: e.currentTarget.value })}
+            onChange={(e) => setColumnStyle({
+              ...style,
+              metricStyle: {
+                ...style.metricStyle,
+                alias: e.currentTarget.value}})}
           />
         </Field>
 
         <Field label="Decimals" disabled={!style.enabled}>
           <Input
-            value={style.decimals}
+            value={style.metricStyle.decimals}
             type="number"
             step={1}
             placeholder=""
-            onChange={(e) => setColumnStyle({ ...style, decimals: e.currentTarget.value })}
+            onChange={(e) => setColumnStyle({
+              ...style,
+              metricStyle: {
+                ...style.metricStyle,
+                decimals: e.currentTarget.value}})}
           />
         </Field>
 
         <Field label="Unit Format" disabled={!style.enabled}>
           {style.enabled ? (
             <UnitPicker
-              value={style.unitFormat}
-              onChange={(val: any) => setColumnStyle({ ...style, unitFormat: val })}
+              value={style.metricStyle.unitFormat}
+            onChange={(e) => setColumnStyle({
+              ...style,
+              metricStyle: {
+                ...style.metricStyle,
+                unitFormat: e||'short'}})}
             />
           ) : (
-            <span>{style.unitFormat}</span>
+            <span>{style.metricStyle.unitFormat}</span>
           )}
         </Field>
 
         <Field label="Thresholds" disabled={!style.enabled}>
-          <ThresholdsEditor disabled={!style.enabled} thresholds={style.thresholds} setter={setThresholds} />
+          <ThresholdsEditor disabled={!style.enabled} thresholds={style.metricStyle.thresholds} setter={setThresholds} />
         </Field>
 
-        <Field hidden={style.thresholds?.length === 0} label="Color Mode" disabled={!style.enabled}>
+        <Field hidden={style.metricStyle.thresholds?.length === 0} label="Color Mode" disabled={!style.enabled}>
           <Select
             disabled={!style.enabled}
             menuShouldPortal={true}
-            value={style.colorMode}
-            onChange={(val: any) => setColumnStyle({ ...style, colorMode: val.value })}
+            value={style.metricStyle.colorMode}
+            onChange={(e) => setColumnStyle({
+              ...style,
+              metricStyle: {
+                ...style.metricStyle,
+                colorMode: e.value}})}
             options={ColorModeOptions}
           />
         </Field>
@@ -113,52 +137,80 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
             value={clickThroughURL}
             placeholder="https://"
             onChange={(e) => setClickThroughURL(e.currentTarget.value)}
-            onBlur={(e) => setColumnStyle({ ...style, clickThrough: e.currentTarget.value })}
+            onBlur={(e) => setColumnStyle({
+              ...style,
+              stringStyle: {
+                ...style.stringStyle,
+                clickThrough: e.currentTarget.value}})}
           />
         </Field>
-        <Field label="Split By RegEx" description="Split cell content by regular expression" hidden={style.clickThrough?.length === 0} disabled={!style.enabled}>
+        <Field label="Split By RegEx" description="Split cell content by regular expression" hidden={style.stringStyle.clickThrough?.length === 0} disabled={!style.enabled}>
           <Input
             value={splitByPattern}
             placeholder=""
             onChange={(e) => setSplitByPattern(e.currentTarget.value)}
-            onBlur={(e) => setColumnStyle({ ...style, splitByPattern: e.currentTarget.value })}
-          />
-        </Field>
-        <Field label="Sanitize URL" description="Sanitize URL before evaluating" hidden={style.clickThrough?.length === 0} disabled={!style.enabled}>
-          <Switch
-            transparent={false}
-            disabled={!style.enabled}
-            value={style.clickThroughSanitize}
-            onChange={() => setColumnStyle({ ...style, clickThroughSanitize: !style.clickThroughSanitize })}
-          />
-        </Field>
-        <Field label="Open URL in New Tab" description="Open link in new tab" hidden={style.clickThrough?.length === 0} disabled={!style.enabled}>
-          <Switch
-            transparent={false}
-            value={style.clickThroughOpenNewTab}
-            disabled={!style.enabled}
-            onChange={() => setColumnStyle({ ...style, clickThroughOpenNewTab: !style.clickThroughOpenNewTab })}
-          />
-        </Field>
-        <Field label="Enable Custom URL Target" description="Enable custom target" disabled={!style.enabled} hidden={style.clickThrough?.length === 0 && style.clickThroughOpenNewTab}>
-          <Switch
-            transparent={false}
-            value={style.clickThroughCustomTargetEnabled}
-            disabled={!style.enabled}
-            onChange={() => setColumnStyle({
+            onBlur={(e) => setColumnStyle({
               ...style,
-              clickThroughCustomTargetEnabled: !style.clickThroughCustomTargetEnabled,
-              clickThroughCustomTarget: style.clickThroughCustomTarget || ''
-            })}
+              stringStyle: {
+                ...style.stringStyle,
+                splitByPattern: e.currentTarget.value}})}
           />
         </Field>
-        {style.clickThroughCustomTargetEnabled &&
-          <Field label="Custom URL Target" description="Specify a custom target, typical values are: _blank|_self|_parent|_top|framename" disabled={!style.enabled} hidden={style.clickThrough?.length === 0 && !style.clickThroughCustomTargetEnabled}>
+        <Field label="Sanitize URL" description="Sanitize URL before evaluating" hidden={style.stringStyle.clickThrough?.length === 0} disabled={!style.enabled}>
+          <Switch
+            transparent={false}
+            disabled={!style.enabled}
+            value={style.stringStyle.clickThroughSanitize}
+            onChange={(e) => setColumnStyle({
+              ...style,
+              stringStyle: {
+                ...style.stringStyle,
+                clickThroughSanitize: !style.stringStyle.clickThroughSanitize}})}
+          />
+        </Field>
+        <Field label="Open URL in New Tab" description="Open link in new tab" hidden={style.stringStyle.clickThrough?.length === 0} disabled={!style.enabled}>
+          <Switch
+            transparent={false}
+            value={style.stringStyle.clickThroughOpenNewTab}
+            disabled={!style.enabled}
+            onChange={(e) => setColumnStyle({
+              ...style,
+              stringStyle: {
+                ...style.stringStyle,
+                clickThroughOpenNewTab: !style.stringStyle.clickThroughOpenNewTab}})}
+          />
+        </Field>
+        <Field label="Enable Custom URL Target"
+          description="Enable custom target"
+          disabled={!style.enabled}
+          hidden={style.stringStyle.clickThrough?.length === 0 && style.stringStyle.clickThroughOpenNewTab}>
+          <Switch
+            transparent={false}
+            value={style.stringStyle.clickThroughCustomTargetEnabled}
+            disabled={!style.enabled}
+            onChange={(e) => setColumnStyle({
+              ...style,
+              stringStyle: {
+                ...style.stringStyle,
+                clickThroughCustomTargetEnabled: !style.stringStyle.clickThroughCustomTargetEnabled,
+                clickThroughCustomTarget: style.stringStyle.clickThroughCustomTarget,
+              }})}
+          />
+        </Field>
+        {style.stringStyle.clickThroughCustomTargetEnabled &&
+          <Field label="Custom URL Target"
+            description="Specify a custom target, typical values are: _blank|_self|_parent|_top|framename"
+            disabled={!style.enabled}
+            hidden={style.stringStyle.clickThrough?.length === 0 && !style.stringStyle.clickThroughCustomTargetEnabled}>
             <Input
-              value={style.clickThroughCustomTarget}
+              value={style.stringStyle.clickThroughCustomTarget}
               placeholder="_self"
               disabled={!style.enabled}
-              onChange={(e) => setColumnStyle({ ...style, clickThroughCustomTarget: e.currentTarget.value })}
+              onChange={(e) => setColumnStyle({
+              ...style,
+              stringStyle: {
+                ...style.stringStyle,
+                clickThroughCustomTarget: e.currentTarget.value}})}
             />
           </Field>
         }
@@ -172,19 +224,14 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
           <Field label="Date Format" disabled={!style.enabled}>
             <Select
               options={DateFormats}
-              value={style.dateFormat}
-              onChange={(item) => setColumnStyle({ ...style, dateFormat: item.value })}
+              value={style.dateStyle.dateFormat}
+              onChange={(item) => setColumnStyle({
+              ...style,
+              dateStyle: {
+                ...style.dateStyle,
+                dateFormat: item.value}})}
             />
           </Field>
-
-        <Field label="Ignore Null Values" description="Ignore Null Values" disabled={!style.enabled}>
-          <Switch
-            transparent={false}
-            disabled={!style.enabled}
-            value={style.ignoreNullValues}
-            onChange={() => setColumnStyle({ ...style, ignoreNullValues: !style.ignoreNullValues })}
-          />
-        </Field>
       </>
     );
   };
@@ -192,14 +239,6 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
   const hiddenItemType = () => {
     return (
       <>
-        <Field label="Ignore Null Values" description="Ignore Null Values" disabled={!style.enabled}>
-          <Switch
-            transparent={false}
-            disabled={!style.enabled}
-            value={style.ignoreNullValues}
-            onChange={() => setColumnStyle({ ...style, ignoreNullValues: !style.ignoreNullValues })}
-          />
-        </Field>
       </>
     );
   };
@@ -223,8 +262,8 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
           <Field label="Style Item Type" disabled={!style.enabled}>
             <Select
               options={ColumnStyleOptions}
-              value={style.styleItemType}
-              onChange={(item) => setColumnStyle({ ...style, styleItemType: item.value })}
+              value={style.activeStyle}
+              onChange={(item) => setColumnStyle({ ...style, activeStyle: item.value })}
             />
           </Field>
 
@@ -243,10 +282,10 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
           />
           </Field>
 
-          {style.styleItemType === 'metric' && metricItemType() }
-          {style.styleItemType === 'string' && stringItemType() }
-          {style.styleItemType === 'date' && dateItemType() }
-          {style.styleItemType === 'hidden' && hiddenItemType() }
+          {style.activeStyle === 'metric' && metricItemType() }
+          {style.activeStyle === 'string' && stringItemType() }
+          {style.activeStyle === 'date' && dateItemType() }
+          {style.activeStyle === 'hidden' && hiddenItemType() }
         </FieldSet>
       </Card.Meta>
 

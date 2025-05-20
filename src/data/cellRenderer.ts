@@ -104,8 +104,8 @@ export const FormatColumnValue = (
   if ((valueType === 'time') && !isNaN(value as any)) {
     const parsed = parseInt(value, 10);
     let dateFormat = DateFormats[5].value;
-    if (columnStyle && columnStyle.dateFormat) {
-      dateFormat = columnStyle.dateFormat;
+    if (columnStyle && columnStyle.dateStyle.dateFormat) {
+      dateFormat = columnStyle.dateStyle.dateFormat;
     }
     // timezone comes from user preferences
     const formatted = TimeFormatter(userTimeZone, parsed, dateFormat);
@@ -139,16 +139,16 @@ export const FormatColumnValue = (
   if (field.config.unit) {
     useUnit = field.config.unit;
   }
-  if (columnStyle && columnStyle.unitFormat) {
-    useUnit = columnStyle.unitFormat;
+  if (columnStyle && columnStyle.metricStyle.unitFormat) {
+    useUnit = columnStyle.metricStyle.unitFormat;
   }
 
   let maxDecimals = 4;
   if (field.config.decimals !== undefined && field.config.decimals !== null) {
     maxDecimals = field.config.decimals;
   }
-  if (columnStyle && columnStyle.decimals) {
-    maxDecimals = Number(columnStyle.decimals).valueOf();
+  if (columnStyle && columnStyle.metricStyle.decimals) {
+    maxDecimals = Number(columnStyle.metricStyle.decimals).valueOf();
   }
 
   const formatted = applyFormat(value, maxDecimals, useUnit)
@@ -163,19 +163,19 @@ export const ProcessClickthrough = (
   processedItem: FormattedColumnValue,
   timeRange: TimeRange) => {
 
-  if (columnStyle?.clickThrough) {
-    let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.clickThrough);
-    if (columnStyle.splitByPattern) {
-      clickThrough = ReplaceCellSplitByPattern(clickThrough, processedItem, columnStyle.splitByPattern)
+  if (columnStyle?.stringStyle.clickThrough) {
+    let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.stringStyle.clickThrough);
+    if (columnStyle.stringStyle.splitByPattern) {
+      clickThrough = ReplaceCellSplitByPattern(clickThrough, processedItem, columnStyle.stringStyle.splitByPattern)
     }
     clickThrough = ReplaceCellMacros(clickThrough, processedItem.valueFormatted, columns, rows);
     //
     const target = resolveClickThroughTarget(
-      columnStyle.clickThroughOpenNewTab,
-      columnStyle.clickThroughCustomTargetEnabled,
-      columnStyle.clickThroughCustomTarget,
+      columnStyle.stringStyle.clickThroughOpenNewTab,
+      columnStyle.stringStyle.clickThroughCustomTargetEnabled,
+      columnStyle.stringStyle.clickThroughCustomTarget,
     );
-    if (columnStyle.clickThroughSanitize) {
+    if (columnStyle.stringStyle.clickThroughSanitize) {
       clickThrough = textUtil.sanitizeUrl(clickThrough);
     }
     // rebuild with encoding of parameters
