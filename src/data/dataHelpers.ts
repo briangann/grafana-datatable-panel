@@ -98,7 +98,7 @@ export const ConvertDataFrameToDataTableFormat = (
       const mappedValue = ApplyMappings(value, mappings);
       //console.log(`original value ${value.valueFormatted} to mapped value ${mappedValue}`);
       if (mappedValue !== null) {
-        console.log(`mapped value json =` + JSON.stringify(mappedValue));
+        //console.log(`mapped value json =` + JSON.stringify(mappedValue));
         // the color value included in the mapping is ignored (for now)
         value = mappedValue.text;
       }
@@ -243,7 +243,7 @@ export const BuildColumnDefs = (
             cellValueFormatted,
             timeRange);
           if (newCell !== null) {
-            console.log(`${newCell}`);
+            //console.log(`${newCell}`);
             $(cell).html(newCell);
           }
         }

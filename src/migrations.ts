@@ -508,7 +508,7 @@ export const migrateValueAndRangeMaps = (panel: any) => {
         delete oldValueMaps.rangeMaps;
         if (oldValueMaps.valueMaps) {
           const convertedValueMaps = convertOldAngularValueMappings(oldValueMaps);
-          console.log(JSON.stringify(convertedValueMaps));
+          //console.log(JSON.stringify(convertedValueMaps));
           newValueMappings = newValueMappings.concat(convertedValueMaps);
         }
       }
@@ -519,7 +519,7 @@ export const migrateValueAndRangeMaps = (panel: any) => {
         delete oldRangeMaps.valueMaps;
         if (oldRangeMaps.rangeMaps) {
           const convertedRangeMaps = convertOldAngularValueMappings(oldRangeMaps);
-          console.log(JSON.stringify(newRangeMappings));
+          //console.log(JSON.stringify(newRangeMappings));
           newRangeMappings = newRangeMappings.concat(convertedRangeMaps);
         }
       }

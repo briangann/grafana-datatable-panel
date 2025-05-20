@@ -138,23 +138,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.rowNumbersEnabled]);
 
   useEffect(() => {
-    // const getTimeZone = () => {
-    //   console.log(`get tz`);
-    //   const dashboardTimeZone = props.timeZone;
-    //   if (dashboardTimeZone === '') {
-    //     // try global vars
-    //     const globalTimezone = props.replaceVariables('$__timezone');
-    //     //console.log(`global timezone ${globalTimezone}`);
-    //     if (globalTimezone === '') {
-    //       // default to UTC
-    //       return ('utc');
-    //     }
-    //     return (globalTimezone);
-    //   } else {
-    //     //console.log(`timezone of dashboard ${dashboardTimeZone}`);
-    //     return (dashboardTimeZone);
-    //   }
-    // }
 
     if (props.data.state === LoadingState.Done) {
       if (dataFrames && dataFrames.length > 0) {
