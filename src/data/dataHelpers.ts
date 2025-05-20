@@ -98,9 +98,7 @@ export const ConvertDataFrameToDataTableFormat = (
         const mappedValue = ApplyMappings(value, mappings);
         //console.log(`original value ${value.valueFormatted} to mapped value ${mappedValue}`);
         if (mappedValue !== null) {
-          //console.log(`mapped value json =` + JSON.stringify(mappedValue));
-          // the color value included in the mapping is ignored (for now)
-          value = mappedValue.text;
+          value = mappedValue;
         }
       }
       const colName = columns[j].data;
@@ -197,8 +195,11 @@ export const BuildColumnDefs = (
         }
         let returnValue = val[meta.col];
         if (returnValue && returnValue.valueFormatted) {
+          //console.log(`returnvalue valueFormatted: ` + JSON.stringify(returnValue));
           return returnValue.valueFormatted;
         }
+        //console.log(`returnvalue default: ` + JSON.stringify(returnValue));
+        // the Row column is using just numerics, no formatting
         return returnValue;
       },
       createdCell: function(cell: any, columnsInCellData: DTColumnType[], rowData: any, rowIndex: number, colIndex: number) {
@@ -208,7 +209,7 @@ export const BuildColumnDefs = (
         }
         const aColumn = columnsInCellData[colIndex];
         // no formatting needed without a style
-        if (aColumn.columnStyle === null) {
+        if (!aColumn || aColumn?.columnStyle === null) {
           return;
         }
         const colorMode = aColumn.columnStyle.colorMode;

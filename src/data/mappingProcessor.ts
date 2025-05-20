@@ -10,7 +10,8 @@ export const ApplyMappings = (value: FormattedColumnValue, mappings: any) => {
   const aValue = getValueMappingResult(mappings, value.valueRaw);
   if (aValue !== null) {
     //console.log(`ApplyMappings matched, mapped value = ` + JSON.stringify(aValue));
-    return aValue;
+    value.valueFormatted = aValue.text || '';
+    return value;
   }
   return null;
 }
