@@ -93,14 +93,15 @@ export const ConvertDataFrameToDataTableFormat = (
       value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, theme);
       // run through mappings
       const mappings = GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings);
-      //console.log(JSON.stringify(mappings));
       // get the mapped value
-      const mappedValue = ApplyMappings(value, mappings);
-      //console.log(`original value ${value.valueFormatted} to mapped value ${mappedValue}`);
-      if (mappedValue !== null) {
-        //console.log(`mapped value json =` + JSON.stringify(mappedValue));
-        // the color value included in the mapping is ignored (for now)
-        value = mappedValue.text;
+      if (mappings) {
+        const mappedValue = ApplyMappings(value, mappings);
+        //console.log(`original value ${value.valueFormatted} to mapped value ${mappedValue}`);
+        if (mappedValue !== null) {
+          //console.log(`mapped value json =` + JSON.stringify(mappedValue));
+          // the color value included in the mapping is ignored (for now)
+          value = mappedValue.text;
+        }
       }
       const colName = columns[j].data;
       // @ts-ignore
