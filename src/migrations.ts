@@ -1,8 +1,9 @@
 import {
   convertOldAngularValueMappings,
   PanelModel,
-  ValueMapping }
-from '@grafana/data';
+  ValueMapping
+}
+  from '@grafana/data';
 
 import {
   AggregationOptions,
@@ -15,7 +16,8 @@ import {
   TransformationOptions,
 } from './types';
 import { Threshold } from 'components/options/thresholds/types';
-import { ColumnStyleItemType } from 'components/options/columnstyles/types';
+import { ColumnStyleDate, ColumnStyleHidden, ColumnStyleItemType, ColumnStyleMetric, ColumnStyles, ColumnStyleString } from 'components/options/columnstyles/types';
+//import { DEFAULT_CRITICAL_COLOR_RGBA, DEFAULT_OK_COLOR_RGBA, DEFAULT_WARNING_COLOR_RGBA } from 'components/options/defaults';
 
 interface AngularDatatableOptions {
   alignNumbersToRightEnabled?: boolean;
@@ -67,18 +69,14 @@ export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOption
     // have settings, return them unchanged
     return panel.options;
   }
+  //
+  // mapping are inside styles, there are no global mappings
+  // and only styles of type "string" should be migrated
+  const newMappings = migrateValueAndRangeMaps(panel);
+  panel.fieldConfig.defaults.mappings = newMappings;
   // @ts-ignore
   const newDefaults = migrateDefaults(panel);
   let options = newDefaults;
-  //
-  const newMappings = migrateValueAndRangeMaps(panel);
-  panel.fieldConfig.defaults.mappings = newMappings;
-    //@ts-ignore
-  delete panel.mappingType;
-  //@ts-ignore
-  delete panel.rangeMaps;
-  //@ts-ignore
-  delete panel.valueMaps;
   //
   // clean up undefined
   // @ts-ignore
@@ -111,7 +109,7 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     scroll: false,
     searchEnabled: false,
     searchHighlightingEnabled: false,
-    columnSorting: [ {index: 0, order: ColumnSortingOptions.Descending} ],
+    columnSorting: [{ index: 0, order: ColumnSortingOptions.Descending }],
     stripedRowsEnabled: false,
     columnStylesConfig: [],
     transformation: TransformationOptions.TimeSeriesToColumns,
@@ -342,57 +340,135 @@ const migrateSortByColumns = (sortByColumns: any[]): ColumnSorting[] => {
   return migrated;
 };
 
-// TODO: migration to new type
 const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
   const migrated = [] as ColumnStyleItemType[];
   for (let index = 0; index < styles.length; index++) {
     const element = styles[index];
     const item: ColumnStyleItemType = {
-      alias: element.alias,
-      clickThrough: element.clickThrough,
-      clickThroughSanitize: element.clickThroughSanitize,
-      clickThroughOpenNewTab: element.clickThroughOpenNewTab,
-      clickThroughCustomTargetEnabled: element.clickThroughCustomTargetEnabled,
-      clickThroughCustomTarget: element.clickThroughCustomTargetEnabled,
-      colorMode: element.colorMode,
-      colors: element.colors,
-      dateFormat: element.dateFormat,
-      decimals: element.decimals,
-      enabled: element.enabled,
-      ignoreNullValues: element.ignoreNullValues,
+      enabled: true, // did not have this option before
       label: `Migrated-Style-${index}`,
-      mappingType: element.mappingType,
       nameOrRegex: element.pattern,
       order: index,
-      scaledDecimals: element.scaledDecimals,
-      splitByPattern: element.splitByPattern,
-      styleItemType: migrateItemType(element.type),
-      thresholds: migrateThresholds(element.thresholds),
-      unitFormat: element.unit,
+      activeStyle: migrateItemType(element.type),
+      dateStyle: {
+        dateFormat: element.dateFormat,
+      } as ColumnStyleDate,
+      hiddenStyle: {} as ColumnStyleHidden,
+      metricStyle: {
+        alias: element.alias,
+        thresholds: migrateThresholds(element.colors, element.thresholds),
+        colors: element.colors,
+        colorMode: element.colorMode,
+        decimals: element.decimals,
+        scaledDecimals: element.scaledDecimals,
+        unitFormat: element.unitFormat,
+        ignoreNullValues: true,
+      } as ColumnStyleMetric,
+      stringStyle: {
+        clickThrough: element.clickThrough,
+        clickThroughCustomTarget: element.clickThroughCustomTarget,
+        clickThroughCustomTargetEnabled: element.clickThroughCustomTargetEnabled,
+        clickThroughOpenNewTab: element.clickThroughOpenNewTab,
+        clickThroughSanitize: element.clickThroughSanitize,
+        splitByPattern: element.splitByPattern,
+      } as ColumnStyleString,
     };
     migrated.push(item);
   }
   return migrated;
 };
 
-// TODO: migrate old thresholds
-const migrateThresholds = (thresholds: string): Threshold[] => {
+// from:
+// style: {
+// "colors": [
+//         "rgba(245, 54, 54, 0.9)",
+//         "rgba(237, 129, 40, 0.89)",
+//         "rgba(50, 172, 45, 0.97)"
+//       ],
+// "thresholds": [
+//         "10",
+//         "50"
+//       ],
+// }
+// to:
+//
+//  "thresholds": [
+//           {
+//             "color": "#299c46",
+//             "state": 0,
+//             "value": 0
+//           },
+//           {
+//             "color": "#ed8128",
+//             "state": 1,
+//             "value": 1
+//           },
+//           {
+//             "color": "#f53636",
+//             "state": 2,
+//             "value": 2
+//           },
+//           {
+//             "color": "#299c46",
+//             "state": 3,
+//             "value": 3
+//           }
+//         ],
+//
+
+const colorToState = (color: string) => {
+  // use the OLD default colors to migrate, and not the new ones
+  switch (color) {
+    case 'rgba(50, 172, 45, 0.97)':
+      return 0; // ok state
+    case 'rgba(237, 129, 40, 0.89)':
+      return 1; // warning state
+    case 'rgba(245, 54, 54, 0.9)':
+      return 2; // critical state
+    default:
+      return 3; // custom
+  }
+}
+const migrateThresholds = (colors: string[], thresholds: string[]): Threshold[] => {
   let migrated: Threshold[] = [];
+  if (thresholds === undefined) {
+    return [];
+  }
+  for (let index = 0; index < thresholds.length; index++) {
+    const aThreshold = thresholds[index];
+    const aColor = colors[index];
+    let state = colorToState(aColor);
+    const migratedThreshold: Threshold = {
+      color: aColor,
+      state: state,
+      value: parseFloat(aThreshold),
+    }
+    migrated.push(migratedThreshold);
+  }
+  if (migrated.length === 2) {
+    // one more with final color just in case
+    const defaultFinalThreshold: Threshold = {
+      color: colors[2],
+      state: colorToState(colors[2]),
+      value: parseFloat(thresholds[thresholds.length - 1]),
+    }
+    migrated.push(defaultFinalThreshold);
+  }
   return migrated;
 };
 
-const migrateItemType = (itemType: string): string => {
+const migrateItemType = (itemType: string): ColumnStyles => {
   switch (itemType) {
     case 'date':
-      return 'date';
+      return ColumnStyles.DATE;
     case 'hidden':
-      return 'hidden';
+      return ColumnStyles.HIDDEN;
     case 'number':
-      return 'metric';
+      return ColumnStyles.METRIC;
     case 'string':
-      return 'string';
+      return ColumnStyles.STRING;
     default:
-      return 'metric';
+      return ColumnStyles.METRIC;
   }
 };
 
@@ -421,18 +497,39 @@ const migrateTransform = (transform: string): TransformationOptions => {
   return migrated;
 };
 
+
 export const migrateValueAndRangeMaps = (panel: any) => {
-  // value maps first
-  panel.mappingType = 1;
   let newValueMappings: ValueMapping[] = [];
-  if (panel.valueMaps !== undefined) {
-    newValueMappings = convertOldAngularValueMappings(panel);
-  }
-  // range maps second
-  panel.mappingType = 2;
   let newRangeMappings: ValueMapping[] = [];
-  if (panel.rangeMaps !== undefined) {
-    newRangeMappings = convertOldAngularValueMappings(panel);
+  //if (panel.rangeMaps !== undefined) {
+  if (panel.styles && panel.styles.length > 0) {
+    for (let index = 0; index < panel.styles.length; index++) {
+      const element = panel.styles[index];
+      // this is explicity set since there can be unused mappings saved in a style, only the active
+      // mapping is needed
+      if (element && element.mappingType === 1) {
+        // this is a range map
+        const oldValueMaps = panel.styles[index];
+        // delete any range maps
+        delete oldValueMaps.rangeMaps;
+        if (oldValueMaps.valueMaps) {
+          const convertedValueMaps = convertOldAngularValueMappings(oldValueMaps);
+          //console.log(JSON.stringify(convertedValueMaps));
+          newValueMappings = newValueMappings.concat(convertedValueMaps);
+        }
+      }
+      if (element && element.mappingType === 2) {
+        // this is a range map
+        const oldRangeMaps = panel.styles[index];
+        // delete any value maps
+        delete oldRangeMaps.valueMaps;
+        if (oldRangeMaps.rangeMaps) {
+          const convertedRangeMaps = convertOldAngularValueMappings(oldRangeMaps);
+          //console.log(JSON.stringify(newRangeMappings));
+          newRangeMappings = newRangeMappings.concat(convertedRangeMaps);
+        }
+      }
+    }
   }
   // append together
   const newMappings = newValueMappings.concat(newRangeMappings);

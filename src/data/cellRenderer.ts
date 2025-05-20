@@ -4,6 +4,7 @@ import {
   getValueFormat,
   GrafanaTheme2,
   stringToJsRegex,
+  textUtil,
   TimeRange,
 } from "@grafana/data";
 
@@ -55,21 +56,23 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
   // const timestampFormatted = dateTimeForTimeZone(timeZone, timestamp);
   // console.log(timestampFormatted.toISOString(true));
 
-  // TODO: bug
-  // when timezone is browser, moment.tz can't be used
+  // when timezone is browser, convert using Intl package to resolve it
+  // to the actual name moment-tz can use
   //
   let formattedWithTimezone = dateTime(timestamp).format(timestampFormat);
-  if (timeZone !== 'browser') {
-    formattedWithTimezone = moment.tz(
-      dateTime(timestamp).utc().toISOString(true),
-      timestampFormat, timeZone).format(timestampFormat);
+  let useTimezone = timeZone;
+  if (timeZone === 'browser') {
+    useTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
   }
-      const formatted: FormattedColumnValue = {
-      valueRaw: timestamp,
-      valueFormatted: formattedWithTimezone,
-      valueRounded: null,
-      valueRoundedAndFormatted: formattedWithTimezone,
-    }
+  formattedWithTimezone = moment.tz(
+    dateTime(timestamp).utc().toISOString(true),
+    timestampFormat, useTimezone).format(timestampFormat);
+  const formatted: FormattedColumnValue = {
+    valueRaw: timestamp,
+    valueFormatted: formattedWithTimezone,
+    valueRounded: null,
+    valueRoundedAndFormatted: formattedWithTimezone,
+  }
 
   return formatted;
 }
@@ -101,8 +104,8 @@ export const FormatColumnValue = (
   if ((valueType === 'time') && !isNaN(value as any)) {
     const parsed = parseInt(value, 10);
     let dateFormat = DateFormats[5].value;
-    if (columnStyle && columnStyle.dateFormat) {
-      dateFormat = columnStyle.dateFormat;
+    if (columnStyle && columnStyle.dateStyle.dateFormat) {
+      dateFormat = columnStyle.dateStyle.dateFormat;
     }
     // timezone comes from user preferences
     const formatted = TimeFormatter(userTimeZone, parsed, dateFormat);
@@ -136,43 +139,73 @@ export const FormatColumnValue = (
   if (field.config.unit) {
     useUnit = field.config.unit;
   }
-  if (columnStyle && columnStyle.unitFormat) {
-    useUnit = columnStyle.unitFormat;
+  if (columnStyle && columnStyle.metricStyle.unitFormat) {
+    useUnit = columnStyle.metricStyle.unitFormat;
   }
 
   let maxDecimals = 4;
   if (field.config.decimals !== undefined && field.config.decimals !== null) {
     maxDecimals = field.config.decimals;
   }
-  if (columnStyle && columnStyle.decimals) {
-    maxDecimals = Number(columnStyle.decimals).valueOf();
+  if (columnStyle && columnStyle.metricStyle.decimals) {
+    maxDecimals = Number(columnStyle.metricStyle.decimals).valueOf();
   }
 
   const formatted = applyFormat(value, maxDecimals, useUnit)
   return formatted;
 };
 
-// TODO: this is not complete
-// sanitize / url construction is done after this
+
 export const ProcessClickthrough = (
   columnStyle: ColumnStyleItemType | null,
   columns: any,
   rows: any,
-  rowIndex: number,
-  processedItem: any,
+  processedItem: FormattedColumnValue,
   timeRange: TimeRange) => {
 
-  if (columnStyle?.clickThrough) {
-    let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.clickThrough);
-    if (columnStyle.splitByPattern) {
-      clickThrough = ReplaceCellSplitByPattern(clickThrough, processedItem, columnStyle.splitByPattern)
+  if (columnStyle?.stringStyle.clickThrough) {
+    let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.stringStyle.clickThrough);
+    if (columnStyle.stringStyle.splitByPattern) {
+      clickThrough = ReplaceCellSplitByPattern(clickThrough, processedItem, columnStyle.stringStyle.splitByPattern)
     }
-    clickThrough = ReplaceCellMacros(clickThrough, processedItem, columns, rows);
+    clickThrough = ReplaceCellMacros(clickThrough, processedItem.valueFormatted, columns, rows);
+    //
+    const target = resolveClickThroughTarget(
+      columnStyle.stringStyle.clickThroughOpenNewTab,
+      columnStyle.stringStyle.clickThroughCustomTargetEnabled,
+      columnStyle.stringStyle.clickThroughCustomTarget,
+    );
+    if (columnStyle.stringStyle.clickThroughSanitize) {
+      clickThrough = textUtil.sanitizeUrl(clickThrough);
+    }
+    // rebuild with encoding of parameters
+    const url = new URL(clickThrough);
+    const encoded = url.searchParams.toString();
+    const rebuildUrl = `${url.protocol}//${url.hostname}${url.pathname}`;
+    const newCell = '<a href="' + rebuildUrl + `?${encoded}" target="${target}">` + processedItem.valueFormatted + '</a>';
+
     // TODO: allowing template variables would be a great addition
-    return clickThrough;
+    //
+    return newCell;
   }
   return null;
 }
+
+export const resolveClickThroughTarget = (
+  clickThroughOpenNewTab: boolean,
+  clickThroughCustomTargetEnabled: boolean,
+  clickThroughCustomTarget: string,
+): string => {
+    let clickThroughTarget = '_self';
+    if (clickThroughOpenNewTab) {
+      clickThroughTarget = '_blank';
+    }
+    if (clickThroughCustomTargetEnabled) {
+      clickThroughTarget = clickThroughCustomTarget;
+    }
+    return clickThroughTarget;
+  };
+
 
 // check for $__pattern_N using split-by
 export const ReplaceCellSplitByPattern = (
@@ -245,14 +278,12 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
       valueRoundedAndFormatted = formatted.prefix + valueRoundedAndFormatted;
     }
   }
-  // eslint-disable-next-line no-debugger
-  debugger;
   const result: FormattedColumnValue = {
-      valueRaw: value,
-      valueFormatted: valueFormatted,
-      valueRounded: valueRounded,
-      valueRoundedAndFormatted: valueRoundedAndFormatted,
-    };
+    valueRaw: value,
+    valueFormatted: valueFormatted,
+    valueRounded: valueRounded,
+    valueRoundedAndFormatted: valueRoundedAndFormatted,
+  };
   return result;
 }
 

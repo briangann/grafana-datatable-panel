@@ -47,6 +47,7 @@ export function ColumnSortingEditor(props: StandardEditorProps<ColumnSorting[]>)
         <Stack justifyContent="start" direction="row" alignItems="start">
           <InlineField label="Column" tooltip="Column Number to Sort, Starts with 0">
             <Input
+              width={6}
               type="number"
               value={items.index}
               onChange={(event) => {

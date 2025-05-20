@@ -1,9 +1,8 @@
 import { DTData } from "components/DataTablePanel";
-import { ColumnStyleType } from "types";
 import { getCellColors } from "./dataHelpers";
 import { DTColumnType, FormattedColumnValue } from "./types";
 import { ProcessClickthrough } from "./cellRenderer";
-import { ColumnStyleItemType } from "components/options/columnstyles/types";
+import { ColumnStyleItemType, ColumnStyles } from "components/options/columnstyles/types";
 import { TimeRange } from "@grafana/data";
 
 
@@ -27,7 +26,7 @@ export const processRowStyle = (
       continue;
     }
     // only process color values for numbers
-    if (aColumnStyle.styleItemType !== ColumnStyleType.Metric) {
+    if (aColumnStyle.activeStyle !== ColumnStyles.METRIC) {
       continue;
     }
     rowColorData = getCellColors(
@@ -76,7 +75,7 @@ export const processRowColumnStyle = (
           continue;
         }
         // only process color values for numbers
-        if (aColumnStyle.styleItemType !== ColumnStyleType.Metric) {
+        if (aColumnStyle.activeStyle !== ColumnStyles.METRIC) {
           continue;
         }
         rowColorData = getCellColors(
@@ -123,12 +122,17 @@ export const ProcessStringValueStyle = (
   columnStyle: ColumnStyleItemType|null,
   columnsInCellData: DTColumnType[],
   rowData: any,
-  rowIndex: number,
-  value: FormattedColumnValue,
+  valueFormatted: FormattedColumnValue,
   timeRange: TimeRange): string|null => {
-  const clickThrough = ProcessClickthrough(columnStyle, columnsInCellData, rowData, rowIndex, value, timeRange);
-  if (clickThrough !== undefined) {
-    return clickThrough;
+
+  const processedURL = ProcessClickthrough(
+    columnStyle,
+    columnsInCellData,
+    rowData,
+    valueFormatted,
+    timeRange);
+  if (processedURL !== undefined) {
+    return processedURL;
   }
   return null;
 };

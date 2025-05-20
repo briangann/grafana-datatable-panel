@@ -8,7 +8,7 @@ import {
   DEFAULT_OK_COLOR_HEX,
   DEFAULT_WARNING_COLOR_HEX,
 } from '../defaults';
-import { ColumnStyleItemTracker, ColumnStyleItemType } from './types';
+import { ColumnStyles, ColumnStyleDate, ColumnStyleHidden, ColumnStyleItemTracker, ColumnStyleItemType, ColumnStyleMetric, ColumnStyleString } from './types';
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { Threshold } from '../thresholds/types';
 import { getColumnHints } from './columnHints';
@@ -67,23 +67,13 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
     const aStyle: ColumnStyleItemType = {
       label: `${original.label} Copy`,
       enabled: original.enabled,
-      nameOrRegex: original.nameOrRegex,
-      alias: original.alias,
-      thresholds: original.thresholds,
-      clickThrough: original.clickThrough,
-      clickThroughOpenNewTab: original.clickThroughOpenNewTab,
-      clickThroughSanitize: original.clickThroughSanitize,
-      clickThroughCustomTargetEnabled: original.clickThroughCustomTargetEnabled,
-      clickThroughCustomTarget: original.clickThroughCustomTarget,
-      unitFormat: original.unitFormat,
-      scaledDecimals: original.scaledDecimals,
-      splitByPattern: original.splitByPattern,
-      dateFormat: original.dateFormat,
-      decimals: original.decimals,
-      colors: original.colors,
       order: order,
-      ignoreNullValues: original.ignoreNullValues,
-      styleItemType: original.styleItemType
+      nameOrRegex: original.nameOrRegex,
+      activeStyle: original.activeStyle,
+      hiddenStyle: original.hiddenStyle,
+      dateStyle: original.dateStyle,
+      metricStyle: original.metricStyle,
+      stringStyle: original.stringStyle,
     };
     const aTracker: ColumnStyleItemTracker = {
       style: aStyle,
@@ -157,30 +147,37 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
     const order = tracker.length;
     const aStyle: ColumnStyleItemType = {
       label: `Style-${order}`,
-      enabled: true,
       nameOrRegex: '',
-      alias: '',
-      thresholds: [] as Threshold[],
-      clickThrough: '',
-      clickThroughOpenNewTab: true,
-      clickThroughSanitize: true,
-      clickThroughCustomTargetEnabled: false,
-      clickThroughCustomTarget: '',
-      dateFormat: DateFormats[0].value,
-      unitFormat: 'short',
-      scaledDecimals: null,
-      decimals: '2',
-      colors: [
-        DEFAULT_OK_COLOR_HEX,
-        DEFAULT_WARNING_COLOR_HEX,
-        DEFAULT_CRITICAL_COLOR_HEX,
-        DEFAULT_NO_THRESHOLD_COLOR_HEX,
-      ],
-      colorMode: ColumnStyleColoring.Cell,
       order: order,
-      ignoreNullValues: false,
-      splitByPattern: '',
-      styleItemType: 'metric',
+      enabled: true,
+      dateStyle: {
+        dateFormat: DateFormats[0].value,
+      } as ColumnStyleDate,
+      hiddenStyle: {} as ColumnStyleHidden,
+      metricStyle: {
+        alias: '',
+        thresholds: [] as Threshold[],
+        colors: [
+          DEFAULT_OK_COLOR_HEX,
+          DEFAULT_WARNING_COLOR_HEX,
+          DEFAULT_CRITICAL_COLOR_HEX,
+          DEFAULT_NO_THRESHOLD_COLOR_HEX,
+        ],
+        colorMode: ColumnStyleColoring.Cell,
+        decimals: '2',
+        scaledDecimals: null,
+        unitFormat: 'short',
+        ignoreNullValues: true,
+      } as ColumnStyleMetric,
+      stringStyle: {
+        clickThrough: '',
+        clickThroughCustomTarget: '',
+        clickThroughCustomTargetEnabled: false,
+        clickThroughOpenNewTab: true,
+        clickThroughSanitize: true,
+        splitByPattern: '',
+      } as ColumnStyleString,
+      activeStyle: ColumnStyles.METRIC,
     };
     const aTracker: ColumnStyleItemTracker = {
       style: aStyle,

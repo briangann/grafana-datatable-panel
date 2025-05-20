@@ -7,6 +7,8 @@ import { ColumnWidthHint } from 'types';
 export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) {
   const { onChange, value = [] } = props;
   const dataFields = getDataFrameFields(props.context.data);
+  // add field for setting the row width (not part of the dataframes)
+  dataFields.push('row');
   const availableFields = dataFields.reduce<SelectableValue[]>((acc, field) => {
     // Filter out fields that already have an width
     if (value.find((item) => item.name === field)) {

@@ -9,10 +9,10 @@ import {
 } from '@grafana/data';
 import { FormatColumnValue } from 'data/cellRenderer';
 import { ApplyGrafanaOverrides } from './overrides';
-import { ConfigColumnDefs } from 'datatables.net';
-import { ColumnStyleColoring, ColumnStyleType } from 'types';
+import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
+import { ColumnStyleColoring } from 'types';
 import { DTColumnType, FormattedColumnValue } from './types';
-import { ColumnStyleItemType } from 'components/options/columnstyles/types';
+import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
 import { DTData } from 'components/DataTablePanel';
 import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './createdCellHelpers';
@@ -93,14 +93,13 @@ export const ConvertDataFrameToDataTableFormat = (
       value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, theme);
       // run through mappings
       const mappings = GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings);
-      //console.log(JSON.stringify(mappings));
       // get the mapped value
-      const mappedValue = ApplyMappings(value, mappings);
-      //console.log(`original value ${value.valueFormatted} to mapped value ${mappedValue}`);
-      if (mappedValue !== null) {
-        console.log(`mapped value json =` + JSON.stringify(mappedValue));
-        // the color value included in the mapping is ignored (for now)
-        value = mappedValue.text;
+      if (mappings) {
+        const mappedValue = ApplyMappings(value, mappings);
+        //console.log(`original value ${value.valueFormatted} to mapped value ${mappedValue}`);
+        if (mappedValue !== null) {
+          value = mappedValue;
+        }
       }
       const colName = columns[j].data;
       // @ts-ignore
@@ -110,13 +109,13 @@ export const ConvertDataFrameToDataTableFormat = (
   }
   if (rowNumbersEnabled) {
     columns.unshift({
-      title: 'Row',
+      title: 'row',
       data: 'rowNumber',
       type: 'number',
       className: '',
       fieldConfig: {},
       columnStyle: null,
-      widthHint: '',
+      widthHint: '1%',
       visible: true,
     });
     for (let i = 0; i < dataFrame.length; i++) {
@@ -126,7 +125,7 @@ export const ConvertDataFrameToDataTableFormat = (
     // hide columns
     for (let index = 0; index < columns.length; index++) {
       const element = columns[index];
-      if (element.columnStyle?.styleItemType === ColumnStyleType.Hidden) {
+      if (element.columnStyle?.activeStyle === ColumnStyles.HIDDEN) {
         element.visible = false;
       }
     }
@@ -182,7 +181,7 @@ export const BuildColumnDefs = (
         }
         return null;
       },
-      render: function (data: any, type: any, val: any, meta: any) {
+      render: function (data: any, type: any, val: any[], meta: CellMetaSettings) {
         if (type === undefined) {
           return null;
         }
@@ -191,23 +190,29 @@ export const BuildColumnDefs = (
           return null;
         }
         const idx = meta.col;
-        if (type === 'type') {
-          return val[idx];
-        }
-        let returnValue = val[meta.col];
-        if (returnValue.valueFormatted) {
+        let returnValue = val[idx];
+        if (returnValue && returnValue?.valueFormatted) {
+          //console.log(`returnvalue valueFormatted: ` + JSON.stringify(returnValue));
           return returnValue.valueFormatted;
         }
+        //console.log(`returnvalue default: ` + JSON.stringify(returnValue));
+        // the Row column is using just numerics, no formatting
         return returnValue;
       },
-      createdCell: function(cell: any, columnsInCellData: DTColumnType[], rowData: any, rowIndex: number, colIndex: number) {
+      createdCell: function (cell: any, columnsInCellData: DTColumnType[], rowData: any, rowIndex: number, colIndex: number) {
+        // always center the row number column
+        if (rowNumbersEnabled && colIndex === 0) {
+          $(cell).css('text-align', 'center');
+        }
         // cellData is populated with Columns, which we can use for content thresholds
-        const aColumn = columnsInCellData[colIndex];
-        // no formatting needed without a style
-        if (aColumn.columnStyle === null) {
+        if (columnsInCellData === null) {
           return;
         }
-        const colorMode = aColumn.columnStyle.colorMode;
+        const aColumn = columnsInCellData[colIndex];
+        // no formatting needed without a style
+        if (!aColumn || aColumn?.columnStyle === null) {
+          return;
+        }
         // set the fontsize for the cell
         $(cell).css('font-size', fontSizePercent);
         // orthogonal sort requires getting cell data differently
@@ -236,13 +241,14 @@ export const BuildColumnDefs = (
         // TODO: speed this up by checking the cell type first
         //
         if (typeof aRow[colIndex].valueRaw === 'string') {
-          const clickThrough = ProcessStringValueStyle(aColumn.columnStyle, columnsInCellData, rowData, rowIndex, cellValueFormatted, timeRange);
-          if (clickThrough !== null) {
-            console.log(`${clickThrough}`);
-            // eslint-disable-next-line no-debugger
-            debugger;
-            // now update the cell with the link
-            const newCell = '<a href="' + clickThrough + '" target="_blank">' + cellContent + '</a>';
+          const newCell = ProcessStringValueStyle(
+            aColumn.columnStyle,
+            columnsInCellData,
+            rowData,
+            cellValueFormatted,
+            timeRange);
+          if (newCell !== null) {
+            //console.log(`${newCell}`);
             $(cell).html(newCell);
           }
         }
@@ -251,46 +257,48 @@ export const BuildColumnDefs = (
          * this mode will produce the "worst" threshold for all of the metrics in the row
          * that have thresholds set
         */
-        if (colorMode === ColumnStyleColoring.Row) {
-          processRowStyle(cell, rowData, dtData, rowNumberOffset);
+        if (aColumn.columnStyle.activeStyle === ColumnStyles.METRIC) {
+          const colorMode = aColumn.columnStyle.metricStyle.colorMode;
+          if (colorMode === ColumnStyleColoring.Row) {
+            processRowStyle(cell, rowData, dtData, rowNumberOffset);
+          }
+          /**
+           * This mode highlights the entire row and applies the threshold color to each cell
+           */
+          if (colorMode === ColumnStyleColoring.RowColumn) {
+            processRowColumnStyle(cell, rowData, columnsInCellData, rowNumbersEnabled, rowNumberOffset);
+          }
+          // Process cell coloring
+          // Two scenarios:
+          //    1) Cell coloring is enabled, the above row color is skipped
+          //    2) RowColumn is enabled, the above row color is process, but we also
+          //    set the cell colors individually
+          //
+          const colorData = getCellColors(aColumn.columnStyle, actualColumn, cellValueFormatted);
+          if (!colorData) {
+            return;
+          }
+          if (colorMode === 'cell' || colorMode === 'row-column') {
+            if (colorData && colorData.color !== null) {
+              $(cell).css('color', colorData.color);
+            }
+            if (colorData && colorData.bgColor !== null) {
+              $(cell).css('background-color', colorData.bgColor);
+            }
+          } else if (colorData.color) {
+            if (colorData && colorData.color !== null) {
+              $(cell).css('color', colorData.color);
+            }
+          }
         }
 
-        /**
-         * This mode highlights the entire row and applies the threshold color to each cell
-         */
-        if (colorMode === ColumnStyleColoring.RowColumn) {
-          processRowColumnStyle(cell, rowData, columnsInCellData, rowNumbersEnabled, rowNumberOffset);
-        }
-
-        // Process cell coloring
-        // Two scenarios:
-        //    1) Cell coloring is enabled, the above row color is skipped
-        //    2) RowColumn is enabled, the above row color is process, but we also
-        //    set the cell colors individually
-        //
-        const colorData = getCellColors(aColumn.columnStyle, actualColumn, cellValueFormatted);
-        if (!colorData) {
-          return;
-        }
-        if (colorMode === 'cell' || colorMode === 'row-column') {
-          if (colorData && colorData.color !== null) {
-            $(cell).css('color', colorData.color);
-          }
-          if (colorData && colorData.bgColor !== null) {
-            $(cell).css('background-color', colorData.bgColor);
-          }
-        } else if (colorData.color) {
-          if (colorData && colorData.color !== null) {
-            $(cell).css('color', colorData.color);
-          }
-        }
       },
     };
     //let ignoreNullValues = this.getColumnIgnoreNullValue(i);
     //if (ignoreNullValues) {
     //  columnDefDict.defaultContent = '-';
     //}
-          // hide columns that are marked hidden
+    // hide columns that are marked hidden
     // for (let i = 0; i < aColumn.Columns.length; i++) {
     //   if (cachedProcessedData.Columns[i].hidden) {
     //     newDT.column(i + rowNumberOffset).visible(false);
@@ -303,6 +311,12 @@ export const BuildColumnDefs = (
 
     columnDefs.push(columnDefDict);
   }
+  // this prevents the dialog popup when toggling row numbers in the editor
+  columnDefs.push(
+    {
+      "defaultContent": "-",
+      "targets": "_all"
+    });
   return columnDefs;
 };
 
@@ -329,7 +343,7 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNu
     return null;
   }
   // only color cell if the content is a number
-  if (aColumnStyle.styleItemType !== ColumnStyleType.Metric) {
+  if (aColumnStyle.activeStyle !== ColumnStyles.METRIC) {
     return null;
   }
   // let useData = cellData;
@@ -350,11 +364,11 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNu
   //   value = parseFloat(items[0].replace(',', '.'));
   // }
 
-  if (aColumnStyle && aColumnStyle.colorMode != null && aColumnStyle.thresholds.length > 0) {
+  if (aColumnStyle && aColumnStyle.metricStyle.colorMode != null && aColumnStyle.metricStyle.thresholds.length > 0) {
     // check color for either cell or row
-    if (aColumnStyle.colorMode === ColumnStyleColoring.Cell ||
-      aColumnStyle.colorMode === ColumnStyleColoring.Row ||
-      aColumnStyle.colorMode === ColumnStyleColoring.RowColumn) {
+    if (aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Cell ||
+      aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Row ||
+      aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.RowColumn) {
       if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
         bgColor = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
         bgColorIndex = GetColorIndexForValue(cellData.valueRaw as number, aColumnStyle);
@@ -362,7 +376,7 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNu
       color = 'white';
     }
     // just the value color is set
-    if (aColumnStyle.colorMode === ColumnStyleColoring.Value) {
+    if (aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Value) {
       if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
         color = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
         colorIndex = GetColorIndexForValue(cellData.valueRaw, aColumnStyle);
@@ -378,14 +392,14 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNu
 };
 
 export const GetColorForValue = (value: number, style: ColumnStyleItemType) => {
-  if (!style.thresholds) {
+  if (!style.metricStyle.thresholds) {
     return null;
   }
-  let color = style.thresholds[0].color;
-  for (let i = style.thresholds.length - 1; i > 0; i--) {
-    const checkValue = style.thresholds[i].value;
+  let color = style.metricStyle.thresholds[0].color;
+  for (let i = style.metricStyle.thresholds.length - 1; i > 0; i--) {
+    const checkValue = style.metricStyle.thresholds[i].value;
     if (value >= checkValue) {
-      color = style.thresholds[i].color;
+      color = style.metricStyle.thresholds[i].color;
       // found highest match
       break;
     }
