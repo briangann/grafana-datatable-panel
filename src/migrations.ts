@@ -497,8 +497,6 @@ export const migrateValueAndRangeMaps = (panel: any) => {
   let newRangeMappings: ValueMapping[] = [];
   //if (panel.rangeMaps !== undefined) {
   if (panel.styles && panel.styles.length > 0) {
-    // eslint-disable-next-line no-debugger
-    debugger;
     for (let index = 0; index < panel.styles.length; index++) {
       const element = panel.styles[index];
       // this is explicity set since there can be unused mappings saved in a style, only the active
