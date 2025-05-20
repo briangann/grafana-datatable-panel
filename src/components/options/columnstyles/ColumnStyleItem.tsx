@@ -92,7 +92,7 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
           <ThresholdsEditor disabled={!style.enabled} thresholds={style.thresholds} setter={setThresholds} />
         </Field>
 
-        <Field hidden={style.thresholds.length === 0} label="Color Mode" disabled={!style.enabled}>
+        <Field hidden={style.thresholds?.length === 0} label="Color Mode" disabled={!style.enabled}>
           <Select
             disabled={!style.enabled}
             menuShouldPortal={true}
@@ -116,7 +116,7 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
             onBlur={(e) => setColumnStyle({ ...style, clickThrough: e.currentTarget.value })}
           />
         </Field>
-        <Field label="Split By RegEx" description="Split cell content by regular expression" hidden={style.clickThrough.length === 0} disabled={!style.enabled}>
+        <Field label="Split By RegEx" description="Split cell content by regular expression" hidden={style.clickThrough?.length === 0} disabled={!style.enabled}>
           <Input
             value={splitByPattern}
             placeholder=""
@@ -124,7 +124,7 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
             onBlur={(e) => setColumnStyle({ ...style, splitByPattern: e.currentTarget.value })}
           />
         </Field>
-        <Field label="Sanitize URL" description="Sanitize URL before evaluating" hidden={style.clickThrough.length === 0} disabled={!style.enabled}>
+        <Field label="Sanitize URL" description="Sanitize URL before evaluating" hidden={style.clickThrough?.length === 0} disabled={!style.enabled}>
           <Switch
             transparent={false}
             disabled={!style.enabled}
@@ -132,7 +132,7 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
             onChange={() => setColumnStyle({ ...style, clickThroughSanitize: !style.clickThroughSanitize })}
           />
         </Field>
-        <Field label="Open URL in New Tab" description="Open link in new tab" hidden={style.clickThrough.length === 0} disabled={!style.enabled}>
+        <Field label="Open URL in New Tab" description="Open link in new tab" hidden={style.clickThrough?.length === 0} disabled={!style.enabled}>
           <Switch
             transparent={false}
             value={style.clickThroughOpenNewTab}
@@ -140,7 +140,7 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
             onChange={() => setColumnStyle({ ...style, clickThroughOpenNewTab: !style.clickThroughOpenNewTab })}
           />
         </Field>
-        <Field label="Enable Custom URL Target" description="Enable custom target" disabled={!style.enabled} hidden={style.clickThrough.length === 0 && style.clickThroughOpenNewTab}>
+        <Field label="Enable Custom URL Target" description="Enable custom target" disabled={!style.enabled} hidden={style.clickThrough?.length === 0 && style.clickThroughOpenNewTab}>
           <Switch
             transparent={false}
             value={style.clickThroughCustomTargetEnabled}
@@ -153,7 +153,7 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
           />
         </Field>
         {style.clickThroughCustomTargetEnabled &&
-          <Field label="Custom URL Target" description="Specify a custom target, typical values are: _blank|_self|_parent|_top|framename" disabled={!style.enabled} hidden={style.clickThrough.length === 0 && !style.clickThroughCustomTargetEnabled}>
+          <Field label="Custom URL Target" description="Specify a custom target, typical values are: _blank|_self|_parent|_top|framename" disabled={!style.enabled} hidden={style.clickThrough?.length === 0 && !style.clickThroughCustomTargetEnabled}>
             <Input
               value={style.clickThroughCustomTarget}
               placeholder="_self"
