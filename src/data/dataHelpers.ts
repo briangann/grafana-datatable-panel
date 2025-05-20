@@ -195,13 +195,16 @@ export const BuildColumnDefs = (
           return val[idx];
         }
         let returnValue = val[meta.col];
-        if (returnValue.valueFormatted) {
+        if (returnValue && returnValue.valueFormatted) {
           return returnValue.valueFormatted;
         }
         return returnValue;
       },
       createdCell: function(cell: any, columnsInCellData: DTColumnType[], rowData: any, rowIndex: number, colIndex: number) {
         // cellData is populated with Columns, which we can use for content thresholds
+        if (columnsInCellData == null) {
+          return;
+        }
         const aColumn = columnsInCellData[colIndex];
         // no formatting needed without a style
         if (aColumn.columnStyle === null) {
