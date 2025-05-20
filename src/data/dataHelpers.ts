@@ -202,7 +202,7 @@ export const BuildColumnDefs = (
       },
       createdCell: function(cell: any, columnsInCellData: DTColumnType[], rowData: any, rowIndex: number, colIndex: number) {
         // cellData is populated with Columns, which we can use for content thresholds
-        if (columnsInCellData == null) {
+        if (columnsInCellData === null) {
           return;
         }
         const aColumn = columnsInCellData[colIndex];
