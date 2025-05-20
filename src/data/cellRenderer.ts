@@ -4,6 +4,7 @@ import {
   getValueFormat,
   GrafanaTheme2,
   stringToJsRegex,
+  textUtil,
   TimeRange,
 } from "@grafana/data";
 
@@ -154,14 +155,12 @@ export const FormatColumnValue = (
   return formatted;
 };
 
-// TODO: this is not complete
-// sanitize / url construction is done after this
+
 export const ProcessClickthrough = (
   columnStyle: ColumnStyleItemType | null,
   columns: any,
   rows: any,
-  rowIndex: number,
-  processedItem: any,
+  processedItem: FormattedColumnValue,
   timeRange: TimeRange) => {
 
   if (columnStyle?.clickThrough) {
@@ -169,12 +168,44 @@ export const ProcessClickthrough = (
     if (columnStyle.splitByPattern) {
       clickThrough = ReplaceCellSplitByPattern(clickThrough, processedItem, columnStyle.splitByPattern)
     }
-    clickThrough = ReplaceCellMacros(clickThrough, processedItem, columns, rows);
+    clickThrough = ReplaceCellMacros(clickThrough, processedItem.valueFormatted, columns, rows);
+    //
+    const target = resolveClickThroughTarget(
+      columnStyle.clickThroughOpenNewTab,
+      columnStyle.clickThroughCustomTargetEnabled,
+      columnStyle.clickThroughCustomTarget,
+    );
+    if (columnStyle.clickThroughSanitize) {
+      clickThrough = textUtil.sanitizeUrl(clickThrough);
+    }
+    // rebuild with encoding of parameters
+    const url = new URL(clickThrough);
+    const encoded = url.searchParams.toString();
+    const rebuildUrl = `${url.protocol}//${url.hostname}${url.pathname}`;
+    const newCell = '<a href="' + rebuildUrl + `?${encoded}" target="${target}">` + processedItem.valueFormatted + '</a>';
+
     // TODO: allowing template variables would be a great addition
-    return clickThrough;
+    //
+    return newCell;
   }
   return null;
 }
+
+export const resolveClickThroughTarget = (
+  clickThroughOpenNewTab: boolean,
+  clickThroughCustomTargetEnabled: boolean,
+  clickThroughCustomTarget: string,
+): string => {
+    let clickThroughTarget = '_self';
+    if (clickThroughOpenNewTab) {
+      clickThroughTarget = '_blank';
+    }
+    if (clickThroughCustomTargetEnabled) {
+      clickThroughTarget = clickThroughCustomTarget;
+    }
+    return clickThroughTarget;
+  };
+
 
 // check for $__pattern_N using split-by
 export const ReplaceCellSplitByPattern = (
@@ -247,8 +278,6 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
       valueRoundedAndFormatted = formatted.prefix + valueRoundedAndFormatted;
     }
   }
-  // eslint-disable-next-line no-debugger
-  debugger;
   const result: FormattedColumnValue = {
     valueRaw: value,
     valueFormatted: valueFormatted,

@@ -236,13 +236,14 @@ export const BuildColumnDefs = (
         // TODO: speed this up by checking the cell type first
         //
         if (typeof aRow[colIndex].valueRaw === 'string') {
-          const clickThrough = ProcessStringValueStyle(aColumn.columnStyle, columnsInCellData, rowData, rowIndex, cellValueFormatted, timeRange);
-          if (clickThrough !== null) {
-            console.log(`${clickThrough}`);
-            // eslint-disable-next-line no-debugger
-            debugger;
-            // now update the cell with the link
-            const newCell = '<a href="' + clickThrough + '" target="_blank">' + cellContent + '</a>';
+          const newCell = ProcessStringValueStyle(
+            aColumn.columnStyle,
+            columnsInCellData,
+            rowData,
+            cellValueFormatted,
+            timeRange);
+          if (newCell !== null) {
+            console.log(`${newCell}`);
             $(cell).html(newCell);
           }
         }

@@ -123,12 +123,17 @@ export const ProcessStringValueStyle = (
   columnStyle: ColumnStyleItemType|null,
   columnsInCellData: DTColumnType[],
   rowData: any,
-  rowIndex: number,
-  value: FormattedColumnValue,
+  valueFormatted: FormattedColumnValue,
   timeRange: TimeRange): string|null => {
-  const clickThrough = ProcessClickthrough(columnStyle, columnsInCellData, rowData, rowIndex, value, timeRange);
-  if (clickThrough !== undefined) {
-    return clickThrough;
+
+  const processedURL = ProcessClickthrough(
+    columnStyle,
+    columnsInCellData,
+    rowData,
+    valueFormatted,
+    timeRange);
+  if (processedURL !== undefined) {
+    return processedURL;
   }
   return null;
 };
