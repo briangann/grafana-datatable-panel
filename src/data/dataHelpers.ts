@@ -9,7 +9,7 @@ import {
 } from '@grafana/data';
 import { FormatColumnValue } from 'data/cellRenderer';
 import { ApplyGrafanaOverrides } from './overrides';
-import { ConfigColumnDefs } from 'datatables.net';
+import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
 import { ColumnStyleColoring, ColumnStyleType } from 'types';
 import { DTColumnType, FormattedColumnValue } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
@@ -181,7 +181,7 @@ export const BuildColumnDefs = (
         }
         return null;
       },
-      render: function (data: any, type: any, val: any, meta: any) {
+      render: function (data: any, type: any, val: any[], meta: CellMetaSettings) {
         if (type === undefined) {
           return null;
         }
@@ -190,11 +190,8 @@ export const BuildColumnDefs = (
           return null;
         }
         const idx = meta.col;
-        if (type === 'type') {
-          return val[idx];
-        }
-        let returnValue = val[meta.col];
-        if (returnValue && returnValue.valueFormatted) {
+        let returnValue = val[idx];
+        if (returnValue && returnValue?.valueFormatted) {
           //console.log(`returnvalue valueFormatted: ` + JSON.stringify(returnValue));
           return returnValue.valueFormatted;
         }
