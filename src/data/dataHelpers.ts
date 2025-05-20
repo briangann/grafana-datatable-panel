@@ -309,6 +309,12 @@ export const BuildColumnDefs = (
 
     columnDefs.push(columnDefDict);
   }
+  // this prevents the dialog popup when toggling row numbers in the editor
+  columnDefs.push(
+  {
+    "defaultContent": "-",
+    "targets": "_all"
+  });
   return columnDefs;
 };
 
