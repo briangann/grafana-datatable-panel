@@ -200,6 +200,10 @@ export const BuildColumnDefs = (
         return returnValue;
       },
       createdCell: function(cell: any, columnsInCellData: DTColumnType[], rowData: any, rowIndex: number, colIndex: number) {
+        // always center the row number column
+        if (rowNumbersEnabled && colIndex === 0) {
+          $(cell).css('text-align', 'center');
+        }
         // cellData is populated with Columns, which we can use for content thresholds
         if (columnsInCellData === null) {
           return;
