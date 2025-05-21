@@ -1,8 +1,9 @@
 # Grafana Datatable Panel
 
-[![Marketplace](https://img.shields.io/badge/dynamic/json?logo=grafana&color=F47A20&label=marketplace&prefix=v&query=%24.items%5B%3F%28%40.slug%20%3D%3D%20%22briangann-datatable-panel%22%29%5D.version&url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins)](https://grafana.com/grafana/plugins/briangann-datatable-panel)
-[![Downloads](https://img.shields.io/badge/dynamic/json?logo=grafana&color=F47A20&label=downloads&query=%24.items%5B%3F%28%40.slug%20%3D%3D%20%22briangann-datatable-panel%22%29%5D.downloads&url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins)](https://grafana.com/grafana/plugins/briangann-datatable-panel)
+![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fbriangann-datatable-panel&query=version&prefix=v&logo=grafana&label=Version&color=orange)
+![Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fbriangann-datatable-panel&query=downloads&logo=grafana&label=Downloads&color=orange)
 [![License](https://img.shields.io/github/license/briangann/grafana-datatable-panel)](LICENSE)
+![CI (main)](https://github.com/briangann/grafana-datatable-panel/actions/workflows/ci.yml/badge.svg?branch=main)
 
 [![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
 ![Release](https://github.com/briangann/grafana-datatable-panel/workflows/Release/badge.svg)
