@@ -130,6 +130,8 @@ Provide a width "hint" in percentage or pixels ( 100px or 10% ). Note: The table
 Sort table by specified column number in ascending/descending order.
 Multiple sorting options can be applied.
 
+NOTE: When these sorting rules are in place, the table cannot be manually sorted.
+
 ## Column Styles
 
 There are four styles that can be applied to the datatable.
