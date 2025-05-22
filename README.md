@@ -130,6 +130,8 @@ Provide a width "hint" in percentage or pixels ( 100px or 10% ). Note: The table
 Sort table by specified column number in ascending/descending order.
 Multiple sorting options can be applied.
 
+NOTE: When these sorting rules are in place, the table cannot be manually sorted.
+
 ## Column Styles
 
 There are four styles that can be applied to the datatable.
@@ -207,23 +209,100 @@ Matching columns will be "hidden" from the table
 
 ### Metric Style
 
-### Thresholding
+The metric style enables the ability to show thresholds on a per-row/per-cell basis.
 
-#### Row-based threshold coloring
+Metric/Regex: Specify the metric or RegEx pattern to match multiple metrics. This is populated with the available columns.
+Decimals: Set the number of decimals to be displayed
+Unit Format: Set the unit to be applied to the metric
+
+#### Thresholds
+
+These thresholds are the same as polystat, where multiple ranges can be specified and custom colors assigned.
+
+Thresholds are expected to be sorted by ascending value, where
+
+```TEXT
+T0 = lowest decimal value, any state
+TN = highest decimal value, any state
+```
+
+Initial state is set to "ok"
+
+A comparison is made using "greater than or equal to" against the value
+  `If value >= thresholdValue state = X`
+
+Comparisons are made in reverse order, using the range between the Nth (inclusive) threshold and N+1 (exclusive)
+
+```TEXT
+  InclusiveValue = T(n).value
+  ExclusiveValue = T(n+1).value
+```
+
+When there is no n+1 threshold, the highest value threshold T(n), a simple inclusive >= comparison is made
+
+Example 1: (typical linear)
+
+```TEXT
+    T0 - 5, ok
+    T1 - 10, warning
+    T2 - 20, critical
+```
+
+```TEXT
+  Value >= 20 (Value >= T2)
+  10 <= Value < 20  (T1 <= Value < T2)
+  5 <= Value < 10   (T0 <= Value < T1)
+```
+
+Example 2: (reverse linear)
+
+```TEXT
+    T0 - 50, critical
+    T1 - 90, warning
+    T2 - 100, ok
+```
+
+```TEXT
+  Value >= 100
+  90 <= value < 100
+  50 <= value < 90
+```
+
+Example 3: (bounded)
+
+```TEXT
+    T0 - 50, critical
+    T1 - 60, warning
+    T2 - 70, ok
+    T3 - 80, warning
+    T4 - 90, critical
+```
+
+```TEXT
+    Value >= 90
+    80 <= Value < 90
+    70 <= Value < 80
+    60 <= Value < 70
+    50 <= Value < 60
+```
+
+The "worst" state is returned after checking every threshold range
+
+##### Row-based threshold coloring
 
 "Row" coloring uses the "highest" threshold color of all columns
 
 ![Thresholding with Row Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-row.png)
 
-#### Cell based threshold coloring
+##### Cell based threshold coloring
 
 ![Thresholding with Cell Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-cell.png)
 
-#### Cell based threshold value coloring
+##### Cell based threshold value coloring
 
 ![Thresholding with Value Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-value.png)
 
-#### RowColumn threshold coloring
+##### RowColumn threshold coloring
 
 This option sets the row color to the "highest" threshold found for all cells in row.
 
@@ -231,15 +310,7 @@ It also sets the color for each cell according to the threshold (you can tell wh
 
 This means - a row can have an overall color, with each cell indicating it's real threshold color.
 
-![Thresholding with RowColumn1](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-rowcolumn1.png)
-
-![Thresholding with RowColumn2](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-rowcolumn2.png)
-
-#### RowColumn threshold coloring including row counter
-
-Same as above, but with row counter included
-
-![Thresholding with RowColumn including row count](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-rowcolumn-rownumbers.png)
+![Thresholding with RowColumn](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-rowcolumn.png)
 
 ## Acknowledgements
 

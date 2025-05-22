@@ -120,7 +120,7 @@ export const ConvertDataFrameToDataTableFormat = (
     });
     for (let i = 0; i < dataFrame.length; i++) {
       // @ts-ignore
-      rows[i].rowNumber = i;
+      rows[i].rowNumber = i+1;
     }
     // hide columns
     for (let index = 0; index < columns.length; index++) {
@@ -228,6 +228,10 @@ export const BuildColumnDefs = (
         }
         // instead of using cellContent, use the formatted data from dtData.Rows
         const aRow = dtData.Rows[rowIndex];
+        // updating data in the editor can cause the rows to change before we are done processing, return if a row cannot be found
+        if (!aRow) {
+          return;
+        }
         const cellValueFormatted = aRow[colIndex] as FormattedColumnValue;
 
         //

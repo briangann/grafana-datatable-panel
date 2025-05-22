@@ -67,7 +67,7 @@ export const processRowColumnStyle = (
   // this should be configurable...
   let color = 'white';
   for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
-    if (columnsInCellData[columnNumber].type === undefined) {
+    if (columnsInCellData[columnNumber].type !== undefined) {
       if (columnsInCellData[columnNumber].columnStyle !== null) {
         let aColumnStyle = columnsInCellData[columnNumber].columnStyle;
         // need the style to get the color
@@ -95,35 +95,26 @@ export const processRowColumnStyle = (
       }
     }
   }
-  // style the rowNumber and Timestamp column
-  // the cell colors will be determined in the next phase
-  if (columnsInCellData[0].type !== undefined) {
-    const children = $(cell.parentNode).children();
-    let aChild = children[0];
-    $(aChild).css('color', color);
-    if (rowColor) {
-      $(aChild).css('background-color', rowColor);
-    }
-    // the 0 column contains the row number, if they are enabled
-    // then the above just filled in the color for the row number,
-    // now take care of the timestamp
-    if (rowNumbersEnabled) {
-      aChild = children[1];
+
+  for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
+    if (!columnsInCellData[columnNumber].columnStyle) {
+      const children = $(cell.parentNode).children();
+      let aChild = children[columnNumber];
       $(aChild).css('color', color);
       if (rowColor) {
-        $(aChild).css('background-color', rowColor);
+        // ugly but it works..
+        $(aChild)[0].style.setProperty('background-color', rowColor, 'important');
       }
     }
   }
-
 }
 
 export const ProcessStringValueStyle = (
-  columnStyle: ColumnStyleItemType|null,
+  columnStyle: ColumnStyleItemType | null,
   columnsInCellData: DTColumnType[],
   rowData: any,
   valueFormatted: FormattedColumnValue,
-  timeRange: TimeRange): string|null => {
+  timeRange: TimeRange): string | null => {
 
   const processedURL = ProcessClickthrough(
     columnStyle,
