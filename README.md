@@ -231,15 +231,7 @@ It also sets the color for each cell according to the threshold (you can tell wh
 
 This means - a row can have an overall color, with each cell indicating it's real threshold color.
 
-![Thresholding with RowColumn1](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-rowcolumn1.png)
-
-![Thresholding with RowColumn2](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-rowcolumn2.png)
-
-#### RowColumn threshold coloring including row counter
-
-Same as above, but with row counter included
-
-![Thresholding with RowColumn including row count](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-rowcolumn-rownumbers.png)
+![Thresholding with RowColumn](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-rowcolumn.png)
 
 ## Acknowledgements
 
