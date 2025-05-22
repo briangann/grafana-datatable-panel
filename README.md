@@ -35,15 +35,15 @@ per-cell filtering.
 
 By default the panel enables scrolling for the data, use the `Enable Paging` option to use the paging method.
 
-![Scrolling - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-scrolling.png)
+![Scrolling with Compact Rows - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-scrolling.png)
 
 ### Paging Enabled - Dark Theme
 
 ![Paging - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-paging.png)
 
-### Numbered Rows and Compact Style - Dark Theme
+### Paging with Numbered Rows and Compact Style - Dark Theme
 
-![Numbered and Compact Rows - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-numbered-compact.png)
+![Numbered and Compact Rows - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-paging-numbered-compact.png)
 
 ### Thresholds - Dark Theme
 
