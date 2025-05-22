@@ -120,7 +120,7 @@ export const ConvertDataFrameToDataTableFormat = (
     });
     for (let i = 0; i < dataFrame.length; i++) {
       // @ts-ignore
-      rows[i].rowNumber = i;
+      rows[i].rowNumber = i+1;
     }
     // hide columns
     for (let index = 0; index < columns.length; index++) {
