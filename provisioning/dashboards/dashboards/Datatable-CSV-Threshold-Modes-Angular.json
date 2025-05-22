@@ -1,0 +1,288 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 1,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "alignNumbersToRightEnabled": true,
+      "columnAliases": [],
+      "columnFiltersEnabled": false,
+      "columnWidthHints": [
+        {
+          "$$hashKey": "object:119",
+          "name": "time",
+          "width": "140px"
+        },
+        {
+          "$$hashKey": "object:121",
+          "name": "row",
+          "width": "20px"
+        },
+        {
+          "$$hashKey": "object:123",
+          "name": "metric",
+          "width": "150px"
+        },
+        {
+          "$$hashKey": "object:125",
+          "name": "metric2",
+          "width": "150px"
+        }
+      ],
+      "columns": [],
+      "compactRowsEnabled": false,
+      "datasource": {
+        "type": "testdata",
+        "uid": "P53465F745837BCFD"
+      },
+      "datatablePagingType": "simple_numbers",
+      "datatableTheme": "basic_theme",
+      "emptyData": false,
+      "fontSize": "100%",
+      "gridPos": {
+        "h": 11,
+        "w": 16,
+        "x": 0,
+        "y": 0
+      },
+      "hoverEnabled": true,
+      "id": 1,
+      "infoEnabled": false,
+      "lengthChangeEnabled": true,
+      "orderColumnEnabled": true,
+      "pagingTypes": [
+        {
+          "$$hashKey": "object:92",
+          "text": "Page number buttons only",
+          "value": "numbers"
+        },
+        {
+          "$$hashKey": "object:93",
+          "text": "'Previous' and 'Next' buttons only",
+          "value": "simple"
+        },
+        {
+          "$$hashKey": "object:94",
+          "text": "'Previous' and 'Next' buttons, plus page numbers",
+          "value": "simple_numbers"
+        },
+        {
+          "$$hashKey": "object:95",
+          "text": "'First', 'Previous', 'Next' and 'Last' buttons",
+          "value": "full"
+        },
+        {
+          "$$hashKey": "object:96",
+          "text": "'First', 'Previous', 'Next' and 'Last' buttons, plus page numbers",
+          "value": "full_numbers"
+        },
+        {
+          "$$hashKey": "object:97",
+          "text": "'First' and 'Last' buttons, plus page numbers",
+          "value": "first_last_numbers"
+        }
+      ],
+      "panelHeight": 589,
+      "rowNumbersEnabled": true,
+      "rowsPerPage": 5,
+      "scroll": true,
+      "scrollHeight": "default",
+      "searchEnabled": true,
+      "searchHighlightingEnabled": false,
+      "showCellBorders": false,
+      "showHeader": true,
+      "showRowBorders": true,
+      "sort": {
+        "col": 0,
+        "desc": true
+      },
+      "sortByColumns": [
+        {
+          "$$hashKey": "object:26",
+          "columnData": 0,
+          "sortMethod": "desc"
+        }
+      ],
+      "sortByColumnsData": [
+        [
+          1,
+          "desc"
+        ]
+      ],
+      "stripedRowsEnabled": true,
+      "styles": [
+        {
+          "$$hashKey": "object:178",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 2,
+          "pattern": "time",
+          "rangeMaps": [
+            {
+              "$$hashKey": "object:228",
+              "from": "",
+              "text": "",
+              "to": ""
+            }
+          ],
+          "splitPattern": "/ /",
+          "thresholds": [],
+          "type": "date",
+          "unit": "short",
+          "valueMaps": [
+            {
+              "$$hashKey": "object:203",
+              "text": "a",
+              "value": "z"
+            }
+          ]
+        },
+        {
+          "$$hashKey": "object:231",
+          "colorMode": "cell",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "mappingType": 1,
+          "pattern": "metric",
+          "thresholds": [
+            "10",
+            "50"
+          ],
+          "type": "number",
+          "unit": "short"
+        },
+        {
+          "$$hashKey": "object:186",
+          "colors": [
+            "rgba(245, 54, 54, 0.9)",
+            "rgba(237, 129, 40, 0.89)",
+            "rgba(50, 172, 45, 0.97)"
+          ],
+          "column": "metric",
+          "dateFormat": "YYYY-MM-DD HH:mm:ss",
+          "decimals": 2,
+          "link": true,
+          "mappingType": 2,
+          "pattern": "/text/",
+          "rangeMaps": [
+            {
+              "$$hashKey": "object:134",
+              "from": "15",
+              "text": "RANGE_1",
+              "to": "30"
+            },
+            {
+              "$$hashKey": "object:137",
+              "from": "1",
+              "text": "RANGE_2",
+              "to": "14"
+            }
+          ],
+          "sanitize": false,
+          "splitPattern": "/ /",
+          "thresholds": [],
+          "type": "string",
+          "unit": "short",
+          "url": "https://grafana.com?$__keepTime",
+          "valueMaps": [
+            {
+              "$$hashKey": "object:130",
+              "text": "UGH",
+              "value": "12"
+            }
+          ]
+        }
+      ],
+      "targets": [
+        {
+          "csvContent": "time,text,metric,metric2\n1746498185000,a log line 1,20,30\n1746498215000,12,50,40\n1746498415000,a log line 3,81,50\n1746498515000,22,1,60",
+          "datasource": {
+            "type": "testdata",
+            "uid": "P53465F745837BCFD"
+          },
+          "refId": "A",
+          "scenarioId": "csv_content"
+        }
+      ],
+      "themeOptions": {
+        "dark": "./styles/dark.scss",
+        "light": "./styles/light.scss"
+      },
+      "themes": [
+        {
+          "$$hashKey": "object:67",
+          "disabled": false,
+          "text": "Basic",
+          "value": "basic_theme"
+        },
+        {
+          "$$hashKey": "object:68",
+          "disabled": true,
+          "text": "Bootstrap",
+          "value": "bootstrap_theme"
+        },
+        {
+          "$$hashKey": "object:69",
+          "disabled": true,
+          "text": "Foundation",
+          "value": "foundation_theme"
+        },
+        {
+          "$$hashKey": "object:70",
+          "disabled": true,
+          "text": "ThemeRoller",
+          "value": "themeroller_theme"
+        }
+      ],
+      "title": "Datatable-CSV-Migration1",
+      "transform": "table",
+      "type": "briangann-datatable-panel"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 38,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Datatable-CSV-Threshold-Modes",
+  "uid": "ea8664ad-7c68-4568-912d-c9dd88ca851f",
+  "version": 40,
+  "weekStart": ""
+}
