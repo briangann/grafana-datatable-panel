@@ -278,7 +278,7 @@ export const BuildColumnDefs = (
           if (!colorData) {
             return;
           }
-          if (colorMode === 'cell' || colorMode === 'row-column') {
+          if (colorMode === ColumnStyleColoring.Cell || colorMode === ColumnStyleColoring.RowColumn) {
             if (colorData && colorData.color !== null) {
               $(cell).css('color', colorData.color);
             }
@@ -379,7 +379,7 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNu
     if (aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Value) {
       if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
         color = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
-        colorIndex = GetColorIndexForValue(cellData.valueRaw, aColumnStyle);
+        colorIndex = GetColorIndexForValue(cellData.valueRaw as number, aColumnStyle);
       }
     }
   }
@@ -409,12 +409,12 @@ export const GetColorForValue = (value: number, style: ColumnStyleItemType) => {
 
 // to determine the overall row color, the index of the threshold is needed
 export const GetColorIndexForValue = (value: any, style: any) => {
-  if (!style.thresholds) {
+  if (!style.metricStyle.thresholds) {
     return null;
   }
   let colorIndex = 0;
-  for (let i = style.thresholds.length - 1; i > 0; i--) {
-    if (value >= style.thresholds[i].value) {
+  for (let i = style.metricStyle.thresholds.length - 1; i > 0; i--) {
+    if (value >= style.metricStyle.thresholds[i].value) {
       colorIndex = i;
       break;
     }
