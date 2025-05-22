@@ -9,41 +9,12 @@ export async function optionsBuilder(
   builder: PanelOptionsEditorBuilder<DatatableOptions>,
   builderContext: StandardEditorContext<DatatableOptions>
 ) {
-  builder.addBooleanSwitch({
-    name: 'Use Compact Rows',
-    path: 'compactRowsEnabled',
-    defaultValue: true,
-    category: ['Table Options'],
-    description: 'Display rows in compact mode'
-  });
-  builder.addBooleanSwitch({
-    name: 'Wrap Row Content',
-    path: 'wrapToFitEnabled',
-    defaultValue: true,
-    category: ['Table Options'],
-    description: 'Display content wrapped'
-  });
-  // Striped Rows
-  builder.addBooleanSwitch({
-    name: 'Show stripes on Rows',
-    path: 'stripedRowsEnabled',
-    defaultValue: true,
-    category: ['Table Options'],
-    description: 'Show stripes on rows'
-  });
 
-  builder.addBooleanSwitch({
-    name: 'Hover',
-    path: 'hoverEnabled',
-    defaultValue: true,
-    category: ['Table Options'],
-    description: "Highlights row on hover (Requires Page Reload on toggle)"
-  });
   builder.addBooleanSwitch({
     name: 'Scrolling',
     path: 'scroll',
     defaultValue: true,
-    category: ['Table Options'],
+    category: ['Visual Options'],
     description: 'Scrolling instead of paging'
   });
 
@@ -56,56 +27,97 @@ export async function optionsBuilder(
       min: 5,
       integer: true,
     },
-    category: ['Table Options'],
+    category: ['Visual Options'],
     description: 'Number of rows of data to display',
     showIf: (context) => context['scroll'] === false,
   });
-  builder.addBooleanSwitch({
-    name: 'Show rows per page selection',
-    path: 'lengthChangeEnabled',
-    defaultValue: true,
-    description: 'Display Length Change Selection',
-    category: ['Table Options'],
-    showIf: (context) => context['scroll'] === false,
-  });
 
-  builder.addBooleanSwitch({
-    name: 'Fill Empty Data with Custom Value',
-    path: 'emptyDataEnabled',
-    description: 'When no data is available for a cell, set a custom value to display',
-    defaultValue: true,
-    category: ['Table Options'],
-  });
-
-  builder.addTextInput({
-    name: 'emptyDataText',
-    path: 'emptyDataText',
-    defaultValue: 'No Data',
-    category: ['Table Options'],
-    showIf: (context) => context['emptyDataEnabled'] === true,
-  });
-
-  // table options
 
   // rowNumbers
   builder.addBooleanSwitch({
     name: 'Enable Row Numbers',
     path: 'rowNumbersEnabled',
     defaultValue: true,
-    category: ['Table Options'],
+    category: ['Visual Options'],
     description: 'Display Row Numbers in left-most column'
   });
 
+  builder.addSelect({
+    path: 'fontSizePercent',
+    name: 'Font Size',
+    description: 'Font Size',
+    defaultValue: FontSizes[2].value,
+    category: ['Visual Options'],
+    settings: {
+      options: FontSizes,
+    },
+  });
+  builder.addBooleanSwitch({
+    name: 'Highlight Order Column',
+    path: 'orderColumnEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Highlight the column that the table data is currently ordered on',
+  });
+  builder.addBooleanSwitch({
+    name: 'Hover',
+    path: 'hoverEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: "Highlights row on hover (Requires Page Reload on toggle)"
+  });
   // rightAlignNumbers
   builder.addBooleanSwitch({
     name: 'Right Align Numbers',
     path: 'alignNumbersToRightEnabled',
     defaultValue: true,
-    category: ['Table Options'],
+    category: ['Visual Options'],
     description: 'Any cell with a numeric value will be aligned to the right'
   });
-  // Search Enabled
-  // Search Highlighting
+
+    // Info Enabled
+  builder.addBooleanSwitch({
+    name: 'Show Footer Info',
+    path: 'infoEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Display Showing N of N entries footer'
+  });
+
+  // Striped Rows
+  builder.addBooleanSwitch({
+    name: 'Show stripes on Rows',
+    path: 'stripedRowsEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Show stripes on rows'
+  });
+
+  builder.addBooleanSwitch({
+    name: 'Use Compact Rows',
+    path: 'compactRowsEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Display rows in compact mode'
+  });
+  builder.addBooleanSwitch({
+    name: 'Wrap Row Content',
+    path: 'wrapToFitEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Display content wrapped'
+  });
+
+  builder.addBooleanSwitch({
+    name: 'Show rows per page selection',
+    path: 'lengthChangeEnabled',
+    defaultValue: true,
+    description: 'Display Length Change Selection',
+    category: ['Visual Options'],
+    showIf: (context) => context['scroll'] === false,
+  });
+
+  // Search
   builder.addBooleanSwitch({
     name: 'Allow Searching Within Table',
     path: 'searchEnabled',
@@ -121,43 +133,16 @@ export async function optionsBuilder(
     description: 'Highlight matching text during search'
   });
 
-  builder.addSelect({
-    path: 'fontSizePercent',
-    name: 'Font Size',
-    description: 'Font Size',
-    defaultValue: FontSizes[2].value,
-    category: ['Visual Options'],
-    settings: {
-      options: FontSizes,
-    },
-  });
-  // Info Enabled
-  builder.addBooleanSwitch({
-    name: 'Show Footer Info',
-    path: 'infoEnabled',
-    defaultValue: true,
-    category: ['Visual Options'],
-    description: 'Display Showing N of N entries footer'
-  });
-
-  builder.addBooleanSwitch({
-    name: 'Highlight Order Column',
-    path: 'orderColumnEnabled',
-    defaultValue: true,
-    category: ['Visual Options'],
-    description: 'Highlight the column that the table data is currently ordered on',
-  });
-
-
   // Column Filters
   builder.addBooleanSwitch({
     name: 'Show Column Filters',
     path: 'columnFiltersEnabled',
     defaultValue: false,
-    category: ['Visual Options'],
+    category: ['Search Options'],
     description: 'Show filter on each column'
   });
 
+  // Paging
   builder.addSelect({
     path: 'datatablePagingType',
     name: 'Paging Type',
@@ -168,6 +153,22 @@ export async function optionsBuilder(
       options: DatatablePagingOptions,
     },
     showIf: (context) => context['scroll'] === false,
+  });
+
+  builder.addBooleanSwitch({
+    name: 'Fill Empty Data with Custom Value',
+    path: 'emptyDataEnabled',
+    description: 'When no data is available for a cell, set a custom value to display',
+    defaultValue: true,
+    category: ['Data'],
+  });
+
+  builder.addTextInput({
+    name: 'Empty Data Text',
+    path: 'emptyDataText',
+    defaultValue: '',
+    category: ['Data'],
+    showIf: (context) => context['emptyDataEnabled'] === true,
   });
 
 
