@@ -2,9 +2,9 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0.0] - 2024-03-28
+## [2.0.0] - 2025-05-20
 
-WIP: Porting to react
+Ported to React
 
 ## [1.0.4] - 2023-09-11
 
