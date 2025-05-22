@@ -35,15 +35,15 @@ per-cell filtering.
 
 By default the panel enables scrolling for the data, use the `Enable Paging` option to use the paging method.
 
-![Scrolling - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-scrolling.png)
+![Scrolling with Compact Rows - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-scrolling.png)
 
 ### Paging Enabled - Dark Theme
 
 ![Paging - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-paging.png)
 
-### Numbered Rows and Compact Style - Dark Theme
+### Paging with Numbered Rows and Compact Style - Dark Theme
 
-![Numbered and Compact Rows - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-numbered-compact.png)
+![Numbered and Compact Rows - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-paging-numbered-compact.png)
 
 ### Thresholds - Dark Theme
 
@@ -51,7 +51,9 @@ By default the panel enables scrolling for the data, use the `Enable Paging` opt
 
 ### Value Maps and Range Maps - Dark Theme
 
-![Value Maps and Range Maps - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-mappings.png)
+Value and Range Maps can be applied to modify the cell visual text, and threshold applied to the metric value that was mapped.
+
+![Value Maps and Range Maps with thresholds - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-mapped-thresholds.png)
 
 ## Options
 
@@ -59,7 +61,8 @@ There are multiple sections for configuring the data in the editor.
 
 ### Visual Options
 
-![Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-visual-options.png)
+![Options1](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-visual-options1.png)
+![Options2](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-visual-options2.png)
 
 #### Scrolling and Paging Modes
 
