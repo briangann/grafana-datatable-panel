@@ -61,7 +61,8 @@ There are multiple sections for configuring the data in the editor.
 
 ### Visual Options
 
-![Options](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-visual-options.png)
+![Options1](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-visual-options1.png)
+![Options2](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-visual-options2.png)
 
 #### Scrolling and Paging Modes
 
