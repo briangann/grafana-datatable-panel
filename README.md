@@ -51,7 +51,9 @@ By default the panel enables scrolling for the data, use the `Enable Paging` opt
 
 ### Value Maps and Range Maps - Dark Theme
 
-![Value Maps and Range Maps - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-mappings.png)
+Value and Range Maps can be applied to modify the cell visual text, and threshold applied to the metric value that was mapped.
+
+![Value Maps and Range Maps with thresholds - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-mapped-thresholds.png)
 
 ## Options
 
