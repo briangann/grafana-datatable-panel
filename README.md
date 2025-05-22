@@ -207,23 +207,23 @@ Matching columns will be "hidden" from the table
 
 ### Metric Style
 
-### Thresholding
+#### Thresholding
 
-#### Row-based threshold coloring
+##### Row-based threshold coloring
 
 "Row" coloring uses the "highest" threshold color of all columns
 
 ![Thresholding with Row Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-row.png)
 
-#### Cell based threshold coloring
+##### Cell based threshold coloring
 
 ![Thresholding with Cell Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-cell.png)
 
-#### Cell based threshold value coloring
+##### Cell based threshold value coloring
 
 ![Thresholding with Value Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-value.png)
 
-#### RowColumn threshold coloring
+##### RowColumn threshold coloring
 
 This option sets the row color to the "highest" threshold found for all cells in row.
 
