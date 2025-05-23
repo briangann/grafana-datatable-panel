@@ -204,6 +204,9 @@ export const BuildColumnDefs = (
         if (rowNumbersEnabled && colIndex === 0) {
           $(cell).css('text-align', 'center');
         }
+        // set the fontsize for the cell
+        $(cell).css('font-size', fontSizePercent);
+
         // cellData is populated with Columns, which we can use for content thresholds
         if (columnsInCellData === null) {
           return;
@@ -213,8 +216,6 @@ export const BuildColumnDefs = (
         if (!aColumn || aColumn?.columnStyle === null) {
           return;
         }
-        // set the fontsize for the cell
-        $(cell).css('font-size', fontSizePercent);
         // orthogonal sort requires getting cell data differently
         const cellContent = $(cell).html();
         // hidden columns have null data
@@ -249,6 +250,7 @@ export const BuildColumnDefs = (
             aColumn.columnStyle,
             columnsInCellData,
             rowData,
+            rowIndex,
             cellValueFormatted,
             timeRange);
           if (newCell !== null) {
