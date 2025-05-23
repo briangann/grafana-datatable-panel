@@ -320,5 +320,4 @@ This means - a row can have an overall color, with each cell indicating it's rea
 
 This panel is based on the "Table" panel by GrafanaLabs
 
-
 Special thanks to Esteban Beltran for his help porting from Angular!
