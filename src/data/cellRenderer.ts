@@ -12,7 +12,7 @@ import _ from 'lodash';
 import { DateFormats } from "types";
 import { FormattedColumnValue } from "./types";
 import moment from 'moment-timezone';
-import { ColumnStyleItemType } from "components/options/columnstyles/types";
+import { ColumnStyleItemType, ColumnStyles } from "components/options/columnstyles/types";
 
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
 export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
@@ -104,7 +104,7 @@ export const FormatColumnValue = (
   if ((valueType === 'time') && !isNaN(value as any)) {
     const parsed = parseInt(value, 10);
     let dateFormat = DateFormats[5].value;
-    if (columnStyle && columnStyle.dateStyle.dateFormat) {
+    if (columnStyle && columnStyle.activeStyle === ColumnStyles.STRING && columnStyle.dateStyle.dateFormat) {
       dateFormat = columnStyle.dateStyle.dateFormat;
     }
     // timezone comes from user preferences
@@ -160,6 +160,7 @@ export const ProcessClickthrough = (
   columnStyle: ColumnStyleItemType | null,
   columns: any,
   rows: any,
+  rowIndex: number,
   processedItem: FormattedColumnValue,
   timeRange: TimeRange) => {
 
@@ -168,7 +169,7 @@ export const ProcessClickthrough = (
     if (columnStyle.stringStyle.splitByPattern) {
       clickThrough = ReplaceCellSplitByPattern(clickThrough, processedItem, columnStyle.stringStyle.splitByPattern)
     }
-    clickThrough = ReplaceCellMacros(clickThrough, processedItem.valueFormatted, columns, rows);
+    clickThrough = ReplaceCellMacros(clickThrough, processedItem.valueFormatted, rows);
     //
     const target = resolveClickThroughTarget(
       columnStyle.stringStyle.clickThroughOpenNewTab,
@@ -228,7 +229,6 @@ export const ReplaceCellMacros = (
   clickThrough: string,
   cellContent: string,
   rows: any,
-  rowIndex: number,
 ): string => {
 
   let formatted = clickThrough;
@@ -240,17 +240,18 @@ export const ReplaceCellMacros = (
   //
   // process $__cell_N
   //
-  const cellNRegex = RegExp(/\$__cell_\d+/g);
+  const cellNRegex = RegExp(/\$__cell_(\d+)/);
   const matches = clickThrough.match(cellNRegex);
   if (matches) {
     for (let matchIndex = 1; matchIndex < matches.length; matchIndex++) {
-      //console.log(`rowIndex: ${rowIndex} matchIndex: ${matchIndex}`);
       const matchedCellNumber = parseInt(matches[matchIndex], 10);
-      if (!isNaN(matchedCellNumber)) {
-        const matchedCellContent = rows[rowIndex][matchedCellNumber];
-        //console.log(`matchedCellNumber: ${matchedCellNumber} matchedCellContent: ${matchedCellContent}`);
-        formatted = formatted.replace(`$__cell_${matchedCellNumber}`, matchedCellContent);
+      if (matchedCellNumber > rows.length) {
+        //console.log(`ReplaceCellMacros: referenced cell ${matchedCellNumber} out of bounds`);
+        continue;
       }
+      const aRow = rows[matchedCellNumber];
+      const matchedCellContent = aRow.valueFormatted;
+      formatted = formatted.replace(`$__cell_${matchedCellNumber}`, matchedCellContent);
     }
   }
   return formatted;

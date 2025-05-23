@@ -121,7 +121,7 @@ importers:
         specifier: ^8.0.0
         version: 8.0.0(@stylistic/eslint-plugin-ts@2.13.0(eslint@8.57.1)(typescript@5.8.3))(@typescript-eslint/eslint-plugin@6.21.0(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint@8.57.1)(typescript@5.8.3))(@typescript-eslint/parser@6.21.0(eslint@8.57.1)(typescript@5.8.3))(eslint-config-prettier@8.10.0(eslint@8.57.1))(eslint-plugin-jsdoc@46.10.1(eslint@8.57.1))(eslint-plugin-react-hooks@4.6.2(eslint@8.57.1))(eslint-plugin-react@7.37.4(eslint@8.57.1))(eslint@8.57.1)(typescript@5.8.3)
       '@grafana/plugin-e2e':
-        specifier: ^2.0.1
+        specifier: ^2.0.2
         version: 2.0.2(@playwright/test@1.52.0)
       '@grafana/plugin-meta-extractor':
         specifier: ^0.0.3

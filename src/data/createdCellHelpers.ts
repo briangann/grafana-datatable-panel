@@ -19,7 +19,7 @@ export const processRowStyle = (
   let color = 'white';
 
   for (let columnNumber = 0; columnNumber < dtData.Columns.length; columnNumber++) {
-    let aColumnStyle = dtData.Columns[columnNumber].columnStyle;
+    let aColumnStyle = dtData.Columns[columnNumber].columnStyles[0];
     // need the style to get the color
     if (!aColumnStyle) {
       // no style set, skip
@@ -48,6 +48,7 @@ export const processRowStyle = (
   // style the entire row (the parent of the td is the tr)
   const fmtColors = 'color: ' + color + ' !important;' +
     'background-color: ' + rowColor + ' !important;';
+
   $(cell.parentNode)
     .children()
     .attr('style', function (i, s) { return s + fmtColors });
@@ -68,8 +69,8 @@ export const processRowColumnStyle = (
   let color = 'white';
   for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
     if (columnsInCellData[columnNumber].type !== undefined) {
-      if (columnsInCellData[columnNumber].columnStyle !== null) {
-        let aColumnStyle = columnsInCellData[columnNumber].columnStyle;
+      if (columnsInCellData[columnNumber].columnStyles !== null) {
+        let aColumnStyle = columnsInCellData[columnNumber].columnStyles[0];
         // need the style to get the color
         if (!aColumnStyle) {
           continue;
@@ -79,7 +80,7 @@ export const processRowColumnStyle = (
           continue;
         }
         rowColorData = getCellColors(
-          columnsInCellData[columnNumber].columnStyle!,
+          aColumnStyle,
           columnNumber,
           rowData[columnNumber + rowNumberOffset]
         );
@@ -97,15 +98,27 @@ export const processRowColumnStyle = (
   }
 
   for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
-    if (!columnsInCellData[columnNumber].columnStyle) {
+    // when there are no styles for a cell, apply this "worst" color value
+    if (!columnsInCellData[columnNumber].columnStyles) {
       const children = $(cell.parentNode).children();
       let aChild = children[columnNumber];
       $(aChild).css('color', color);
       if (rowColor) {
-        // ugly but it works..
-        $(aChild)[0].style.setProperty('background-color', rowColor, 'important');
+        const fmtColors = 'background-color: ' + rowColor + ' !important;';
+        $(aChild).children().attr('style', function (i, s) { return s + fmtColors });
       }
     }
+    // a metric style will already be applied and will indicate whatever threshold is met
+    // for that cell, otherwise the cell needs to worst color.
+    if (columnsInCellData[columnNumber]?.columnStyles[0]?.activeStyle !== ColumnStyles.METRIC) {
+      const children = $(cell.parentNode).children();
+      let aChild = children[columnNumber];
+      if (rowColor) {
+        const fmtColors = 'background-color: ' + rowColor + ' !important;';
+        $(aChild).attr('style', function (i, s) { return s + fmtColors });
+      }
+    }
+
   }
 }
 
@@ -113,6 +126,7 @@ export const ProcessStringValueStyle = (
   columnStyle: ColumnStyleItemType | null,
   columnsInCellData: DTColumnType[],
   rowData: any,
+  rowIndex: number,
   valueFormatted: FormattedColumnValue,
   timeRange: TimeRange): string | null => {
 
@@ -120,6 +134,7 @@ export const ProcessStringValueStyle = (
     columnStyle,
     columnsInCellData,
     rowData,
+    rowIndex,
     valueFormatted,
     timeRange);
   if (processedURL !== undefined) {

@@ -1,0 +1,173 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 5,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "P53465F745837BCFD"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "columnAliases": [
+          {
+            "alias": "B-Series",
+            "name": "A-series"
+          }
+        ],
+        "columnFiltersEnabled": false,
+        "columnSorting": [
+          {
+            "index": 0,
+            "order": "asc"
+          }
+        ],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "metric",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Style-0",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "value",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#B877D9",
+                  "state": 3,
+                  "value": 5
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "areaM2"
+            },
+            "nameOrRegex": "A-series",
+            "order": 0,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [
+          {
+            "name": "time",
+            "width": "180px"
+          }
+        ],
+        "compactRowsEnabled": true,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": true,
+        "lengthChangeEnabled": true,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": true,
+        "rowsPerPage": 5,
+        "scroll": true,
+        "searchEnabled": true,
+        "searchHighlightingEnabled": true,
+        "stripedRowsEnabled": true,
+        "transformation": "timeseries-to-columns",
+        "transformationAggregations": [
+          "last"
+        ],
+        "wrapToFitEnabled": true
+      },
+      "pluginVersion": "2.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "P53465F745837BCFD"
+          },
+          "max": 30,
+          "refId": "A",
+          "scenarioId": "random_walk",
+          "spread": 12,
+          "startValue": 5
+        }
+      ],
+      "title": "Datatable-Random-Walk-Threshold-Value",
+      "type": "briangann-datatable-panel"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Datatable-RandomWalk-CustomThresholds",
+  "uid": "aemnllan36br4f",
+  "version": 2
+}
