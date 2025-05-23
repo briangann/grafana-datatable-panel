@@ -1,20 +1,70 @@
 {
   "$schema": "https://raw.githubusercontent.com/grafana/grafana/main/docs/sources/developers/plugins/plugin.schema.json",
   "type": "panel",
-  "name": "Datatable for Grafana",
+  "name": "Datatable Panel",
   "id": "briangann-datatable-panel",
   "info": {
-    "keywords": ["panel"],
-    "description": "Grafana datatable panel",
+    "keywords": ["panel", "datatable", "datatables.net"],
+    "description": "A table panel built on top of datatables.net",
     "author": {
-      "name": "Briangann"
+      "name": "Brian Gann (bkgann@gmail.com)",
+      "url": "https://github.com/briangann"
     },
     "logos": {
       "small": "img/logo.svg",
       "large": "img/logo.svg"
     },
-    "links": [],
-    "screenshots": [],
+    "links": [
+      {
+        "name": "Project site",
+        "url": "https://github.com/briangann/grafana-datatable-panel"
+      },
+      {
+        "name": "Apache-2.0 License",
+        "url": "https://github.com/briangann/grafana-datatable-panel/blob/main/LICENSE"
+      }],
+    "screenshots": [
+      {
+        "name": "Showcase Paging",
+        "path": "screenshots/datatable-dark-paging.png"
+      },
+      {
+        "name": "Showcase Scrolling",
+        "path": "screenshots/datatable-dark-scrolling.png"
+      },
+      {
+        "name": "Showcase Compact Numbered",
+        "path": "screenshots/datatable-dark-paging-numbered-compact.png"
+      },
+      {
+        "name": "Options",
+        "path": "screenshots/datatable-dark-visual-options1.png"
+      },
+      {
+        "name": "Datatable Options",
+        "path": "screenshots/datatable-dt-options.png"
+      },
+      {
+        "name": "Thresholds with Cell Coloring and Mapped Values",
+        "path": "screenshots/datatable-dark-mapped-thresholds.png"
+      },
+      {
+        "name": "Thresholds with Row Coloring",
+        "path": "screenshots/datatable-dark-threshold-row.png"
+      },
+      {
+        "name": "Thresholds with Cell Coloring",
+        "path": "screenshots/datatable-dark-threshold-cell.png"
+      },
+      {
+        "name": "Thresholds with Value Coloring",
+        "path": "screenshots/datatable-dark-threshold-value.png"
+      },
+      {
+        "name": "Thresholds with Row-Column Coloring",
+        "path": "screenshots/datatable-dark-threshold-rowcolumn.png"
+      }
+    ],
     "version": "%VERSION%",
     "updated": "%TODAY%"
   },
