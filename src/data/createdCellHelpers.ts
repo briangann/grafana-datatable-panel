@@ -80,7 +80,7 @@ export const processRowColumnStyle = (
           continue;
         }
         rowColorData = getCellColors(
-          columnsInCellData[columnNumber].columnStyles[0],
+          aColumnStyle,
           columnNumber,
           rowData[columnNumber + rowNumberOffset]
         );
@@ -98,6 +98,7 @@ export const processRowColumnStyle = (
   }
 
   for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
+    // when there are no styles for a cell, apply this "worst" color value
     if (!columnsInCellData[columnNumber].columnStyles) {
       const children = $(cell.parentNode).children();
       let aChild = children[columnNumber];
@@ -107,6 +108,17 @@ export const processRowColumnStyle = (
         $(aChild).children().attr('style', function (i, s) { return s + fmtColors });
       }
     }
+    // a metric style will already be applied and will indicate whatever threshold is met
+    // for that cell, otherwise the cell needs to worst color.
+    if (columnsInCellData[columnNumber]?.columnStyles[0]?.activeStyle !== ColumnStyles.METRIC) {
+      const children = $(cell.parentNode).children();
+      let aChild = children[columnNumber];
+      if (rowColor) {
+        const fmtColors = 'background-color: ' + rowColor + ' !important;';
+        $(aChild).attr('style', function (i, s) { return s + fmtColors });
+      }
+    }
+
   }
 }
 
