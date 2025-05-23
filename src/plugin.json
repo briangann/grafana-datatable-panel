@@ -47,7 +47,7 @@
       {
         "name": "Thresholds with Cell Coloring and Mapped Values",
         "path": "screenshots/datatable-dark-mapped-thresholds.png"
-      }
+      },
       {
         "name": "Thresholds with Row Coloring",
         "path": "screenshots/datatable-dark-threshold-row.png"
