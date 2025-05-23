@@ -204,6 +204,8 @@ jobs:
       - name: Install dev dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
+      - name: E2E - Install playwright and dependencies
+        run: sudo apt-get update && npx playwright install --with-deps
       - name: Start Grafana
         run: |
           docker compose pull
@@ -214,19 +216,16 @@ jobs:
         with:
           url: http://localhost:3000/login
 
-      - name: Install Playwright Browsers
-        run: pnpm run playwright install chromium --with-deps
-
       - name: Run Playwright tests
         id: run-tests
-        run: pnpm run e2e
+        run: pnpm run playwright:test
 
       - name: Upload e2e test summary
         uses: grafana/plugin-actions/playwright-gh-pages/upload-report-artifacts@main
         if: ${{ always() && !cancelled() }}
         with:
           upload-report: false
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GRAFANA_GITHUB_TOKEN }}
           test-outcome: ${{ steps.run-tests.outcome }}
 
       - name: Docker logs
