@@ -25,6 +25,4 @@ jobs:
           policy_token: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
           # creates a signed build provenance attestation to verify the authenticity of the plugin build
           attestation: true
-          use_changelog_generator: true
           node-version: 22
-          token: ${{ secrets.GRAFANA_GITHUB_TOKEN }}
