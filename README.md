@@ -136,6 +136,10 @@ NOTE: When these sorting rules are in place, the table cannot be manually sorted
 
 There are four styles that can be applied to the datatable.
 
+NOTE: The first style that matches "wins" and all other style matches are ignored.
+
+Support for multiple styles is a future enhancement, where a string and a metric style can be applied to the same cell.
+
 ### Date Style
 
 This lets you convert "unix epoch" numerical timestamps to a readable format.
@@ -294,7 +298,7 @@ The "worst" state is returned after checking every threshold range
 
 ![Thresholding with Row Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-row.png)
 
-##### Cell based threshold coloring
+##### Cell based threshold background coloring
 
 ![Thresholding with Cell Coloring](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-threshold-cell.png)
 
@@ -315,4 +319,6 @@ This means - a row can have an overall color, with each cell indicating it's rea
 ## Acknowledgements
 
 This panel is based on the "Table" panel by GrafanaLabs
+
+
 Special thanks to Esteban Beltran for his help porting from Angular!
