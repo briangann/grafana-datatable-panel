@@ -41,3 +41,4 @@ playwright-report
 .stfolder/
 provisioning-private/
 importable/
+test-results/
