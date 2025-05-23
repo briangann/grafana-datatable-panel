@@ -228,7 +228,7 @@ jobs:
         if: ${{ always() && !cancelled() }}
         with:
           upload-report: false
-          github-token: ${{ secrets.GITHUB_TOKEN }}
+          github-token: ${{ secrets.GRAFANA_GITHUB_TOKEN }}
           test-outcome: ${{ steps.run-tests.outcome }}
 
       - name: Docker logs
