@@ -230,7 +230,7 @@ jobs:
       - name: Docker logs
         if: ${{ always() && steps.run-tests.outcome == 'failure' }}
         run: |
-          docker logs briangann-squee-panel >& grafana-server.log
+          docker logs briangann-datatable-panel >& grafana-server.log
 
       - name: Stop grafana docker
         run: docker compose down
@@ -254,4 +254,3 @@ jobs:
         uses: grafana/plugin-actions/playwright-gh-pages/deploy-report-pages@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-
