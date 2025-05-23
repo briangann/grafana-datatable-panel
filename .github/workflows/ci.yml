@@ -193,6 +193,7 @@ jobs:
         run: |
           chmod +x ./dist/gpx_*
 
+      - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
