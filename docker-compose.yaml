@@ -14,8 +14,8 @@ services:
       - 3000:3000/tcp
     volumes:
       - ./dist:/var/lib/grafana/plugins/briangann-datatable-panel
-      #- ./provisioning:/etc/grafana/provisioning
-      - ./provisioning-private:/etc/grafana/provisioning
+      - ./provisioning:/etc/grafana/provisioning
+      #- ./provisioning-private:/etc/grafana/provisioning
     environment:
       - TERM=linux
       - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=briangann-datatable-panel
