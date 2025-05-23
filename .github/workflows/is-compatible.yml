@@ -12,7 +12,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: '22'
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
       - name: Install dependencies
@@ -20,4 +20,4 @@ jobs:
       - name: Build plugin
         run: pnpm run build
       - name: Compatibility check
-        run: npx @grafana/levitate@latest is-compatible --path src/module.ts --target @grafana/data,@grafana/ui,@grafana/runtime
+        run: npx --yes @grafana/levitate@latest is-compatible --path $(find ./src -type f \( -name "module.ts" -o -name "module.tsx" \)) --target @grafana/data,@grafana/ui,@grafana/runtime

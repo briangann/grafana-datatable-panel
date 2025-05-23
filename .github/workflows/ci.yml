@@ -3,16 +3,27 @@ name: CI
 on:
   push:
     branches:
+      - master
       - main
   pull_request:
     branches:
+      - master
       - main
 
-permissions: read-all
+permissions:
+  contents: write
+  id-token: write
+  pull-requests: write
 
 jobs:
   build:
+    name: Build, lint and unit tests
     runs-on: ubuntu-latest
+    outputs:
+      plugin-id: ${{ steps.metadata.outputs.plugin-id }}
+      plugin-version: ${{ steps.metadata.outputs.plugin-version }}
+      has-e2e: ${{ steps.check-for-e2e.outputs.has-e2e }}
+      has-backend: ${{ steps.check-for-backend.outputs.has-backend }}
     env:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
     steps:
@@ -67,6 +78,14 @@ jobs:
           version: latest
           args: buildAll
 
+      - name: Check for E2E
+        id: check-for-e2e
+        run: |
+          if [ -f "playwright.config.ts" ]
+          then
+            echo "has-e2e=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Warn missing Grafana access policy token
         run: |
           echo Please generate a Grafana access policy token: https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin#generate-an-access-policy-token
@@ -95,6 +114,12 @@ jobs:
         run: |
           mv dist ${{ steps.metadata.outputs.plugin-id }}
           zip ${{ steps.metadata.outputs.archive }} ${{ steps.metadata.outputs.plugin-id }} -r
+
+      - name: Check plugin.json
+        run: |
+          docker run --pull=always \
+            -v $PWD/${{ steps.metadata.outputs.archive }}:/archive.zip \
+            grafana/plugin-validator-cli -analyzer=metadatavalid /archive.zip
 
       - name: Archive Build
         uses: actions/upload-artifact@v4
@@ -130,35 +155,102 @@ jobs:
           ./ccbin/cc-test-reporter sum-coverage out/codeclimate.*.json -d -p 1 -o out/codeclimate.total.json
           ./ccbin/cc-test-reporter upload-coverage -i out/codeclimate.total.json
 
-      - name: E2E - Check for playwright
-        id: e2e-check-for-playwright
-        run: |
-          if [ -d "playwright" ]
-          then
-            echo "has-e2e-playwright=true" >> $GITHUB_OUTPUT
-          fi
+  resolve-versions:
+    name: Resolve e2e images
+    runs-on: ubuntu-latest
+    timeout-minutes: 3
+    needs: build
+    if: ${{ needs.build.outputs.has-e2e == 'true' }}
+    outputs:
+      matrix: ${{ steps.resolve-versions.outputs.matrix }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Resolve Grafana E2E versions
+        id: resolve-versions
+        uses: grafana/plugin-actions/e2e-version@main
 
-      - name: E2E - Start Grafana in Docker
-        if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
-        run: docker-compose up -d
+  playwright-tests:
+    needs: [resolve-versions, build]
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        GRAFANA_IMAGE: ${{fromJson(needs.resolve-versions.outputs.matrix)}}
+    name: e2e test ${{ matrix.GRAFANA_IMAGE.name }}@${{ matrix.GRAFANA_IMAGE.VERSION }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
 
-      - name: E2E - Install playwright dependencies
-        if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
-        run: sudo apt-get update && npx playwright install --with-deps
-
-      - name: E2E - Run tests
-        id: e2e-run-tests
-        if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
-        run: pnpm run e2e:playwright
-
-      - name: E2E - Stop Grafana in Docker
-        if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
-        run: docker-compose down
-
-      - name: E2E - Archive output
-        uses: actions/upload-artifact@v4
-        if: steps.e2e-check-for-playwright.outputs.has-e2e-playwright == 'true'
+      - name: Download plugin
+        uses: actions/download-artifact@v4
         with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
+          path: dist
+          name: ${{ needs.build.outputs.plugin-id }}-${{ needs.build.outputs.plugin-version }}
+
+      - name: Execute permissions on binary
+        if: needs.build.outputs.has-backend == 'true'
+        run: |
+          chmod +x ./dist/gpx_*
+
+      - name: Setup Node.js environment
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dev dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Start Grafana
+        run: |
+          docker compose pull
+          ANONYMOUS_AUTH_ENABLED=false DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
+
+      - name: Wait for grafana server
+        uses: grafana/plugin-actions/wait-for-grafana@main
+        with:
+          url: http://localhost:3000/login
+
+      - name: Install Playwright Browsers
+        run: pnpm run playwright install chromium --with-deps
+
+      - name: Run Playwright tests
+        id: run-tests
+        run: pnpm run e2e
+
+      - name: Upload e2e test summary
+        uses: grafana/plugin-actions/playwright-gh-pages/upload-report-artifacts@main
+        if: ${{ always() && !cancelled() }}
+        with:
+          upload-report: false
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          test-outcome: ${{ steps.run-tests.outcome }}
+
+      - name: Docker logs
+        if: ${{ always() && steps.run-tests.outcome == 'failure' }}
+        run: |
+          docker logs briangann-datatable-panel >& grafana-server.log
+
+      - name: Stop grafana docker
+        run: docker compose down
+
+      # Uncomment this step to upload the server log to Github artifacts. Remember Github artifacts are public on the Internet if the repository is public.
+      # - name: Upload server log
+      #   uses: actions/upload-artifact@v4
+      #   if: ${{ always() && steps.run-tests.outcome == 'failure' }}
+      #   with:
+      #     name: ${{ matrix.GRAFANA_IMAGE.NAME }}-v${{ matrix.GRAFANA_IMAGE.VERSION }}-${{github.run_id}}-server-log
+      #     path: grafana-server.log
+      #     retention-days: 5
+
+  publish-report:
+    if: ${{ always() && !cancelled() }}
+    needs: [playwright-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Publish report
+        uses: grafana/plugin-actions/playwright-gh-pages/deploy-report-pages@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
