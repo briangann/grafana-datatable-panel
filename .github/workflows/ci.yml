@@ -30,7 +30,7 @@ jobs:
       - uses: actions/checkout@v4
       # pnpm action uses the packageManager field in package.json to
       # understand which version to install.
-      - uses: pnpm/action-setup@v3
+      - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
@@ -193,11 +193,13 @@ jobs:
         run: |
           chmod +x ./dist/gpx_*
 
+      - uses: pnpm/action-setup@v4
       - name: Setup Node.js environment
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-          cache: 'npm'
+          cache: 'pnpm'
+          cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dev dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
@@ -236,13 +238,13 @@ jobs:
         run: docker compose down
 
       # Uncomment this step to upload the server log to Github artifacts. Remember Github artifacts are public on the Internet if the repository is public.
-      # - name: Upload server log
-      #   uses: actions/upload-artifact@v4
-      #   if: ${{ always() && steps.run-tests.outcome == 'failure' }}
-      #   with:
-      #     name: ${{ matrix.GRAFANA_IMAGE.NAME }}-v${{ matrix.GRAFANA_IMAGE.VERSION }}-${{github.run_id}}-server-log
-      #     path: grafana-server.log
-      #     retention-days: 5
+      - name: Upload server log
+        uses: actions/upload-artifact@v4
+        if: ${{ always() && steps.run-tests.outcome == 'failure' }}
+        with:
+          name: ${{ matrix.GRAFANA_IMAGE.NAME }}-v${{ matrix.GRAFANA_IMAGE.VERSION }}-${{github.run_id}}-server-log
+          path: grafana-server.log
+          retention-days: 5
 
   publish-report:
     if: ${{ always() && !cancelled() }}
