@@ -37,12 +37,12 @@
         "path": "screenshots/datatable-dark-paging-numbered-compact.png"
       },
       {
-        "name": "Options",
+        "name": "Configuration Options - part 1",
         "path": "screenshots/datatable-dark-visual-options1.png"
       },
       {
-        "name": "Datatable Options",
-        "path": "screenshots/datatable-dt-options.png"
+        "name": "Configuration Options - part 2",
+        "path": "screenshots/datatable-dark-visual-options2.png"
       },
       {
         "name": "Thresholds with Cell Coloring and Mapped Values",
