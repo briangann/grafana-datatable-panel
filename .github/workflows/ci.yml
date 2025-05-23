@@ -221,7 +221,7 @@ jobs:
 
       - name: Run Playwright tests
         id: run-tests
-        run: pnpm run e2e
+        run: pnpm run playwright:test
 
       - name: Upload e2e test summary
         uses: grafana/plugin-actions/playwright-gh-pages/upload-report-artifacts@main
