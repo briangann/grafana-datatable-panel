@@ -74,7 +74,7 @@ export const ConvertDataFrameToDataTableFormat = (
       type: field.type as string,
       className: columnClassName,
       fieldConfig: field.config,
-      columnStyle: null,
+      columnStyles: [],
       widthHint: '',
       visible: true,
     };
@@ -90,7 +90,10 @@ export const ConvertDataFrameToDataTableFormat = (
       const frameFields = dataFrame.fields[j];
       let value = frameFields.values[i];
       const valueType = frameFields.type;
-      value = FormatColumnValue(userTimeZone, aColumn.columnStyle, frameFields, j, i, value, valueType, theme);
+      if (aColumn.columnStyles && aColumn.columnStyles.length > 0) {
+        const aStyle = aColumn.columnStyles[0];
+        value = FormatColumnValue(userTimeZone, aStyle, frameFields, j, i, value, valueType, theme);
+      }
       // run through mappings
       const mappings = GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings);
       // get the mapped value
@@ -114,7 +117,7 @@ export const ConvertDataFrameToDataTableFormat = (
       type: 'number',
       className: '',
       fieldConfig: {},
-      columnStyle: null,
+      columnStyles: [],
       widthHint: '1%',
       visible: true,
     });
@@ -124,10 +127,13 @@ export const ConvertDataFrameToDataTableFormat = (
     }
     // hide columns
     for (let index = 0; index < columns.length; index++) {
-      const element = columns[index];
-      if (element.columnStyle?.activeStyle === ColumnStyles.HIDDEN) {
-        element.visible = false;
-      }
+      const aCell = columns[index];
+      if (aCell.columnStyles && aCell.columnStyles.length > 0) {
+        const aStyle = aCell.columnStyles[0];
+        if (aStyle.activeStyle === ColumnStyles.HIDDEN) {
+          aCell.visible = false;
+        }
+    }
     }
   }
 
@@ -213,7 +219,7 @@ export const BuildColumnDefs = (
         }
         const aColumn = columnsInCellData[colIndex];
         // no formatting needed without a style
-        if (!aColumn || aColumn?.columnStyle === null) {
+        if (!aColumn || aColumn?.columnStyles.length === 0) {
           return;
         }
         // orthogonal sort requires getting cell data differently
@@ -240,31 +246,28 @@ export const BuildColumnDefs = (
         // Metric
         //    this has thresholds with 4 color modes
         // String (url etc)
-        // Date
-        // Hidden
+        // Date (processed elsewhere)
+        // Hidden (processed elsewhere)
         //
-        // TODO: speed this up by checking the cell type first
-        //
-        if (typeof aRow[colIndex].valueRaw === 'string') {
+        const aStyle = aColumn.columnStyles[0];
+        if (aStyle.activeStyle === ColumnStyles.STRING) {
           const newCell = ProcessStringValueStyle(
-            aColumn.columnStyle,
+            aStyle,
             columnsInCellData,
             rowData,
             rowIndex,
             cellValueFormatted,
             timeRange);
           if (newCell !== null) {
-            //console.log(`${newCell}`);
             $(cell).html(newCell);
           }
         }
-
         /*
          * this mode will produce the "worst" threshold for all of the metrics in the row
          * that have thresholds set
         */
-        if (aColumn.columnStyle.activeStyle === ColumnStyles.METRIC) {
-          const colorMode = aColumn.columnStyle.metricStyle.colorMode;
+        if (aStyle.activeStyle === ColumnStyles.METRIC) {
+          const colorMode = aStyle.metricStyle.colorMode;
           if (colorMode === ColumnStyleColoring.Row) {
             processRowStyle(cell, rowData, dtData, rowNumberOffset);
           }
@@ -280,7 +283,8 @@ export const BuildColumnDefs = (
           //    2) RowColumn is enabled, the above row color is process, but we also
           //    set the cell colors individually
           //
-          const colorData = getCellColors(aColumn.columnStyle, actualColumn, cellValueFormatted);
+          let colorData: any;
+          colorData = getCellColors(aStyle, actualColumn, cellValueFormatted);
           if (!colorData) {
             return;
           }

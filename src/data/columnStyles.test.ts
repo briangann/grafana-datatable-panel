@@ -14,7 +14,7 @@ describe('Column Styles', () => {
       data: '123',
       type: 'time',
       className: '',
-      columnStyle: null,
+      columnStyles: [],
       visible: true,
     }
   ];
@@ -51,7 +51,7 @@ describe('Column Styles', () => {
   describe('Applies Time style', () => {
     it('returns time style', () => {
       ApplyColumnStyles(columns, columnStyles);
-      expect(columns[0].columnStyle).toEqual(columnStyles[0]);
+      expect(columns[0].columnStyles[0]).toEqual(columnStyles[0]);
     });
   });
 });

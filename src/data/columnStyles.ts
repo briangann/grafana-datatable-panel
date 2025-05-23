@@ -14,14 +14,14 @@ export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnS
         const rx = new RegExp(expression);
         if (item.title.match(rx)) {
           // set the column style for the item, to be used in rendering
-          item.columnStyle = aStyle;
+          item.columnStyles?.push(aStyle);
           // matched move on to next column
           break;
         }
       } else {
         // not regex, exact match required
         if (item.title === expression) {
-          item.columnStyle = aStyle;
+          item.columnStyles?.push(aStyle);
           break;
         }
       }

@@ -19,7 +19,7 @@ export const processRowStyle = (
   let color = 'white';
 
   for (let columnNumber = 0; columnNumber < dtData.Columns.length; columnNumber++) {
-    let aColumnStyle = dtData.Columns[columnNumber].columnStyle;
+    let aColumnStyle = dtData.Columns[columnNumber].columnStyles[0];
     // need the style to get the color
     if (!aColumnStyle) {
       // no style set, skip
@@ -69,8 +69,8 @@ export const processRowColumnStyle = (
   let color = 'white';
   for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
     if (columnsInCellData[columnNumber].type !== undefined) {
-      if (columnsInCellData[columnNumber].columnStyle !== null) {
-        let aColumnStyle = columnsInCellData[columnNumber].columnStyle;
+      if (columnsInCellData[columnNumber].columnStyles !== null) {
+        let aColumnStyle = columnsInCellData[columnNumber].columnStyles[0];
         // need the style to get the color
         if (!aColumnStyle) {
           continue;
@@ -80,7 +80,7 @@ export const processRowColumnStyle = (
           continue;
         }
         rowColorData = getCellColors(
-          columnsInCellData[columnNumber].columnStyle!,
+          columnsInCellData[columnNumber].columnStyles[0],
           columnNumber,
           rowData[columnNumber + rowNumberOffset]
         );
@@ -98,7 +98,7 @@ export const processRowColumnStyle = (
   }
 
   for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
-    if (!columnsInCellData[columnNumber].columnStyle) {
+    if (!columnsInCellData[columnNumber].columnStyles) {
       const children = $(cell.parentNode).children();
       let aChild = children[columnNumber];
       $(aChild).css('color', color);
