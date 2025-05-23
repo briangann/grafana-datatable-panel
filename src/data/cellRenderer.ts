@@ -160,6 +160,7 @@ export const ProcessClickthrough = (
   columnStyle: ColumnStyleItemType | null,
   columns: any,
   rows: any,
+  rowIndex: number,
   processedItem: FormattedColumnValue,
   timeRange: TimeRange) => {
 
@@ -168,7 +169,7 @@ export const ProcessClickthrough = (
     if (columnStyle.stringStyle.splitByPattern) {
       clickThrough = ReplaceCellSplitByPattern(clickThrough, processedItem, columnStyle.stringStyle.splitByPattern)
     }
-    clickThrough = ReplaceCellMacros(clickThrough, processedItem.valueFormatted, columns, rows);
+    clickThrough = ReplaceCellMacros(clickThrough, processedItem.valueFormatted, rows, rowIndex);
     //
     const target = resolveClickThroughTarget(
       columnStyle.stringStyle.clickThroughOpenNewTab,
@@ -240,7 +241,7 @@ export const ReplaceCellMacros = (
   //
   // process $__cell_N
   //
-  const cellNRegex = RegExp(/\$__cell_\d+/g);
+  const cellNRegex = RegExp(/\$__cell_(\d+)/);
   const matches = clickThrough.match(cellNRegex);
   if (matches) {
     for (let matchIndex = 1; matchIndex < matches.length; matchIndex++) {

@@ -48,6 +48,7 @@ export const processRowStyle = (
   // style the entire row (the parent of the td is the tr)
   const fmtColors = 'color: ' + color + ' !important;' +
     'background-color: ' + rowColor + ' !important;';
+
   $(cell.parentNode)
     .children()
     .attr('style', function (i, s) { return s + fmtColors });
@@ -102,8 +103,8 @@ export const processRowColumnStyle = (
       let aChild = children[columnNumber];
       $(aChild).css('color', color);
       if (rowColor) {
-        // ugly but it works..
-        $(aChild)[0].style.setProperty('background-color', rowColor, 'important');
+        const fmtColors = 'background-color: ' + rowColor + ' !important;';
+        $(aChild).children().attr('style', function (i, s) { return s + fmtColors });
       }
     }
   }
@@ -113,6 +114,7 @@ export const ProcessStringValueStyle = (
   columnStyle: ColumnStyleItemType | null,
   columnsInCellData: DTColumnType[],
   rowData: any,
+  rowIndex: number,
   valueFormatted: FormattedColumnValue,
   timeRange: TimeRange): string | null => {
 
@@ -120,6 +122,7 @@ export const ProcessStringValueStyle = (
     columnStyle,
     columnsInCellData,
     rowData,
+    rowIndex,
     valueFormatted,
     timeRange);
   if (processedURL !== undefined) {
