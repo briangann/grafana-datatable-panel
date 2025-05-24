@@ -77,6 +77,9 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
         background: 'transparent',
         boxShadow: 'none',
     },
+    'div.dt-container div.dt-layout-row': {
+      margin: '6px',
+    },
     'div.dt-container .dt-input': {
       border: '1px solid #aaa',
       marginRight: '5px',
@@ -101,12 +104,10 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
     },
     'div.dt-container .dt-paging .dt-paging-button.current, \
       div.dt-container .dt-paging .dt-paging-button.current:hover': {
-        color:'#1fb2e5 !important',
-        border: '1px solid #797979',
-        backgroundColor: 'inherit',
+        color: '#1fb2e5 !important',
+        border: theme.isDark ? '1px solid black !important' : '1px solid #797979',
+        backgroundColor: theme.isDark ? '#6d6767' : 'white',
       },
-
-
 
     // TODO: fix these to match the existing angular look and feel
     // '.dataTables_wrapper .dataTables_paginate .paginate_button.current, \
