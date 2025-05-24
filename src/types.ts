@@ -171,7 +171,7 @@ export const FontSizes: SelectableValue[] = [
 export const DateFormats = [
   { label: 'YYYY-MM-DD HH:mm:ss', value: 'YYYY-MM-DD HH:mm:ss' },
   { label: 'YYYY-MM-DD HH:mm:ss.SSS', value: 'YYYY-MM-DD HH:mm:ss.SSS' },
-  { label: 'MM/DD/YY h:mm:ss a', value: 'MM/DD/YY h:mm:ss a' },
+  { label: 'YYYY-MM-DDTHH:mm:ss.SSSZ', value: 'YYYY-MM-DDTHH:mm:ss.SSSZ' },
   { label: 'YYYY-MM-DD', value: 'YYYY-MM-DD' },
   { label: '(ISO 8601) YYYY-MM-DDTHH:mm:ss.sssZ', value: 'YYYY-MM-DDTHH:mm:ss.sssZ' },
   { label: 'YYYY-MM-DDTHH:mm:ssZ', value: 'YYYY-MM-DDTHH:mm:ssZ' },
