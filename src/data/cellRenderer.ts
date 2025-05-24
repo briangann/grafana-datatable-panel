@@ -104,7 +104,7 @@ export const FormatColumnValue = (
   if ((valueType === 'time') && !isNaN(value as any)) {
     const parsed = parseInt(value, 10);
     let dateFormat = DateFormats[5].value;
-    if (columnStyle && columnStyle.activeStyle === ColumnStyles.STRING && columnStyle.dateStyle.dateFormat) {
+    if (columnStyle && columnStyle.activeStyle === ColumnStyles.DATE && columnStyle.dateStyle.dateFormat) {
       dateFormat = columnStyle.dateStyle.dateFormat;
     }
     // timezone comes from user preferences
