@@ -7,6 +7,10 @@ export const GetMappings = (fieldConfigMappings: ValueMapping[] | undefined, dat
 }
 
 export const ApplyMappings = (value: FormattedColumnValue, mappings: any) => {
+  // handle empty data
+  if (!value || !value.valueRaw) {
+    return null;
+  }
   const aValue = getValueMappingResult(mappings, value.valueRaw);
   if (aValue !== null) {
     //console.log(`ApplyMappings matched, mapped value = ` + JSON.stringify(aValue));
