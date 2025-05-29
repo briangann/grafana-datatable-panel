@@ -97,7 +97,7 @@ export const ConvertDataFrameToDataTableFormat = (
       // run through mappings
       const mappings = GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings);
       // get the mapped value
-      if (mappings) {
+      if (mappings && mappings.length > 0) {
         const mappedValue = ApplyMappings(value, mappings);
         //console.log(`original value ${value.valueFormatted} to mapped value ${mappedValue}`);
         if (mappedValue !== null) {
@@ -197,11 +197,21 @@ export const BuildColumnDefs = (
         }
         const idx = meta.col;
         let returnValue = val[idx];
+        if (type === 'type') {
+          // returns the whole object
+          return returnValue;
+        }
         if (returnValue && returnValue?.valueFormatted) {
           //console.log(`returnvalue valueFormatted: ` + JSON.stringify(returnValue));
+          if (type === 'sort') {
+            return returnValue.valueRaw;
+          }
+          if (type === 'filter') {
+            return returnValue.valueRaw;
+          }
+          // all others get the formatted value
           return returnValue.valueFormatted;
         }
-        //console.log(`returnvalue default: ` + JSON.stringify(returnValue));
         // the Row column is using just numerics, no formatting
         return returnValue;
       },

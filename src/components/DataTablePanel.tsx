@@ -245,6 +245,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
                 last: 'Last',
               }
             },
+            sortClasses: false,
+            destroy: true,
             scrollCollapse: false,
             scrollX: true,
             search: {
@@ -267,15 +269,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           enableColumnFilters(jQuery(currentDom).DataTable());
         }
       }
-      // make sure we clean up on unmount
-      return () => {
-        if (currentDom && jQuery.fn.dataTable.isDataTable(currentDom)) {
-          jQuery(currentDom).DataTable().destroy();
-        }
-      };
-    }
-    return () => {
-      return;
     }
   }, [
     dataTableClassesEnabled,

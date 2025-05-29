@@ -2,9 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.1] - 2025-05-29
+
+- Fixes loss of styles when sorting by column interactively
+- Fixes crashing bug on bad data input
+- Removed empty src/README.md
+
 ## [2.0.0] - 2025-05-20
 
-Ported to React
+Ported to React, not published
 
 ## [1.0.4] - 2023-09-11
 
