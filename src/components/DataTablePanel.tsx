@@ -245,6 +245,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
                 last: 'Last',
               }
             },
+            sortClasses: false,
             destroy: true,
             scrollCollapse: false,
             scrollX: true,
