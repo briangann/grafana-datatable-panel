@@ -5,8 +5,11 @@ import packageJSON from '../../package.json';
 test('Check Plugin Installed', async ({ page }) => {
   // construct url to the plugin
   const urlToPlugin = `http://localhost:3000/plugins/${packageJSON.name}`;
-  await page.goto(urlToPlugin, {waitUntil: 'networkidle'});
+  await page.goto(urlToPlugin);
+  const locator = page.getByRole('button', { name: 'Help' });
+  await locator.waitFor();
   // get version from package.json
   const pluginVersion = packageJSON.version;
-  await expect(page.getByText(`Version${pluginVersion}`)).toContainText(pluginVersion);
+  const pattern = new RegExp(`Version:?.*${pluginVersion}`);
+  await expect(page.getByText(pattern)).toContainText(pluginVersion);
 });
