@@ -2,7 +2,7 @@
 
 All notable changes to this project will be documented in this file.
 
-## [2.0.2] - TBD
+## [2.0.2] - 2025-05-29
 
 - Fixes playwright tests
 
