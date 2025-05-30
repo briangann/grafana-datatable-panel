@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.2] - TBD
+
+- Fixes playwright tests
+
 ## [2.0.1] - 2025-05-29
 
 - Fixes loss of styles when sorting by column interactively
