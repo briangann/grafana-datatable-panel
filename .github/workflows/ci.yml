@@ -215,7 +215,7 @@ jobs:
           cache-dependency-path: pnpm-lock.yaml
 
       - name: Install dev dependencies
-        run: pnpm run ci
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: E2E - Install playwright and dependencies
         run: sudo apt-get update && npx playwright install --with-deps
