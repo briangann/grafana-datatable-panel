@@ -35,7 +35,7 @@ jobs:
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
       - name: Install dependencies
-        run: pnpm run ci
+        run: pnpm install --frozen-lockfile --prefer-offline
 
       - name: Check types
         run: pnpm run typecheck
