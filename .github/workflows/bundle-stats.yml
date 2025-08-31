@@ -25,3 +25,5 @@ jobs:
           persist-credentials: false
 
       - uses: grafana/plugin-actions/bundle-size@main # zizmor: ignore[unpinned-uses] provided by grafana
+        with:
+          node-version: '24'
