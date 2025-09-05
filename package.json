@@ -35,7 +35,7 @@
   "devDependencies": {
     "@babel/core": "^7.23.2",
     "@grafana/eslint-config": "^8.0.0",
-    "@grafana/plugin-e2e": "^2.1.9",
+    "@grafana/plugin-e2e": "^2.1.10",
     "@grafana/plugin-meta-extractor": "^0.0.3",
     "@grafana/tsconfig": "^2.0.0",
     "@playwright/test": "^1.52.0",
@@ -128,7 +128,8 @@
     "react-dom": "18.2.0",
     "rxjs": "^7.8.1",
     "tslib": "2.5.3",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "@grafana/i18n": "^12.1.0"
   },
   "packageManager": "pnpm@10.11.0"
 }
