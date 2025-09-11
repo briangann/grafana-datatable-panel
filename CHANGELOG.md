@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.3] - 2025-06-18
+
+Bugfixes:
+
+- Rows Per Page now synchronizes to setting
+- Highlight Order Column now displays shaded column
+- Sorting arrows are now hidden when column sorting configurations are defined
+- Numerical searches docs updated, and tooltip added
+- Imported CSS is now scoped to the panel vs global
+- Icons in editors are now vertically aligned
+- Additional example dashboards/panels are now available in provisioning
+
 ## [2.0.2] - 2025-05-29
 
 - Fixes playwright tests
