@@ -28,7 +28,10 @@ const columnStyleAdapter: TrackerAdapter<ColumnStyleItemTracker, ColumnStyleItem
   reorder: (t, i) => ({ ...t, order: i, style: { ...t.style, order: i } }),
 };
 
-export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onChange }) => {
+export const ColumnStylesEditor: React.FC<StandardEditorProps<ColumnStyleItemType[]>> = ({
+  context,
+  onChange,
+}) => {
   const [settings] = useState<ColumnStyleItemType[] | undefined>(context.options.columnStylesConfig);
 
   const initialTracker = (): ColumnStyleItemTracker[] =>
@@ -45,7 +48,7 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
     updateAt,
     moveUp,
     moveDown,
-  } = useTracker(initialTracker, onChange as (payload: ColumnStyleItemType[]) => void, columnStyleAdapter);
+  } = useTracker(initialTracker, onChange, columnStyleAdapter);
 
   const [isOpen, setIsOpen] = useState<boolean[]>(() =>
     (settings ?? []).map(() => false),
@@ -59,45 +62,14 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
     [context.data],
   );
 
-  // Callers pass the tracker's `order` value (not the array index). Map it
-  // back to the array index before delegating to the hook.
-  const indexByOrder = (order: number): number =>
-    tracker.findIndex((t) => t.order === order);
+  // Children address rows by `style.order`. The adapter's reorder keeps
+  // `order === array index` after every mutation, so callers can pass
+  // `order` straight through to the hook as the array index.
+  const updateColumnStyle = (index: number, value: ColumnStyleItemType) =>
+    updateAt(index, { style: value });
 
-  const updateColumnStyle = (order: number, value: ColumnStyleItemType) => {
-    const i = indexByOrder(order);
-    if (i < 0) {
-      return;
-    }
-    updateAt(i, { style: value });
-  };
-
-  const removeColumnStyle = (order: number) => {
-    const i = indexByOrder(order);
-    if (i < 0) {
-      return;
-    }
-    removeAt(i);
-  };
-
-  const moveStyleUp = (order: number) => {
-    const i = indexByOrder(order);
-    if (i < 0) {
-      return;
-    }
-    moveUp(i);
-  };
-
-  const moveStyleDown = (order: number) => {
-    const i = indexByOrder(order);
-    if (i < 0) {
-      return;
-    }
-    moveDown(i);
-  };
-
-  const createDuplicate = (order: number) => {
-    const src = tracker[indexByOrder(order)];
+  const createDuplicate = (index: number) => {
+    const src = tracker[index];
     if (!src) {
       return;
     }
@@ -182,9 +154,9 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
               style={t.style}
               enabled={t.style.enabled}
               setter={updateColumnStyle}
-              remover={removeColumnStyle}
-              moveDown={moveStyleDown}
-              moveUp={moveStyleUp}
+              remover={removeAt}
+              moveDown={moveDown}
+              moveUp={moveUp}
               createDuplicate={createDuplicate}
               context={context}
               columnHints={columnHints}
