@@ -114,7 +114,6 @@
     "datatables.net-select": "^3.0.0",
     "datatables.net-select-dt": "^3.0.0",
     "datatables.net-select-jqui": "^3.0.0",
-    "jquery": "^3.7.1",
     "jszip": "^3.10.1",
     "markjs": "npm:mark.js@^8.11.1",
     "moment-timezone": "^0.5.48",

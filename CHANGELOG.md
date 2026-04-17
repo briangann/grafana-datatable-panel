@@ -20,6 +20,7 @@ All notable changes to this project will be documented in this file.
 - Fix `tests/phase2-installed/check-installed.spec.ts` strict-mode locator collision on Grafana 11.6+ by anchoring the regex to "Installed Version" (the page now also renders "Latest Version")
 - Remove unused devDependencies: `jest-junit` (leftover from Code Climate integration), `@types/react-router-dom` (router not installed), `@types/glob` (`glob` ships its own types since v10)
 - Delete `.levignore.js` (levitate was replaced by the `is-compatible` GitHub action in the 7.1.7 template migration)
+- Remove unused `jquery` dependency (webpack already externalizes `jquery`, so Grafana's global provides the runtime; `@types/jquery` stays for the `jQuery` ambient global used in `DataTablePanel.tsx`)
 
 ## [2.0.2] - 2025-05-29
 

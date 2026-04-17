@@ -89,9 +89,6 @@ importers:
       datatables.net-select-jqui:
         specifier: ^3.0.0
         version: 3.0.0
-      jquery:
-        specifier: ^3.7.1
-        version: 3.7.1
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
