@@ -15,7 +15,7 @@ All notable changes to this project will be documented in this file.
 - Remove Code Climate coverage upload steps from `ci.yml` and Maintainability / Test Coverage badges from README (service sunset; test-reporter download URL now returns HTML 404)
 - Bump `node-version` to 24 in `ci.yml`, `is-compatible.yml`, and `release.yml` (matches `.nvmrc` / `package.json` engines)
 - Drop `master` from `on.push` / `on.pull_request` branches in `ci.yml`; repo uses `main` only
-- Bump `plugin.json` `grafanaDependency` to `>=11.6.0`
+- Bump `plugin.json` `grafanaDependency` to `>=11.6.0 <13.0.0` (upper-bound excludes Grafana 13 until `@grafana/ui@13.x` stable is published and we can upgrade the `@grafana/*` deps)
 - Cap E2E Grafana matrix to 4 versions via `grafana/plugin-actions/e2e-version` (`version-resolver-type: plugin-grafana-dependency`, `limit: 4`, `skip-grafana-dev-image: false`, `skip-grafana-react-19-preview-image: false`)
 - Fix `tests/phase2-installed/check-installed.spec.ts` strict-mode locator collision on Grafana 11.6+ by anchoring the regex to "Installed Version" (the page now also renders "Latest Version")
 - Remove unused devDependencies: `jest-junit` (leftover from Code Climate integration), `@types/react-router-dom` (router not installed), `@types/glob` (`glob` ships its own types since v10)
