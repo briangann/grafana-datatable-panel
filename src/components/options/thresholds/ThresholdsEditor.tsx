@@ -19,7 +19,6 @@ interface Props {
 
 const thresholdAdapter: TrackerAdapter<ThresholdItemTracker, Threshold> = {
   toPayload: (t) => t.threshold,
-  reorder: (t, i) => ({ ...t, order: i }),
 };
 
 const colorForThresholdState = (state: number): string => {
@@ -39,9 +38,8 @@ export const ThresholdsEditor: React.FC<Props> = (options) => {
   const theme2 = useTheme2();
 
   const initialTracker = (): ThresholdItemTracker[] =>
-    (options.thresholds ?? []).map((value, index) => ({
+    (options.thresholds ?? []).map((value) => ({
       threshold: value,
-      order: index,
       ID: UUIdv4(),
     }));
 
@@ -85,7 +83,6 @@ export const ThresholdsEditor: React.FC<Props> = (options) => {
         state: 0,
         value: 0,
       },
-      order: tracker.length,
       ID: UUIdv4(),
     });
   };

@@ -8,7 +8,6 @@ export interface Threshold {
 
 export interface ThresholdItemTracker {
   threshold: Threshold;
-  order: number;
   ID: string;
 }
 
