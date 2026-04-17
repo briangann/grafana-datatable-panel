@@ -21,6 +21,7 @@ All notable changes to this project will be documented in this file.
 - Remove unused devDependencies: `jest-junit` (leftover from Code Climate integration), `@types/react-router-dom` (router not installed), `@types/glob` (`glob` ships its own types since v10)
 - Delete `.levignore.js` (levitate was replaced by the `is-compatible` GitHub action in the 7.1.7 template migration)
 - Remove unused `jquery` dependency (webpack already externalizes `jquery`, so Grafana's global provides the runtime; `@types/jquery` stays for the `jQuery` ambient global used in `DataTablePanel.tsx`)
+- Bump 31 dependencies to latest within current major: `@babel/core`, `@emotion/css`, `@grafana/tsconfig`, `@playwright/test`, `@swc/core`, `@swc/helpers`, `@swc/jest`, `@testing-library/jest-dom`, `@types/lodash`, `@types/pdfmake`, `datatables.net{,-dt,-plugins}`, `datatables.net-buttons{,-dt}`, `datatables.net-fixedcolumns-dt`, `datatables.net-fixedheader-dt`, `datatables.net-keytable-dt`, `datatables.net-searchpanes-dt`, `datatables.net-select{,-dt}`, `moment-timezone`, `pdfmake`, `sass`, `semver`, `swc-loader`, `terser-webpack-plugin`, `tslib`, `webpack`
 
 ## [2.0.2] - 2025-05-29
 
