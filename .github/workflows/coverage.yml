@@ -1,0 +1,61 @@
+name: Coverage Report
+
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  coverage:
+    name: Jest Coverage
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Setup Node
+        uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests with coverage (PR)
+        run: npx jest --ci --coverage --coverageReporters=json-summary --coverageReporters=json --maxWorkers=4
+
+      - name: Save PR coverage
+        run: |
+          mkdir -p /tmp/pr-coverage
+          cp coverage/coverage-summary.json /tmp/pr-coverage/coverage-summary.json
+
+      - name: Checkout base branch
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          ref: ${{ github.event.pull_request.base.ref }}
+          clean: false
+
+      - name: Install dependencies (base)
+        run: npm ci
+
+      - name: Run tests with coverage (base)
+        run: npx jest --ci --coverage --coverageReporters=json-summary --coverageReporters=json --maxWorkers=4
+
+      - name: Save base coverage
+        run: |
+          mkdir -p /tmp/base-coverage
+          cp coverage/coverage-summary.json /tmp/base-coverage/coverage-summary.json
+
+      - name: Restore PR coverage
+        run: |
+          cp /tmp/pr-coverage/coverage-summary.json coverage/coverage-summary.json
+
+      - name: Coverage report
+        uses: davelosert/vitest-coverage-report-action@2500dafcee7dd64f85ab689c0b83798a8359770e # v2.9.3
+        with:
+          json-summary-compare-path: /tmp/base-coverage/coverage-summary.json
+          file-coverage-mode: all
