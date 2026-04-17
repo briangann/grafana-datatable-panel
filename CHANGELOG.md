@@ -4,33 +4,50 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+### Scaffolding & Configuration
+
+- Update `@grafana/create-plugin` from 5.27.1 to 7.1.7, applying all scaffolding migrations: docker-compose extension, is-compatible workflow action, `@typescript-eslint/no-deprecated` replacing `eslint-plugin-deprecation`, ESLint flat config, React/ReactDOM `^18.3.0`, webpack nested-plugin variable fix, `setupTests.d.ts` for `@testing-library/jest-dom` types
+- Remove `.eslintrc` files in favor of `eslint.config.mjs` flat config
+- Drop `@types/testing-library__jest-dom` (types now come from `.config/types/setupTests.d.ts`)
 - Bump Node to 24 (`.nvmrc`, `mise.toml`, `package.json` engines)
 - Update `AGENTS.md` Node requirement to `>= 24`
-- Update `@grafana/create-plugin` from 5.27.1 to 7.1.7, applying all scaffolding migrations: docker-compose extension, is-compatible workflow action, `@typescript-eslint/no-deprecated` replacing `eslint-plugin-deprecation`, ESLint flat config, React/ReactDOM `^18.3.0`, webpack nested-plugin variable fix, `setupTests.d.ts` for `@testing-library/jest-dom` types
-- Pin `@grafana/runtime` to 12.4.2 via pnpm override (upstream 12.4.3 declares `@grafana/ui@12.4.3`, which was never published)
-- Drop `@types/testing-library__jest-dom` (types now come from `.config/types/setupTests.d.ts`)
-- Remove `.eslintrc` files in favor of `eslint.config.mjs` flat config
+
+### Plugin metadata
+
+- Bump `plugin.json` `grafanaDependency` to `>=11.6.0 <13.0.0` (upper-bound excludes Grafana 13 until `@grafana/ui@13.x` stable is published and we can upgrade the `@grafana/*` deps)
+
+### GitHub Workflows
+
 - Align all five GitHub workflows with create-plugin 7.1.7 templates (actions/checkout@v6, setup-node@v6, setup-go@v6, upload-artifact@v7, download-artifact@v8, versioned `grafana/plugin-actions/*` tags, SHA-pinned `pnpm/action-setup` and `actions/setup-node` in `is-compatible.yml`, `persist-credentials` hardening)
-- Remove `transparent={false}` from `Switch` usages in `ColumnStyleItem.tsx` (prop moved to `InlineSwitch` only; all sites relied on the default)
-- Remove Code Climate coverage upload steps from `ci.yml` and Maintainability / Test Coverage badges from README (service sunset; test-reporter download URL now returns HTML 404)
 - Bump `node-version` to 24 in `ci.yml`, `is-compatible.yml`, and `release.yml` (matches `.nvmrc` / `package.json` engines)
 - Drop `master` from `on.push` / `on.pull_request` branches in `ci.yml`; repo uses `main` only
-- Bump `plugin.json` `grafanaDependency` to `>=11.6.0 <13.0.0` (upper-bound excludes Grafana 13 until `@grafana/ui@13.x` stable is published and we can upgrade the `@grafana/*` deps)
+- Set `fail-if-incompatible: "no"` on the `is-compatible` workflow so type-only diffs (e.g. `PanelPlugin.setMigrationHandler` parameter rename `PanelMigrationHandler` → `type PanelMigrationHandler` between `@grafana/data@12.4.3` and `@13.0.1`) surface as a PR comment for review instead of failing CI. Mirrors the previous `.levignore.js` ignore for the same symbol.
 - Cap E2E Grafana matrix to 4 versions via `grafana/plugin-actions/e2e-version` (`version-resolver-type: plugin-grafana-dependency`, `limit: 4`, `skip-grafana-dev-image: false`, `skip-grafana-react-19-preview-image: false`)
-- Fix `tests/phase2-installed/check-installed.spec.ts` strict-mode locator collision on Grafana 11.6+ by anchoring the regex to "Installed Version" (the page now also renders "Latest Version")
-- Remove unused devDependencies: `jest-junit` (leftover from Code Climate integration), `@types/react-router-dom` (router not installed), `@types/glob` (`glob` ships its own types since v10)
-- Delete `.levignore.js` (levitate was replaced by the `is-compatible` GitHub action in the 7.1.7 template migration)
-- Remove unused `jquery` dependency (webpack already externalizes `jquery`, so Grafana's global provides the runtime; `@types/jquery` stays for the `jQuery` ambient global used in `DataTablePanel.tsx`)
+- E2E matrix: set `skip-grafana-dev-image: true` (exclude the Grafana 13 nightly that is not yet stable) and drop the explicit `skip-grafana-react-19-preview-image` input (default skip applies for non-grafana-org repos).
+- Remove Code Climate coverage upload steps from `ci.yml` and Maintainability / Test Coverage badges from README (service sunset; test-reporter download URL now returns HTML 404)
+
+### Dependencies
+
+- Pin `@grafana/runtime` to 12.4.2 via pnpm override (upstream 12.4.3 declares `@grafana/ui@12.4.3`, which was never published)
 - Bump 31 dependencies to latest within current major: `@babel/core`, `@emotion/css`, `@grafana/tsconfig`, `@playwright/test`, `@swc/core`, `@swc/helpers`, `@swc/jest`, `@testing-library/jest-dom`, `@types/lodash`, `@types/pdfmake`, `datatables.net{,-dt,-plugins}`, `datatables.net-buttons{,-dt}`, `datatables.net-fixedcolumns-dt`, `datatables.net-fixedheader-dt`, `datatables.net-keytable-dt`, `datatables.net-searchpanes-dt`, `datatables.net-select{,-dt}`, `moment-timezone`, `pdfmake`, `sass`, `semver`, `swc-loader`, `terser-webpack-plugin`, `tslib`, `webpack`
 - Bump `@grafana/plugin-e2e` to `^3.5.1` (only breaking change vs 2.x was Node 18 drop; we are already on Node 24)
 - Bump `@types/node` to `^24.12.2` to match the Node 24 runtime (tracks Node major)
 - Add `@grafana/e2e-selectors@^12.4.3` as a devDependency for Playwright test selectors
-- Set `fail-if-incompatible: "no"` on the `is-compatible` workflow so type-only diffs (e.g. `PanelPlugin.setMigrationHandler` parameter rename `PanelMigrationHandler` → `type PanelMigrationHandler` between `@grafana/data@12.4.3` and `@13.0.1`) surface as a PR comment for review instead of failing CI. Mirrors the previous `.levignore.js` ignore for the same symbol.
-- E2E matrix: set `skip-grafana-dev-image: true` (exclude the Grafana 13 nightly that is not yet stable) and drop the explicit `skip-grafana-react-19-preview-image` input (default skip applies for non-grafana-org repos).
+- Remove unused devDependencies: `jest-junit` (leftover from Code Climate integration), `@types/react-router-dom` (router not installed), `@types/glob` (`glob` ships its own types since v10)
+- Delete `.levignore.js` (levitate was replaced by the `is-compatible` GitHub action in the 7.1.7 template migration)
+- Remove unused `jquery` dependency (webpack already externalizes `jquery`, so Grafana's global provides the runtime; `@types/jquery` stays for the `jQuery` ambient global used in `DataTablePanel.tsx`)
+
+### React state hygiene
+
+- Bump `eslint-plugin-react-hooks` to `^7.0.0` and `@grafana/eslint-config` to `^9.0.0`. v7 enables `react-hooks/immutability` and `react-hooks/set-state-in-effect`, which are now clean after the `useTracker` refactor. `@grafana/eslint-config@9` consumes the v7 plugin's flat-config export.
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook encapsulating the ordered-tracker-with-onChange-fan-out pattern used by `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`, `removeAt`, `updateAt`, `moveUp`, `moveDown`. Mutators use functional `setState` so they stay stable across renders and compose safely when two are called in the same event; `onChange` fires once per commit, outside `setState`, so StrictMode does not double-emit. Optional `adapter.reorder` re-numbers order-style fields after add/remove/move. Covered by `src/hooks/useTracker.test.ts`.
 - Refactor `src/components/options/thresholds/ThresholdsEditor.tsx` onto `useTracker`. All state transitions now produce new tracker items and a new array; the previous in-place mutations are gone. Drops the unused `order` field from `ThresholdItemTracker` (written by the adapter, read nowhere), so `thresholdAdapter` keeps only `toPayload`. Covered by `ThresholdsEditor.test.tsx`.
 - Refactor `src/components/options/columnstyles/ColumnStylesEditor.tsx` onto `useTracker`. Removed the in-place mutations and the local `arrayMove` helper; `moveUp`/`moveDown` delegate to the hook's immutable swap. Replaces the `columnHints` `useState` + `useEffect` pair with a `useMemo` derivation (fixes `react-hooks/set-state-in-effect`). Types the component as `StandardEditorProps<ColumnStyleItemType[]>` so `onChange` no longer needs a cast. The per-op `indexByOrder` wrappers were removed — `columnStyleAdapter` keeps `t.order === array index` invariantly, so callers pass hook mutators directly. Covered by `ColumnStylesEditor.test.tsx`.
-- Bump `eslint-plugin-react-hooks` to `^7.0.0` and `@grafana/eslint-config` to `^9.0.0`. v7 enables `react-hooks/immutability` and `react-hooks/set-state-in-effect`, which are now clean after the `useTracker` refactor. `@grafana/eslint-config@9` consumes the v7 plugin's flat-config export.
+
+### Fixes
+
+- Remove `transparent={false}` from `Switch` usages in `ColumnStyleItem.tsx` (prop moved to `InlineSwitch` only; all sites relied on the default)
+- Fix `tests/phase2-installed/check-installed.spec.ts` strict-mode locator collision on Grafana 11.6+ by anchoring the regex to "Installed Version" (the page now also renders "Latest Version")
 
 ## [2.0.2] - 2025-05-29
 
