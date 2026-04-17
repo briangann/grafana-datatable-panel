@@ -10,27 +10,24 @@ export interface TrackerAdapter<Item, Payload> {
   reorder?: (item: Item, index: number) => Item;
 }
 
+export type UpdatePatch<Item> = Partial<Item> | ((prev: Item) => Partial<Item>);
+
 export interface TrackerAPI<Item> {
   items: Item[];
   setAll: (next: Item[]) => void;
   add: (item: Item) => void;
   removeAt: (index: number) => void;
-  updateAt: (index: number, patch: Partial<Item>) => void;
+  updateAt: (index: number, patch: UpdatePatch<Item>) => void;
   moveUp: (index: number) => void;
   moveDown: (index: number) => void;
 }
 
 /**
  * Manages an ordered list of tracker items. Mutators use functional
- * setState so they stay stable across renders and see the freshest
- * state — two mutator calls in the same event compose correctly.
- *
- * Updaters must be pure: return `prev` unchanged to no-op, or a new
- * array to commit. onChange fires once per commit, outside setState,
- * so StrictMode's double-invoke of the updater does not double-emit.
+ * setState so they stay stable across renders and compose safely.
  *
  * The adapter must be stable across renders — define it at module
- * scope or memoize it, otherwise commit/renumber identities thrash
+ * scope or memoize it. Otherwise commit/renumber identities thrash
  * and defeat downstream memoization.
  */
 export function useTracker<Item, Payload>(
@@ -78,9 +75,13 @@ export function useTracker<Item, Payload>(
   );
 
   const updateAt = useCallback(
-    (index: number, patch: Partial<Item>) =>
+    (index: number, patch: UpdatePatch<Item>) =>
       commit((prev) =>
-        prev.map((item, i) => (i === index ? { ...item, ...patch } : item)),
+        prev.map((item, i) =>
+          i === index
+            ? { ...item, ...(typeof patch === 'function' ? patch(item) : patch) }
+            : item,
+        ),
       ),
     [commit],
   );

@@ -63,6 +63,5 @@ export interface ColumnStyleItemType {
 
 export interface ColumnStyleItemTracker {
   style: ColumnStyleItemType;
-  order: number;
   ID: string;
 };

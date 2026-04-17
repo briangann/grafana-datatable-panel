@@ -25,19 +25,16 @@ import { TrackerAdapter, useTracker } from 'hooks/useTracker';
 
 const columnStyleAdapter: TrackerAdapter<ColumnStyleItemTracker, ColumnStyleItemType> = {
   toPayload: (t) => t.style,
-  reorder: (t, i) => ({ ...t, order: i, style: { ...t.style, order: i } }),
+  reorder: (t, i) => ({ ...t, style: { ...t.style, order: i } }),
 };
 
 export const ColumnStylesEditor: React.FC<StandardEditorProps<ColumnStyleItemType[]>> = ({
   context,
   onChange,
 }) => {
-  const [settings] = useState<ColumnStyleItemType[] | undefined>(context.options.columnStylesConfig);
-
   const initialTracker = (): ColumnStyleItemTracker[] =>
-    (settings ?? []).map((value, index) => ({
+    (context.options.columnStylesConfig ?? []).map((value: ColumnStyleItemType) => ({
       style: value,
-      order: index,
       ID: UUIdv4(),
     }));
 
@@ -50,9 +47,8 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps<ColumnStyleItemTyp
     moveDown,
   } = useTracker(initialTracker, onChange, columnStyleAdapter);
 
-  const [isOpen, setIsOpen] = useState<boolean[]>(() =>
-    (settings ?? []).map(() => false),
-  );
+  // Keyed by tracker ID so open state survives reorder and remove.
+  const [isOpen, setIsOpen] = useState<Record<string, boolean>>({});
 
   const columnHints: CascaderOption[] = useMemo(
     () =>
@@ -62,9 +58,6 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps<ColumnStyleItemTyp
     [context.data],
   );
 
-  // Children address rows by `style.order`. The adapter's reorder keeps
-  // `order === array index` after every mutation, so callers can pass
-  // `order` straight through to the hook as the array index.
   const updateColumnStyle = (index: number, value: ColumnStyleItemType) =>
     updateAt(index, { style: value });
 
@@ -73,28 +66,19 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps<ColumnStyleItemTyp
     if (!src) {
       return;
     }
-    const original = src.style;
     const nextOrder = tracker.length;
     const copy: ColumnStyleItemType = {
-      label: `${original.label} Copy`,
-      enabled: original.enabled,
+      ...src.style,
+      label: `${src.style.label} Copy`,
       order: nextOrder,
-      nameOrRegex: original.nameOrRegex,
-      activeStyle: original.activeStyle,
-      hiddenStyle: original.hiddenStyle,
-      dateStyle: original.dateStyle,
-      metricStyle: original.metricStyle,
-      stringStyle: original.stringStyle,
     };
-    add({ style: copy, order: nextOrder, ID: UUIdv4() });
-    setIsOpen([...isOpen, true]);
+    const id = UUIdv4();
+    add({ style: copy, ID: id });
+    setIsOpen((prev) => ({ ...prev, [id]: true }));
   };
 
-  const toggleOpener = (index: number) => {
-    const next = [...isOpen];
-    next[index] = !next[index];
-    setIsOpen(next);
-  };
+  const toggleOpener = (id: string) =>
+    setIsOpen((prev) => ({ ...prev, [id]: !prev[id] }));
 
   const addItem = () => {
     const order = tracker.length;
@@ -130,8 +114,9 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps<ColumnStyleItemTyp
       } as ColumnStyleString,
       activeStyle: ColumnStyles.METRIC,
     };
-    add({ style, order, ID: UUIdv4() });
-    setIsOpen([...isOpen, true]);
+    const id = UUIdv4();
+    add({ style, ID: id });
+    setIsOpen((prev) => ({ ...prev, [id]: true }));
   };
 
   return (
@@ -139,30 +124,29 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps<ColumnStyleItemTyp
       <Button fill="solid" variant="primary" icon="plus" onClick={addItem}>
         Add Style
       </Button>
-      {tracker &&
-        tracker.map((t, index) => (
-          <Collapse
-            key={`collapse-item-index-${t.ID}`}
-            label={t.style.label}
-            isOpen={isOpen[index]}
-            onToggle={() => toggleOpener(index)}
-            collapsible
-          >
-            <ColumnStyleItem
-              key={`style-item-index-${t.ID}`}
-              ID={t.ID}
-              style={t.style}
-              enabled={t.style.enabled}
-              setter={updateColumnStyle}
-              remover={removeAt}
-              moveDown={moveDown}
-              moveUp={moveUp}
-              createDuplicate={createDuplicate}
-              context={context}
-              columnHints={columnHints}
-            />
-          </Collapse>
-        ))}
+      {tracker.map((t, index) => (
+        <Collapse
+          key={`collapse-item-index-${t.ID}`}
+          label={t.style.label}
+          isOpen={!!isOpen[t.ID]}
+          onToggle={() => toggleOpener(t.ID)}
+          collapsible
+        >
+          <ColumnStyleItem
+            key={`style-item-index-${t.ID}`}
+            ID={t.ID}
+            style={t.style}
+            enabled={t.style.enabled}
+            setter={updateColumnStyle}
+            remover={removeAt}
+            moveDown={moveDown}
+            moveUp={moveUp}
+            createDuplicate={createDuplicate}
+            context={context}
+            columnHints={columnHints}
+          />
+        </Collapse>
+      ))}
     </>
   );
 };

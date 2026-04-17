@@ -65,6 +65,20 @@ describe('useTracker', () => {
     ]);
   });
 
+  it('updateAt accepts a functional patch that reads the live item', () => {
+    const onChange = jest.fn();
+    const { result } = renderHook(() => useTracker(initial, onChange, adapter));
+
+    act(() => result.current.updateAt(1, (t) => ({ label: `${t.label}!` })));
+
+    expect(result.current.items[1]).toEqual({ id: 'b', order: 1, label: 'B!' });
+    expect(onChange).toHaveBeenLastCalledWith([
+      { label: 'A' },
+      { label: 'B!' },
+      { label: 'C' },
+    ]);
+  });
+
   it('moveUp(0) is a no-op', () => {
     const onChange = jest.fn();
     const { result } = renderHook(() => useTracker(initial, onChange, adapter));

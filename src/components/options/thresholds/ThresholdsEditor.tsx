@@ -59,21 +59,21 @@ export const ThresholdsEditor: React.FC<Props> = (options) => {
   };
 
   const updateThresholdColor = (index: number, color: string) => {
-    updateAt(index, {
+    updateAt(index, (t) => ({
       threshold: {
-        ...tracker[index].threshold,
+        ...t.threshold,
         color: theme2.visualization.getColorByName(color),
       },
-    });
+    }));
   };
 
   const updateThresholdState = (index: number, state: number) => {
-    const existing = tracker[index].threshold;
-    const nextThreshold: Threshold =
-      state < 3
-        ? { ...existing, state, color: colorForThresholdState(state) }
-        : { ...existing, state };
-    updateAt(index, { threshold: nextThreshold });
+    updateAt(index, (t) => ({
+      threshold:
+        state < 3
+          ? { ...t.threshold, state, color: colorForThresholdState(state) }
+          : { ...t.threshold, state },
+    }));
   };
 
   const addItem = () => {
@@ -98,20 +98,19 @@ export const ThresholdsEditor: React.FC<Props> = (options) => {
       >
         Add Threshold
       </Button>
-      {tracker &&
-        tracker.map((t, index) => (
-          <ThresholdItem
-            disabled={options.disabled || false}
-            key={`threshold-item-index-${t.ID}`}
-            ID={t.ID}
-            threshold={t.threshold}
-            valueSetter={updateThresholdValue}
-            colorSetter={updateThresholdColor}
-            stateSetter={updateThresholdState}
-            remover={removeAt}
-            index={index}
-          />
-        ))}
+      {tracker.map((t, index) => (
+        <ThresholdItem
+          disabled={options.disabled || false}
+          key={`threshold-item-index-${t.ID}`}
+          ID={t.ID}
+          threshold={t.threshold}
+          valueSetter={updateThresholdValue}
+          colorSetter={updateThresholdColor}
+          stateSetter={updateThresholdState}
+          remover={removeAt}
+          index={index}
+        />
+      ))}
     </>
   );
 };

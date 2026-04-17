@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ColumnStylesEditor } from './ColumnStylesEditor';
 import { ColumnStyles, type ColumnStyleItemType } from './types';
-import { DateFormats } from 'types';
+import { ColumnStyleColoring, DateFormats } from 'types';
 
 jest.mock('./ColumnStyleItem', () => ({
   ColumnStyleItem: ({
@@ -53,7 +53,7 @@ const makeStyle = (order: number, label: string): ColumnStyleItemType => ({
     alias: '',
     thresholds: [],
     colors: [],
-    colorMode: 'cell' as any,
+    colorMode: ColumnStyleColoring.Cell,
     decimals: '2',
     scaledDecimals: null,
     unitFormat: 'short',
