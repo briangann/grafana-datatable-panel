@@ -53,15 +53,13 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
   };
 
   const setThresholds = (val: Threshold[]) => {
-    setColumnStyle({ ...style, metricStyle: {
-      thresholds: val,
-      alias: style.metricStyle.alias,
-      colors: style.metricStyle.colors,
-      decimals: style.metricStyle.decimals,
-      scaledDecimals: style.metricStyle.scaledDecimals,
-      unitFormat: style.metricStyle.unitFormat,
-      ignoreNullValues: style.metricStyle.ignoreNullValues,
-    }});
+    setColumnStyle({
+      ...style,
+      metricStyle: {
+        ...style.metricStyle,
+        thresholds: val,
+      },
+    });
   };
 
   const metricItemType = () => {

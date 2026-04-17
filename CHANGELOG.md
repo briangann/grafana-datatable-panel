@@ -142,6 +142,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Fix `tests/phase2-installed/check-installed.spec.ts` strict-mode locator collision on
   Grafana 11.6+ by anchoring the regex to "Installed Version" (the page now also renders
   "Latest Version")
+- Fix threshold cell coloring being silently dropped in `ColumnStyleItem.setThresholds`.
+  The old code hand-enumerated seven `metricStyle` fields when rebuilding the style for
+  `setColumnStyle`, but omitted `colorMode`. Any threshold add/edit left `colorMode`
+  `undefined`, which fails `getCellColors`'s `colorMode != null` guard and suppresses
+  the background/foreground paint. Replaced with `{ ...style.metricStyle, thresholds: val }`
+  so no field can be silently lost.
 - Satisfy `pnpm lint:md` across `README.md`, `AGENTS.md`, `CLAUDE.md`, and
   `provisioning/README.md` (line wraps to the 120-char limit, table re-padding
   for aligned pipes, `# Provisioning` heading added to `provisioning/README.md`,
