@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React from 'react';
 import { orderBy } from 'lodash';
 import { Button, useTheme2 } from '@grafana/ui';
 import { v4 as UUIdv4 } from 'uuid';
@@ -38,19 +38,12 @@ const colorForThresholdState = (state: number): string => {
 export const ThresholdsEditor: React.FC<Props> = (options) => {
   const theme2 = useTheme2();
 
-  // Capture the initial thresholds once via useMemo so useTracker's lazy
-  // initializer sees the first-render value even though the prop can change.
-  const initialTracker = useMemo(
-    () => (): ThresholdItemTracker[] =>
-      (options.thresholds ?? []).map((value, index) => ({
-        threshold: value,
-        order: index,
-        ID: UUIdv4(),
-      })),
-    // deliberately empty deps — only used once, see comment above
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [],
-  );
+  const initialTracker = (): ThresholdItemTracker[] =>
+    (options.thresholds ?? []).map((value, index) => ({
+      threshold: value,
+      order: index,
+      ID: UUIdv4(),
+    }));
 
   const { items: tracker, add, removeAt, updateAt, setAll } = useTracker(
     initialTracker,
