@@ -16,7 +16,7 @@ All notable changes to this project will be documented in this file.
 - Bump `node-version` to 24 in `ci.yml`, `is-compatible.yml`, and `release.yml` (matches `.nvmrc` / `package.json` engines)
 - Drop `master` from `on.push` / `on.pull_request` branches in `ci.yml`; repo uses `main` only
 - Bump `plugin.json` `grafanaDependency` to `>=11.6.0`
-- Cap E2E Grafana matrix to 4 versions via `grafana/plugin-actions/e2e-version` (`version-resolver-type: plugin-grafana-dependency`, `limit: 4`, `skip-grafana-react-19-preview-image: false`)
+- Cap E2E Grafana matrix to 4 versions via `grafana/plugin-actions/e2e-version` (`version-resolver-type: plugin-grafana-dependency`, `limit: 4`, `skip-grafana-dev-image: false`, `skip-grafana-react-19-preview-image: false`)
 
 ## [2.0.2] - 2025-05-29
 
