@@ -35,7 +35,7 @@
   "devDependencies": {
     "@babel/core": "^7.29.0",
     "@grafana/e2e-selectors": "^12.4.3",
-    "@grafana/eslint-config": "^8.2.0",
+    "@grafana/eslint-config": "^9.0.0",
     "@grafana/plugin-e2e": "^3.5.1",
     "@grafana/plugin-meta-extractor": "^0.0.3",
     "@grafana/tsconfig": "^2.0.1",
@@ -60,7 +60,7 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-jsdoc": "^51.2.3",
     "eslint-plugin-react": "^7.37.5",
-    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-hooks": "^7.1.0",
     "eslint-webpack-plugin": "^5.0.0",
     "fork-ts-checker-webpack-plugin": "^8.0.0",
     "glob": "^10.2.7",

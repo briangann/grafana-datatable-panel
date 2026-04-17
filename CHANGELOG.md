@@ -30,6 +30,7 @@ All notable changes to this project will be documented in this file.
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook encapsulating the ordered-tracker-with-onChange-fan-out pattern used by `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`, `removeAt`, `updateAt`, `moveUp`, `moveDown`. Adapter-driven re-numbering of `order` fields. Covered by `src/hooks/useTracker.test.ts`.
 - Refactor `src/components/options/thresholds/ThresholdsEditor.tsx` onto `useTracker`. All state transitions now produce new tracker items and a new array; mutations at lines 44/52/57 removed. Introduces a module-scope `thresholdAdapter`. Covered by `ThresholdsEditor.test.tsx`.
 - Refactor `src/components/options/columnstyles/ColumnStylesEditor.tsx` onto `useTracker`. Mutations at lines 59/103/115 removed; `moveUp`/`moveDown` delegate to the hook's immutable swap; `arrayMove` helper deleted. Replace the `columnHints` `useState` + `useEffect` pair with a `useMemo` derivation (fixes `react-hooks/set-state-in-effect` at line 203). Introduces a module-scope `columnStyleAdapter` that re-numbers both outer `order` and inner `style.order`. Covered by `ColumnStylesEditor.test.tsx`.
+- Bump `eslint-plugin-react-hooks` to `^7.0.0` and `@grafana/eslint-config` to `^9.0.0`. v7 enables `react-hooks/immutability` and `react-hooks/set-state-in-effect`, which are now clean after the `useTracker` refactor. `@grafana/eslint-config@9` consumes the v7 plugin's flat-config export.
 
 ## [2.0.2] - 2025-05-29
 
