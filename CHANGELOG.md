@@ -6,6 +6,13 @@ All notable changes to this project will be documented in this file.
 
 - Bump Node to 24 (`.nvmrc`, `mise.toml`, `package.json` engines)
 - Update `AGENTS.md` Node requirement to `>= 24`
+- Update `@grafana/create-plugin` from 5.27.1 to 7.1.7, applying all scaffolding migrations: docker-compose extension, is-compatible workflow action, `@typescript-eslint/no-deprecated` replacing `eslint-plugin-deprecation`, ESLint flat config, React/ReactDOM `^18.3.0`, webpack nested-plugin variable fix, `setupTests.d.ts` for `@testing-library/jest-dom` types
+- Pin `@grafana/runtime` to 12.4.2 via pnpm override (upstream 12.4.3 declares `@grafana/ui@12.4.3`, which was never published)
+- Drop `@types/testing-library__jest-dom` (types now come from `.config/types/setupTests.d.ts`)
+- Remove `.eslintrc` files in favor of `eslint.config.mjs` flat config
+- Align all five GitHub workflows with create-plugin 7.1.7 templates (actions/checkout@v6, setup-node@v6, setup-go@v6, upload-artifact@v7, download-artifact@v8, versioned `grafana/plugin-actions/*` tags, SHA-pinned `pnpm/action-setup` and `actions/setup-node` in `is-compatible.yml`, `persist-credentials` hardening)
+- Remove `transparent={false}` from `Switch` usages in `ColumnStyleItem.tsx` (prop moved to `InlineSwitch` only; all sites relied on the default)
+- Remove Code Climate coverage upload steps from `ci.yml` and Maintainability / Test Coverage badges from README (service sunset; test-reporter download URL now returns HTML 404)
 
 ## [2.0.2] - 2025-05-29
 
