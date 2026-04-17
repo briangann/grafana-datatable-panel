@@ -37,7 +37,14 @@ jest.mock('@grafana/ui', () => {
   const actual = jest.requireActual('@grafana/ui');
   return {
     ...actual,
-    Collapse: ({ children }: any) => <div>{children}</div>,
+    Collapse: ({ children, isOpen, label, onToggle }: any) => (
+      <div data-testid={`collapse-${label}`} data-isopen={String(!!isOpen)}>
+        <button data-testid={`toggle-${label}`} onClick={onToggle}>
+          toggle
+        </button>
+        {children}
+      </div>
+    ),
   };
 });
 
@@ -76,6 +83,39 @@ const buildContext = (styles: ColumnStyleItemType[]) =>
   } as any);
 
 describe('ColumnStylesEditor', () => {
+  it('does not call onChange on initial mount', () => {
+    const onChange = jest.fn();
+    const styles = [makeStyle(0, 'A')];
+    render(
+      <ColumnStylesEditor
+        {...({} as any)}
+        context={buildContext(styles)}
+        onChange={onChange}
+      />,
+    );
+
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('preserves open state by ID across remove', () => {
+    const styles = [makeStyle(0, 'A'), makeStyle(1, 'B'), makeStyle(2, 'C')];
+    render(
+      <ColumnStylesEditor
+        {...({} as any)}
+        context={buildContext(styles)}
+        onChange={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('toggle-B'));
+    expect(screen.getByTestId('collapse-B')).toHaveAttribute('data-isopen', 'true');
+
+    fireEvent.click(screen.getAllByRole('button', { name: 'remove' })[0]);
+
+    expect(screen.getByTestId('collapse-B')).toHaveAttribute('data-isopen', 'true');
+    expect(screen.getByTestId('collapse-C')).toHaveAttribute('data-isopen', 'false');
+  });
+
   it('renders one item per configured style', () => {
     const styles = [makeStyle(0, 'A'), makeStyle(1, 'B')];
     render(

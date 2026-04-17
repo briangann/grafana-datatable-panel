@@ -52,6 +52,13 @@ const baseThresholds = (): Threshold[] => [
 ];
 
 describe('ThresholdsEditor', () => {
+  it('does not call setter on initial mount', () => {
+    const setter = jest.fn();
+    render(<ThresholdsEditor thresholds={baseThresholds()} setter={setter} />);
+
+    expect(setter).not.toHaveBeenCalled();
+  });
+
   it('renders one row per threshold', () => {
     const setter = jest.fn();
     render(<ThresholdsEditor thresholds={baseThresholds()} setter={setter} />);
