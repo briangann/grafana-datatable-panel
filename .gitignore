@@ -32,6 +32,9 @@ e2e-results/
 # Editor
 .idea
 
+# macOS
+.DS_Store
+
 .eslintcache
 
 playwright/.auth/admin.json
@@ -43,3 +46,4 @@ playwright-report
 provisioning-private/
 importable/
 test-results/
+TODO.md
