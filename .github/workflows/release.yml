@@ -17,8 +17,10 @@ jobs:
       contents: write # new line
       attestations: write # new line
     steps:
-      - uses: actions/checkout@v4
-      - uses: grafana/plugin-actions/build-plugin@main
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
+      - uses: grafana/plugin-actions/build-plugin@build-plugin/v1.0.2
         with:
           # see https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin#generate-an-access-policy-token to generate it
           # save the value in your repository secrets
