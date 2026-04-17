@@ -9,14 +9,15 @@ on:
     branches:
       - main
 
-permissions:
-  contents: write
-  pull-requests: write
-  actions: read
+permissions: {}
 
 jobs:
   compare:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+      actions: read
 
     steps:
       - name: Checkout repository
