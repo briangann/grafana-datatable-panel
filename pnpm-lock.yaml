@@ -120,6 +120,9 @@ importers:
       '@babel/core':
         specifier: ^7.29.0
         version: 7.29.0
+      '@grafana/e2e-selectors':
+        specifier: ^12.4.3
+        version: 12.4.3
       '@grafana/eslint-config':
         specifier: ^8.2.0
         version: 8.2.0(@stylistic/eslint-plugin-ts@2.13.0(eslint@9.39.4)(typescript@5.8.3))(@typescript-eslint/eslint-plugin@8.58.2(@typescript-eslint/parser@8.58.2(eslint@9.39.4)(typescript@5.8.3))(eslint@9.39.4)(typescript@5.8.3))(@typescript-eslint/parser@8.58.2(eslint@9.39.4)(typescript@5.8.3))(eslint-config-prettier@8.10.0(eslint@9.39.4))(eslint-plugin-jsdoc@51.4.1(eslint@9.39.4))(eslint-plugin-react-hooks@5.2.0(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(typescript@5.8.3)
@@ -663,6 +666,9 @@ packages:
 
   '@grafana/e2e-selectors@12.4.2':
     resolution: {integrity: sha512-Kx2joGz/jql32HgD6+pJTHRkAGL7rJC+WE+fl/wZFThmQUIGpuJjwJYL0aOmYvOZeWwVLFnyrFCiNs48s3AZJg==}
+
+  '@grafana/e2e-selectors@12.4.3':
+    resolution: {integrity: sha512-YCNFnWT+l34mgR2v9eujGwDKRZ9Q6hfA++WcqblLHnZ4Vbmy5Na6C0NJobzsyzNAczr/NbUH9XW+0DhVeKYhBg==}
 
   '@grafana/e2e-selectors@13.1.0-24448182242':
     resolution: {integrity: sha512-C8VxaFh4PGWhPBOwol3Fo0UBp1//7XNnjg7WG+t3p0P8Q2cw5HZ2NgQt1OFq9radjmWEc3DJQZvxoelI4TIOJA==}
@@ -5900,6 +5906,12 @@ snapshots:
       - typescript
 
   '@grafana/e2e-selectors@12.4.2':
+    dependencies:
+      semver: 7.7.4
+      tslib: 2.8.1
+      typescript: 5.9.2
+
+  '@grafana/e2e-selectors@12.4.3':
     dependencies:
       semver: 7.7.4
       tslib: 2.8.1

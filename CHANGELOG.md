@@ -24,6 +24,7 @@ All notable changes to this project will be documented in this file.
 - Bump 31 dependencies to latest within current major: `@babel/core`, `@emotion/css`, `@grafana/tsconfig`, `@playwright/test`, `@swc/core`, `@swc/helpers`, `@swc/jest`, `@testing-library/jest-dom`, `@types/lodash`, `@types/pdfmake`, `datatables.net{,-dt,-plugins}`, `datatables.net-buttons{,-dt}`, `datatables.net-fixedcolumns-dt`, `datatables.net-fixedheader-dt`, `datatables.net-keytable-dt`, `datatables.net-searchpanes-dt`, `datatables.net-select{,-dt}`, `moment-timezone`, `pdfmake`, `sass`, `semver`, `swc-loader`, `terser-webpack-plugin`, `tslib`, `webpack`
 - Bump `@grafana/plugin-e2e` to `^3.5.1` (only breaking change vs 2.x was Node 18 drop; we are already on Node 24)
 - Bump `@types/node` to `^24.12.2` to match the Node 24 runtime (tracks Node major)
+- Add `@grafana/e2e-selectors@^12.4.3` as a devDependency for Playwright test selectors
 
 ## [2.0.2] - 2025-05-29
 
