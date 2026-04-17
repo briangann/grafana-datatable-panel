@@ -3,11 +3,9 @@ name: CI
 on:
   push:
     branches:
-      - master
       - main
   pull_request:
     branches:
-      - master
       - main
 
 permissions:
@@ -36,7 +34,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
       - name: Install dependencies
@@ -176,7 +174,7 @@ jobs:
       - name: Setup Node.js environment
         uses: actions/setup-node@v6
         with:
-          node-version: '22'
+          node-version: '24'
           cache: 'pnpm'
           cache-dependency-path: pnpm-lock.yaml
 

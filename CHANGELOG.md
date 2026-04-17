@@ -13,6 +13,9 @@ All notable changes to this project will be documented in this file.
 - Align all five GitHub workflows with create-plugin 7.1.7 templates (actions/checkout@v6, setup-node@v6, setup-go@v6, upload-artifact@v7, download-artifact@v8, versioned `grafana/plugin-actions/*` tags, SHA-pinned `pnpm/action-setup` and `actions/setup-node` in `is-compatible.yml`, `persist-credentials` hardening)
 - Remove `transparent={false}` from `Switch` usages in `ColumnStyleItem.tsx` (prop moved to `InlineSwitch` only; all sites relied on the default)
 - Remove Code Climate coverage upload steps from `ci.yml` and Maintainability / Test Coverage badges from README (service sunset; test-reporter download URL now returns HTML 404)
+- Bump `node-version` to 24 in `ci.yml`, `is-compatible.yml`, and `release.yml` (matches `.nvmrc` / `package.json` engines)
+- Drop `master` from `on.push` / `on.pull_request` branches in `ci.yml`; repo uses `main` only
+- Bump `plugin.json` `grafanaDependency` to `>=11.6.0`
 
 ## [2.0.2] - 2025-05-29
 
