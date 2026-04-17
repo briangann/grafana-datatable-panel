@@ -44,6 +44,24 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Remove Code Climate coverage upload steps from `ci.yml` and Maintainability /
   Test Coverage badges from README (service sunset; test-reporter download URL now
   returns HTML 404)
+- Tighten `GITHUB_TOKEN` permissions to least privilege. Each workflow declares
+  `permissions: {}` at the workflow level and grants only the minimum scopes per
+  job: `ci.yml` `build` / `resolve-versions` / `playwright-tests` = `contents: read`,
+  `publish-report` = `contents: write` + `pull-requests: write`; `bundle-stats.yml`
+  `compare` = `contents: read` + `pull-requests: write` + `actions: read`;
+  `cp-update.yml` `release` = `{}` (the action authenticates via `GH_PAT_TOKEN`).
+- Add `.github/workflows/coverage.yml` — Jest Coverage job. Runs on PRs, runs
+  `jest --coverage` on the PR and base branches via pnpm, posts a diff summary
+  via `davelosert/vitest-coverage-report-action`.
+- Add `.github/workflows/pr-files.yml` — File Changes Summary job. Posts a
+  grouped, collapsible PR comment listing changed files by area (Source / Tests /
+  CI-CD / Config / Docs / Other) using `tj-actions/changed-files` and
+  `actions/github-script`. Upserts a single marker-scoped comment so repeated
+  runs replace rather than append.
+- `ci.yml` `publish-report` job: outer `actions/checkout` set to
+  `persist-credentials: false` — the nested `gh-pages` checkout inside
+  `deploy-report-pages` was stacking a second Authorization header and failing
+  with `Duplicate header: Authorization` / HTTP 400.
 
 ### Dependencies
 
@@ -107,6 +125,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   which locks in the `isOpen`-by-`ID` behavior across remove and guards against
   `onChange` firing on mount.
 
+### Tooling
+
+- Add `markdownlint-cli2@^0.22.0` as a devDependency and wire up `lint:md` /
+  `lint:md:fix` scripts in `package.json`. Ignore globs cover `node_modules`,
+  `dist`, `coverage`, `TODO.md` (not tracked, gitignored), and `.config/`
+  (managed by `@grafana/create-plugin`).
+- `.markdownlint.yaml`: set `MD024: siblings_only: true` so repeated
+  `### Added` / `### Fixed` subsections across different release headings
+  don't trip `no-duplicate-heading`. Standard Keep-a-Changelog configuration.
+
 ### Fixes
 
 - Remove `transparent={false}` from `Switch` usages in `ColumnStyleItem.tsx`
@@ -114,6 +142,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Fix `tests/phase2-installed/check-installed.spec.ts` strict-mode locator collision on
   Grafana 11.6+ by anchoring the regex to "Installed Version" (the page now also renders
   "Latest Version")
+- Satisfy `pnpm lint:md` across `README.md`, `AGENTS.md`, `CLAUDE.md`, and
+  `provisioning/README.md` (line wraps to the 120-char limit, table re-padding
+  for aligned pipes, `# Provisioning` heading added to `provisioning/README.md`,
+  inline `markdownlint-disable-file` comment in `CLAUDE.md` for the intentional
+  `<include>AGENTS.md</include>` directive). `CHANGELOG.md` was reorganised in
+  the same pass: Unreleased categorised into subsections and older releases
+  split into Added / Changed / Fixed / Removed groups, with the legacy pre-
+  0.0.7 table converted to per-version sections.
 
 ## [2.0.2] - 2025-05-29
 
