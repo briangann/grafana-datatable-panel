@@ -234,7 +234,8 @@ jobs:
     needs: [playwright-tests]
     runs-on: ubuntu-latest
     permissions:
-      contents: write
+      contents: write # deploy-report-pages pushes to gh-pages
+      pull-requests: write # deploy-report-pages manages a PR summary comment
     steps:
       - uses: actions/checkout@v6
         with:
