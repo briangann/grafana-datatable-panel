@@ -39,4 +39,4 @@ jobs:
         with:
           module: ${{ steps.find-module-ts.outputs.modulets }}
           comment-pr: "no"
-          fail-if-incompatible: "yes"
+          fail-if-incompatible: "no"

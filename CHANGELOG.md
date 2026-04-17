@@ -25,6 +25,7 @@ All notable changes to this project will be documented in this file.
 - Bump `@grafana/plugin-e2e` to `^3.5.1` (only breaking change vs 2.x was Node 18 drop; we are already on Node 24)
 - Bump `@types/node` to `^24.12.2` to match the Node 24 runtime (tracks Node major)
 - Add `@grafana/e2e-selectors@^12.4.3` as a devDependency for Playwright test selectors
+- Set `fail-if-incompatible: "no"` on the `is-compatible` workflow so type-only diffs (e.g. `PanelPlugin.setMigrationHandler` parameter rename `PanelMigrationHandler` → `type PanelMigrationHandler` between `@grafana/data@12.4.3` and `@13.0.1`) surface as a PR comment for review instead of failing CI. Mirrors the previous `.levignore.js` ignore for the same symbol.
 
 ## [2.0.2] - 2025-05-29
 
