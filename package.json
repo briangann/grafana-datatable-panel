@@ -130,5 +130,10 @@
     "uuid": "^11.0.5",
     "@grafana/i18n": "^12.2.0"
   },
-  "packageManager": "pnpm@10.11.0"
+  "packageManager": "pnpm@10.11.0",
+  "pnpm": {
+    "overrides": {
+      "@grafana/runtime": "12.4.2"
+    }
+  }
 }
