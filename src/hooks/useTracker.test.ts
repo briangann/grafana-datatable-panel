@@ -65,6 +65,28 @@ describe('useTracker', () => {
     ]);
   });
 
+  it('updateAt with an empty patch is a no-op', () => {
+    const onChange = jest.fn();
+    const { result } = renderHook(() => useTracker(initial, onChange, adapter));
+    const before = result.current.items;
+
+    act(() => result.current.updateAt(1, {}));
+
+    expect(result.current.items).toBe(before);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('updateAt with a functional patch returning {} is a no-op', () => {
+    const onChange = jest.fn();
+    const { result } = renderHook(() => useTracker(initial, onChange, adapter));
+    const before = result.current.items;
+
+    act(() => result.current.updateAt(1, () => ({})));
+
+    expect(result.current.items).toBe(before);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it('updateAt accepts a functional patch that reads the live item', () => {
     const onChange = jest.fn();
     const { result } = renderHook(() => useTracker(initial, onChange, adapter));
