@@ -45,17 +45,19 @@ export function useTracker<Item, Payload>(
 
   const commit = useCallback(
     (updater: (prev: Item[]) => Item[]) => {
-      let committed: Item[] | null = null;
+      let committed: Item[] = [];
+      let didCommit = false;
       setItems((prev) => {
         const next = updater(prev);
         if (next === prev) {
           return prev;
         }
         committed = next;
+        didCommit = true;
         return next;
       });
-      if (committed !== null) {
-        onChange((committed as Item[]).map(adapter.toPayload));
+      if (didCommit) {
+        onChange(committed.map(adapter.toPayload));
       }
     },
     [onChange, adapter],
