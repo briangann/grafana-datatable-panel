@@ -158,7 +158,6 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
         </Field>
         <Field label="Sanitize URL" description="Sanitize URL before evaluating" hidden={style.stringStyle.clickThrough?.length === 0} disabled={!style.enabled}>
           <Switch
-            transparent={false}
             disabled={!style.enabled}
             value={style.stringStyle.clickThroughSanitize}
             onChange={(e) => setColumnStyle({
@@ -170,7 +169,6 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
         </Field>
         <Field label="Open URL in New Tab" description="Open link in new tab" hidden={style.stringStyle.clickThrough?.length === 0} disabled={!style.enabled}>
           <Switch
-            transparent={false}
             value={style.stringStyle.clickThroughOpenNewTab}
             disabled={!style.enabled}
             onChange={(e) => setColumnStyle({
@@ -185,7 +183,6 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
           disabled={!style.enabled}
           hidden={style.stringStyle.clickThrough?.length === 0 && style.stringStyle.clickThroughOpenNewTab}>
           <Switch
-            transparent={false}
             value={style.stringStyle.clickThroughCustomTargetEnabled}
             disabled={!style.enabled}
             onChange={(e) => setColumnStyle({
