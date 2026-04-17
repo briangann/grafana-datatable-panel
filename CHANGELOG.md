@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [Unreleased]
+
+- Bump Node to 24 (`.nvmrc`, `mise.toml`, `package.json` engines)
+- Update `AGENTS.md` Node requirement to `>= 24`
+
 ## [2.0.2] - 2025-05-29
 
 - Fixes playwright tests
