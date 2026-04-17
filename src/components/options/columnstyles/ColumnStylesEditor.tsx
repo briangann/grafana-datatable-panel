@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { StandardEditorProps } from '@grafana/data';
 import { v4 as UUIdv4 } from 'uuid';
 import { Button, CascaderOption, Collapse } from '@grafana/ui';
@@ -8,66 +8,105 @@ import {
   DEFAULT_OK_COLOR_HEX,
   DEFAULT_WARNING_COLOR_HEX,
 } from '../defaults';
-import { ColumnStyles, ColumnStyleDate, ColumnStyleHidden, ColumnStyleItemTracker, ColumnStyleItemType, ColumnStyleMetric, ColumnStyleString } from './types';
+import {
+  ColumnStyles,
+  ColumnStyleDate,
+  ColumnStyleHidden,
+  ColumnStyleItemTracker,
+  ColumnStyleItemType,
+  ColumnStyleMetric,
+  ColumnStyleString,
+} from './types';
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { Threshold } from '../thresholds/types';
 import { getColumnHints } from './columnHints';
 import { ColumnStyleColoring, DateFormats } from 'types';
+import { TrackerAdapter, useTracker } from 'hooks/useTracker';
+
+const columnStyleAdapter: TrackerAdapter<ColumnStyleItemTracker, ColumnStyleItemType> = {
+  toPayload: (t) => t.style,
+  reorder: (t, i) => ({ ...t, order: i, style: { ...t.style, order: i } }),
+};
 
 export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onChange }) => {
+  const [settings] = useState<ColumnStyleItemType[] | undefined>(context.options.columnStylesConfig);
 
-  const [settings] = useState(context.options.columnStylesConfig);
-  const [columnHints, setColumnHints] = useState<CascaderOption[]>([]);
+  const initialTracker = (): ColumnStyleItemTracker[] =>
+    (settings ?? []).map((value, index) => ({
+      style: value,
+      order: index,
+      ID: UUIdv4(),
+    }));
 
-  const [tracker, _setTracker] = useState((): ColumnStyleItemTracker[] => {
-    if (!settings) {
-      return [] as ColumnStyleItemTracker[];
+  const {
+    items: tracker,
+    add,
+    removeAt,
+    updateAt,
+    moveUp,
+    moveDown,
+  } = useTracker(initialTracker, onChange as (payload: ColumnStyleItemType[]) => void, columnStyleAdapter);
+
+  const [isOpen, setIsOpen] = useState<boolean[]>(() =>
+    (settings ?? []).map(() => false),
+  );
+
+  const columnHints: CascaderOption[] = useMemo(
+    () =>
+      context.data?.length
+        ? Array.from(getColumnHints(context.data)).map((name) => ({ label: name, value: name }))
+        : [],
+    [context.data],
+  );
+
+  // Callers pass the tracker's `order` value (not the array index). Map it
+  // back to the array index before delegating to the hook.
+  const indexByOrder = (order: number): number =>
+    tracker.findIndex((t) => t.order === order);
+
+  const updateColumnStyle = (order: number, value: ColumnStyleItemType) => {
+    const i = indexByOrder(order);
+    if (i < 0) {
+      return;
     }
-    const items: ColumnStyleItemTracker[] = [];
-    settings.forEach((value: ColumnStyleItemType, index: number) => {
-      items[index] = {
-        style: value,
-        order: index,
-        ID: UUIdv4(),
-      };
-    });
-    return items;
-  });
-
-  const setTracker = (v: ColumnStyleItemTracker[]) => {
-    _setTracker(v);
-    const allStyles: ColumnStyleItemType[] = [];
-    v.forEach((element) => {
-      allStyles.push(element.style);
-    });
-    onChange(allStyles as any);
+    updateAt(i, { style: value });
   };
 
-  const [isOpen, setIsOpen] = useState((): boolean[] => {
-    if (!tracker) {
-      return [] as boolean[];
+  const removeColumnStyle = (order: number) => {
+    const i = indexByOrder(order);
+    if (i < 0) {
+      return;
     }
-    let size = tracker.length;
-    const openStates: boolean[] = [];
-    while (size--) {
-      openStates[size] = false;
-    }
-    return openStates;
-  });
-
-  const updateColumnStyle = (index: number, value: ColumnStyleItemType) => {
-    tracker[index].style = value;
-    // works ... setTracker(tracker);
-    setTracker([...tracker]);
+    removeAt(i);
   };
 
-  const createDuplicate = (index: number) => {
-    const original = tracker[index].style;
-    const order = tracker.length;
-    const aStyle: ColumnStyleItemType = {
+  const moveStyleUp = (order: number) => {
+    const i = indexByOrder(order);
+    if (i < 0) {
+      return;
+    }
+    moveUp(i);
+  };
+
+  const moveStyleDown = (order: number) => {
+    const i = indexByOrder(order);
+    if (i < 0) {
+      return;
+    }
+    moveDown(i);
+  };
+
+  const createDuplicate = (order: number) => {
+    const src = tracker[indexByOrder(order)];
+    if (!src) {
+      return;
+    }
+    const original = src.style;
+    const nextOrder = tracker.length;
+    const copy: ColumnStyleItemType = {
       label: `${original.label} Copy`,
       enabled: original.enabled,
-      order: order,
+      order: nextOrder,
       nameOrRegex: original.nameOrRegex,
       activeStyle: original.activeStyle,
       hiddenStyle: original.hiddenStyle,
@@ -75,84 +114,24 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
       metricStyle: original.metricStyle,
       stringStyle: original.stringStyle,
     };
-    const aTracker: ColumnStyleItemTracker = {
-      style: aStyle,
-      order: order,
-      ID: UUIdv4(),
-    };
-    setTracker([...tracker, aTracker]);
+    add({ style: copy, order: nextOrder, ID: UUIdv4() });
     setIsOpen([...isOpen, true]);
   };
 
-  // generic move
-  const arrayMove = (arr: any, oldIndex: number, newIndex: number) => {
-    if (newIndex >= arr.length) {
-      let k = newIndex - arr.length + 1;
-      while (k--) {
-        arr.push(undefined);
-      }
-    }
-    arr.splice(newIndex, 0, arr.splice(oldIndex, 1)[0]);
-  };
-
-  const moveDown = (index: number) => {
-    if (index !== tracker.length - 1) {
-      arrayMove(tracker, index, index + 1);
-      // reorder
-      for (let i = 0; i < tracker.length; i++) {
-        tracker[i].order = i;
-        tracker[i].style.order = i;
-      }
-      setTracker([...tracker]);
-    }
-  };
-
-  const moveUp = (index: number) => {
-    if (index > 0) {
-      arrayMove(tracker, index, index - 1);
-      // reorder
-      for (let i = 0; i < tracker.length; i++) {
-        tracker[i].order = i;
-        tracker[i].style.order = i;
-      }
-      setTracker([...tracker]);
-    }
-  };
-
-  const removeColumnStyle = (index: number) => {
-    const allStyles = [...tracker];
-    let removeIndex = 0;
-    for (let i = 0; i < allStyles.length; i++) {
-      if (allStyles[i].order === index) {
-        removeIndex = i;
-        break;
-      }
-    }
-    allStyles.splice(removeIndex, 1);
-    // reorder
-    for (let i = 0; i < allStyles.length; i++) {
-      allStyles[i].order = i;
-      allStyles[i].style.order = i;
-    }
-    setTracker([...allStyles]);
-  };
-
   const toggleOpener = (index: number) => {
-    const currentState = [...isOpen];
-    currentState[index] = !currentState[index];
-    setIsOpen([...currentState]);
+    const next = [...isOpen];
+    next[index] = !next[index];
+    setIsOpen(next);
   };
 
   const addItem = () => {
     const order = tracker.length;
-    const aStyle: ColumnStyleItemType = {
+    const style: ColumnStyleItemType = {
       label: `Style-${order}`,
       nameOrRegex: '',
-      order: order,
+      order,
       enabled: true,
-      dateStyle: {
-        dateFormat: DateFormats[0].value,
-      } as ColumnStyleDate,
+      dateStyle: { dateFormat: DateFormats[0].value } as ColumnStyleDate,
       hiddenStyle: {} as ColumnStyleHidden,
       metricStyle: {
         alias: '',
@@ -179,30 +158,9 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
       } as ColumnStyleString,
       activeStyle: ColumnStyles.METRIC,
     };
-    const aTracker: ColumnStyleItemTracker = {
-      style: aStyle,
-      order: order,
-      ID: UUIdv4(),
-    };
-    setTracker([...tracker, aTracker]);
-    // add an opener also
+    add({ style, order, ID: UUIdv4() });
     setIsOpen([...isOpen, true]);
   };
-
-  useEffect(() => {
-    if (context.data.length > 0) {
-      let hints: CascaderOption[] = [];
-      // TODO: the column hints should be determined AFTER the data has been converted
-      let columnHints = getColumnHints(context.data);
-      for (const name of columnHints) {
-        hints.push({
-          label: name,
-          value: name,
-        });
-      }
-      setColumnHints(hints);
-    }
-  }, [context.data]);
 
   return (
     <>
@@ -210,31 +168,29 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps> = ({ context, onC
         Add Style
       </Button>
       {tracker &&
-        tracker.map((tracker: ColumnStyleItemTracker, index: number) => {
-          return (
-            <Collapse
-              key={`collapse-item-index-${tracker.ID}`}
-              label={tracker.style.label}
-              isOpen={isOpen[index]}
-              onToggle={() => toggleOpener(index)}
-              collapsible
-            >
-              <ColumnStyleItem
-                key={`style-item-index-${tracker.ID}`}
-                ID={tracker.ID}
-                style={tracker.style}
-                enabled={tracker.style.enabled}
-                setter={updateColumnStyle}
-                remover={removeColumnStyle}
-                moveDown={moveDown}
-                moveUp={moveUp}
-                createDuplicate={createDuplicate}
-                context={context}
-                columnHints={columnHints}
-              />
-            </Collapse>
-          );
-        })}
+        tracker.map((t, index) => (
+          <Collapse
+            key={`collapse-item-index-${t.ID}`}
+            label={t.style.label}
+            isOpen={isOpen[index]}
+            onToggle={() => toggleOpener(index)}
+            collapsible
+          >
+            <ColumnStyleItem
+              key={`style-item-index-${t.ID}`}
+              ID={t.ID}
+              style={t.style}
+              enabled={t.style.enabled}
+              setter={updateColumnStyle}
+              remover={removeColumnStyle}
+              moveDown={moveStyleDown}
+              moveUp={moveStyleUp}
+              createDuplicate={createDuplicate}
+              context={context}
+              columnHints={columnHints}
+            />
+          </Collapse>
+        ))}
     </>
   );
 };
