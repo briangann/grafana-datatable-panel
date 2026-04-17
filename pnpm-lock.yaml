@@ -124,8 +124,8 @@ importers:
         specifier: ^8.2.0
         version: 8.2.0(@stylistic/eslint-plugin-ts@2.13.0(eslint@9.39.4)(typescript@5.8.3))(@typescript-eslint/eslint-plugin@8.58.2(@typescript-eslint/parser@8.58.2(eslint@9.39.4)(typescript@5.8.3))(eslint@9.39.4)(typescript@5.8.3))(@typescript-eslint/parser@8.58.2(eslint@9.39.4)(typescript@5.8.3))(eslint-config-prettier@8.10.0(eslint@9.39.4))(eslint-plugin-jsdoc@51.4.1(eslint@9.39.4))(eslint-plugin-react-hooks@5.2.0(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(typescript@5.8.3)
       '@grafana/plugin-e2e':
-        specifier: ^2.2.0
-        version: 2.2.3(@playwright/test@1.59.1)
+        specifier: ^3.5.1
+        version: 3.5.1(@playwright/test@1.59.1)
       '@grafana/plugin-meta-extractor':
         specifier: ^0.0.3
         version: 0.0.3
@@ -664,8 +664,8 @@ packages:
   '@grafana/e2e-selectors@12.4.2':
     resolution: {integrity: sha512-Kx2joGz/jql32HgD6+pJTHRkAGL7rJC+WE+fl/wZFThmQUIGpuJjwJYL0aOmYvOZeWwVLFnyrFCiNs48s3AZJg==}
 
-  '@grafana/e2e-selectors@12.4.3':
-    resolution: {integrity: sha512-YCNFnWT+l34mgR2v9eujGwDKRZ9Q6hfA++WcqblLHnZ4Vbmy5Na6C0NJobzsyzNAczr/NbUH9XW+0DhVeKYhBg==}
+  '@grafana/e2e-selectors@13.1.0-24448182242':
+    resolution: {integrity: sha512-C8VxaFh4PGWhPBOwol3Fo0UBp1//7XNnjg7WG+t3p0P8Q2cw5HZ2NgQt1OFq9radjmWEc3DJQZvxoelI4TIOJA==}
 
   '@grafana/eslint-config@8.2.0':
     resolution: {integrity: sha512-siCxTY3uuCg2ekztQwS8i7DBPHH8xDGiWlZAf+d/TVZVB0TluIsM2jHEhNyC2XzTZdgDLbmDJwUt5SCnHC7iAg==}
@@ -698,11 +698,15 @@ packages:
     peerDependencies:
       react: '>=18'
 
-  '@grafana/plugin-e2e@2.2.3':
-    resolution: {integrity: sha512-32EHUKOPOs8E+moMewuiDWuvGLOgYdT5ykvziIUrMrl+b5qMmmY4h81D0vLAAL5IiayRFugLpsfo8CB/T7hsBg==}
-    engines: {node: '>=18 <=22'}
+  '@grafana/plugin-e2e@3.5.1':
+    resolution: {integrity: sha512-iYId7j9Vg0P5t2ciHTsu0Rp7S268qdjdIWhkP42AMTo/M3JhC4UWKzYOodvjekmWr+9TNOGph7FLmzcf26WWNA==}
+    engines: {node: '>=20 <=24'}
     peerDependencies:
+      '@axe-core/playwright': ^4.11.1
       '@playwright/test': ^1.52.0
+    peerDependenciesMeta:
+      '@axe-core/playwright':
+        optional: true
 
   '@grafana/plugin-meta-extractor@0.0.3':
     resolution: {integrity: sha512-jnLggwZEWTkMr2QJVjsPuZek2geDTjyWDRqBnFGYFQd3Gyc3I3V/kc13rbyIXvD/DteCc/6CuZQYz9T8QHcjVA==}
@@ -5895,7 +5899,7 @@ snapshots:
       tslib: 2.8.1
       typescript: 5.9.2
 
-  '@grafana/e2e-selectors@12.4.3':
+  '@grafana/e2e-selectors@13.1.0-24448182242':
     dependencies:
       semver: 7.7.4
       tslib: 2.8.1
@@ -5960,9 +5964,9 @@ snapshots:
       - supports-color
       - typescript
 
-  '@grafana/plugin-e2e@2.2.3(@playwright/test@1.59.1)':
+  '@grafana/plugin-e2e@3.5.1(@playwright/test@1.59.1)':
     dependencies:
-      '@grafana/e2e-selectors': 12.4.3
+      '@grafana/e2e-selectors': 13.1.0-24448182242
       '@playwright/test': 1.59.1
       semver: 7.7.4
       uuid: 13.0.0
