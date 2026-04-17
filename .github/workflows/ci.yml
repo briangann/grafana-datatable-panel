@@ -147,6 +147,7 @@ jobs:
         with:
           version-resolver-type: plugin-grafana-dependency
           limit: "4"
+          skip-grafana-react-19-preview-image: false
 
   playwright-tests:
     needs: [resolve-versions, build]
