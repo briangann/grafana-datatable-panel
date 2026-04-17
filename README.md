@@ -10,7 +10,8 @@
 
 [![Known Vulnerabilities](https://snyk.io/test/github/briangann/grafana-datatable-panel/badge.svg)](https://snyk.io/test/github/briangann/grafana-datatable-panel)
 
-This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for [Grafana](http://www.grafana.com) 10.x/11.x/12.x.
+This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel
+for [Grafana](http://www.grafana.com) 10.x/11.x/12.x.
 
 This table includes features for metric thresholds, value mapping, aggregations, and
 per-cell filtering.
@@ -82,17 +83,17 @@ Show rows per page selection
 
 #### Other options
 
-| Option                 | Meaning                           |
-|------------------------|-----------------------------------|
-| Enable Row Numbers     | Adds left column showing row numbers |
-| Font Size              | Adjust font size of text in table |
+| Option                 | Meaning                                               |
+| ---------------------- | ----------------------------------------------------- |
+| Enable Row Numbers     | Adds left column showing row numbers                  |
+| Font Size              | Adjust font size of text in table                     |
 | Highlight Order Column | When the column order is modified, this highlights it |
-| Hover                  | Highlight row under mouse         |
-| Right Align Numbers    | All cells with numbers will be aligned to the right |
-| Show Footer Info       | Displays number of rows           |
-| Show Stripes on Rows   | Alternating stripes for even/odd rows |
-| Use Compact Rows       | Reduce space used to display data |
-| Wrap Row Content       | Auto-wraps text to fit in column width |
+| Hover                  | Highlight row under mouse                             |
+| Right Align Numbers    | All cells with numbers will be aligned to the right   |
+| Show Footer Info       | Displays number of rows                               |
+| Show Stripes on Rows   | Alternating stripes for even/odd rows                 |
+| Use Compact Rows       | Reduce space used to display data                     |
+| Wrap Row Content       | Auto-wraps text to fit in column width                |
 
 ### Search Options
 
@@ -121,7 +122,8 @@ Override the name displayed for a column. Each column can be selected and an ali
 
 ### Column Width Hints
 
-Provide a width "hint" in percentage or pixels ( 100px or 10% ). Note: The table will autosize as needed, but will use the hints provided.
+Provide a width "hint" in percentage or pixels ( 100px or 10% ). Note: The table will
+autosize as needed, but will use the hints provided.
 
 ### Column Sorting
 
@@ -154,7 +156,8 @@ Additional you can specify if the URL should be open in a new tab or new window,
 
 `Split By RegEx` - the cell content of the matching column is split by this regex which can then be used within the URL.
 
-For example, a column named `text` with a RegEx '/text/', and a split by as space `/\s/`.  The content of the cell split can be referenced by:
+For example, a column named `text` with a RegEx '/text/', and a split by as space
+`/\s/`.  The content of the cell split can be referenced by:
 
 `$__pattern_N` - where N is the position of the split
 
