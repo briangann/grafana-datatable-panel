@@ -80,21 +80,32 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `removeAt`, `updateAt`, `moveUp`, `moveDown`. Mutators use functional `setState` so
   they stay stable across renders and compose safely when two are called in the same
   event; `onChange` fires once per commit, outside `setState`, so StrictMode does not
-  double-emit. Optional `adapter.reorder` re-numbers order-style fields after
-  add/remove/move. Covered by `src/hooks/useTracker.test.ts`.
+  double-emit. `updateAt` accepts either a static `Partial<Item>` patch or a functional
+  patch `(prev) => Partial<Item>` so callers can read the live item without closing
+  over a render-captured snapshot. Optional `adapter.reorder` re-numbers order-style
+  fields after add/remove/move. Covered by `src/hooks/useTracker.test.ts`.
 - Refactor `src/components/options/thresholds/ThresholdsEditor.tsx` onto `useTracker`.
   All state transitions now produce new tracker items and a new array; the previous
-  in-place mutations are gone. Drops the unused `order` field from `ThresholdItemTracker`
-  (written by the adapter, read nowhere), so `thresholdAdapter` keeps only `toPayload`.
-  Covered by `ThresholdsEditor.test.tsx`.
-- Refactor `src/components/options/columnstyles/ColumnStylesEditor.tsx` onto `useTracker`.
-  Removed the in-place mutations and the local `arrayMove` helper; `moveUp`/`moveDown`
-  delegate to the hook's immutable swap. Replaces the `columnHints` `useState` +
-  `useEffect` pair with a `useMemo` derivation (fixes `react-hooks/set-state-in-effect`).
-  Types the component as `StandardEditorProps<ColumnStyleItemType[]>` so `onChange` no
-  longer needs a cast. The per-op `indexByOrder` wrappers were removed —
-  `columnStyleAdapter` keeps `t.order === array index` invariantly, so callers pass hook
-  mutators directly. Covered by `ColumnStylesEditor.test.tsx`.
+  in-place mutations are gone. The color and state setters use the functional
+  `updateAt` patch form so the spread baseline reads the freshest threshold rather
+  than a render-captured one. Drops the unused `order` field from
+  `ThresholdItemTracker` (written by the adapter, read nowhere), so `thresholdAdapter`
+  keeps only `toPayload`. Covered by `ThresholdsEditor.test.tsx`, which also guards
+  against `setter` firing on mount.
+- Refactor `src/components/options/columnstyles/ColumnStylesEditor.tsx` onto
+  `useTracker`. Removed the in-place mutations and the local `arrayMove` helper;
+  `moveUp`/`moveDown` delegate to the hook's immutable swap. Replaces the
+  `columnHints` `useState` + `useEffect` pair with a `useMemo` derivation (fixes
+  `react-hooks/set-state-in-effect`). Types the component as
+  `StandardEditorProps<ColumnStyleItemType[]>` so `onChange` no longer needs a cast.
+  Keys the per-row `isOpen` state by tracker `ID` (previously a parallel
+  `boolean[]` indexed by array position, which smeared open state onto neighbors
+  after reorder or remove — latent bug pre-refactor, now fixed). Drops the unused
+  outer `order` field from `ColumnStyleItemTracker`, the dead `const [settings] =
+  useState(...)` snapshot, and the `indexByOrder` wrappers. `createDuplicate`
+  simplified to spread-with-overrides. Covered by `ColumnStylesEditor.test.tsx`,
+  which locks in the `isOpen`-by-`ID` behavior across remove and guards against
+  `onChange` firing on mount.
 
 ### Fixes
 
