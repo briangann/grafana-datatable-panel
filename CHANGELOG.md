@@ -67,13 +67,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Remove unused `jquery` dependency (webpack already externalizes `jquery`, so Grafana's
   global provides the runtime; `@types/jquery` stays for the `jQuery` ambient global used
   in `DataTablePanel.tsx`)
-
-### React state hygiene
-
 - Bump `eslint-plugin-react-hooks` to `^7.0.0` and `@grafana/eslint-config` to `^9.0.0`.
   v7 enables `react-hooks/immutability` and `react-hooks/set-state-in-effect`, which are
   now clean after the `useTracker` refactor. `@grafana/eslint-config@9` consumes the v7
   plugin's flat-config export.
+
+### Refactoring
+
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook
   encapsulating the ordered-tracker-with-onChange-fan-out pattern used by
   `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`,
