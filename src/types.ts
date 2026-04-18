@@ -141,6 +141,20 @@ export const ColorModeOptions = [
   { label: 'Row Column', value: ColumnStyleColoring.RowColumn },
 ];
 
+export enum ColumnAlignment {
+  DEFAULT = 'default',
+  LEFT = 'left',
+  CENTER = 'center',
+  RIGHT = 'right',
+};
+
+export const ColumnAlignmentOptions = [
+  { label: 'Default', value: ColumnAlignment.DEFAULT },
+  { label: 'Left', value: ColumnAlignment.LEFT },
+  { label: 'Center', value: ColumnAlignment.CENTER },
+  { label: 'Right', value: ColumnAlignment.RIGHT },
+];
+
 export type ColumnStyling = {
   nameOrRegex: string;
   type: ColumnStyleType;

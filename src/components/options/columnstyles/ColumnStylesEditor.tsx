@@ -9,7 +9,6 @@ import {
   DEFAULT_WARNING_COLOR_HEX,
 } from '../defaults';
 import {
-  ColumnAlignment,
   ColumnStyles,
   ColumnStyleDate,
   ColumnStyleHidden,
@@ -21,7 +20,7 @@ import {
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { Threshold } from '../thresholds/types';
 import { getColumnHints } from './columnHints';
-import { ColumnStyleColoring, DateFormats } from 'types';
+import { ColumnAlignment, ColumnStyleColoring, DateFormats } from 'types';
 import { TrackerAdapter, useTracker } from 'hooks/useTracker';
 
 const columnStyleAdapter: TrackerAdapter<ColumnStyleItemTracker, ColumnStyleItemType> = {

@@ -1,5 +1,6 @@
 import { CascaderOption } from '@grafana/ui';
 import { Threshold } from '../thresholds/types';
+import { ColumnAlignment } from 'types';
 
 export interface ColumnStyleItemProps {
   columnHints: CascaderOption[];
@@ -47,20 +48,6 @@ export enum ColumnStyles {
   METRIC = 'metric',
   STRING = 'string',
 }
-
-export enum ColumnAlignment {
-  DEFAULT = 'default',
-  LEFT = 'left',
-  CENTER = 'center',
-  RIGHT = 'right',
-}
-
-export const ColumnAlignmentOptions = [
-  { label: 'Default', value: ColumnAlignment.DEFAULT },
-  { label: 'Left', value: ColumnAlignment.LEFT },
-  { label: 'Center', value: ColumnAlignment.CENTER },
-  { label: 'Right', value: ColumnAlignment.RIGHT },
-];
 
 export interface ColumnStyleItemType {
   // common properties

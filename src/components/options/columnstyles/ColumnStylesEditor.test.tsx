@@ -1,8 +1,8 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ColumnStylesEditor } from './ColumnStylesEditor';
-import { ColumnAlignment, ColumnStyles, type ColumnStyleItemType } from './types';
-import { ColumnStyleColoring, DateFormats } from 'types';
+import { ColumnStyles, type ColumnStyleItemType } from './types';
+import { ColumnAlignment, ColumnStyleColoring, DateFormats } from 'types';
 
 jest.mock('./ColumnStyleItem', () => ({
   ColumnStyleItem: ({

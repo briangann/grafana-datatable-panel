@@ -10,9 +10,9 @@ import {
 import { FormatColumnValue } from 'data/cellRenderer';
 import { ApplyGrafanaOverrides } from './overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
-import { ColumnStyleColoring } from 'types';
+import { ColumnAlignment, ColumnStyleColoring } from 'types';
 import { DTColumnType, FormattedColumnValue } from './types';
-import { ColumnAlignment, ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
+import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
 import { DTData } from 'components/DataTablePanel';
 import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './createdCellHelpers';
