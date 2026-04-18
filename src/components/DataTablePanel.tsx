@@ -123,8 +123,10 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         props.options.emptyDataText,
         props.options.rowNumbersEnabled,
         props.options.fontSizePercent,
-        props.options.alignNumbersToRightEnabled,
-        props.options.alignStringsToRightEnabled ?? true,
+        {
+          numbers: props.options.alignNumbersToRightEnabled,
+          strings: props.options.alignStringsToRightEnabled ?? true,
+        },
         props.timeRange,
         cachedProcessedData);
       setCachedColumnDefs(calcColumnDefs);
@@ -153,8 +155,10 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           props.fieldConfig,
           props.timeZone,
           props.timeRange,
-          props.options.alignNumbersToRightEnabled,
-          props.options.alignStringsToRightEnabled ?? true,
+          {
+            numbers: props.options.alignNumbersToRightEnabled,
+            strings: props.options.alignStringsToRightEnabled ?? true,
+          },
           props.options.rowNumbersEnabled,
           props.options.columnStylesConfig,
           theme2);
