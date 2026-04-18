@@ -14,6 +14,12 @@ import { FormattedColumnValue } from "./types";
 import moment from 'moment-timezone';
 import { ColumnStyleItemType, ColumnStyles } from "components/options/columnstyles/types";
 
+// Fallback base for `new URL(input, base)` when parsing path-relative
+// clickthrough inputs. Dashboards always run in a browser, so
+// `window.location.origin` is the real value; the literal is a one-shot
+// sentinel for non-browser execution (SSR, jest without jsdom).
+const DEFAULT_URL_BASE = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
 export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
   let newContent = content;
@@ -180,10 +186,32 @@ export const ProcessClickthrough = (
       clickThrough = textUtil.sanitizeUrl(clickThrough);
     }
     // rebuild with encoding of parameters
-    const url = new URL(clickThrough);
-    const encoded = url.searchParams.toString();
-    const rebuildUrl = `${url.protocol}//${url.hostname}${url.pathname}`;
-    const newCell = '<a href="' + rebuildUrl + `?${encoded}" target="${target}">` + processedItem.valueFormatted + '</a>';
+    // - HTTP/HTTPS absolute URLs: parse + rebuild to keep host:port and
+    //   re-encode the query string against macro-injected content.
+    // - Path-relative URLs (leading `/`): parse with window.location.origin
+    //   as base so `new URL()` can read pathname/searchParams/hash, then
+    //   emit just the path portion so the href stays relative.
+    // - Non-HTTP schemes (ftp:, mailto:, etc.) and protocol-relative
+    //   (`//host/path`) inputs: emit verbatim. Macro expansion has already
+    //   run; no re-encoding is safe without knowing the scheme's rules.
+    const isHttp = /^https?:\/\//i.test(clickThrough);
+    const isPathRelative = clickThrough.startsWith('/') && !clickThrough.startsWith('//');
+
+    let href: string;
+    if (isHttp || isPathRelative) {
+      // Absolute HTTP URLs ignore the second arg; only the path-relative
+      // branch actually consults it, so skip the origin read on the hot path.
+      const url = new URL(clickThrough, isHttp ? undefined : DEFAULT_URL_BASE);
+      const origin = isHttp ? `${url.protocol}//${url.host}` : '';
+      const query = url.searchParams.toString();
+      const queryString = query ? `?${query}` : '';
+      href = `${origin}${url.pathname}${queryString}${url.hash}`;
+    } else {
+      // Verbatim path: no URL-API round-trip, no scheme inference,
+      // no protocol-relative auto-promotion to the current origin.
+      href = clickThrough;
+    }
+    const newCell = '<a href="' + href + `" target="${target}">` + processedItem.valueFormatted + '</a>';
 
     // TODO: allowing template variables would be a great addition
     //

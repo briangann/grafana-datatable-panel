@@ -254,6 +254,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   previously feed an arbitrary string into the DOM style API. Browsers
   reject invalid `text-align` values so there's no known exploit; this
   hardens the boundary anyway.
+- **Clickthrough URLs preserve host:port and accept relative paths** (closes
+  #276). The URL rebuild in `ProcessClickthrough` used `url.hostname`, which
+  drops the port (`http://host:8080/x` → `http://host/x`), and called
+  `new URL(clickThrough)` without a fallback base, which threw on relative
+  paths like `/d/uid/slug` and caused the panel to fail to render. The
+  rebuild now branches: HTTP/HTTPS URLs are parsed with `url.host` (port
+  preserved), path-relative inputs (leading `/`, not `//`) are parsed with
+  `window.location.origin` as the base so nothing throws, and non-HTTP
+  schemes or protocol-relative inputs (`mailto:`, `ftp://`, `//host/path`)
+  are emitted verbatim. `url.hash` (fragments like `#panel-2`) is now
+  preserved, and the trailing `?` no longer appears when the query is
+  empty. Supported URL forms are documented in the README. Regression
+  pinned with six parameterized cases in `src/data/cellRenderer.test.ts`
+  plus an end-to-end spec
+  (`tests/phase3-panel/clickthrough-urls.spec.ts`) that loads a
+  provisioned dashboard and asserts the rendered `<a href>` for
+  host:port and relative clickthroughs across multiple rows.
 
 ### Testing
 

@@ -1,0 +1,156 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 10,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "P53465F745837BCFD"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "string",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Host-Port",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "Host",
+            "stringStyle": {
+              "clickThrough": "http://monitor.example:8080/hosts/$__cell",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": false,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "string",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Dashboard-Relative",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "Dashboard",
+            "stringStyle": {
+              "clickThrough": "/d/uid/$__cell",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": false,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": true,
+        "lengthChangeEnabled": true,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": false,
+        "rowsPerPage": 5,
+        "scroll": true,
+        "searchEnabled": false,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": true,
+        "transformation": "table",
+        "transformationAggregations": ["last"],
+        "wrapToFitEnabled": true
+      },
+      "pluginVersion": "2.0.2",
+      "targets": [
+        {
+          "csvContent": "Host,Dashboard\nweb-01,overview\nweb-02,hosts\nweb-03,services",
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "P53465F745837BCFD"
+          },
+          "refId": "A",
+          "scenarioId": "csv_content"
+        }
+      ],
+      "title": "Clickthrough URLs",
+      "type": "briangann-datatable-panel"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Datatable Clickthrough",
+  "uid": "datatable-clickthrough",
+  "version": 1
+}

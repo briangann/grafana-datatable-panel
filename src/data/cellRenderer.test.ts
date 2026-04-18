@@ -2,8 +2,10 @@
  * Tests for Rendering a Cell
  */
 import { DateFormats } from 'types';
-import { applyFormat, FormatColumnValue, ReplaceTimeMacros, TimeFormatter } from './cellRenderer';
+import { applyFormat, FormatColumnValue, ProcessClickthrough, ReplaceTimeMacros, TimeFormatter } from './cellRenderer';
 import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
+import { ColumnStyleItemType } from 'components/options/columnstyles/types';
+import { FormattedColumnValue } from './types';
 describe('Cell Renderer', () => {
   const theme2 = {} as unknown as GrafanaTheme2;
   describe('Test FormatColumnValue', () => {
@@ -130,6 +132,73 @@ describe('Cell Renderer', () => {
       expect(result.valueFormatted).toEqual('123.46 kwh');
       expect(result.valueRounded).toEqual(123.46);
       expect(result.valueRoundedAndFormatted).toEqual('123.46 kwh');
+    });
+  });
+
+  describe('ProcessClickthrough — URL reconstruction (issue #276)', () => {
+    // Minimal stringStyle fixture that exercises the URL-rebuild code path
+    // without triggering macro replacement or sanitization.
+    const baseStringStyle = {
+      clickThrough: '',
+      clickThroughOpenNewTab: true,
+      clickThroughCustomTargetEnabled: false,
+      clickThroughCustomTarget: '',
+      clickThroughSanitize: false,
+      splitByPattern: '',
+    };
+
+    const fakeTimeRange = {
+      from: dateTime(0),
+      to: dateTime(0),
+      raw: { from: 'now-1h', to: 'now' },
+    } as unknown as TimeRange;
+
+    const processedItem = { valueFormatted: 'cellText' } as FormattedColumnValue;
+
+    const run = (clickThrough: string) =>
+      ProcessClickthrough(
+        { stringStyle: { ...baseStringStyle, clickThrough } } as unknown as ColumnStyleItemType,
+        /* columns */ [],
+        /* rows */ [],
+        /* rowIndex */ 0,
+        processedItem,
+        fakeTimeRange,
+      );
+
+    it.each([
+      {
+        label: 'absolute URL preserves host:port',
+        input: 'http://a.b.c:8080/path?x=1',
+        expected: 'href="http://a.b.c:8080/path?x=1"',
+      },
+      {
+        label: 'relative URL preserves path + query',
+        input: '/d/uid/slug?var=x',
+        expected: 'href="/d/uid/slug?var=x"',
+      },
+      {
+        label: 'absolute URL with no query omits trailing ?',
+        input: 'http://a.b.c/path',
+        expected: 'href="http://a.b.c/path"',
+      },
+      {
+        label: 'absolute URL preserves fragment',
+        input: 'http://a.b.c/d#panel-2',
+        expected: 'href="http://a.b.c/d#panel-2"',
+      },
+      {
+        label: 'non-HTTP scheme is emitted verbatim',
+        input: 'mailto:ops@example.com',
+        expected: 'href="mailto:ops@example.com"',
+      },
+      {
+        label: 'protocol-relative URL is emitted verbatim',
+        input: '//host.example/path',
+        expected: 'href="//host.example/path"',
+      },
+    ])('$label', ({ input, expected }) => {
+      const html = run(input);
+      expect(html).toContain(expected);
     });
   });
 });
