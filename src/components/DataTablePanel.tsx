@@ -197,6 +197,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         props.options.fontSizePercent,
         alignment,
         props.timeRange,
+        props.replaceVariables,
         cachedProcessedData);
       setCachedColumnDefs(calcColumnDefs);
     }
@@ -204,6 +205,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     alignment,
     cachedProcessedData,
     props.timeRange,
+    props.replaceVariables,
     props.options.emptyDataEnabled,
     props.options.emptyDataText,
     props.options.fontSizePercent,

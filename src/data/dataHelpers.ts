@@ -5,6 +5,7 @@ import {
   FieldConfigSource,
   FieldType,
   GrafanaTheme2,
+  InterpolateFunction,
   TimeRange
 } from '@grafana/data';
 import { FormatColumnValue } from 'data/cellRenderer';
@@ -152,6 +153,7 @@ export const BuildColumnDefs = (
   fontSizePercent: string,
   alignment: AlignmentFlags,
   timeRange: TimeRange,
+  replaceVariables: InterpolateFunction,
   dtData: DTData): ConfigColumnDefs[] => {
 
   const columnDefs: ConfigColumnDefs[] = [];
@@ -275,7 +277,9 @@ export const BuildColumnDefs = (
             rowData,
             rowIndex,
             cellValueFormatted,
-            timeRange);
+            timeRange,
+            replaceVariables,
+          );
           if (newCell !== null) {
             $(cell).html(newCell);
           }
