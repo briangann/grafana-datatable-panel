@@ -190,10 +190,22 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   filtering is also now WYSIWYG: the `render` callback returns
   `valueFormatted` for DataTables' `filter` orthogonal data instead of
   `valueRaw`, so typing the displayed string (e.g. `5.00`, not the raw
-  `5`) matches. A new Playwright spec
-  (`tests/phase3-panel/column-filter-alignment.spec.ts`) pins the
+  `5`) matches. Two Playwright specs pin the fix:
+  `tests/phase3-panel/column-filter-alignment.spec.ts` covers the
   alignment invariant and filter-row interactivity against the DataTables
-  v2 `dt-scroll-head` / `dt-scroll-body` DOM.
+  v2 `dt-scroll-head` / `dt-scroll-body` DOM, and
+  `tests/phase3-panel/column-filter-many-columns.spec.ts` exercises a
+  nine-column provisioned dashboard end-to-end — including real user
+  keystrokes that fire the delegated handler. Additional hardening from
+  code review: delegated `.columnFilter` handlers are now explicitly
+  detached before `destroy()` so a container-reuse teardown path cannot
+  accumulate stale listeners across re-inits; filter `<input>` elements
+  are built via `document.createElement` rather than `$th.html(template)`
+  so a column title containing a `"` cannot break out of the placeholder
+  attribute (`textUtil.sanitize` strips tags but does not escape
+  attribute-context quotes); and `setDataTableReady(true)` inside
+  `initComplete` is now gated on a `mountedRef` so the async callback
+  cannot setState on an unmounted component.
 - **First-paint no longer flashes un-formatted data.** The panel previously
   rendered the `<table>` node as soon as the transformed rows were cached
   but before DataTables had initialized, so users saw a brief flash of the
