@@ -2,10 +2,15 @@ import {
   applyFieldOverrides,
   DataFrame,
   getDisplayProcessor,
-  GrafanaTheme2 } from '@grafana/data';
+  GrafanaTheme2,
+  InterpolateFunction } from '@grafana/data';
 
 
-export const ApplyGrafanaOverrides = (dataFrames: DataFrame[], theme: GrafanaTheme2) => {
+export const ApplyGrafanaOverrides = (
+  dataFrames: DataFrame[],
+  theme: GrafanaTheme2,
+  replaceVariables: InterpolateFunction,
+) => {
   let newDataFrames: DataFrame[] = [];
   if (dataFrames) {
     newDataFrames = applyFieldOverrides({
@@ -16,7 +21,7 @@ export const ApplyGrafanaOverrides = (dataFrames: DataFrame[], theme: GrafanaThe
         overrides: []
       },
       theme,
-      replaceVariables: (value: string) => value,
+      replaceVariables,
     });
     for (let i = 0; i < newDataFrames[0].fields.length; i++) {
       const aField = newDataFrames[0].fields[i];

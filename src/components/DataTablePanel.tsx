@@ -228,7 +228,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           alignment,
           props.options.rowNumbersEnabled,
           props.options.columnStylesConfig,
-          theme2);
+          theme2,
+          props.replaceVariables);
         dtColumns = result.columns;
         // get the column widths
         dtColumns = ApplyColumnWidthHints(dtColumns, props.options.columnWidthHints);
@@ -247,6 +248,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.fieldConfig,
     props.timeZone,
     props.timeRange,
+    props.replaceVariables,
     props.data.state,
     props.data.series,
     props.options.columnAliases,

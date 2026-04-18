@@ -68,9 +68,10 @@ export const ConvertDataFrameToDataTableFormat = (
   alignment: AlignmentFlags,
   rowNumbersEnabled: boolean,
   columnStyles: ColumnStyleItemType[],
-  theme: GrafanaTheme2): { columns: DTColumnType[]; rows: any[] } => {
+  theme: GrafanaTheme2,
+  replaceVariables: InterpolateFunction): { columns: DTColumnType[]; rows: any[] } => {
   DataFrameToDisplay(dataFrames);
-  dataFrames = ApplyGrafanaOverrides(dataFrames, theme);
+  dataFrames = ApplyGrafanaOverrides(dataFrames, theme, replaceVariables);
   const dataFrame = dataFrames[0];
   let columns: DTColumnType[] = dataFrame.fields.map((field) => {
     const columnClassName = getColumnClassName(alignment, field.type as string)

@@ -145,6 +145,13 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   a type mismatch between `lastValueFrom` and the `Observable<DataFrame[]>` returned
   by `transformDataFrame`; current `@grafana/data` / `rxjs` versions align
   (both resolve to `rxjs@7.8.2`) so the call typechecks cleanly now.
+- Wire `props.replaceVariables` into `ApplyGrafanaOverrides`
+  (`src/data/overrides.ts`). The function previously passed a no-op
+  `(value) => value` to `applyFieldOverrides`; now that the panel already
+  threads `replaceVariables` for clickthrough URLs, the override pass
+  picks up the real interpolator too, so Grafana dashboard variables
+  referenced inside field-config defaults resolve identically to the
+  stock link/threshold pipelines.
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook
   encapsulating the ordered-tracker-with-onChange-fan-out pattern used by
   `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`,
