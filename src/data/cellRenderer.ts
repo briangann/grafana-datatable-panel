@@ -58,22 +58,17 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
     }
     return formatted;
   }
-  // this appears to be bugged
-  //
-  // const timestampFormatted = dateTimeForTimeZone(timeZone, timestamp);
-  // console.log(timestampFormatted.toISOString(true));
-
-  // when timezone is browser, convert using Intl package to resolve it
-  // to the actual name moment-tz can use
-  //
-  let formattedWithTimezone = dateTime(timestamp).format(timestampFormat);
-  let useTimezone = timeZone;
-  if (timeZone === 'browser') {
-    useTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-  }
-  formattedWithTimezone = moment.tz(
-    dateTime(timestamp).utc().toISOString(true),
-    timestampFormat, useTimezone).format(timestampFormat);
+  // When timezone is 'browser', resolve to the concrete IANA zone name so
+  // moment-timezone can look it up.
+  const useTimezone = timeZone === 'browser'
+    ? Intl.DateTimeFormat().resolvedOptions().timeZone
+    : timeZone;
+  // `moment.tz(ms, tz)` takes a UTC milliseconds timestamp and returns a
+  // Moment expressed in the target zone — the correct conversion overload. The
+  // previous code used `moment.tz(iso, format, tz)`, which is the parsing
+  // overload that treats the string input as already-local-to-tz, so no
+  // UTC→tz conversion happened and non-UTC zones returned UTC digits.
+  const formattedWithTimezone = moment.tz(timestamp, useTimezone).format(timestampFormat);
   const formatted: FormattedColumnValue = {
     valueRaw: timestamp,
     valueFormatted: formattedWithTimezone,

@@ -15,7 +15,6 @@ import {
 import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
 import { FormattedColumnValue } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
-import { FormattedColumnValue } from './types';
 describe('Cell Renderer', () => {
   const theme2 = {} as unknown as GrafanaTheme2;
   describe('Test FormatColumnValue', () => {
@@ -365,17 +364,18 @@ describe('Cell Renderer', () => {
       expect(result.valueRounded).toBeNull();
     });
 
-    it('returns a FormattedColumnValue for a named zone (shape only)', () => {
-      // Non-UTC branch does not actually convert to the named zone — it
-      // passes the already-UTC moment through moment.tz with `format`
-      // + `timezone` args, which produces the UTC time string under a
-      // different label. Pinning that shape is still useful: the function
-      // returns a well-formed FormattedColumnValue rather than throwing.
+    it('converts the timestamp to the named zone (UTC-4 EDT in April)', () => {
       const result = TimeFormatter('America/New_York', epoch, 'YYYY-MM-DD HH:mm:ss');
       expect(result.valueRaw).toBe(epoch);
-      expect(typeof result.valueFormatted).toBe('string');
+      expect(result.valueFormatted).toBe('2025-04-12 15:27:35');
+      expect(result.valueRoundedAndFormatted).toBe(result.valueFormatted);
+    });
+
+    it('resolves "browser" to the host system zone', () => {
+      // Can only assert shape here — the CI runner's zone is not pinned.
+      const result = TimeFormatter('browser', epoch, 'YYYY-MM-DD HH:mm:ss');
+      expect(result.valueRaw).toBe(epoch);
       expect(result.valueFormatted).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
-      expect(result.valueRounded).toBeNull();
     });
   });
 });

@@ -160,6 +160,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   sub-case was a no-op in practice) but fragile. Pinned with a new
   regression test that confirms the iteration continues cleanly to the
   next mapping after a non-matching regex.
+- Fix `TimeFormatter` in `src/data/cellRenderer.ts` for non-UTC
+  timezones. The function used `moment.tz(iso, format, tz)` — the
+  parsing overload, which treats `iso` as already-local-to-tz — so the
+  output was the UTC time digits labeled as the target zone. A
+  dashboard in `America/New_York` at 15:27:35 EDT would render as
+  `19:27:35` (the UTC digits). Switched to the conversion overload
+  `moment.tz(ms, tz)`, which takes a UTC-millis timestamp and returns
+  the corresponding Moment in the target zone; also removed a dead
+  `let formattedWithTimezone = dateTime(...)` initialiser that was
+  unconditionally overwritten on the next line. `TimeFormatter`'s unit
+  test now pins a real UTC→EDT conversion instead of the prior
+  shape-only assertion.
 - Raise `src/data/` unit-test coverage from 44% to 60% by adding tests
   for `columnAliasing.ts` (7 cases), `columnWidthHints.ts` (7 cases),
   the previously-untested helpers in `cellRenderer.ts`
