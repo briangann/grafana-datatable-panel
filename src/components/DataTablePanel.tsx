@@ -22,7 +22,7 @@ import { LoadingState, PanelProps, textUtil } from '@grafana/data';
 
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { BuildColumnDefs, ConvertDataFrameToDataTableFormat } from 'data/dataHelpers';
 import { ApplyColumnWidthHints } from 'data/columnWidthHints';
@@ -54,6 +54,18 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   // convert the option to a usable type
   const transformID = GetDataTransformerID(props.options.transformation);
   const dataFrames = useApplyTransformation(props.data.series, transformID, props.options.transformationAggregations);
+
+  // Stable reference so the dep arrays below can depend on a single value
+  // without re-triggering every render. If the object were rebuilt inline
+  // at the call sites, dropping it into a dep array would cause an
+  // infinite loop; using the memoized value makes that invariant explicit.
+  const alignment = useMemo(
+    () => ({
+      numbers: props.options.alignNumbersToRightEnabled,
+      strings: props.options.alignStringsToRightEnabled,
+    }),
+    [props.options.alignNumbersToRightEnabled, props.options.alignStringsToRightEnabled],
+  );
 
   const enableColumnFilters = (dataTable: any) => {
     const header = dataTable.table(0).header();
@@ -123,15 +135,15 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         props.options.emptyDataText,
         props.options.rowNumbersEnabled,
         props.options.fontSizePercent,
-        props.options.alignNumbersToRightEnabled,
+        alignment,
         props.timeRange,
         cachedProcessedData);
       setCachedColumnDefs(calcColumnDefs);
     }
   }, [
+    alignment,
     cachedProcessedData,
     props.timeRange,
-    props.options.alignNumbersToRightEnabled,
     props.options.emptyDataEnabled,
     props.options.emptyDataText,
     props.options.fontSizePercent,
@@ -151,7 +163,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           props.fieldConfig,
           props.timeZone,
           props.timeRange,
-          props.options.alignNumbersToRightEnabled,
+          alignment,
           props.options.rowNumbersEnabled,
           props.options.columnStylesConfig,
           theme2);
@@ -168,13 +180,13 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       }
     }
   }, [
+    alignment,
     dataFrames,
     props.fieldConfig,
     props.timeZone,
     props.timeRange,
     props.data.state,
     props.data.series,
-    props.options.alignNumbersToRightEnabled,
     props.options.columnAliases,
     props.options.columnStylesConfig,
     props.options.columnWidthHints,
@@ -271,11 +283,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       }
     }
   }, [
+    alignment,
     dataTableClassesEnabled,
     cachedProcessedData,
     cachedColumnDefs,
     props.height,
-    props.options.alignNumbersToRightEnabled,
     props.options.columnAliases,
     props.options.columnFiltersEnabled,
     props.options.columnSorting,

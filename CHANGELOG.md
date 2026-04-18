@@ -5,6 +5,21 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+
+- **Configurable text alignment for string columns** (closes #282). String
+  columns were previously hard-coded to right-align in `getColumnClassName`
+  with no user-visible knob. Two complementary controls:
+  - Panel-level **Right Align Text** toggle (`alignStringsToRightEnabled`,
+    default `true`). Disabling it lets string columns inherit the
+    DataTables default (left-aligned).
+  - Per-column **Cell Alignment** Select on each column style
+    (`ColumnStyleItemType.align`, values `default | left | center |
+    right`). A non-`default` value paints an inline `text-align` on each
+    matching cell that overrides the panel-level class. Applies to any
+    `activeStyle` (metric / string / date), so the same knob covers all
+    column types.
+
 ### Scaffolding & Configuration
 
 - Update `@grafana/create-plugin` from 5.27.1 to 7.1.7, applying all scaffolding migrations:
@@ -124,6 +139,20 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   simplified to spread-with-overrides. Covered by `ColumnStylesEditor.test.tsx`,
   which locks in the `isOpen`-by-`ID` behavior across remove and guards against
   `onChange` firing on mount.
+- Move `ColumnAlignment` / `ColumnAlignmentOptions` into `src/types.ts`
+  alongside the other global option enums (`ColumnStyleColoring`,
+  `DatatablePagingType`, `AggregationType`).
+- Collapse the two adjacent positional booleans on `getColumnClassName`,
+  `BuildColumnDefs`, and `ConvertDataFrameToDataTableFormat` into a single
+  `AlignmentFlags = { numbers, strings }` struct, so a transposition at a
+  call site would now be a type error.
+- Memoize the `AlignmentFlags` literal in `DataTablePanel.tsx` with
+  `useMemo` keyed on the two panel booleans. The three `useEffect` dep
+  arrays now depend on the memoized reference instead of the two raw
+  primitives — same re-run cadence per toggle, but the stable-identity
+  invariant is enforced by reference equality instead of by convention,
+  so a future contributor can't accidentally cause an infinite loop by
+  dropping an inline object into a dep array.
 
 ### Tooling
 
@@ -158,6 +187,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   the same pass: Unreleased categorised into subsections and older releases
   split into Added / Changed / Fixed / Removed groups, with the legacy pre-
   0.0.7 table converted to per-version sections.
+- Patch alignment defaults into existing React-saved panels.
+  `DatatablePanelMigrationHandler`'s non-Angular branch returned
+  `panel.options` unchanged, so the first load of a panel saved before
+  #282 would read `alignStringsToRightEnabled=undefined` and render the
+  options editor's Switch in an "off" state while the panel itself was
+  still right-aligning via the class. A new `applyOptionDefaults` helper
+  seeds `alignStringsToRightEnabled=true` when missing and stamps
+  `align='default'` on every column style that lacks it. The helper is
+  the documented hook for any future field added to `DatatableOptions`
+  or `ColumnStyleItemType`.
+- Defense-in-depth: `createdCell` now whitelists `aStyle.align` against
+  `ColumnAlignmentOptions` before piping it into jQuery's
+  `.css('text-align', ...)`. The value comes from panel JSON and is
+  typed but not runtime-validated, so a hand-crafted dashboard could
+  previously feed an arbitrary string into the DOM style API. Browsers
+  reject invalid `text-align` values so there's no known exploit; this
+  hardens the boundary anyway.
 
 ### Testing
 
@@ -174,6 +220,34 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   suffix. DOM-level protection for the `setThresholds` fix — a future
   regression that drops `colorMode` or the unit formatter would fail this
   spec rather than silently paint default-colored cells.
+- Unit cases for the #282 alignment feature: `migrations.test.ts` pins
+  both the Angular-path `migrateDefaults` seeds and the React-path
+  `applyOptionDefaults` patching (missing flag, explicit `false`
+  preserved, missing `align` stamped, end-to-end handler flow).
+  `ColumnStyleItem.test.tsx` parameterizes the Cell Alignment Select
+  emit test across LEFT / CENTER / RIGHT and pins the DEFAULT fallback
+  when `style.align` is undefined. `ColumnStylesEditor.test.tsx`
+  asserts `addItem` stamps `align='default'` on new trackers and that
+  `createDuplicate` carries `align` through the spread-with-overrides
+  copy (same bug class as the `colorMode` regression).
+- Add `src/data/dataHelpers.test.ts` — parameterized branch table for
+  `getColumnClassName` across every `columnType` × alignment-flag
+  combination (number / string / time / date / boolean × on / off).
+  Core of the #282 contract (strings can be un-right-aligned) is now a
+  hard assertion, not an implementation detail.
+- Add `tests/phase3-panel/text-alignment.spec.ts` plus
+  `provisioning/dashboards/dashboards/Datatable-TextAlignment.json`.
+  Loads a panel whose column style sets `align='left'` and asserts at
+  least one cell carries an inline `text-align: left` — DOM-level
+  protection for the per-column override path.
+- Add `tests/phase3-panel/text-alignment-panel-level.spec.ts` plus
+  `provisioning/dashboards/dashboards/Datatable-TextAlignmentPanelLevel.json`.
+  Uses a csv_content target (`Name`, `Value`) with
+  `alignStringsToRightEnabled=false` and
+  `alignNumbersToRightEnabled=true` — asserts the Name column cells
+  do NOT carry `dt-right` while the Value column cells still do. This
+  is the end-to-end proof of issue #282 itself: the panel-level
+  switch disables class-level right-alignment on string columns.
 
 ## [2.0.2] - 2025-05-29
 

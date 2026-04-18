@@ -3,6 +3,7 @@ import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
 export interface DatatableOptions {
   alignNumbersToRightEnabled: boolean;
+  alignStringsToRightEnabled: boolean;
   columnAliases: ColumnAliasField[];
   columnFiltersEnabled: boolean,
   columnWidthHints: ColumnWidthHint[];
@@ -138,6 +139,20 @@ export const ColorModeOptions = [
   { label: 'Value', value: ColumnStyleColoring.Value },
   { label: 'Row', value: ColumnStyleColoring.Row },
   { label: 'Row Column', value: ColumnStyleColoring.RowColumn },
+];
+
+export enum ColumnAlignment {
+  DEFAULT = 'default',
+  LEFT = 'left',
+  CENTER = 'center',
+  RIGHT = 'right',
+};
+
+export const ColumnAlignmentOptions = [
+  { label: 'Default', value: ColumnAlignment.DEFAULT },
+  { label: 'Left', value: ColumnAlignment.LEFT },
+  { label: 'Center', value: ColumnAlignment.CENTER },
+  { label: 'Right', value: ColumnAlignment.RIGHT },
 ];
 
 export type ColumnStyling = {

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ColumnStylesEditor } from './ColumnStylesEditor';
 import { ColumnStyles, type ColumnStyleItemType } from './types';
-import { ColumnStyleColoring, DateFormats } from 'types';
+import { ColumnAlignment, ColumnStyleColoring, DateFormats } from 'types';
 
 jest.mock('./ColumnStyleItem', () => ({
   ColumnStyleItem: ({
@@ -187,6 +187,23 @@ describe('ColumnStylesEditor', () => {
     expect(emitted[1].order).toBe(1);
   });
 
+  it('Add Style stamps align=default on the new tracker', () => {
+    const onChange = jest.fn();
+    const styles = [makeStyle(0, 'A')];
+    render(
+      <ColumnStylesEditor
+        {...({} as any)}
+        context={buildContext(styles)}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add Style' }));
+
+    const emitted = onChange.mock.calls.at(-1)![0] as ColumnStyleItemType[];
+    expect(emitted[1].align).toBe(ColumnAlignment.DEFAULT);
+  });
+
   it('Add Style opens the newly-added collapse by ID', () => {
     const styles = [makeStyle(0, 'A')];
     render(
@@ -235,6 +252,27 @@ describe('ColumnStylesEditor', () => {
 
     expect(screen.getByTestId('collapse-A Copy')).toHaveAttribute('data-isopen', 'true');
     expect(screen.getByTestId('collapse-A')).toHaveAttribute('data-isopen', 'false');
+  });
+
+  it('createDuplicate carries the source align through to the copy', () => {
+    // createDuplicate uses a spread-with-overrides on the source style; any
+    // field not explicitly overridden should ride along, including align.
+    // Pin this so a future re-write that hand-enumerates metricStyle-style
+    // fields (the bug class that cost us colorMode) can't silently drop it.
+    const onChange = jest.fn();
+    const source: ColumnStyleItemType = { ...makeStyle(0, 'A'), align: ColumnAlignment.CENTER };
+    render(
+      <ColumnStylesEditor
+        {...({} as any)}
+        context={buildContext([source])}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'duplicate' }));
+
+    const emitted = onChange.mock.calls.at(-1)![0] as ColumnStyleItemType[];
+    expect(emitted[1].align).toBe(ColumnAlignment.CENTER);
   });
 
   it('moveDown swaps neighbors and re-numbers both order and style.order', () => {

@@ -2,7 +2,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { ColumnStyles, type ColumnStyleItemType } from './types';
-import { ColumnStyleColoring, DateFormats } from 'types';
+import { ColumnAlignment, ColumnStyleColoring, DateFormats } from 'types';
 import type { Threshold } from '../thresholds/types';
 
 // Stub ThresholdsEditor so we can invoke its `setter` directly from a test
@@ -19,6 +19,29 @@ jest.mock('../thresholds/ThresholdsEditor', () => ({
     </button>
   ),
 }));
+
+// @grafana/ui Select uses react-select internally, which is painful to drive
+// from tests. Replace it with a button-per-option passthrough so tests can
+// trigger onChange deterministically.
+jest.mock('@grafana/ui', () => {
+  const actual = jest.requireActual('@grafana/ui');
+  return {
+    ...actual,
+    Select: ({ value, onChange, options }: any) => (
+      <div data-testid={`select-value-${value}`}>
+        {(options ?? []).map((opt: any) => (
+          <button
+            key={opt.value}
+            data-testid={`option-${opt.value}`}
+            onClick={() => onChange(opt)}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    ),
+  };
+});
 
 const makeStyle = (): ColumnStyleItemType => ({
   label: 'Style-0',
@@ -91,5 +114,45 @@ describe('ColumnStyleItem', () => {
       unitFormat: 'percent',
       ignoreNullValues: false,
     });
+  });
+
+  it.each([
+    [ColumnAlignment.LEFT],
+    [ColumnAlignment.CENTER],
+    [ColumnAlignment.RIGHT],
+  ])('Cell Alignment selection emits align=%s', (expected) => {
+    const setter = renderItem();
+
+    fireEvent.click(screen.getByTestId(`option-${expected}`));
+
+    const [order, emitted] = setter.mock.calls.at(-1)!;
+    expect(order).toBe(0);
+    expect(emitted.align).toBe(expected);
+  });
+
+  it('Cell Alignment Select falls back to "default" when style.align is undefined', () => {
+    // The Select stub exposes the `value` prop via its data-testid. A style
+    // built without an `align` field (e.g. a pre-#282 migrated panel whose
+    // applyOptionDefaults has not yet stamped one) should surface as
+    // ColumnAlignment.DEFAULT in the editor so the UI matches the runtime
+    // behavior.
+    const setter = jest.fn();
+    const style = { ...makeStyle(), align: undefined } as any;
+    render(
+      <ColumnStyleItem
+        ID="uuid-1"
+        style={style}
+        enabled={true}
+        columnHints={[]}
+        context={{} as any}
+        setter={setter}
+        remover={jest.fn()}
+        moveUp={jest.fn()}
+        moveDown={jest.fn()}
+        createDuplicate={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId(`select-value-${ColumnAlignment.DEFAULT}`)).toBeInTheDocument();
   });
 });

@@ -1,5 +1,6 @@
 import { CascaderOption } from '@grafana/ui';
 import { Threshold } from '../thresholds/types';
+import { ColumnAlignment } from 'types';
 
 export interface ColumnStyleItemProps {
   columnHints: CascaderOption[];
@@ -47,6 +48,7 @@ export enum ColumnStyles {
   METRIC = 'metric',
   STRING = 'string',
 }
+
 export interface ColumnStyleItemType {
   // common properties
   activeStyle: ColumnStyles;
@@ -54,6 +56,8 @@ export interface ColumnStyleItemType {
   label: string;
   nameOrRegex: string;
   order: number;
+  // per-column cell alignment override; 'default' defers to the panel-level setting
+  align?: ColumnAlignment;
   // allows switching the styles without losing data
   dateStyle: ColumnStyleDate;
   hiddenStyle: ColumnStyleHidden;

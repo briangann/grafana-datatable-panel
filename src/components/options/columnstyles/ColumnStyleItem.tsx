@@ -15,7 +15,7 @@ import {
 import { ColumnStyleItemProps, ColumnStyleItemType } from './types';
 import { ThresholdsEditor } from '../thresholds/ThresholdsEditor';
 import { Threshold } from '../thresholds/types';
-import { ColorModeOptions, DateFormats } from 'types';
+import { ColorModeOptions, ColumnAlignment, ColumnAlignmentOptions, DateFormats } from 'types';
 import { SelectableValue } from '@grafana/data';
 
 export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
@@ -275,6 +275,19 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
               )}
             options={props.columnHints}
           />
+          </Field>
+
+          <Field
+            label="Cell Alignment"
+            description="Overrides the panel-level text/number alignment for this column"
+            disabled={!style.enabled}
+          >
+            <Select
+              menuShouldPortal={true}
+              value={style.align ?? ColumnAlignment.DEFAULT}
+              onChange={(item) => setColumnStyle({ ...style, align: item.value })}
+              options={ColumnAlignmentOptions}
+            />
           </Field>
 
           {style.activeStyle === 'metric' && metricItemType() }

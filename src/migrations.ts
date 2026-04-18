@@ -7,6 +7,7 @@ import {
 
 import {
   AggregationOptions,
+  ColumnAlignment,
   ColumnAliasField,
   ColumnSorting,
   ColumnSortingOptions,
@@ -66,8 +67,10 @@ export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOption
       // This happens on the first load or when migrating from angular
       return {} as any;
     }
-    // have settings, return them unchanged
-    return panel.options;
+    // When adding a new field to DatatableOptions or ColumnStyleItemType,
+    // extend applyOptionDefaults so existing React-saved panels pick up a
+    // sensible default instead of loading with undefined.
+    return applyOptionDefaults(panel.options);
   }
   //
   // mapping are inside styles, there are no global mappings
@@ -88,9 +91,28 @@ export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOption
 };
 
 
+// Patches fields that were added to DatatableOptions after existing panels were
+// saved. The panel-options registry only applies defaultValue for freshly-created
+// panels, so without this, existing React-saved panels would read undefined for
+// new fields and display stale UI state (e.g. a "Right Align Text" switch that
+// looks off while the panel is still right-aligning at runtime).
+export const applyOptionDefaults = (options: DatatableOptions): DatatableOptions => {
+  const patched = { ...options };
+  if (patched.alignStringsToRightEnabled === undefined) {
+    patched.alignStringsToRightEnabled = true;
+  }
+  if (patched.columnStylesConfig) {
+    patched.columnStylesConfig = patched.columnStylesConfig.map((style) =>
+      style.align === undefined ? { ...style, align: ColumnAlignment.DEFAULT } : style,
+    );
+  }
+  return patched;
+};
+
 export const migrateDefaults = (angular: AngularDatatableOptions) => {
   let options: DatatableOptions = {
     alignNumbersToRightEnabled: false,
+    alignStringsToRightEnabled: true,
     columnAliases: [],
     columnFiltersEnabled: false,
     columnWidthHints: [],
@@ -349,6 +371,7 @@ const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
       label: `Migrated-Style-${index}`,
       nameOrRegex: element.pattern,
       order: index,
+      align: ColumnAlignment.DEFAULT,
       activeStyle: migrateItemType(element.type),
       dateStyle: {
         dateFormat: element.dateFormat,
