@@ -4,6 +4,8 @@
 import { DateFormats } from 'types';
 import { applyFormat, FormatColumnValue, ProcessClickthrough, ReplaceTimeMacros, TimeFormatter } from './cellRenderer';
 import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
+import { ColumnStyleItemType } from 'components/options/columnstyles/types';
+import { FormattedColumnValue } from './types';
 describe('Cell Renderer', () => {
   const theme2 = {} as unknown as GrafanaTheme2;
   describe('Test FormatColumnValue', () => {
@@ -151,11 +153,11 @@ describe('Cell Renderer', () => {
       raw: { from: 'now-1h', to: 'now' },
     } as unknown as TimeRange;
 
-    const processedItem = { valueFormatted: 'cellText' } as any;
+    const processedItem = { valueFormatted: 'cellText' } as FormattedColumnValue;
 
     const run = (clickThrough: string) =>
       ProcessClickthrough(
-        { stringStyle: { ...baseStringStyle, clickThrough } } as any,
+        { stringStyle: { ...baseStringStyle, clickThrough } } as unknown as ColumnStyleItemType,
         /* columns */ [],
         /* rows */ [],
         /* rowIndex */ 0,

@@ -14,6 +14,12 @@ import { FormattedColumnValue } from "./types";
 import moment from 'moment-timezone';
 import { ColumnStyleItemType, ColumnStyles } from "components/options/columnstyles/types";
 
+// Fallback base for `new URL(input, base)` when parsing path-relative
+// clickthrough inputs. Dashboards always run in a browser, so
+// `window.location.origin` is the real value; the literal is a one-shot
+// sentinel for non-browser execution (SSR, jest without jsdom).
+const DEFAULT_URL_BASE = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
 export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
   let newContent = content;
@@ -193,13 +199,13 @@ export const ProcessClickthrough = (
 
     let href: string;
     if (isHttp || isPathRelative) {
-      const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
-      const url = new URL(clickThrough, base);
+      // Absolute HTTP URLs ignore the second arg; only the path-relative
+      // branch actually consults it, so skip the origin read on the hot path.
+      const url = new URL(clickThrough, isHttp ? undefined : DEFAULT_URL_BASE);
       const origin = isHttp ? `${url.protocol}//${url.host}` : '';
       const query = url.searchParams.toString();
       const queryString = query ? `?${query}` : '';
-      const hash = url.hash; // already includes leading '#' when present
-      href = `${origin}${url.pathname}${queryString}${hash}`;
+      href = `${origin}${url.pathname}${queryString}${url.hash}`;
     } else {
       // Verbatim path: no URL-API round-trip, no scheme inference,
       // no protocol-relative auto-promotion to the current origin.
