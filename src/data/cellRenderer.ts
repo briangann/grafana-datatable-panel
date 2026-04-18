@@ -180,20 +180,31 @@ export const ProcessClickthrough = (
       clickThrough = textUtil.sanitizeUrl(clickThrough);
     }
     // rebuild with encoding of parameters
-    // - Branch on the original input so we emit the same kind of href the
-    //   user typed (absolute vs relative).
-    // - Use a fallback base so `new URL()` never throws on relative inputs.
-    // - `url.host` (not `.hostname`) preserves host:port.
-    // - Omit the `?` separator entirely when the query is empty.
-    // - Preserve `url.hash` (fragment).
-    const isAbsolute = /^https?:\/\//i.test(clickThrough);
-    const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
-    const url = new URL(clickThrough, base);
-    const origin = isAbsolute ? `${url.protocol}//${url.host}` : '';
-    const query = url.searchParams.toString();
-    const queryString = query ? `?${query}` : '';
-    const hash = url.hash; // already includes leading '#' when present
-    const href = `${origin}${url.pathname}${queryString}${hash}`;
+    // - HTTP/HTTPS absolute URLs: parse + rebuild to keep host:port and
+    //   re-encode the query string against macro-injected content.
+    // - Path-relative URLs (leading `/`): parse with window.location.origin
+    //   as base so `new URL()` can read pathname/searchParams/hash, then
+    //   emit just the path portion so the href stays relative.
+    // - Non-HTTP schemes (ftp:, mailto:, etc.) and protocol-relative
+    //   (`//host/path`) inputs: emit verbatim. Macro expansion has already
+    //   run; no re-encoding is safe without knowing the scheme's rules.
+    const isHttp = /^https?:\/\//i.test(clickThrough);
+    const isPathRelative = clickThrough.startsWith('/') && !clickThrough.startsWith('//');
+
+    let href: string;
+    if (isHttp || isPathRelative) {
+      const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+      const url = new URL(clickThrough, base);
+      const origin = isHttp ? `${url.protocol}//${url.host}` : '';
+      const query = url.searchParams.toString();
+      const queryString = query ? `?${query}` : '';
+      const hash = url.hash; // already includes leading '#' when present
+      href = `${origin}${url.pathname}${queryString}${hash}`;
+    } else {
+      // Verbatim path: no URL-API round-trip, no scheme inference,
+      // no protocol-relative auto-promotion to the current origin.
+      href = clickThrough;
+    }
     const newCell = '<a href="' + href + `" target="${target}">` + processedItem.valueFormatted + '</a>';
 
     // TODO: allowing template variables would be a great addition

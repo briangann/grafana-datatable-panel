@@ -184,6 +184,16 @@ describe('Cell Renderer', () => {
         input: 'http://a.b.c/d#panel-2',
         expected: 'href="http://a.b.c/d#panel-2"',
       },
+      {
+        label: 'non-HTTP scheme is emitted verbatim',
+        input: 'mailto:ops@example.com',
+        expected: 'href="mailto:ops@example.com"',
+      },
+      {
+        label: 'protocol-relative URL is emitted verbatim',
+        input: '//host.example/path',
+        expected: 'href="//host.example/path"',
+      },
     ])('$label', ({ input, expected }) => {
       const html = run(input);
       expect(html).toContain(expected);
