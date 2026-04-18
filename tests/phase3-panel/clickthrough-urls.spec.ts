@@ -57,5 +57,14 @@ test.describe('clickthrough URL rendering (issue #276)', () => {
         '/d/uid/hosts',
       );
     });
+
+    await test.step('dashboard template variable $host is resolved in the rendered href', async () => {
+      const hostLink = firstRow.locator('td a').nth(2);
+      await expect(hostLink).toHaveText('alpha');
+      await expect(hostLink).toHaveAttribute(
+        'href',
+        'http://example.com/h/web-42?cell=alpha',
+      );
+    });
   });
 });

@@ -99,6 +99,33 @@
               "clickThroughSanitize": false,
               "splitByPattern": ""
             }
+          },
+          {
+            "activeStyle": "string",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "LinkWithVar-Template",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "LinkWithVar",
+            "stringStyle": {
+              "clickThrough": "http://example.com/h/$host?cell=$__cell",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": false,
+              "splitByPattern": ""
+            }
           }
         ],
         "columnWidthHints": [],
@@ -125,7 +152,7 @@
       "pluginVersion": "2.0.2",
       "targets": [
         {
-          "csvContent": "Host,Dashboard\nweb-01,overview\nweb-02,hosts\nweb-03,services",
+          "csvContent": "Host,Dashboard,LinkWithVar\nweb-01,overview,alpha\nweb-02,hosts,bravo\nweb-03,services,charlie",
           "datasource": {
             "type": "grafana-testdata-datasource",
             "uid": "P53465F745837BCFD"
@@ -142,7 +169,27 @@
   "schemaVersion": 41,
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "web-42",
+          "value": "web-42"
+        },
+        "hide": 2,
+        "label": "",
+        "name": "host",
+        "options": [
+          {
+            "selected": true,
+            "text": "web-42",
+            "value": "web-42"
+          }
+        ],
+        "query": "web-42",
+        "type": "constant"
+      }
+    ]
   },
   "time": {
     "from": "now-6h",
