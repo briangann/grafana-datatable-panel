@@ -212,7 +212,10 @@ export const BuildColumnDefs = (
             return returnValue.valueRaw;
           }
           if (type === 'filter') {
-            return returnValue.valueRaw;
+            // WYSIWYG: filter against the displayed value so users match
+            // what they see in the cell (e.g. "5.00" with decimals/units)
+            // rather than the underlying numeric value.
+            return returnValue.valueFormatted;
           }
           // all others get the formatted value
           return returnValue.valueFormatted;

@@ -90,28 +90,41 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       .addClass('column-filter');
     newHeaders.appendTo(header as Element);
 
-    // Populate each cloned th with a search input. Clicks on the filter row
-    // must not bubble up to DataTables' header sort handler.
-    $header.find(`tr.column-filter th`).each(function (i) {
+    // Populate each cloned th with a search input. Structure only — handlers
+    // go on the wrapper via delegation below, because DataTables' scrollX
+    // mode re-clones the source thead into `.dt-scroll-head` on every draw
+    // and wipes any listeners bound directly to input nodes.
+    $header.find(`tr.column-filter th`).each(function () {
       const $th = $(this);
       const title = textUtil.sanitize($th.text());
       $th.html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
-      $th.on('click', function (ev) {
-        ev.stopPropagation();
-      });
+    });
 
-      let debounceTimer: ReturnType<typeof setTimeout> | undefined;
-      $('input', this).on('keyup change', function (this: HTMLInputElement) {
-        const value = this.value;
-        if (debounceTimer !== undefined) {
-          clearTimeout(debounceTimer);
-        }
-        debounceTimer = setTimeout(() => {
-          if (dataTable.column(i).search() !== value) {
-            dataTable.column(i).search(value).draw();
+    // Delegated handlers on the table container survive DataTables' per-draw
+    // clone refresh, so they fire on whichever thead instance the user is
+    // actually interacting with (the visible clone in `.dt-scroll-head`).
+    const $container = $(dataTable.table(0).container());
+    const debounceTimers = new Map<number, ReturnType<typeof setTimeout>>();
+
+    $container.on('click.columnFilter', 'tr.column-filter th', function (ev) {
+      ev.stopPropagation();
+    });
+
+    $container.on('keyup.columnFilter change.columnFilter', 'input.column-filter', function (this: HTMLInputElement) {
+      const columnIndex = $(this).closest('th').index();
+      const value = this.value;
+      const existing = debounceTimers.get(columnIndex);
+      if (existing !== undefined) {
+        clearTimeout(existing);
+      }
+      debounceTimers.set(
+        columnIndex,
+        setTimeout(() => {
+          if (dataTable.column(columnIndex).search() !== value) {
+            dataTable.column(columnIndex).search(value).draw();
           }
-        }, 250);
-      });
+        }, 250),
+      );
     });
 
     // Resync header clone (scrollX) and body widths now that the thead has
@@ -290,7 +303,15 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               regex: true,
               smart: false,
             },
-            searching: props.options.searchEnabled,
+            // Column filters drive `.column(i).search()`, which requires
+            // DataTables' search feature to be enabled. When the user has
+            // only turned on column filters (not the global search box),
+            // keep the feature on but suppress the top-end search control
+            // via layout so no stray global input appears.
+            searching: props.options.searchEnabled || props.options.columnFiltersEnabled,
+            ...(!props.options.searchEnabled && props.options.columnFiltersEnabled
+              ? { layout: { topEnd: null } }
+              : {}),
             //select: selectSettings,
             stateSave: false,
             initComplete: function () {
