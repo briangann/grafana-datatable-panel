@@ -43,6 +43,10 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
   const [cachedProcessedData, setCachedProcessedData] = useState<DTData>();
   const [cachedColumnDefs, setCachedColumnDefs] = useState<ConfigColumnDefs[]>();
+  // Gates the table visibility. Flipped to true inside DataTables'
+  // `initComplete` once formatters, threshold coloring, and the optional
+  // filter row are all in place. Hides the un-formatted first-paint flash.
+  const [dataTableReady, setDataTableReady] = useState(false);
 
   const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
@@ -238,6 +242,10 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     if (cachedProcessedData !== undefined && cachedColumnDefs !== undefined) {
+      // Re-init in progress — keep the overlay up until the new initComplete
+      // fires, otherwise a transient un-formatted paint appears between
+      // destroy and the next draw.
+      setDataTableReady(false);
 
       // 32 = panel title when displayed
       // 8 = panel content wrapper padding (all the way around) - need this for width too!
@@ -318,6 +326,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               if (props.options.columnFiltersEnabled) {
                 enableColumnFilters(this.api());
               }
+              setDataTableReady(true);
             },
           };
           if (props.options.rowsPerPage) {
@@ -354,21 +363,38 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.transformation,
   ]);
 
-  if (cachedProcessedData === undefined || cachedColumnDefs === undefined) {
-    return (
-      <>Loading... please wait</>
-    )
-  }
+  const hasData = cachedProcessedData !== undefined && cachedColumnDefs !== undefined;
   return (
-    <div id={dataTableWrapperId} className={divStyles} style={{ width: '100%', height: '100%' }}>
-      {props.data &&
-        <table style={{ width: '100%' }}
+    <div
+      id={dataTableWrapperId}
+      className={divStyles}
+      style={{ width: '100%', height: '100%', position: 'relative' }}
+    >
+      {!dataTableReady && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1,
+            background: theme2.colors.background.primary,
+            color: theme2.colors.text.secondary,
+          }}
+        >
+          Loading... please wait
+        </div>
+      )}
+      {hasData && props.data && (
+        <table
+          style={{ width: '100%', visibility: dataTableReady ? 'visible' : 'hidden' }}
           id={dataTableId}
           ref={dataTableDOMRef}
           className={dataTableClassesEnabled.join(' ')}
-          width="100%">
-        </table>
-      }
+          width="100%"
+        />
+      )}
     </div>
   );
 };

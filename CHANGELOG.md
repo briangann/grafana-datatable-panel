@@ -194,6 +194,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   (`tests/phase3-panel/column-filter-alignment.spec.ts`) pins the
   alignment invariant and filter-row interactivity against the DataTables
   v2 `dt-scroll-head` / `dt-scroll-body` DOM.
+- **First-paint no longer flashes un-formatted data.** The panel previously
+  rendered the `<table>` node as soon as the transformed rows were cached
+  but before DataTables had initialized, so users saw a brief flash of the
+  raw table (no formatters, no threshold coloring, no filter row) before it
+  settled. A `dataTableReady` state now stays `false` until DataTables'
+  `initComplete` fires; a themed loading overlay covers the wrapper and
+  the `<table>` is rendered with `visibility: hidden` until then. The
+  overlay also re-hides the table on every re-init triggered by an options
+  change, so transient draws between `destroy` and the next `initComplete`
+  don't leak through either.
 - Remove `transparent={false}` from `Switch` usages in `ColumnStyleItem.tsx`
   (prop moved to `InlineSwitch` only; all sites relied on the default)
 - Fix `tests/phase2-installed/check-installed.spec.ts` strict-mode locator collision on
