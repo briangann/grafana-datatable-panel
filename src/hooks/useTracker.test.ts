@@ -65,6 +65,17 @@ describe('useTracker', () => {
     ]);
   });
 
+  it('updateAt with an out-of-range index is a no-op', () => {
+    const onChange = jest.fn();
+    const { result } = renderHook(() => useTracker(initial, onChange, adapter));
+    const before = result.current.items;
+
+    act(() => result.current.updateAt(99, { label: 'Z' }));
+
+    expect(result.current.items).toBe(before);
+    expect(onChange).not.toHaveBeenCalled();
+  });
+
   it('updateAt with an empty patch is a no-op', () => {
     const onChange = jest.fn();
     const { result } = renderHook(() => useTracker(initial, onChange, adapter));

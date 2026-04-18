@@ -116,6 +116,46 @@ describe('ColumnStylesEditor', () => {
     expect(screen.getByTestId('collapse-C')).toHaveAttribute('data-isopen', 'false');
   });
 
+  it('preserves open state by ID across moveUp', () => {
+    const styles = [makeStyle(0, 'A'), makeStyle(1, 'B'), makeStyle(2, 'C')];
+    render(
+      <ColumnStylesEditor
+        {...({} as any)}
+        context={buildContext(styles)}
+        onChange={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('toggle-B'));
+    expect(screen.getByTestId('collapse-B')).toHaveAttribute('data-isopen', 'true');
+
+    // moveUp on B (index 1) → [B, A, C]; B's ID is unchanged so its collapse stays open.
+    fireEvent.click(screen.getAllByRole('button', { name: 'up' })[1]);
+
+    expect(screen.getByTestId('collapse-B')).toHaveAttribute('data-isopen', 'true');
+    expect(screen.getByTestId('collapse-A')).toHaveAttribute('data-isopen', 'false');
+  });
+
+  it('preserves open state by ID across moveDown', () => {
+    const styles = [makeStyle(0, 'A'), makeStyle(1, 'B'), makeStyle(2, 'C')];
+    render(
+      <ColumnStylesEditor
+        {...({} as any)}
+        context={buildContext(styles)}
+        onChange={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId('toggle-B'));
+    expect(screen.getByTestId('collapse-B')).toHaveAttribute('data-isopen', 'true');
+
+    // moveDown on A (index 0) → [B, A, C]; B's ID is unchanged so its collapse stays open.
+    fireEvent.click(screen.getAllByRole('button', { name: 'down' })[0]);
+
+    expect(screen.getByTestId('collapse-B')).toHaveAttribute('data-isopen', 'true');
+    expect(screen.getByTestId('collapse-A')).toHaveAttribute('data-isopen', 'false');
+  });
+
   it('renders one item per configured style', () => {
     const styles = [makeStyle(0, 'A'), makeStyle(1, 'B')];
     render(
@@ -147,6 +187,22 @@ describe('ColumnStylesEditor', () => {
     expect(emitted[1].order).toBe(1);
   });
 
+  it('Add Style opens the newly-added collapse by ID', () => {
+    const styles = [makeStyle(0, 'A')];
+    render(
+      <ColumnStylesEditor
+        {...({} as any)}
+        context={buildContext(styles)}
+        onChange={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add Style' }));
+
+    expect(screen.getByTestId('collapse-Style-1')).toHaveAttribute('data-isopen', 'true');
+    expect(screen.getByTestId('collapse-A')).toHaveAttribute('data-isopen', 'false');
+  });
+
   it('createDuplicate appends a copy and re-emits', () => {
     const onChange = jest.fn();
     const styles = [makeStyle(0, 'A')];
@@ -163,6 +219,22 @@ describe('ColumnStylesEditor', () => {
     const emitted = onChange.mock.calls.at(-1)![0] as ColumnStyleItemType[];
     expect(emitted).toHaveLength(2);
     expect(emitted[1].label).toBe('A Copy');
+  });
+
+  it('createDuplicate opens the duplicate collapse by ID', () => {
+    const styles = [makeStyle(0, 'A')];
+    render(
+      <ColumnStylesEditor
+        {...({} as any)}
+        context={buildContext(styles)}
+        onChange={jest.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'duplicate' }));
+
+    expect(screen.getByTestId('collapse-A Copy')).toHaveAttribute('data-isopen', 'true');
+    expect(screen.getByTestId('collapse-A')).toHaveAttribute('data-isopen', 'false');
   });
 
   it('moveDown swaps neighbors and re-numbers both order and style.order', () => {
