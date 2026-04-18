@@ -19,6 +19,39 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
     matching cell that overrides the panel-level class. Applies to any
     `activeStyle` (metric / string / date), so the same knob covers all
     column types.
+- **Clickthrough URLs resolve Grafana dashboard variables**. A clickthrough
+  like `http://example.com/h/$host?x=1` now substitutes the dashboard's
+  `$host` variable into the rendered href, matching the behavior of
+  built-in data links. Completes the long-standing `// TODO: allowing
+  template variables would be a great addition` comment in
+  `src/data/cellRenderer.ts`.
+  - **Feature.** `ProcessClickthrough` runs `replaceVariables(clickThrough)`
+    immediately after the plugin's `ReplaceCellMacros` pass and before
+    sanitize / URL rebuild. Guarded by `/[$\[]/.test(clickThrough)` so
+    URLs without template markers short-circuit the call on the
+    per-cell hot path.
+  - **Syntax & precedence.** `$var`, `${var}`, and `[[var]]` all resolve.
+    Plugin macros (`$__cell`, `$__cell_N`, `$__pattern_N`, `$__from`,
+    `$__to`, `$__keepTime`) run first, so a dashboard variable named
+    identically to a plugin macro cannot intercept the plugin's
+    substitution.
+  - **Plumbing.** A new `replaceVariables: InterpolateFunction` parameter
+    is threaded from `PanelProps` in `DataTablePanel.tsx` through
+    `BuildColumnDefs`, `ProcessStringValueStyle`, and
+    `ProcessClickthrough`.
+  - **Tests.** Three new unit cases in `src/data/cellRenderer.test.ts`
+    (substitution, guard, precedence); a new
+    `src/data/createdCellHelpers.test.ts` pinning the mid-layer
+    `ProcessStringValueStyle` forwarding; and an E2E assertion in
+    `tests/phase3-panel/clickthrough-urls.spec.ts` against a provisioned
+    dashboard carrying a constant `$host = web-42` template variable.
+  - **Docs.** README `#### Supported URL Formats` subsection extended
+    with the three template-variable syntaxes and the precedence rule.
+  - **Ancillary (type hygiene).** The delegated jQuery handlers bound
+    in `DataTablePanel.tsx` by PR #292 are now typed with
+    `JQuery.TriggeredEvent` so TypeScript resolves to the current
+    `$.fn.on(...)` overload instead of the deprecated
+    `JQueryEventObject` one.
 
 ### Scaffolding & Configuration
 

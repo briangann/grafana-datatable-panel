@@ -3,7 +3,7 @@ import { getCellColors } from "./dataHelpers";
 import { DTColumnType, FormattedColumnValue } from "./types";
 import { ProcessClickthrough } from "./cellRenderer";
 import { ColumnStyleItemType, ColumnStyles } from "components/options/columnstyles/types";
-import { TimeRange } from "@grafana/data";
+import { InterpolateFunction, TimeRange } from "@grafana/data";
 
 
 export const processRowStyle = (
@@ -128,7 +128,8 @@ export const ProcessStringValueStyle = (
   rowData: any,
   rowIndex: number,
   valueFormatted: FormattedColumnValue,
-  timeRange: TimeRange): string | null => {
+  timeRange: TimeRange,
+  replaceVariables: InterpolateFunction): string | null => {
 
   const processedURL = ProcessClickthrough(
     columnStyle,
@@ -136,7 +137,8 @@ export const ProcessStringValueStyle = (
     rowData,
     rowIndex,
     valueFormatted,
-    timeRange);
+    timeRange,
+    replaceVariables);
   if (processedURL !== undefined) {
     return processedURL;
   }

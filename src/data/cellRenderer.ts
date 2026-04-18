@@ -3,6 +3,7 @@ import {
   Field,
   getValueFormat,
   GrafanaTheme2,
+  InterpolateFunction,
   stringToJsRegex,
   textUtil,
   TimeRange,
@@ -168,7 +169,8 @@ export const ProcessClickthrough = (
   rows: any,
   rowIndex: number,
   processedItem: FormattedColumnValue,
-  timeRange: TimeRange) => {
+  timeRange: TimeRange,
+  replaceVariables: InterpolateFunction) => {
 
   if (columnStyle?.stringStyle.clickThrough) {
     let clickThrough = ReplaceTimeMacros(timeRange, columnStyle.stringStyle.clickThrough);
@@ -176,6 +178,13 @@ export const ProcessClickthrough = (
       clickThrough = ReplaceCellSplitByPattern(clickThrough, processedItem, columnStyle.stringStyle.splitByPattern)
     }
     clickThrough = ReplaceCellMacros(clickThrough, processedItem.valueFormatted, rows);
+    // Resolve Grafana dashboard template variables. Runs AFTER plugin
+    // macros so built-ins like $__cell, $__cell_N, $__pattern_N,
+    // $__from, $__to, $__keepTime keep precedence. Guarded on the
+    // presence of a `$` or `[` so clean URLs short-circuit the call.
+    if (/[$\[]/.test(clickThrough)) {
+      clickThrough = replaceVariables(clickThrough);
+    }
     //
     const target = resolveClickThroughTarget(
       columnStyle.stringStyle.clickThroughOpenNewTab,
@@ -213,8 +222,6 @@ export const ProcessClickthrough = (
     }
     const newCell = '<a href="' + href + `" target="${target}">` + processedItem.valueFormatted + '</a>';
 
-    // TODO: allowing template variables would be a great addition
-    //
     return newCell;
   }
   return null;

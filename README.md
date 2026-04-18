@@ -182,6 +182,13 @@ Additional you can specify if the URL should be open in a new tab or new window,
 Macros (`$__cell_N`, `$__pattern_N`, `$__from`, `$__to`, `$__keepTime`) are expanded before the
 href is constructed, so they work identically in absolute and relative URLs.
 
+Grafana dashboard template variables — `$var`, `${var}`, and `[[var]]` — are
+also supported in clickthrough URLs and resolve via the standard
+`replaceVariables` pipeline. Plugin macros run first; dashboard variables
+resolve on whatever remains, so a dashboard variable named identically to
+a plugin macro (e.g. `$__cell`) cannot intercept the plugin's
+substitution.
+
 #### Pattern Macros
 
 `Split By RegEx` - the cell content of the matching column is split by this regex which can then be used within the URL.

@@ -128,11 +128,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     const $container = $(dataTable.table(0).container());
     const debounceTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
-    $container.on('click.columnFilter', 'tr.column-filter th', function (ev) {
+    $container.on('click.columnFilter', 'tr.column-filter th', function (ev: JQuery.TriggeredEvent) {
       ev.stopPropagation();
     });
 
-    $container.on('keyup.columnFilter change.columnFilter', 'input.column-filter', function (this: HTMLInputElement) {
+    $container.on('keyup.columnFilter change.columnFilter', 'input.column-filter', function (this: HTMLInputElement, _ev: JQuery.TriggeredEvent) {
       const columnIndex = $(this).closest('th').index();
       const value = this.value;
       const existing = debounceTimers.get(columnIndex);
@@ -197,6 +197,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         props.options.fontSizePercent,
         alignment,
         props.timeRange,
+        props.replaceVariables,
         cachedProcessedData);
       setCachedColumnDefs(calcColumnDefs);
     }
@@ -204,6 +205,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     alignment,
     cachedProcessedData,
     props.timeRange,
+    props.replaceVariables,
     props.options.emptyDataEnabled,
     props.options.emptyDataText,
     props.options.fontSizePercent,

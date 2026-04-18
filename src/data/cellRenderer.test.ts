@@ -155,7 +155,9 @@ describe('Cell Renderer', () => {
 
     const processedItem = { valueFormatted: 'cellText' } as FormattedColumnValue;
 
-    const run = (clickThrough: string) =>
+    const noopReplaceVariables = (s: string) => s;
+
+    const run = (clickThrough: string, replaceVariables: (s: string) => string = noopReplaceVariables) =>
       ProcessClickthrough(
         { stringStyle: { ...baseStringStyle, clickThrough } } as unknown as ColumnStyleItemType,
         /* columns */ [],
@@ -163,6 +165,7 @@ describe('Cell Renderer', () => {
         /* rowIndex */ 0,
         processedItem,
         fakeTimeRange,
+        replaceVariables,
       );
 
     it.each([
@@ -199,6 +202,30 @@ describe('Cell Renderer', () => {
     ])('$label', ({ input, expected }) => {
       const html = run(input);
       expect(html).toContain(expected);
+    });
+
+    it('substitutes dashboard variables after plugin macros', () => {
+      const replaceVariables = (s: string) => s.replace(/\$host/g, 'web-01');
+      const html = run('http://example.com/h/$host?cell=$__cell', replaceVariables);
+      expect(html).toContain('href="http://example.com/h/web-01?cell=cellText"');
+    });
+
+    it('guard skips replaceVariables when no template markers remain', () => {
+      const calls: string[] = [];
+      const replaceVariables = (s: string) => {
+        calls.push(s);
+        return s;
+      };
+      run('http://example.com/plain', replaceVariables);
+      expect(calls).toEqual([]);
+    });
+
+    it('plugin macros take precedence over colliding dashboard variables', () => {
+      // $__cell is a plugin macro — it resolves BEFORE replaceVariables sees it
+      const replaceVariables = (s: string) => s.replace('$__cell', 'INTERCEPTED');
+      const html = run('http://example.com/x?v=$__cell', replaceVariables);
+      expect(html).toContain('href="http://example.com/x?v=cellText"');
+      expect(html).not.toContain('INTERCEPTED');
     });
   });
 });
