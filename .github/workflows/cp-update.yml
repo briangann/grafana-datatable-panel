@@ -10,13 +10,16 @@ on:
 # Alternatively create a fine-grained personal access token for your repository with
 # `contents: read and write` and `pull requests: read and write` and pass it to the action.
 
-permissions:
-  contents: write
-  pull-requests: write
+permissions: {}
 
 jobs:
   release:
     runs-on: ubuntu-latest
+    # The action authenticates via the GH_PAT_TOKEN passed below; the
+    # default GITHUB_TOKEN is not used, so no workflow-granted scopes
+    # are needed. The elevated permissions referenced in the comment
+    # above only apply if you switch `token` back to secrets.GITHUB_TOKEN.
+    permissions: {}
     steps:
       - uses: grafana/plugin-actions/create-plugin-update@create-plugin-update/v2.0.1
         with:

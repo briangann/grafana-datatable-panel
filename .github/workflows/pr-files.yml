@@ -1,0 +1,129 @@
+name: PR File Changes
+
+on:
+  pull_request:
+
+permissions: {}
+
+jobs:
+  file-changes:
+    name: File Changes Summary
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Get changed files
+        id: changed
+        uses: tj-actions/changed-files@22103cc46bda19c2b464ffe86db46df6922fd323 # v47.0.5
+
+      - name: Post comment
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0
+        with:
+          script: |
+            const all = process.env.ALL_FILES.split(' ').filter(Boolean);
+            const statuses = {};
+            for (const f of process.env.ADDED.split(' ').filter(Boolean)) statuses[f] = 'added';
+            for (const f of process.env.MODIFIED.split(' ').filter(Boolean)) statuses[f] = 'modified';
+            for (const f of process.env.REMOVED.split(' ').filter(Boolean)) statuses[f] = 'removed';
+            for (const f of process.env.RENAMED.split(' ').filter(Boolean)) statuses[f] = 'renamed';
+
+            const areas = [
+              { name: 'Source', test: (f) => f.startsWith('src/') && !f.includes('.test.') && !f.includes('__mocks__') },
+              { name: 'Tests', test: (f) => f.includes('.test.') || f.includes('.spec.') || f.startsWith('test/') || f.includes('__mocks__') },
+              { name: 'CI/CD', test: (f) => f.startsWith('.github/') },
+              { name: 'Config', test: (f) =>
+                f.startsWith('.config/') ||
+                f.startsWith('provisioning/') ||
+                ['.gitignore', '.markdownlint.yaml', '.nvmrc', '.prettierrc.js',
+                 'cspell.config.json', 'docker-compose.yaml', 'eslint.config.mjs',
+                 'jest.config.js', 'jest-setup.js', 'mise.toml',
+                 'package.json', 'package-lock.json',
+                 'playwright.config.ts', 'tsconfig.json', 'webpack.config.ts',
+                ].includes(f)
+              },
+              { name: 'Docs', test: (f) => f.endsWith('.md') || f.startsWith('docs/') },
+            ];
+
+            const grouped = {};
+            const uncategorized = [];
+            for (const area of areas) grouped[area.name] = [];
+
+            for (const f of all) {
+              let matched = false;
+              for (const area of areas) {
+                if (area.test(f)) {
+                  grouped[area.name].push(f);
+                  matched = true;
+                  break;
+                }
+              }
+              if (!matched) uncategorized.push(f);
+            }
+
+            const statusIcon = (s) => {
+              if (s === 'added') return '+';
+              if (s === 'removed') return '-';
+              if (s === 'renamed') return '>';
+              return '~';
+            };
+
+            const section = (title, files) => {
+              if (files.length === 0) return '';
+              const list = files
+                .map((f) => `\`[${statusIcon(statuses[f])}]\` \`${f}\``)
+                .join('\n');
+              return [
+                '<details>',
+                `<summary><strong>${title} (${files.length})</strong></summary>`,
+                '',
+                list,
+                '',
+                '</details>',
+                '',
+              ].join('\n');
+            };
+
+            const body = [
+              '## File Changes',
+              '',
+              `**${all.length}** files changed`,
+              '',
+              ...areas.map((a) => section(a.name, grouped[a.name])),
+              section('Other', uncategorized),
+            ].filter(Boolean).join('\n');
+
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const marker = '## File Changes';
+            const existing = comments.find((c) => c.body?.startsWith(marker));
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existing.id,
+                body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body,
+              });
+            }
+        env:
+          ALL_FILES: ${{ steps.changed.outputs.all_changed_files }}
+          ADDED: ${{ steps.changed.outputs.added_files }}
+          MODIFIED: ${{ steps.changed.outputs.modified_files }}
+          REMOVED: ${{ steps.changed.outputs.deleted_files }}
+          RENAMED: ${{ steps.changed.outputs.renamed_files }}
