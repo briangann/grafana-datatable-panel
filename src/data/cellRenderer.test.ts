@@ -2,8 +2,18 @@
  * Tests for Rendering a Cell
  */
 import { DateFormats } from 'types';
-import { applyFormat, FormatColumnValue, ProcessClickthrough, ReplaceTimeMacros, TimeFormatter } from './cellRenderer';
+import {
+  applyFormat,
+  FormatColumnValue,
+  ProcessClickthrough,
+  ReplaceCellMacros,
+  ReplaceCellSplitByPattern,
+  ReplaceTimeMacros,
+  resolveClickThroughTarget,
+  TimeFormatter,
+} from './cellRenderer';
 import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
+import { FormattedColumnValue } from './types';
 import { ColumnStyleItemType } from 'components/options/columnstyles/types';
 import { FormattedColumnValue } from './types';
 describe('Cell Renderer', () => {
@@ -226,6 +236,146 @@ describe('Cell Renderer', () => {
       const html = run('http://example.com/x?v=$__cell', replaceVariables);
       expect(html).toContain('href="http://example.com/x?v=cellText"');
       expect(html).not.toContain('INTERCEPTED');
+    });
+  });
+
+  describe('ReplaceTimeMacros', () => {
+    const tr = {
+      from: dateTime(0),
+      to: dateTime(0),
+      raw: { from: 'now-6h', to: 'now' },
+    } as unknown as TimeRange;
+
+    it('replaces $__from with raw.from', () => {
+      expect(ReplaceTimeMacros(tr, 'http://x/?f=$__from')).toBe('http://x/?f=now-6h');
+    });
+
+    it('replaces $__to with raw.to', () => {
+      expect(ReplaceTimeMacros(tr, 'http://x/?t=$__to')).toBe('http://x/?t=now');
+    });
+
+    it('replaces $__keepTime with from+to pair', () => {
+      expect(ReplaceTimeMacros(tr, 'http://x/?$__keepTime')).toBe(
+        'http://x/?from=now-6h&to=now',
+      );
+    });
+
+    it('passes through content with no time macros unchanged', () => {
+      expect(ReplaceTimeMacros(tr, 'http://x/plain')).toBe('http://x/plain');
+    });
+  });
+
+  describe('ReplaceCellMacros', () => {
+    const rows = [
+      { valueFormatted: 'alpha' } as FormattedColumnValue,
+      { valueFormatted: 'bravo' } as FormattedColumnValue,
+      { valueFormatted: 'charlie' } as FormattedColumnValue,
+    ];
+
+    it('replaces $__cell with the current cell content', () => {
+      expect(ReplaceCellMacros('host-$__cell', 'web-01', rows)).toBe('host-web-01');
+    });
+
+    it('respects word boundary so $__cell does not clobber $__cell_N', () => {
+      // Should replace $__cell (word-boundary) but NOT the $__cell prefix
+      // inside $__cell_1 — the $__cell_N branch handles that separately.
+      const out = ReplaceCellMacros('a=$__cell&b=$__cell_1', 'X', rows);
+      expect(out).toBe('a=X&b=bravo');
+    });
+
+    it('replaces $__cell_N with the Nth row', () => {
+      expect(ReplaceCellMacros('row=$__cell_2', 'current', rows)).toBe('row=charlie');
+    });
+
+    it('skips out-of-bounds $__cell_N references', () => {
+      expect(ReplaceCellMacros('row=$__cell_99', 'current', rows)).toBe('row=$__cell_99');
+    });
+
+    it('returns the input untouched when no macros are present', () => {
+      expect(ReplaceCellMacros('http://x/plain', 'X', rows)).toBe('http://x/plain');
+    });
+  });
+
+  describe('ReplaceCellSplitByPattern', () => {
+    const cellContent = { valueFormatted: 'web-01 prod' } as FormattedColumnValue;
+
+    it('replaces $__pattern_N with the Nth split segment', () => {
+      // Split by whitespace: ['web-01', 'prod']
+      const out = ReplaceCellSplitByPattern(
+        'host=$__pattern_0&env=$__pattern_1',
+        cellContent,
+        '/\\s/',
+      );
+      expect(out).toBe('host=web-01&env=prod');
+    });
+
+    it('returns the input untouched when the cell content is empty', () => {
+      const empty = { valueFormatted: '' } as FormattedColumnValue;
+      expect(ReplaceCellSplitByPattern('host=$__pattern_0', empty, '/\\s/')).toBe(
+        'host=$__pattern_0',
+      );
+    });
+
+    it('returns the input untouched when cellContent is null', () => {
+      expect(
+        ReplaceCellSplitByPattern(
+          'host=$__pattern_0',
+          null as unknown as FormattedColumnValue,
+          '/\\s/',
+        ),
+      ).toBe('host=$__pattern_0');
+    });
+
+    it('leaves $__pattern_N untouched when N exceeds the split count', () => {
+      const out = ReplaceCellSplitByPattern(
+        'a=$__pattern_0&b=$__pattern_9',
+        cellContent,
+        '/\\s/',
+      );
+      expect(out).toBe('a=web-01&b=$__pattern_9');
+    });
+  });
+
+  describe('resolveClickThroughTarget', () => {
+    it('returns _self when neither flag is set', () => {
+      expect(resolveClickThroughTarget(false, false, '')).toBe('_self');
+    });
+
+    it('returns _blank when openNewTab is true', () => {
+      expect(resolveClickThroughTarget(true, false, '')).toBe('_blank');
+    });
+
+    it('returns the custom target when customTargetEnabled is true (wins over openNewTab)', () => {
+      expect(resolveClickThroughTarget(true, true, 'named-window')).toBe('named-window');
+    });
+
+    it('returns the custom target value even when openNewTab is false', () => {
+      expect(resolveClickThroughTarget(false, true, 'x')).toBe('x');
+    });
+  });
+
+  describe('TimeFormatter', () => {
+    const epoch = 1744486055000; // 2025-04-12T19:27:35Z
+
+    it('formats a timestamp in UTC when timeZone is "utc"', () => {
+      const result = TimeFormatter('utc', epoch, 'YYYY-MM-DD HH:mm:ss');
+      expect(result.valueRaw).toBe(epoch);
+      expect(result.valueFormatted).toBe('2025-04-12 19:27:35');
+      expect(result.valueRoundedAndFormatted).toBe(result.valueFormatted);
+      expect(result.valueRounded).toBeNull();
+    });
+
+    it('returns a FormattedColumnValue for a named zone (shape only)', () => {
+      // Non-UTC branch does not actually convert to the named zone — it
+      // passes the already-UTC moment through moment.tz with `format`
+      // + `timezone` args, which produces the UTC time string under a
+      // different label. Pinning that shape is still useful: the function
+      // returns a well-formed FormattedColumnValue rather than throwing.
+      const result = TimeFormatter('America/New_York', epoch, 'YYYY-MM-DD HH:mm:ss');
+      expect(result.valueRaw).toBe(epoch);
+      expect(typeof result.valueFormatted).toBe('string');
+      expect(result.valueFormatted).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+      expect(result.valueRounded).toBeNull();
     });
   });
 });

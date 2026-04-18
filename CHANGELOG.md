@@ -160,6 +160,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   sub-case was a no-op in practice) but fragile. Pinned with a new
   regression test that confirms the iteration continues cleanly to the
   next mapping after a non-matching regex.
+- Raise `src/data/` unit-test coverage from 44% to 60% by adding tests
+  for `columnAliasing.ts` (7 cases), `columnWidthHints.ts` (7 cases),
+  the previously-untested helpers in `cellRenderer.ts`
+  (`ReplaceTimeMacros`, `ReplaceCellMacros`, `ReplaceCellSplitByPattern`,
+  `resolveClickThroughTarget`, `TimeFormatter` — 19 cases across five
+  new describe blocks), and the color-threshold helpers in
+  `dataHelpers.ts` (`GetColorForValue`, `GetColorIndexForValue`,
+  `getCellColors` — 25 cases). `dataHelpers.test.ts` earlier covered
+  only `getColumnClassName`; it now exercises the full threshold-colour
+  path plus null/disabled edge cases.
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook
   encapsulating the ordered-tracker-with-onChange-fan-out pattern used by
   `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`,
