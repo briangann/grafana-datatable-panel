@@ -152,6 +152,14 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   picks up the real interpolator too, so Grafana dashboard variables
   referenced inside field-config defaults resolve identically to the
   stock link/threshold pipelines.
+- Add the missing `break;` after `case MappingType.RegexToText:` in
+  `src/data/valueMappings.ts:getValueMappingResult`. The previous code
+  fell through into `case MappingType.SpecialValue:` when a regex did
+  not match — latent (the inner switch's `match` discriminant is
+  `undefined` on a RegexToText options object, so every `SpecialValue`
+  sub-case was a no-op in practice) but fragile. Pinned with a new
+  regression test that confirms the iteration continues cleanly to the
+  next mapping after a non-matching regex.
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook
   encapsulating the ordered-tracker-with-onChange-fan-out pattern used by
   `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`,

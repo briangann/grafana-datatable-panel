@@ -71,6 +71,8 @@ export function getValueMappingResult(valueMappings: ValueMapping[], value: any)
           return res;
         }
 
+        break;
+
       case MappingType.SpecialValue:
         switch ((vm.options as SpecialValueOptions).match) {
           case SpecialValueMatch.Null: {
