@@ -50,6 +50,15 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
+  // Tracks whether the component is still mounted, so DataTables' async
+  // `initComplete` callback doesn't setState on an unmounted instance.
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const dataTableWrapperId = `data-table-wrapper-${props.id}`;
   const dataTableId = `data-table-renderer-${props.id}`;
@@ -339,7 +348,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               if (props.options.columnFiltersEnabled) {
                 enableColumnFilters(this.api());
               }
-              setDataTableReady(true);
+              if (mountedRef.current) {
+                setDataTableReady(true);
+              }
             },
           };
           if (props.options.rowsPerPage) {
