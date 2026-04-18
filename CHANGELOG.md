@@ -140,6 +140,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Refactoring
 
+- Remove a stale `// @ts-ignore` + `TODO: fix this ignore, it works but should not be
+  required` in `src/data/transformations.ts:transformData`. The ignore was covering
+  a type mismatch between `lastValueFrom` and the `Observable<DataFrame[]>` returned
+  by `transformDataFrame`; current `@grafana/data` / `rxjs` versions align
+  (both resolve to `rxjs@7.8.2`) so the call typechecks cleanly now.
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook
   encapsulating the ordered-tracker-with-onChange-fan-out pattern used by
   `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`,
