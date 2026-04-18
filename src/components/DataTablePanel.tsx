@@ -125,7 +125,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         props.options.fontSizePercent,
         {
           numbers: props.options.alignNumbersToRightEnabled,
-          strings: props.options.alignStringsToRightEnabled ?? true,
+          strings: props.options.alignStringsToRightEnabled,
         },
         props.timeRange,
         cachedProcessedData);
@@ -157,7 +157,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           props.timeRange,
           {
             numbers: props.options.alignNumbersToRightEnabled,
-            strings: props.options.alignStringsToRightEnabled ?? true,
+            strings: props.options.alignStringsToRightEnabled,
           },
           props.options.rowNumbersEnabled,
           props.options.columnStylesConfig,

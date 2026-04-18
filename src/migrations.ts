@@ -67,8 +67,7 @@ export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOption
       // This happens on the first load or when migrating from angular
       return {} as any;
     }
-    // have settings, return them unchanged
-    return panel.options;
+    return applyOptionDefaults(panel.options);
   }
   //
   // mapping are inside styles, there are no global mappings
@@ -88,6 +87,24 @@ export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOption
   return options;
 };
 
+
+// Patches fields that were added to DatatableOptions after existing panels were
+// saved. The panel-options registry only applies defaultValue for freshly-created
+// panels, so without this, existing React-saved panels would read undefined for
+// new fields and display stale UI state (e.g. a "Right Align Text" switch that
+// looks off while the panel is still right-aligning at runtime).
+export const applyOptionDefaults = (options: DatatableOptions): DatatableOptions => {
+  const patched = { ...options };
+  if (patched.alignStringsToRightEnabled === undefined) {
+    patched.alignStringsToRightEnabled = true;
+  }
+  if (patched.columnStylesConfig) {
+    patched.columnStylesConfig = patched.columnStylesConfig.map((style) =>
+      style.align === undefined ? { ...style, align: ColumnAlignment.DEFAULT } : style,
+    );
+  }
+  return patched;
+};
 
 export const migrateDefaults = (angular: AngularDatatableOptions) => {
   let options: DatatableOptions = {
