@@ -180,10 +180,21 @@ export const ProcessClickthrough = (
       clickThrough = textUtil.sanitizeUrl(clickThrough);
     }
     // rebuild with encoding of parameters
-    const url = new URL(clickThrough);
-    const encoded = url.searchParams.toString();
-    const rebuildUrl = `${url.protocol}//${url.hostname}${url.pathname}`;
-    const newCell = '<a href="' + rebuildUrl + `?${encoded}" target="${target}">` + processedItem.valueFormatted + '</a>';
+    // - Branch on the original input so we emit the same kind of href the
+    //   user typed (absolute vs relative).
+    // - Use a fallback base so `new URL()` never throws on relative inputs.
+    // - `url.host` (not `.hostname`) preserves host:port.
+    // - Omit the `?` separator entirely when the query is empty.
+    // - Preserve `url.hash` (fragment).
+    const isAbsolute = /^https?:\/\//i.test(clickThrough);
+    const base = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
+    const url = new URL(clickThrough, base);
+    const origin = isAbsolute ? `${url.protocol}//${url.host}` : '';
+    const query = url.searchParams.toString();
+    const queryString = query ? `?${query}` : '';
+    const hash = url.hash; // already includes leading '#' when present
+    const href = `${origin}${url.pathname}${queryString}${hash}`;
+    const newCell = '<a href="' + href + `" target="${target}">` + processedItem.valueFormatted + '</a>';
 
     // TODO: allowing template variables would be a great addition
     //
