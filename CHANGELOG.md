@@ -19,6 +19,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
     matching cell that overrides the panel-level class. Applies to any
     `activeStyle` (metric / string / date), so the same knob covers all
     column types.
+- **Clickthrough URLs resolve Grafana dashboard variables**. A clickthrough
+  like `http://example.com/h/$host?x=1` now substitutes the dashboard's
+  `$host` variable into the rendered href, matching the behavior of
+  built-in data links. Plugin macros (`$__cell`, `$__cell_N`, `$__from`,
+  etc.) continue to resolve first, so a dashboard variable cannot
+  intercept a plugin macro of the same name. `$var`, `${var}`, and
+  `[[var]]` syntaxes all work. Covered by three new unit cases plus an
+  E2E assertion on a provisioned dashboard carrying a constant template
+  variable.
 
 ### Scaffolding & Configuration
 
