@@ -169,6 +169,19 @@ Once the url is specified, additional options are displayed that provide additon
 
 Additional you can specify if the URL should be open in a new tab or new window, and specify a custom target.
 
+#### Supported URL Formats
+
+| Form | Example | Behavior |
+| --- | --- | --- |
+| Absolute with port | `http://host.example:8080/path?x=1` | Port preserved |
+| Absolute with fragment | `http://host.example/d/uid#panel-2` | Fragment preserved |
+| Absolute, no query | `http://host.example/path` | No trailing `?` appended |
+| Relative | `/d/uid/slug?var=Host=$__pattern_0` | Resolved against the current dashboard origin |
+| Non-HTTP scheme / protocol-relative | `mailto:...`, `ftp://...`, `//host/path` | Emitted verbatim |
+
+Macros (`$__cell_N`, `$__pattern_N`, `$__from`, `$__to`, `$__keepTime`) are expanded before the
+href is constructed, so they work identically in absolute and relative URLs.
+
 #### Pattern Macros
 
 `Split By RegEx` - the cell content of the matching column is split by this regex which can then be used within the URL.
