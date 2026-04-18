@@ -159,6 +159,22 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   split into Added / Changed / Fixed / Removed groups, with the legacy pre-
   0.0.7 table converted to per-version sections.
 
+### Testing
+
+- Extend `ColumnStylesEditor.test.tsx` to pin the `isOpen`-by-`ID` invariant
+  across `moveUp`, `moveDown`, `Add Style`, and `createDuplicate`. The existing
+  suite only covered the `remove` case; the matching behavior on reorder and
+  insert paths is now locked in.
+- Add a `useTracker.test.ts` case for `updateAt` with an out-of-range index so
+  the `target === undefined` early-return is exercised.
+- Add `tests/phase3-panel/thresholds-color.spec.ts`. Loads the
+  `Datatable-RandomWalk-CustomThresholds` provisioned dashboard via
+  `readProvisionedDashboard`, then asserts A-series cells render with inline
+  `color:` styling (`colorMode=value`) and the configured `unitFormat=areaM2`
+  suffix. DOM-level protection for the `setThresholds` fix — a future
+  regression that drops `colorMode` or the unit formatter would fail this
+  spec rather than silently paint default-colored cells.
+
 ## [2.0.2] - 2025-05-29
 
 ### Fixed
