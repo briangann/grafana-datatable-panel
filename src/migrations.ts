@@ -67,6 +67,9 @@ export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOption
       // This happens on the first load or when migrating from angular
       return {} as any;
     }
+    // When adding a new field to DatatableOptions or ColumnStyleItemType,
+    // extend applyOptionDefaults so existing React-saved panels pick up a
+    // sensible default instead of loading with undefined.
     return applyOptionDefaults(panel.options);
   }
   //
