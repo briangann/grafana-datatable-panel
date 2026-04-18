@@ -356,7 +356,7 @@ export const BuildColumnDefs = (
   return columnDefs;
 };
 
-const getColumnClassName = (alignment: AlignmentFlags, columnType: string) => {
+export const getColumnClassName = (alignment: AlignmentFlags, columnType: string) => {
   let columnClassName = '';
 
   // column type "date" is very limited, and overrides our formatting
