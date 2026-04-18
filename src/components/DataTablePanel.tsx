@@ -128,11 +128,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     const $container = $(dataTable.table(0).container());
     const debounceTimers = new Map<number, ReturnType<typeof setTimeout>>();
 
-    $container.on('click.columnFilter', 'tr.column-filter th', function (ev) {
+    $container.on('click.columnFilter', 'tr.column-filter th', function (ev: JQuery.TriggeredEvent) {
       ev.stopPropagation();
     });
 
-    $container.on('keyup.columnFilter change.columnFilter', 'input.column-filter', function (this: HTMLInputElement) {
+    $container.on('keyup.columnFilter change.columnFilter', 'input.column-filter', function (this: HTMLInputElement, _ev: JQuery.TriggeredEvent) {
       const columnIndex = $(this).closest('th').index();
       const value = this.value;
       const existing = debounceTimers.get(columnIndex);

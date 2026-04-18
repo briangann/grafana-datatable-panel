@@ -25,9 +25,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   built-in data links. Plugin macros (`$__cell`, `$__cell_N`, `$__from`,
   etc.) continue to resolve first, so a dashboard variable cannot
   intercept a plugin macro of the same name. `$var`, `${var}`, and
-  `[[var]]` syntaxes all work. Covered by three new unit cases plus an
-  E2E assertion on a provisioned dashboard carrying a constant template
-  variable.
+  `[[var]]` syntaxes all work. Covered by three new unit cases in
+  `src/data/cellRenderer.test.ts`, a new
+  `src/data/createdCellHelpers.test.ts` that pins the mid-layer
+  `ProcessStringValueStyle` forwarding, and an E2E assertion on a
+  provisioned dashboard carrying a constant template variable. While in
+  `DataTablePanel.tsx`, the delegated-handler callbacks bound by PR #292
+  are now typed with `JQuery.TriggeredEvent` so TypeScript no longer
+  resolves to the deprecated `JQueryEventObject` overload of
+  `$.fn.on(...)`.
 
 ### Scaffolding & Configuration
 
