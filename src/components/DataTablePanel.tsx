@@ -98,10 +98,19 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     // go on the wrapper via delegation below, because DataTables' scrollX
     // mode re-clones the source thead into `.dt-scroll-head` on every draw
     // and wipes any listeners bound directly to input nodes.
+    // Build the <input> via DOM APIs rather than `.html(string)` templating
+    // so a column title containing a `"` character cannot break out of the
+    // placeholder attribute — `textUtil.sanitize` strips HTML tags but does
+    // not escape attribute-context quotes.
     $header.find(`tr.column-filter th`).each(function () {
-      const $th = $(this);
-      const title = textUtil.sanitize($th.text());
-      $th.html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
+      const th = this as HTMLTableCellElement;
+      const title = textUtil.sanitize(th.textContent ?? '');
+      const input = document.createElement('input');
+      input.className = 'column-filter';
+      input.type = 'text';
+      input.placeholder = `Search ${title}`;
+      th.textContent = '';
+      th.appendChild(input);
     });
 
     // Delegated handlers on the table container survive DataTables' per-draw
@@ -265,7 +274,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       }
       if (dataTableDOMRef.current && cachedProcessedData.Columns.length > 0) {
         try {
-          // cleanup existing table, columns may have changed
+          // cleanup existing table, columns may have changed. Remove any
+          // delegated `.columnFilter` handlers first so a destroy path that
+          // retains the container element cannot accumulate stale handlers
+          // across re-inits.
+          $(dataTableDOMRef.current).closest('.dt-container').off('.columnFilter');
           const aDT = $(dataTableDOMRef.current).DataTable();
           aDT.destroy();
           $(dataTableDOMRef.current).empty();
