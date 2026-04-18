@@ -7,12 +7,19 @@
     "dist/**",
     "coverage/**",
     "provisioning/**",
-    "src/dashboards/**"
+    "src/dashboards/**",
+    "importable/**",
+    "TODO.md",
+    "pnpm-lock.yaml",
+    "provisioning-private/**"
   ],
   "words": [
+    "briangann",
     "buildno",
     "Cascader",
+    "Clickthrough",
     "columnstyles",
+    "dataframes",
     "Datatable",
     "datatables",
     "DATETIME",
@@ -21,9 +28,14 @@
     "fixedcolumns",
     "fixedheader",
     "framename",
+    "Gann",
+    "gdev",
+    "isopen",
     "jqui",
     "keytable",
+    "logmin",
     "loopfunc",
+    "Magefile",
     "markjs",
     "pdfmake",
     "rowcolumn",
@@ -32,6 +44,8 @@
     "searchpanes",
     "showreport",
     "sourcedir",
-    "subresource"
+    "SSSZ",
+    "subresource",
+    "testdata"
   ]
 }
