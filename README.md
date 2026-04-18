@@ -27,6 +27,7 @@ per-cell filtering.
 * Rows can have a click-through URL
 * Multi-Column Sorting
 * Horizontal scrolling enabled when columns are wider than panel
+* Configurable text alignment (panel-level default plus per-column override)
 
 ## Screenshots
 
@@ -83,17 +84,19 @@ Show rows per page selection
 
 #### Other options
 
-| Option                 | Meaning                                               |
-| ---------------------- | ----------------------------------------------------- |
-| Enable Row Numbers     | Adds left column showing row numbers                  |
-| Font Size              | Adjust font size of text in table                     |
-| Highlight Order Column | When the column order is modified, this highlights it |
-| Hover                  | Highlight row under mouse                             |
-| Right Align Numbers    | All cells with numbers will be aligned to the right   |
-| Show Footer Info       | Displays number of rows                               |
-| Show Stripes on Rows   | Alternating stripes for even/odd rows                 |
-| Use Compact Rows       | Reduce space used to display data                     |
-| Wrap Row Content       | Auto-wraps text to fit in column width                |
+| Option                 | Meaning                                                  |
+| ---------------------- | -------------------------------------------------------- |
+| Enable Row Numbers     | Adds left column showing row numbers                     |
+| Font Size              | Adjust font size of text in table                        |
+| Highlight Order Column | When the column order is modified, this highlights it    |
+| Hover                  | Highlight row under mouse                                |
+| Right Align Numbers    | All cells with numbers will be aligned to the right      |
+| Right Align Text       | All cells with string/text values will be right-aligned; |
+|                        | disable to let string columns use the default alignment  |
+| Show Footer Info       | Displays number of rows                                  |
+| Show Stripes on Rows   | Alternating stripes for even/odd rows                    |
+| Use Compact Rows       | Reduce space used to display data                        |
+| Wrap Row Content       | Auto-wraps text to fit in column width                   |
 
 ### Search Options
 
@@ -139,6 +142,20 @@ There are four styles that can be applied to the datatable.
 NOTE: The first style that matches "wins" and all other style matches are ignored.
 
 Support for multiple styles is a future enhancement, where a string and a metric style can be applied to the same cell.
+
+### Common Column Style Properties
+
+Every column style — Date, String, Hidden, and Metric — shares the
+following properties in addition to its style-specific settings:
+
+| Property       | Meaning                                                      |
+| -------------- | ------------------------------------------------------------ |
+| Label          | Name of this style as shown in the options editor            |
+| Metric/RegEx   | Column name or regex that selects which columns this applies |
+| Cell Alignment | `Default` defers to the panel-level Right Align Numbers /    |
+|                | Right Align Text settings; `Left`, `Center`, or `Right` set  |
+|                | an explicit `text-align` on each matching cell               |
+| Enabled        | Toggles this style without deleting it                       |
 
 ### Date Style
 
