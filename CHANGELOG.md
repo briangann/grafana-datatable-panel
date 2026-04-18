@@ -249,6 +249,24 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   is the end-to-end proof of issue #282 itself: the panel-level
   switch disables class-level right-alignment on string columns.
 
+### Fixed
+
+- **Column-filter row no longer misaligns columns** (closes #278). Enabling
+  "Filter by column" previously injected a filter row after DataTables had
+  already cached column widths and stripped all layout classes from the
+  cloned cells, pushing content outside its column. The injection now runs
+  inside DataTables' `initComplete`, preserves `dt-*` layout classes (only
+  sort-interactivity classes are stripped), adds `columns.adjust()` to
+  resync the scrollX header clone, debounces the search handler at 250 ms,
+  stops click propagation so the filter row cannot trigger a header sort,
+  and guards against duplicate filter rows on re-init. A themed CSS block
+  sizes each input to `width: 100%` with `box-sizing: border-box` so the
+  input never exceeds its cell, covering the root-cause spill symptom. A
+  new Playwright spec
+  (`tests/phase3-panel/column-filter-alignment.spec.ts`) pins the alignment
+  invariant against the DataTables v2 `dt-scroll-head` / `dt-scroll-body`
+  DOM.
+
 ## [2.0.2] - 2025-05-29
 
 ### Fixed
