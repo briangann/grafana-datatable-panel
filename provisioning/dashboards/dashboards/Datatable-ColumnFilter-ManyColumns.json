@@ -1,0 +1,198 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 9,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "P53465F745837BCFD"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": true,
+        "columnAliases": [],
+        "columnFiltersEnabled": true,
+        "columnSorting": [
+          {
+            "index": 0,
+            "order": "asc"
+          }
+        ],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "metric",
+            "align": "left",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "A-series-left",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "A-series",
+            "order": 0,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": true,
+        "lengthChangeEnabled": true,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": false,
+        "rowsPerPage": 5,
+        "scroll": true,
+        "searchEnabled": false,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": true,
+        "transformation": "timeseries-to-columns",
+        "transformationAggregations": [
+          "last"
+        ],
+        "wrapToFitEnabled": true
+      },
+      "pluginVersion": "2.0.0",
+      "targets": [
+        {
+          "datasource": { "type": "grafana-testdata-datasource", "uid": "P53465F745837BCFD" },
+          "max": 30,
+          "refId": "A",
+          "scenarioId": "random_walk",
+          "spread": 12,
+          "startValue": 5
+        },
+        {
+          "datasource": { "type": "grafana-testdata-datasource", "uid": "P53465F745837BCFD" },
+          "max": 40,
+          "refId": "B",
+          "scenarioId": "random_walk",
+          "spread": 10,
+          "startValue": 10
+        },
+        {
+          "datasource": { "type": "grafana-testdata-datasource", "uid": "P53465F745837BCFD" },
+          "max": 50,
+          "refId": "C",
+          "scenarioId": "random_walk",
+          "spread": 8,
+          "startValue": 15
+        },
+        {
+          "datasource": { "type": "grafana-testdata-datasource", "uid": "P53465F745837BCFD" },
+          "max": 60,
+          "refId": "D",
+          "scenarioId": "random_walk",
+          "spread": 6,
+          "startValue": 20
+        },
+        {
+          "datasource": { "type": "grafana-testdata-datasource", "uid": "P53465F745837BCFD" },
+          "max": 70,
+          "refId": "E",
+          "scenarioId": "random_walk",
+          "spread": 5,
+          "startValue": 25
+        },
+        {
+          "datasource": { "type": "grafana-testdata-datasource", "uid": "P53465F745837BCFD" },
+          "max": 80,
+          "refId": "F",
+          "scenarioId": "random_walk",
+          "spread": 4,
+          "startValue": 30
+        },
+        {
+          "datasource": { "type": "grafana-testdata-datasource", "uid": "P53465F745837BCFD" },
+          "max": 90,
+          "refId": "G",
+          "scenarioId": "random_walk",
+          "spread": 3,
+          "startValue": 35
+        },
+        {
+          "datasource": { "type": "grafana-testdata-datasource", "uid": "P53465F745837BCFD" },
+          "max": 100,
+          "refId": "H",
+          "scenarioId": "random_walk",
+          "spread": 3,
+          "startValue": 40
+        }
+      ],
+      "title": "Column Filter — Many Columns",
+      "type": "briangann-datatable-panel"
+    }
+  ],
+  "preload": false,
+  "schemaVersion": 41,
+  "tags": [],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Datatable Column Filter — Many Columns",
+  "uid": "datatable-column-filter-many",
+  "version": 1
+}
