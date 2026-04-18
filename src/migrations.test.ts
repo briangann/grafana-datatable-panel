@@ -5,8 +5,7 @@ import {
   DatatablePanelMigrationHandler,
   migrateDefaults,
 } from './migrations';
-import { ColumnAlignment } from 'types';
-import type { DatatableOptions } from 'types';
+import { ColumnAlignment, type DatatableOptions } from 'types';
 
 describe('Datatable -> DatatableV2 migrations', () => {
   it('only migrates old datatable', () => {
