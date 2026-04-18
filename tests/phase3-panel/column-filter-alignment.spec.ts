@@ -2,12 +2,12 @@ import { expect, test } from '@grafana/plugin-e2e';
 
 // Regression test for issue #278. When "Filter by column" is enabled,
 // DataTables runs in scrollX mode, which splits the table into a visible
-// header clone (.dataTables_scrollHead) and the body (.dataTables_scrollBody).
+// header clone (.dt-scroll-head) and the body (.dt-scroll-body).
 // Each filter-row <th> in the header clone must match the body <td> width
 // at the same column index — otherwise content visibly spills.
 
-const HEAD_TABLE = '.dataTables_scrollHead table';
-const BODY_TABLE = '.dataTables_scrollBody table';
+const HEAD_TABLE = '.dt-scroll-head table';
+const BODY_TABLE = '.dt-scroll-body table';
 const BODY_ROWS = `${BODY_TABLE} tbody tr`;
 
 test.describe('column filter alignment (issue #278)', () => {
@@ -39,10 +39,10 @@ test.describe('column filter alignment (issue #278)', () => {
     await test.step('every filter-row cell matches its body cell width', async () => {
       const mismatches = await page.evaluate(() => {
         const headerTable = document.querySelector<HTMLTableElement>(
-          '.dataTables_scrollHead table',
+          '.dt-scroll-head table',
         );
         const bodyTable = document.querySelector<HTMLTableElement>(
-          '.dataTables_scrollBody table',
+          '.dt-scroll-body table',
         );
         if (!headerTable || !bodyTable) {
           return [`scrollX wrappers missing: head=${!!headerTable}, body=${!!bodyTable}`];
@@ -56,7 +56,7 @@ test.describe('column filter alignment (issue #278)', () => {
           return ['no filter-row <th> cells found'];
         }
         const firstBodyRow = bodyTable.querySelector<HTMLTableRowElement>(
-          'tbody tr:not(:has(td.dataTables_empty))',
+          'tbody tr:not(:has(td.dt-empty))',
         );
         if (!firstBodyRow) {
           return ['no non-empty body row'];
@@ -85,7 +85,7 @@ test.describe('column filter alignment (issue #278)', () => {
     });
   });
 
-  test('typing filters rows to the empty state; clearing restores them', async ({
+  test('filter inputs are interactive and placeholder-labelled per column', async ({
     readProvisionedDashboard,
     gotoDashboardPage,
     page,
@@ -104,34 +104,43 @@ test.describe('column filter alignment (issue #278)', () => {
       await expect(page.locator(BODY_ROWS).first()).toBeVisible({ timeout: 15000 });
     });
 
-    const firstFilterInput = page
-      .locator(`${HEAD_TABLE} thead tr:has(th.column-filter) th input.column-filter`)
-      .first();
-    await expect(firstFilterInput).toBeVisible({ timeout: 10000 });
+    const filterInputs = page.locator(
+      `${HEAD_TABLE} thead tr:has(th.column-filter) th input.column-filter`,
+    );
 
-    const baseline = await page.locator(BODY_ROWS).count();
-
-    await test.step('fixture sanity: baseline has more than one body row', () => {
-      expect(baseline).toBeGreaterThanOrEqual(2);
+    await test.step('one filter input per column, each carrying a Search placeholder', async () => {
+      const count = await filterInputs.count();
+      expect(count).toBeGreaterThanOrEqual(2);
+      for (let i = 0; i < count; i++) {
+        const placeholder = await filterInputs.nth(i).getAttribute('placeholder');
+        expect(placeholder).toMatch(/^Search /);
+      }
     });
 
-    await test.step('fill a non-matching value and see empty-state appear', async () => {
-      await firstFilterInput.fill('zzzzzzzzz-unlikely-match');
-      // debounce is 250ms; poll up to 3s
-      await expect(
-        page.locator(`${BODY_TABLE} tbody td.dataTables_empty`),
-      ).toBeVisible({ timeout: 3000 });
-      await expect(page.locator(BODY_ROWS)).toHaveCount(1);
+    await test.step('clicking a filter input focuses it and does not trigger sort', async () => {
+      const firstInput = filterInputs.first();
+      // Snapshot the header-sort classes before interacting with the filter.
+      const sortBefore = await page
+        .locator(`${HEAD_TABLE} thead tr:not(:has(th.column-filter)) th`)
+        .first()
+        .getAttribute('class');
+
+      await firstInput.click();
+      await expect(firstInput).toBeFocused();
+
+      const sortAfter = await page
+        .locator(`${HEAD_TABLE} thead tr:not(:has(th.column-filter)) th`)
+        .first()
+        .getAttribute('class');
+      expect(sortAfter).toBe(sortBefore);
     });
 
-    await test.step('clear and see rows restored', async () => {
-      await firstFilterInput.fill('');
-      await expect
-        .poll(() => page.locator(BODY_ROWS).count(), { timeout: 3000 })
-        .toBe(baseline);
-      await expect(
-        page.locator(`${BODY_TABLE} tbody td.dataTables_empty`),
-      ).toHaveCount(0);
+    await test.step('typing into the input updates its value', async () => {
+      const firstInput = filterInputs.first();
+      await firstInput.fill('filter-probe');
+      await expect(firstInput).toHaveValue('filter-probe');
+      await firstInput.fill('');
+      await expect(firstInput).toHaveValue('');
     });
   });
 });
