@@ -254,6 +254,27 @@ describe('ColumnStylesEditor', () => {
     expect(screen.getByTestId('collapse-A')).toHaveAttribute('data-isopen', 'false');
   });
 
+  it('createDuplicate carries the source align through to the copy', () => {
+    // createDuplicate uses a spread-with-overrides on the source style; any
+    // field not explicitly overridden should ride along, including align.
+    // Pin this so a future re-write that hand-enumerates metricStyle-style
+    // fields (the bug class that cost us colorMode) can't silently drop it.
+    const onChange = jest.fn();
+    const source: ColumnStyleItemType = { ...makeStyle(0, 'A'), align: ColumnAlignment.CENTER };
+    render(
+      <ColumnStylesEditor
+        {...({} as any)}
+        context={buildContext([source])}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'duplicate' }));
+
+    const emitted = onChange.mock.calls.at(-1)![0] as ColumnStyleItemType[];
+    expect(emitted[1].align).toBe(ColumnAlignment.CENTER);
+  });
+
   it('moveDown swaps neighbors and re-numbers both order and style.order', () => {
     const onChange = jest.fn();
     const styles = [makeStyle(0, 'A'), makeStyle(1, 'B')];

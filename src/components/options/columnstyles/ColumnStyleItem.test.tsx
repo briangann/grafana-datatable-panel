@@ -116,13 +116,43 @@ describe('ColumnStyleItem', () => {
     });
   });
 
-  it('Cell Alignment selection emits the chosen align value', () => {
+  it.each([
+    [ColumnAlignment.LEFT],
+    [ColumnAlignment.CENTER],
+    [ColumnAlignment.RIGHT],
+  ])('Cell Alignment selection emits align=%s', (expected) => {
     const setter = renderItem();
 
-    fireEvent.click(screen.getByTestId('option-left'));
+    fireEvent.click(screen.getByTestId(`option-${expected}`));
 
     const [order, emitted] = setter.mock.calls.at(-1)!;
     expect(order).toBe(0);
-    expect(emitted.align).toBe(ColumnAlignment.LEFT);
+    expect(emitted.align).toBe(expected);
+  });
+
+  it('Cell Alignment Select falls back to "default" when style.align is undefined', () => {
+    // The Select stub exposes the `value` prop via its data-testid. A style
+    // built without an `align` field (e.g. a pre-#282 migrated panel whose
+    // applyOptionDefaults has not yet stamped one) should surface as
+    // ColumnAlignment.DEFAULT in the editor so the UI matches the runtime
+    // behavior.
+    const setter = jest.fn();
+    const style = { ...makeStyle(), align: undefined } as any;
+    render(
+      <ColumnStyleItem
+        ID="uuid-1"
+        style={style}
+        enabled={true}
+        columnHints={[]}
+        context={{} as any}
+        setter={setter}
+        remover={jest.fn()}
+        moveUp={jest.fn()}
+        moveDown={jest.fn()}
+        createDuplicate={jest.fn()}
+      />,
+    );
+
+    expect(screen.getByTestId(`select-value-${ColumnAlignment.DEFAULT}`)).toBeInTheDocument();
   });
 });
