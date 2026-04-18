@@ -135,7 +135,7 @@ describe('Cell Renderer', () => {
 
   describe('ProcessClickthrough — URL reconstruction (issue #276)', () => {
     // Minimal stringStyle fixture that exercises the URL-rebuild code path
-    // without triggering macro replacement or sanitisation.
+    // without triggering macro replacement or sanitization.
     const baseStringStyle = {
       clickThrough: '',
       clickThroughOpenNewTab: true,
