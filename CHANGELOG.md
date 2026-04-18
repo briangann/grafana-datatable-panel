@@ -266,7 +266,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   are emitted verbatim. `url.hash` (fragments like `#panel-2`) is now
   preserved, and the trailing `?` no longer appears when the query is
   empty. Supported URL forms are documented in the README. Regression
-  pinned with six parameterized cases in `src/data/cellRenderer.test.ts`.
+  pinned with six parameterized cases in `src/data/cellRenderer.test.ts`
+  plus an end-to-end spec
+  (`tests/phase3-panel/clickthrough-urls.spec.ts`) that loads a
+  provisioned dashboard and asserts the rendered `<a href>` for
+  host:port and relative clickthroughs across multiple rows.
 
 ### Testing
 
