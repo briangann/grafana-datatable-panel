@@ -69,29 +69,54 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   const enableColumnFilters = (dataTable: any) => {
     const header = dataTable.table(0).header();
-    const newHeaders = $(header)
-      .children('tr')
-      .clone();
+    const $header = $(header);
+
+    // Idempotency guard — don't stack rows on re-invocation
+    if ($header.find('tr.column-filter').length > 0) {
+      return;
+    }
+
+    // Clone the existing header row; strip only sort-interactivity classes so
+    // DataTables' layout classes (dt-*, width hints) survive and keep the
+    // filter cells aligned with the body columns.
+    const newHeaders = $header.children('tr').first().clone();
     newHeaders
+      .addClass('column-filter')
       .find('th')
-      .removeClass()
+      .removeClass('sorting')
+      .removeClass('sorting_asc')
+      .removeClass('sorting_desc')
+      .removeClass('sorting_disabled')
       .addClass('column-filter');
     newHeaders.appendTo(header as Element);
-    $(header)
-      .find(`tr:eq(1) th`)
-      .each(function (i) {
-        let title = textUtil.sanitize($(this).text());
-        $(this).html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
 
-        $('input', this).on('keyup change', function (this: any) {
-          if (dataTable.column(i).search() !== this.value) {
-            dataTable
-              .column(i)
-              .search(this.value)
-              .draw();
-          }
-        });
+    // Populate each cloned th with a search input. Clicks on the filter row
+    // must not bubble up to DataTables' header sort handler.
+    $header.find(`tr.column-filter th`).each(function (i) {
+      const $th = $(this);
+      const title = textUtil.sanitize($th.text());
+      $th.html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
+      $th.on('click', function (ev) {
+        ev.stopPropagation();
       });
+
+      let debounceTimer: ReturnType<typeof setTimeout> | undefined;
+      $('input', this).on('keyup change', function (this: HTMLInputElement) {
+        const value = this.value;
+        if (debounceTimer !== undefined) {
+          clearTimeout(debounceTimer);
+        }
+        debounceTimer = setTimeout(() => {
+          if (dataTable.column(i).search() !== value) {
+            dataTable.column(i).search(value).draw();
+          }
+        }, 250);
+      });
+    });
+
+    // Resync header clone (scrollX) and body widths now that the thead has
+    // a second row.
+    dataTable.columns.adjust().draw(false);
   };
 
   useEffect(() => {
@@ -268,17 +293,16 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             searching: props.options.searchEnabled,
             //select: selectSettings,
             stateSave: false,
+            initComplete: function () {
+              if (props.options.columnFiltersEnabled) {
+                enableColumnFilters(this.api());
+              }
+            },
           };
           if (props.options.rowsPerPage) {
             dtOptions.pageLength = props.options.rowsPerPage;
           }
           jQuery(dataTableDOMRef.current).DataTable(dtOptions as Config);
-        }
-      }
-      const currentDom = dataTableDOMRef.current;
-      if (props.options.columnFiltersEnabled) {
-        if (currentDom) {
-          enableColumnFilters(jQuery(currentDom).DataTable());
         }
       }
     }
