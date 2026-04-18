@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ColumnStyleItem } from './ColumnStyleItem';
-import { ColumnStyles, type ColumnStyleItemType } from './types';
+import { ColumnAlignment, ColumnStyles, type ColumnStyleItemType } from './types';
 import { ColumnStyleColoring, DateFormats } from 'types';
 import type { Threshold } from '../thresholds/types';
 
@@ -19,6 +19,29 @@ jest.mock('../thresholds/ThresholdsEditor', () => ({
     </button>
   ),
 }));
+
+// @grafana/ui Select uses react-select internally, which is painful to drive
+// from tests. Replace it with a button-per-option passthrough so tests can
+// trigger onChange deterministically.
+jest.mock('@grafana/ui', () => {
+  const actual = jest.requireActual('@grafana/ui');
+  return {
+    ...actual,
+    Select: ({ value, onChange, options }: any) => (
+      <div data-testid={`select-value-${value}`}>
+        {(options ?? []).map((opt: any) => (
+          <button
+            key={opt.value}
+            data-testid={`option-${opt.value}`}
+            onClick={() => onChange(opt)}
+          >
+            {opt.label}
+          </button>
+        ))}
+      </div>
+    ),
+  };
+});
 
 const makeStyle = (): ColumnStyleItemType => ({
   label: 'Style-0',
@@ -91,5 +114,15 @@ describe('ColumnStyleItem', () => {
       unitFormat: 'percent',
       ignoreNullValues: false,
     });
+  });
+
+  it('Cell Alignment selection emits the chosen align value', () => {
+    const setter = renderItem();
+
+    fireEvent.click(screen.getByTestId('option-left'));
+
+    const [order, emitted] = setter.mock.calls.at(-1)!;
+    expect(order).toBe(0);
+    expect(emitted.align).toBe(ColumnAlignment.LEFT);
   });
 });

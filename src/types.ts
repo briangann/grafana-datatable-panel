@@ -3,6 +3,7 @@ import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
 export interface DatatableOptions {
   alignNumbersToRightEnabled: boolean;
+  alignStringsToRightEnabled: boolean;
   columnAliases: ColumnAliasField[];
   columnFiltersEnabled: boolean,
   columnWidthHints: ColumnWidthHint[];

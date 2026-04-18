@@ -12,7 +12,7 @@ import { ApplyGrafanaOverrides } from './overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
 import { ColumnStyleColoring } from 'types';
 import { DTColumnType, FormattedColumnValue } from './types';
-import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
+import { ColumnAlignment, ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
 import { DTData } from 'components/DataTablePanel';
 import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './createdCellHelpers';
@@ -60,6 +60,7 @@ export const ConvertDataFrameToDataTableFormat = (
   userTimeZone: string,
   timeRange: TimeRange,
   alignNumbersToRightEnabled: boolean,
+  alignStringsToRightEnabled: boolean,
   rowNumbersEnabled: boolean,
   columnStyles: ColumnStyleItemType[],
   theme: GrafanaTheme2): { columns: DTColumnType[]; rows: any[] } => {
@@ -67,7 +68,7 @@ export const ConvertDataFrameToDataTableFormat = (
   dataFrames = ApplyGrafanaOverrides(dataFrames, theme);
   const dataFrame = dataFrames[0];
   let columns: DTColumnType[] = dataFrame.fields.map((field) => {
-    const columnClassName = getColumnClassName(alignNumbersToRightEnabled, field.type as string)
+    const columnClassName = getColumnClassName(alignNumbersToRightEnabled, alignStringsToRightEnabled, field.type as string)
     return {
       title: field.name,
       data: normalizeFieldName(field.name),
@@ -146,6 +147,7 @@ export const BuildColumnDefs = (
   rowNumbersEnabled: boolean,
   fontSizePercent: string,
   alignNumbersToRightEnabled: boolean,
+  alignStringsToRightEnabled: boolean,
   timeRange: TimeRange,
   dtData: DTData): ConfigColumnDefs[] => {
 
@@ -153,7 +155,7 @@ export const BuildColumnDefs = (
   let rowNumberOffset = 0;
   for (let i = 0; i < dtData.Columns.length; i++) {
     let columnType = dtData.Columns[i].type!;
-    let columnClassName = getColumnClassName(alignNumbersToRightEnabled, columnType)
+    let columnClassName = getColumnClassName(alignNumbersToRightEnabled, alignStringsToRightEnabled, columnType)
     // column type "date" is very limited, and overrides our formatting
     // best to use our format, then the "raw" epoch time as the sort ordering field
     // https://datatables.net/reference/option/columns.type
@@ -312,6 +314,10 @@ export const BuildColumnDefs = (
           }
         }
 
+        // Per-column alignment override — wins over the DataTables class set via getColumnClassName.
+        if (aStyle.align && aStyle.align !== ColumnAlignment.DEFAULT) {
+          $(cell).css('text-align', aStyle.align);
+        }
       },
     };
     //let ignoreNullValues = this.getColumnIgnoreNullValue(i);
@@ -340,7 +346,11 @@ export const BuildColumnDefs = (
   return columnDefs;
 };
 
-const getColumnClassName = (alignNumbersToRightEnabled: boolean, columnType: string) => {
+const getColumnClassName = (
+  alignNumbersToRightEnabled: boolean,
+  alignStringsToRightEnabled: boolean,
+  columnType: string,
+) => {
   let columnClassName = '';
 
   // column type "date" is very limited, and overrides our formatting
@@ -352,7 +362,7 @@ const getColumnClassName = (alignNumbersToRightEnabled: boolean, columnType: str
   if (columnType === 'number' && alignNumbersToRightEnabled) {
     columnClassName = 'dt-right'; // any reason not to align numbers right?
   }
-  if (columnType === 'string') {
+  if (columnType === 'string' && alignStringsToRightEnabled) {
     columnClassName = 'dt-right';
   }
   return columnClassName;

@@ -47,6 +47,21 @@ export enum ColumnStyles {
   METRIC = 'metric',
   STRING = 'string',
 }
+
+export enum ColumnAlignment {
+  DEFAULT = 'default',
+  LEFT = 'left',
+  CENTER = 'center',
+  RIGHT = 'right',
+}
+
+export const ColumnAlignmentOptions = [
+  { label: 'Default', value: ColumnAlignment.DEFAULT },
+  { label: 'Left', value: ColumnAlignment.LEFT },
+  { label: 'Center', value: ColumnAlignment.CENTER },
+  { label: 'Right', value: ColumnAlignment.RIGHT },
+];
+
 export interface ColumnStyleItemType {
   // common properties
   activeStyle: ColumnStyles;
@@ -54,6 +69,8 @@ export interface ColumnStyleItemType {
   label: string;
   nameOrRegex: string;
   order: number;
+  // per-column cell alignment override; 'default' defers to the panel-level setting
+  align?: ColumnAlignment;
   // allows switching the styles without losing data
   dateStyle: ColumnStyleDate;
   hiddenStyle: ColumnStyleHidden;

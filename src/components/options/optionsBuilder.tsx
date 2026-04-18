@@ -74,6 +74,14 @@ export async function optionsBuilder(
     category: ['Visual Options'],
     description: 'Any cell with a numeric value will be aligned to the right'
   });
+  // rightAlignText
+  builder.addBooleanSwitch({
+    name: 'Right Align Text',
+    path: 'alignStringsToRightEnabled',
+    defaultValue: true,
+    category: ['Visual Options'],
+    description: 'Any cell with a string/text value will be aligned to the right (disable for left-alignment)'
+  });
 
     // Info Enabled
   builder.addBooleanSwitch({

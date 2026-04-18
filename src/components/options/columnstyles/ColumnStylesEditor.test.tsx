@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ColumnStylesEditor } from './ColumnStylesEditor';
-import { ColumnStyles, type ColumnStyleItemType } from './types';
+import { ColumnAlignment, ColumnStyles, type ColumnStyleItemType } from './types';
 import { ColumnStyleColoring, DateFormats } from 'types';
 
 jest.mock('./ColumnStyleItem', () => ({
@@ -185,6 +185,23 @@ describe('ColumnStylesEditor', () => {
     const emitted = onChange.mock.calls.at(-1)![0] as ColumnStyleItemType[];
     expect(emitted).toHaveLength(2);
     expect(emitted[1].order).toBe(1);
+  });
+
+  it('Add Style stamps align=default on the new tracker', () => {
+    const onChange = jest.fn();
+    const styles = [makeStyle(0, 'A')];
+    render(
+      <ColumnStylesEditor
+        {...({} as any)}
+        context={buildContext(styles)}
+        onChange={onChange}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add Style' }));
+
+    const emitted = onChange.mock.calls.at(-1)![0] as ColumnStyleItemType[];
+    expect(emitted[1].align).toBe(ColumnAlignment.DEFAULT);
   });
 
   it('Add Style opens the newly-added collapse by ID', () => {

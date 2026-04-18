@@ -16,7 +16,7 @@ import {
   TransformationOptions,
 } from './types';
 import { Threshold } from 'components/options/thresholds/types';
-import { ColumnStyleDate, ColumnStyleHidden, ColumnStyleItemType, ColumnStyleMetric, ColumnStyles, ColumnStyleString } from 'components/options/columnstyles/types';
+import { ColumnAlignment, ColumnStyleDate, ColumnStyleHidden, ColumnStyleItemType, ColumnStyleMetric, ColumnStyles, ColumnStyleString } from 'components/options/columnstyles/types';
 //import { DEFAULT_CRITICAL_COLOR_RGBA, DEFAULT_OK_COLOR_RGBA, DEFAULT_WARNING_COLOR_RGBA } from 'components/options/defaults';
 
 interface AngularDatatableOptions {
@@ -91,6 +91,7 @@ export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOption
 export const migrateDefaults = (angular: AngularDatatableOptions) => {
   let options: DatatableOptions = {
     alignNumbersToRightEnabled: false,
+    alignStringsToRightEnabled: true,
     columnAliases: [],
     columnFiltersEnabled: false,
     columnWidthHints: [],
@@ -349,6 +350,7 @@ const migrateStyles = (styles: any[]): ColumnStyleItemType[] => {
       label: `Migrated-Style-${index}`,
       nameOrRegex: element.pattern,
       order: index,
+      align: ColumnAlignment.DEFAULT,
       activeStyle: migrateItemType(element.type),
       dateStyle: {
         dateFormat: element.dateFormat,

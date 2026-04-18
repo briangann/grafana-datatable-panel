@@ -124,6 +124,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         props.options.rowNumbersEnabled,
         props.options.fontSizePercent,
         props.options.alignNumbersToRightEnabled,
+        props.options.alignStringsToRightEnabled ?? true,
         props.timeRange,
         cachedProcessedData);
       setCachedColumnDefs(calcColumnDefs);
@@ -132,6 +133,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     cachedProcessedData,
     props.timeRange,
     props.options.alignNumbersToRightEnabled,
+    props.options.alignStringsToRightEnabled,
     props.options.emptyDataEnabled,
     props.options.emptyDataText,
     props.options.fontSizePercent,
@@ -152,6 +154,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
           props.timeZone,
           props.timeRange,
           props.options.alignNumbersToRightEnabled,
+          props.options.alignStringsToRightEnabled ?? true,
           props.options.rowNumbersEnabled,
           props.options.columnStylesConfig,
           theme2);
@@ -175,6 +178,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.data.state,
     props.data.series,
     props.options.alignNumbersToRightEnabled,
+    props.options.alignStringsToRightEnabled,
     props.options.columnAliases,
     props.options.columnStylesConfig,
     props.options.columnWidthHints,
@@ -276,6 +280,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     cachedColumnDefs,
     props.height,
     props.options.alignNumbersToRightEnabled,
+    props.options.alignStringsToRightEnabled,
     props.options.columnAliases,
     props.options.columnFiltersEnabled,
     props.options.columnSorting,

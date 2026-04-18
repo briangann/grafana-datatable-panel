@@ -9,6 +9,7 @@ import {
   DEFAULT_WARNING_COLOR_HEX,
 } from '../defaults';
 import {
+  ColumnAlignment,
   ColumnStyles,
   ColumnStyleDate,
   ColumnStyleHidden,
@@ -87,6 +88,7 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps<ColumnStyleItemTyp
       nameOrRegex: '',
       order,
       enabled: true,
+      align: ColumnAlignment.DEFAULT,
       dateStyle: { dateFormat: DateFormats[0].value } as ColumnStyleDate,
       hiddenStyle: {} as ColumnStyleHidden,
       metricStyle: {

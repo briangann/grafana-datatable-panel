@@ -5,6 +5,26 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ## [Unreleased]
 
+### Added
+
+- **Configurable text alignment for string columns** (closes #282). String
+  columns were previously hard-coded to right-align in `getColumnClassName`
+  with no user-visible knob. Two complementary controls:
+  - New panel-level **Right Align Text** toggle (`alignStringsToRightEnabled`,
+    default `true`). Disabling it lets string columns inherit the DataTables
+    default (left-aligned).
+  - New per-column **Cell Alignment** Select on each column style
+    (`ColumnStyleItemType.align`, values `default | left | center | right`).
+    A non-`default` value paints an inline `text-align` on each matching cell
+    that overrides the panel-level class. Applies to any `activeStyle`
+    (metric / string / date), so the same knob covers all column types.
+  - Defaults preserve today's right-aligned behavior; the option migrates
+    to `true` and new column styles seed `align='default'`.
+  - Covered by new unit cases (migration defaults, Cell Alignment emit,
+    addItem seed) and an e2e spec
+    (`tests/phase3-panel/text-alignment.spec.ts`) that loads a provisioned
+    dashboard and asserts an inline `text-align: left` style is applied.
+
 ### Scaffolding & Configuration
 
 - Update `@grafana/create-plugin` from 5.27.1 to 7.1.7, applying all scaffolding migrations:
