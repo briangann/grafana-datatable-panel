@@ -166,6 +166,56 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Fixes
 
+- **Column-filter row no longer misaligns columns, and typing now actually
+  filters** (closes #278). Enabling "Filter by column" previously injected
+  a filter row after DataTables had already cached column widths and
+  stripped all layout classes from the cloned cells, pushing content
+  outside its column. The injection now runs inside DataTables'
+  `initComplete`, preserves `dt-*` layout classes (only sort-interactivity
+  classes are stripped), adds `columns.adjust()` to resync the scrollX
+  header clone, debounces the search handler at 250 ms, and guards against
+  duplicate filter rows on re-init. A themed CSS block sizes each input to
+  `width: 100%` with `box-sizing: border-box` so the input never exceeds
+  its cell. Input handlers are bound via jQuery event delegation on the
+  table container so they survive the per-draw header-clone refresh that
+  DataTables does in scrollX mode — without this, the visible inputs
+  (which live in the `.dt-scroll-head` clone) carried no listeners and
+  typing was a no-op. Click propagation is stopped on the filter row so a
+  filter click can't trigger a header sort. DataTables' `searching`
+  feature is now enabled whenever `columnFiltersEnabled` is on (previously
+  a user with `searchEnabled=false` had `searching=false`, which made
+  `api.column(i).search()` a no-op — the visible fields accepted text but
+  nothing filtered); `layout: { topEnd: null }` suppresses the stray
+  global search control so no unwanted search box appears. Per-column
+  filtering is also now WYSIWYG: the `render` callback returns
+  `valueFormatted` for DataTables' `filter` orthogonal data instead of
+  `valueRaw`, so typing the displayed string (e.g. `5.00`, not the raw
+  `5`) matches. Two Playwright specs pin the fix:
+  `tests/phase3-panel/column-filter-alignment.spec.ts` covers the
+  alignment invariant and filter-row interactivity against the DataTables
+  v2 `dt-scroll-head` / `dt-scroll-body` DOM, and
+  `tests/phase3-panel/column-filter-many-columns.spec.ts` exercises a
+  nine-column provisioned dashboard end-to-end — including real user
+  keystrokes that fire the delegated handler. Additional hardening from
+  code review: delegated `.columnFilter` handlers are now explicitly
+  detached before `destroy()` so a container-reuse teardown path cannot
+  accumulate stale listeners across re-inits; filter `<input>` elements
+  are built via `document.createElement` rather than `$th.html(template)`
+  so a column title containing a `"` cannot break out of the placeholder
+  attribute (`textUtil.sanitize` strips tags but does not escape
+  attribute-context quotes); and `setDataTableReady(true)` inside
+  `initComplete` is now gated on a `mountedRef` so the async callback
+  cannot setState on an unmounted component.
+- **First-paint no longer flashes un-formatted data.** The panel previously
+  rendered the `<table>` node as soon as the transformed rows were cached
+  but before DataTables had initialized, so users saw a brief flash of the
+  raw table (no formatters, no threshold coloring, no filter row) before it
+  settled. A `dataTableReady` state now stays `false` until DataTables'
+  `initComplete` fires; a themed loading overlay covers the wrapper and
+  the `<table>` is rendered with `visibility: hidden` until then. The
+  overlay also re-hides the table on every re-init triggered by an options
+  change, so transient draws between `destroy` and the next `initComplete`
+  don't leak through either.
 - Remove `transparent={false}` from `Switch` usages in `ColumnStyleItem.tsx`
   (prop moved to `InlineSwitch` only; all sites relied on the default)
 - Fix `tests/phase2-installed/check-installed.spec.ts` strict-mode locator collision on

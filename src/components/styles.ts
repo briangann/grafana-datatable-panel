@@ -450,6 +450,24 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
         table.dataTable tbody td.dt-body-nowrap': {
         whiteSpace: 'nowrap',
       },
+      'table.dataTable thead tr.column-filter th': {
+        padding: '4px 8px',
+        borderTop: `1px solid ${theme.colors.border.weak}`,
+      },
+      'table.dataTable thead tr.column-filter th input.column-filter': {
+        width: '100%',
+        boxSizing: 'border-box',
+        padding: '2px 6px',
+        fontSize: 'inherit',
+        background: theme.colors.background.primary,
+        color: theme.colors.text.primary,
+        border: `1px solid ${theme.colors.border.medium}`,
+        borderRadius: theme.shape.radius.default,
+      },
+      'table.dataTable thead tr.column-filter th input.column-filter:focus': {
+        outline: 'none',
+        borderColor: theme.colors.primary.border,
+      },
       /*
        * Table styles
        */

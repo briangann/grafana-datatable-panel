@@ -43,9 +43,22 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
   const [cachedProcessedData, setCachedProcessedData] = useState<DTData>();
   const [cachedColumnDefs, setCachedColumnDefs] = useState<ConfigColumnDefs[]>();
+  // Gates the table visibility. Flipped to true inside DataTables'
+  // `initComplete` once formatters, threshold coloring, and the optional
+  // filter row are all in place. Hides the un-formatted first-paint flash.
+  const [dataTableReady, setDataTableReady] = useState(false);
 
   const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
+  // Tracks whether the component is still mounted, so DataTables' async
+  // `initComplete` callback doesn't setState on an unmounted instance.
+  const mountedRef = useRef(true);
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+    };
+  }, []);
 
   const dataTableWrapperId = `data-table-wrapper-${props.id}`;
   const dataTableId = `data-table-renderer-${props.id}`;
@@ -69,29 +82,76 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   const enableColumnFilters = (dataTable: any) => {
     const header = dataTable.table(0).header();
-    const newHeaders = $(header)
-      .children('tr')
-      .clone();
+    const $header = $(header);
+
+    // Idempotency guard — don't stack rows on re-invocation
+    if ($header.find('tr.column-filter').length > 0) {
+      return;
+    }
+
+    // Clone the existing header row; strip only sort-interactivity classes so
+    // DataTables' layout classes (dt-*, width hints) survive and keep the
+    // filter cells aligned with the body columns.
+    const newHeaders = $header.children('tr').first().clone();
     newHeaders
+      .addClass('column-filter')
       .find('th')
-      .removeClass()
+      .removeClass('sorting')
+      .removeClass('sorting_asc')
+      .removeClass('sorting_desc')
+      .removeClass('sorting_disabled')
       .addClass('column-filter');
     newHeaders.appendTo(header as Element);
-    $(header)
-      .find(`tr:eq(1) th`)
-      .each(function (i) {
-        let title = textUtil.sanitize($(this).text());
-        $(this).html('<input class="column-filter" type="text" placeholder="Search ' + title + '" />');
 
-        $('input', this).on('keyup change', function (this: any) {
-          if (dataTable.column(i).search() !== this.value) {
-            dataTable
-              .column(i)
-              .search(this.value)
-              .draw();
+    // Populate each cloned th with a search input. Structure only — handlers
+    // go on the wrapper via delegation below, because DataTables' scrollX
+    // mode re-clones the source thead into `.dt-scroll-head` on every draw
+    // and wipes any listeners bound directly to input nodes.
+    // Build the <input> via DOM APIs rather than `.html(string)` templating
+    // so a column title containing a `"` character cannot break out of the
+    // placeholder attribute — `textUtil.sanitize` strips HTML tags but does
+    // not escape attribute-context quotes.
+    $header.find(`tr.column-filter th`).each(function () {
+      const th = this as HTMLTableCellElement;
+      const title = textUtil.sanitize(th.textContent ?? '');
+      const input = document.createElement('input');
+      input.className = 'column-filter';
+      input.type = 'text';
+      input.placeholder = `Search ${title}`;
+      th.textContent = '';
+      th.appendChild(input);
+    });
+
+    // Delegated handlers on the table container survive DataTables' per-draw
+    // clone refresh, so they fire on whichever thead instance the user is
+    // actually interacting with (the visible clone in `.dt-scroll-head`).
+    const $container = $(dataTable.table(0).container());
+    const debounceTimers = new Map<number, ReturnType<typeof setTimeout>>();
+
+    $container.on('click.columnFilter', 'tr.column-filter th', function (ev) {
+      ev.stopPropagation();
+    });
+
+    $container.on('keyup.columnFilter change.columnFilter', 'input.column-filter', function (this: HTMLInputElement) {
+      const columnIndex = $(this).closest('th').index();
+      const value = this.value;
+      const existing = debounceTimers.get(columnIndex);
+      if (existing !== undefined) {
+        clearTimeout(existing);
+      }
+      debounceTimers.set(
+        columnIndex,
+        setTimeout(() => {
+          if (dataTable.column(columnIndex).search() !== value) {
+            dataTable.column(columnIndex).search(value).draw();
           }
-        });
-      });
+        }, 250),
+      );
+    });
+
+    // Resync header clone (scrollX) and body widths now that the thead has
+    // a second row.
+    dataTable.columns.adjust().draw(false);
   };
 
   useEffect(() => {
@@ -200,6 +260,10 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     if (cachedProcessedData !== undefined && cachedColumnDefs !== undefined) {
+      // Re-init in progress — keep the overlay up until the new initComplete
+      // fires, otherwise a transient un-formatted paint appears between
+      // destroy and the next draw.
+      setDataTableReady(false);
 
       // 32 = panel title when displayed
       // 8 = panel content wrapper padding (all the way around) - need this for width too!
@@ -219,7 +283,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       }
       if (dataTableDOMRef.current && cachedProcessedData.Columns.length > 0) {
         try {
-          // cleanup existing table, columns may have changed
+          // cleanup existing table, columns may have changed. Remove any
+          // delegated `.columnFilter` handlers first so a destroy path that
+          // retains the container element cannot accumulate stale handlers
+          // across re-inits.
+          $(dataTableDOMRef.current).closest('.dt-container').off('.columnFilter');
           const aDT = $(dataTableDOMRef.current).DataTable();
           aDT.destroy();
           $(dataTableDOMRef.current).empty();
@@ -265,20 +333,30 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               regex: true,
               smart: false,
             },
-            searching: props.options.searchEnabled,
+            // Column filters drive `.column(i).search()`, which requires
+            // DataTables' search feature to be enabled. When the user has
+            // only turned on column filters (not the global search box),
+            // keep the feature on but suppress the top-end search control
+            // via layout so no stray global input appears.
+            searching: props.options.searchEnabled || props.options.columnFiltersEnabled,
+            ...(!props.options.searchEnabled && props.options.columnFiltersEnabled
+              ? { layout: { topEnd: null } }
+              : {}),
             //select: selectSettings,
             stateSave: false,
+            initComplete: function () {
+              if (props.options.columnFiltersEnabled) {
+                enableColumnFilters(this.api());
+              }
+              if (mountedRef.current) {
+                setDataTableReady(true);
+              }
+            },
           };
           if (props.options.rowsPerPage) {
             dtOptions.pageLength = props.options.rowsPerPage;
           }
           jQuery(dataTableDOMRef.current).DataTable(dtOptions as Config);
-        }
-      }
-      const currentDom = dataTableDOMRef.current;
-      if (props.options.columnFiltersEnabled) {
-        if (currentDom) {
-          enableColumnFilters(jQuery(currentDom).DataTable());
         }
       }
     }
@@ -309,21 +387,38 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.transformation,
   ]);
 
-  if (cachedProcessedData === undefined || cachedColumnDefs === undefined) {
-    return (
-      <>Loading... please wait</>
-    )
-  }
+  const hasData = cachedProcessedData !== undefined && cachedColumnDefs !== undefined;
   return (
-    <div id={dataTableWrapperId} className={divStyles} style={{ width: '100%', height: '100%' }}>
-      {props.data &&
-        <table style={{ width: '100%' }}
+    <div
+      id={dataTableWrapperId}
+      className={divStyles}
+      style={{ width: '100%', height: '100%', position: 'relative' }}
+    >
+      {!dataTableReady && (
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1,
+            background: theme2.colors.background.primary,
+            color: theme2.colors.text.secondary,
+          }}
+        >
+          Loading... please wait
+        </div>
+      )}
+      {hasData && props.data && (
+        <table
+          style={{ width: '100%', visibility: dataTableReady ? 'visible' : 'hidden' }}
           id={dataTableId}
           ref={dataTableDOMRef}
           className={dataTableClassesEnabled.join(' ')}
-          width="100%">
-        </table>
-      }
+          width="100%"
+        />
+      )}
     </div>
   );
 };
