@@ -32,7 +32,7 @@ test.describe('column filter alignment (issue #278)', () => {
 
     await test.step('filter row is present in the visible header', async () => {
       await expect(
-        page.locator(`${HEAD_TABLE} thead tr.column-filter`),
+        page.locator(`${HEAD_TABLE} thead tr:has(th.column-filter)`),
       ).toBeVisible({ timeout: 10000 });
     });
 
@@ -49,7 +49,7 @@ test.describe('column filter alignment (issue #278)', () => {
         }
         const filterThs = Array.from(
           headerTable.querySelectorAll<HTMLTableCellElement>(
-            'thead tr.column-filter th',
+            'thead tr:has(th.column-filter) th',
           ),
         );
         if (filterThs.length === 0) {
@@ -105,7 +105,7 @@ test.describe('column filter alignment (issue #278)', () => {
     });
 
     const firstFilterInput = page
-      .locator(`${HEAD_TABLE} thead tr.column-filter th input.column-filter`)
+      .locator(`${HEAD_TABLE} thead tr:has(th.column-filter) th input.column-filter`)
       .first();
     await expect(firstFilterInput).toBeVisible({ timeout: 10000 });
 
