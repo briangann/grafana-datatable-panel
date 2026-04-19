@@ -149,7 +149,8 @@ export async function optionsBuilder(
     path: 'searchHighlightingEnabled',
     defaultValue: true,
     category: ['Search Options'],
-    description: 'Highlight matching text during search'
+    description: 'Highlight matching text during search',
+    showIf: (context) => context['searchEnabled'] === true,
   });
 
   // Column Filters
