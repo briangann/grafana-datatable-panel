@@ -28,5 +28,9 @@ export function buildLayout(
         bottomStart: ['paging', 'info'],
         bottomEnd: 'search',
       };
+    default: {
+      const _exhaustive: never = position;
+      return _exhaustive;
+    }
   }
 }
