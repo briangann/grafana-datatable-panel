@@ -3,6 +3,11 @@ name: Coverage Report
 on:
   pull_request:
 
+# Cancel superseded PR runs when new commits land.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:

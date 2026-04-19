@@ -8,6 +8,11 @@ on:
     branches:
       - main
 
+# Cancel superseded PR runs when new commits land; let push-to-main runs finish.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 permissions: {}
 
 jobs:
