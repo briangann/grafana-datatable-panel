@@ -8,8 +8,6 @@
 [![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
 ![Release](https://github.com/briangann/grafana-datatable-panel/workflows/Release/badge.svg)
 
-[![Known Vulnerabilities](https://snyk.io/test/github/briangann/grafana-datatable-panel/badge.svg)](https://snyk.io/test/github/briangann/grafana-datatable-panel)
-
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel
 for [Grafana](http://www.grafana.com) 10.x/11.x/12.x.
 
