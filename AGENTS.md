@@ -34,6 +34,32 @@ E2E (requires a running Grafana with the plugin mounted):
 
 ## Architecture
 
+### `src/` layout
+
+```text
+src/
+├── components/                  React components + Grafana panel options UI
+│   ├── DataTablePanel.tsx       the panel
+│   ├── styles.ts                Emotion styling
+│   └── options/                 editor UI (Grafana options panel)
+│       ├── columnstyles/        per-column style editor + UI-only types
+│       └── thresholds/          per-style threshold editor + UI-only types
+├── data/                        panel options → DataTables config pipeline
+│   ├── dataHelpers.ts           orchestrator (DataFrame → DataTables rows)
+│   ├── transformations.ts       Grafana DataFrame transformers
+│   ├── cells/                   cell-level rendering (formatter, createdCell, colors)
+│   ├── columns/                 column-level config (alias, style matcher, width hints)
+│   ├── layout/                  DataTables `layout` config (search bar position)
+│   └── mappings/                Grafana value/range/regex mapping resolution
+├── hooks/                       generic React hooks (useApplyTransformation, useTracker)
+├── utils/                       cross-cutting helpers (color math)
+├── images/, img/, screenshots/  static assets
+├── migrations.ts                Angular → React options migration + defaults backfill
+├── module.ts                    plugin entry (PanelPlugin registration)
+├── plugin.json                  Grafana plugin manifest
+└── types.ts                     single source of truth for all domain + runtime types
+```
+
 ### Panel entry point & option pipeline
 
 - `src/module.ts` registers the `PanelPlugin`, wires
