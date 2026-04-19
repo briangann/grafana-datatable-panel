@@ -28,7 +28,7 @@ import { BuildColumnDefs, ConvertDataFrameToDataTableFormat } from 'data/dataHel
 import { ApplyColumnWidthHints } from 'data/columnWidthHints';
 import { buildSearchBarLayout } from 'data/buildSearchBarLayout';
 import { datatableThemedStyles } from './styles';
-import { GetDataTransformerID } from 'data/transformations';
+import { GetDataTransformerID } from 'pipeline/transformations';
 import { DTColumnType } from 'data/types';
 import { ApplyColumnAliases } from 'data/columnAliasing';
 

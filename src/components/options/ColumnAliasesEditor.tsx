@@ -1,7 +1,7 @@
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
 import { Box, Button, IconButton, InlineField, Input, Select, Stack } from '@grafana/ui';
 import React, { FormEvent } from 'react';
-import { getDataFrameFields } from 'data/transformations';
+import { getDataFrameFields } from 'pipeline/transformations';
 import { ColumnAliasField } from 'types';
 
 export function ColumnAliasesEditor(props: StandardEditorProps<ColumnAliasField[]>) {
