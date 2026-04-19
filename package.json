@@ -38,7 +38,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
-    "@grafana/e2e-selectors": "^12.4.3",
+    "@grafana/e2e-selectors": "12.4.2",
     "@grafana/eslint-config": "^9.0.0",
     "@grafana/plugin-e2e": "^3.5.1",
     "@grafana/plugin-meta-extractor": "^0.0.3",
@@ -95,11 +95,11 @@
   },
   "dependencies": {
     "@emotion/css": "11.13.5",
-    "@grafana/data": "^12.2.0",
-    "@grafana/i18n": "^12.2.0",
-    "@grafana/runtime": "^12.2.0",
-    "@grafana/schema": "^12.2.0",
-    "@grafana/ui": "^12.2.0",
+    "@grafana/data": "12.4.2",
+    "@grafana/i18n": "12.4.2",
+    "@grafana/runtime": "12.4.2",
+    "@grafana/schema": "12.4.2",
+    "@grafana/ui": "12.4.2",
     "@types/jquery": "^3.5.29",
     "@types/pdfmake": "^0.3.2",
     "datatables.mark.js": "^2.1.0",
@@ -130,10 +130,5 @@
     "tslib": "2.8.1",
     "uuid": "^13.0.0"
   },
-  "packageManager": "pnpm@10.11.0",
-  "pnpm": {
-    "overrides": {
-      "@grafana/runtime": "12.4.2"
-    }
-  }
+  "packageManager": "pnpm@10.11.0"
 }

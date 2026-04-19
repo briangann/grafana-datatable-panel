@@ -122,8 +122,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Dependencies
 
-- Pin `@grafana/runtime` to 12.4.2 via pnpm override
-  (upstream 12.4.3 declares `@grafana/ui@12.4.3`, which was never published)
+- Pin every direct `@grafana/*` dependency to exact `12.4.2`; drop
+  the `pnpm.overrides` workaround for `@grafana/runtime@12.4.3`
+  (unpublished `@grafana/ui@12.4.3` peer).
 - Bump 31 dependencies to latest within current major: `@babel/core`, `@emotion/css`,
   `@grafana/tsconfig`, `@playwright/test`, `@swc/core`, `@swc/helpers`, `@swc/jest`,
   `@testing-library/jest-dom`, `@types/lodash`, `@types/pdfmake`,
