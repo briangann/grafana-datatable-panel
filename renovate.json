@@ -1,0 +1,37 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "timezone": "America/New_York",
+  "schedule": ["before 4am on Monday"],
+  "labels": ["dependencies"],
+  "prConcurrentLimit": 10,
+  "prHourlyLimit": 4,
+  "lockFileMaintenance": {
+    "enabled": true,
+    "schedule": ["before 4am on Monday"]
+  },
+  "packageRules": [
+    {
+      "description": "Block @grafana/*@13.x until the grafanaDependency upper bound in plugin.json is raised past <13.0.0.",
+      "matchPackageNames": ["@grafana/**"],
+      "allowedVersions": "<13.0.0"
+    },
+    {
+      "description": "Group non-major devDependency bumps into one weekly PR.",
+      "matchDepTypes": ["devDependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "dev-deps (non-major)"
+    },
+    {
+      "description": "Group non-major dependency bumps into one weekly PR.",
+      "matchDepTypes": ["dependencies"],
+      "matchUpdateTypes": ["patch", "minor"],
+      "groupName": "prod-deps (non-major)"
+    },
+    {
+      "description": "Keep all datatables.net-*-jqui packages aligned so they bump together.",
+      "matchPackageNames": ["datatables.net-*-jqui"],
+      "groupName": "datatables jqui"
+    }
+  ]
+}
