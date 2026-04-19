@@ -38,7 +38,7 @@ jobs:
         id: find-module-ts
         run: |
           MODULETS="$(find ./src -type f \( -name "module.ts" -o -name "module.tsx" \))"
-          echo "modulets=${MODULETS}" >> $GITHUB_OUTPUT
+          echo "modulets=${MODULETS}" >> "$GITHUB_OUTPUT"
 
       - name: Compatibility check
         uses: grafana/plugin-actions/is-compatible@is-compatible/v1.0.2
