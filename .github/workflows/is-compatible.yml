@@ -1,6 +1,11 @@
 name: Latest Grafana API compatibility check
 on: [pull_request]
 
+# Cancel superseded PR runs when new commits land.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   compatibilitycheck:
     runs-on: ubuntu-latest
