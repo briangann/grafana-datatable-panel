@@ -311,7 +311,7 @@ describe('Cell Renderer', () => {
     it('sanitizes the URL when clickThroughSanitize is enabled', () => {
       // `textUtil.sanitizeUrl` strips known-dangerous schemes; here we
       // just assert the sanitize branch runs without throwing by
-      // feeding a normal URL. Changed behaviour (scheme stripping) is
+      // feeding a normal URL. Changed behavior (scheme stripping) is
       // owned by @grafana/data and isn't re-tested at this layer.
       const style = {
         stringStyle: {

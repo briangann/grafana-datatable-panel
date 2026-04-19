@@ -107,7 +107,7 @@ describe('ConvertDataFrameToDataTableFormat', () => {
   it('hides a column when its matched style is HIDDEN (only via rowNumbers branch)', () => {
     // The visibility toggle lives in the `if (rowNumbersEnabled)` block —
     // matches the current implementation even though the location is
-    // arguably a bug. Pin observed behaviour rather than pretend.
+    // arguably a bug. Pin observed behavior rather than pretend.
     const hiddenStyle = {
       activeStyle: ColumnStyles.HIDDEN,
       enabled: true,

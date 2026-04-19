@@ -38,6 +38,7 @@
     "Magefile",
     "markjs",
     "pdfmake",
+    "percentunit",
     "rowcolumn",
     "rpmbuild",
     "scroller",

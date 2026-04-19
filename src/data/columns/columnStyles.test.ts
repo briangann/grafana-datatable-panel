@@ -96,7 +96,7 @@ describe('Column Styles', () => {
       expect(cols[0].columnStyles[0]).toBe(first);
     });
 
-    it('treats unslashed nameOrRegex as exact string match, not regex', () => {
+    it('treats nameOrRegex without slashes as exact string match, not regex', () => {
       // 'web' would regex-match 'web-01' — but without slashes it's an
       // exact string equality check, so 'web-01' does NOT match 'web'.
       const cols = makeCols(['web', 'web-01']);
