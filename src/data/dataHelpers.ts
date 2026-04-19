@@ -152,13 +152,24 @@ export const ConvertDataFrameToDataTableFormat = (
   return { columns, rows };
 }
 
-export const BuildColumnDefs = (
-  rowNumbersEnabled: boolean,
-  fontSizePercent: string,
-  alignment: AlignmentFlags,
-  timeRange: TimeRange,
-  replaceVariables: InterpolateFunction,
-  dtData: DTData): ConfigColumnDefs[] => {
+export type BuildColumnDefsOptions = {
+  rowNumbersEnabled: boolean;
+  fontSizePercent: string;
+  alignment: AlignmentFlags;
+  timeRange: TimeRange;
+  replaceVariables: InterpolateFunction;
+  dtData: DTData;
+};
+
+export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[] => {
+  const {
+    rowNumbersEnabled,
+    fontSizePercent,
+    alignment,
+    timeRange,
+    replaceVariables,
+    dtData,
+  } = opts;
 
   const columnDefs: ConfigColumnDefs[] = [];
   let rowNumberOffset = 0;

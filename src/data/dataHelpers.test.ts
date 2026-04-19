@@ -1,4 +1,5 @@
 import {
+  BuildColumnDefs,
   ConvertDataFrameToDataTableFormat,
   getCellColors,
   GetColorForValue,
@@ -7,11 +8,13 @@ import {
 } from './dataHelpers';
 import { ColumnStyleColoring } from 'types';
 import { ColumnStyles, ColumnStyleItemType } from 'components/options/columnstyles/types';
-import { FormattedColumnValue } from './types';
+import { DTColumnType, FormattedColumnValue } from './types';
 import {
   createTheme,
+  dateTime,
   FieldConfigSource,
   FieldType,
+  TimeRange,
   toDataFrame,
 } from '@grafana/data';
 
@@ -256,5 +259,61 @@ describe('ConvertDataFrameToDataTableFormat', () => {
     });
     const valueCol = columns.find((c) => c.title === 'value');
     expect(valueCol?.visible).toBe(false);
+  });
+});
+
+describe('BuildColumnDefs', () => {
+  // Minimal DTData fixture — two columns, one data row.
+  const dtData = {
+    Columns: [
+      {
+        title: 'name',
+        data: 'name',
+        type: 'string',
+        className: '',
+        columnStyles: [],
+        widthHint: '',
+        visible: true,
+      } as DTColumnType,
+      {
+        title: 'value',
+        data: 'value',
+        type: 'number',
+        className: '',
+        columnStyles: [],
+        widthHint: '',
+        visible: true,
+      } as DTColumnType,
+    ],
+    Rows: [{ name: 'A', value: 1 }],
+  };
+
+  // Pins the options-object API so a future refactor can't silently revert to
+  // positional args. Also asserts the sentinel `{ targets: '_all' }` entry
+  // that BuildColumnDefs appends — DataTables relies on it to suppress a
+  // "unknown column" dialog when toggling the row-number column at runtime.
+  it('accepts a BuildColumnDefsOptions object and emits one def per column plus the _all sentinel', () => {
+    const defs = BuildColumnDefs({
+      rowNumbersEnabled: false,
+      fontSizePercent: '100%',
+      alignment: { numbers: true, strings: false },
+      timeRange: {
+        from: dateTime(0),
+        to: dateTime(0),
+        raw: { from: 'now-1h', to: 'now' },
+      } as unknown as TimeRange,
+      replaceVariables: (s: string) => s,
+      dtData,
+    });
+
+    // 2 column defs + 1 sentinel
+    expect(defs).toHaveLength(3);
+    const realDefs = defs.filter((d) => (d as unknown as Record<string, unknown>).targets !== '_all');
+    expect(realDefs).toHaveLength(2);
+    expect(realDefs.map((d) => (d as unknown as Record<string, unknown>).targets)).toEqual([0, 1]);
+
+    const sentinel = defs.find((d) => (d as unknown as Record<string, unknown>).targets === '_all');
+    expect(sentinel).toBeDefined();
+    expect((sentinel as unknown as Record<string, unknown>).defaultContent).toBe('-');
   });
 });

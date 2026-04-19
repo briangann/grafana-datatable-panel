@@ -190,13 +190,14 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     if (cachedProcessedData !== undefined) {
-      const calcColumnDefs = BuildColumnDefs(
-        props.options.rowNumbersEnabled,
-        props.options.fontSizePercent,
+      const calcColumnDefs = BuildColumnDefs({
+        rowNumbersEnabled: props.options.rowNumbersEnabled,
+        fontSizePercent: props.options.fontSizePercent,
         alignment,
-        props.timeRange,
-        props.replaceVariables,
-        cachedProcessedData);
+        timeRange: props.timeRange,
+        replaceVariables: props.replaceVariables,
+        dtData: cachedProcessedData,
+      });
       setCachedColumnDefs(calcColumnDefs);
     }
   }, [
