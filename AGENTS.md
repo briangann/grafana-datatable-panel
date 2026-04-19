@@ -16,7 +16,7 @@ Build, lint, test:
 - `pnpm run lint` / `pnpm run lint:fix` — ESLint (+ Prettier on `:fix`).
 - `pnpm run test` — Jest watch mode (only changed files).
 - `pnpm run test:ci` — full Jest run used in CI (`--passWithNoTests --maxWorkers 4`, coverage on).
-- Run a single Jest test file: `pnpm exec jest src/data/columnStyles.test.ts`.
+- Run a single Jest test file: `pnpm exec jest src/datatable/columns/columnStyles.test.ts`.
 - Run a single test by name: `pnpm exec jest -t "partial test name"`.
 - `pnpm run spellcheck` — cspell.
 
@@ -54,22 +54,25 @@ E2E (requires a running Grafana with the plugin mounted):
 `src/components/DataTablePanel.tsx` is the single React component that renders the table. The pipeline for each render:
 
 1. `GetDataTransformerID(props.options.transformation)`
-   (`src/data/transformations.ts`) maps the plugin's `TransformationOptions` enum
-   to a Grafana `DataTransformerID` (`joinByField`, `merge`, `reduce`,
+   (`src/pipeline/transformations.ts`) maps the plugin's `TransformationOptions`
+   enum to a Grafana `DataTransformerID` (`joinByField`, `merge`, `reduce`,
    `seriesToRows`). `reduce` carries the user's aggregation list.
 2. `useApplyTransformation` (`src/hooks/useApplyTransformation.ts`) runs the
    transformer over `props.data.series` via `transformDataFrame` +
    `lastValueFrom`, producing the `DataFrame[]` the table consumes.
 3. `BuildColumnDefs` + `ConvertDataFrameToDataTableFormat`
-   (`src/data/dataHelpers.ts`) turn the DataFrames into DataTables.net `columns`
-   / `rows`.
-4. `ApplyColumnAliases` (`columnAliasing.ts`) and `ApplyColumnWidthHints`
-   (`columnWidthHints.ts`) mutate the column defs based on user options.
-5. `cellRenderer.ts` + `createdCellHelpers.ts` produce per-cell `render` /
-   `createdCell` callbacks that apply column styles, value/range mappings
-   (`valueMappings.ts`, `mappingProcessor.ts`), thresholds (`overrides.ts` +
-   `src/utils/color.ts`), and URL macro expansion (`$__cell`, `$__cell_N`,
-   `$__pattern_N`, `$__keepTime`, `$__from`, `$__to`).
+   (`src/datatable/dataHelpers.ts`) turn the DataFrames into DataTables.net
+   `columns` / `rows`.
+4. `ApplyColumnAliases` (`datatable/columns/columnAliasing.ts`) and
+   `ApplyColumnWidthHints` (`datatable/columns/columnWidthHints.ts`) mutate the
+   column defs based on user options.
+5. `datatable/cells/cellRenderer.ts` + `datatable/cells/createdCellHelpers.ts`
+   produce per-cell `render` / `createdCell` callbacks that apply column
+   styles, value/range mappings (`datatable/mappings/valueMappings.ts`,
+   `datatable/mappings/mappingProcessor.ts`), thresholds
+   (`datatable/mappings/overrides.ts` + `src/utils/color.ts`), and URL macro
+   expansion (`$__cell`, `$__cell_N`, `$__pattern_N`, `$__keepTime`, `$__from`,
+   `$__to`).
 6. The DataTables.net instance is constructed imperatively against a `ref` table
    element with a fixed `Config` assembled from panel options (paging, scrolling,
    search, row numbers, column filters, fixed headers, buttons, etc.). All
@@ -80,9 +83,9 @@ E2E (requires a running Grafana with the plugin mounted):
 ### Column styles
 
 Four style kinds (see `src/components/options/columnstyles/types.ts` and
-`src/data/columnStyles.ts`): `Date`, `String`, `Hidden`, `Metric`. First matching
-style per column wins — ordering matters. Metric style is where thresholds +
-unit/decimal formatting apply.
+`src/datatable/columns/columnStyles.ts`): `Date`, `String`, `Hidden`, `Metric`.
+First matching style per column wins — ordering matters. Metric style is where
+thresholds + unit/decimal formatting apply.
 
 ### Migrations
 
@@ -112,8 +115,8 @@ plugin-tools docs). Same applies to `.config/tsconfig.json` and
 `jest.config.js`, etc.
 
 TypeScript `baseUrl` is `src/`, so imports like `components/DataTablePanel`,
-`hooks/useApplyTransformation`, `data/dataHelpers`, `types` are absolute (no
-`./` prefix).
+`hooks/useApplyTransformation`, `datatable/dataHelpers`, `pipeline/transformations`,
+`types` are absolute (no `./` prefix).
 
 ## CI/CD
 
