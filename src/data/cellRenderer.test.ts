@@ -15,6 +15,11 @@ import {
 import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
 import { FormattedColumnValue } from './types';
 import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
+// Single reference epoch reused across FormatColumnValue / TimeFormatter
+// cases so the human-readable date is declared once at the top of the file
+// instead of inferred from each assertion's `.toBe('2025-04-12 …')`.
+const EPOCH_2025_04_12T19_27_35Z = 1744486055000;
+
 describe('Cell Renderer', () => {
   const theme2 = {} as unknown as GrafanaTheme2;
   describe('Test FormatColumnValue', () => {
@@ -32,7 +37,7 @@ describe('Cell Renderer', () => {
           aField,
           1,
           0,
-          1744486055000,
+          EPOCH_2025_04_12T19_27_35Z,
           'time',
           theme2,
         );
@@ -96,7 +101,7 @@ describe('Cell Renderer', () => {
         dateStyle: { dateFormat: 'YYYY/MM/DD' },
       } as unknown as ColumnStyleItemType;
       it('uses the columnStyle date format when present', () => {
-        const result = FormatColumnValue('utc', dateStyle, aField, 0, 0, 1744486055000, 'time', {} as GrafanaTheme2);
+        const result = FormatColumnValue('utc', dateStyle, aField, 0, 0, EPOCH_2025_04_12T19_27_35Z, 'time', {} as GrafanaTheme2);
         expect(result.valueFormatted).toBe('2025/04/12');
       });
     });
@@ -148,11 +153,11 @@ describe('Cell Renderer', () => {
 
   describe('Test TimeFormatter', () => {
     describe('Test numeric to UTC formatting', () => {
-      const result = TimeFormatter('utc', 1744486055000, DateFormats[5].value);
+      const result = TimeFormatter('utc', EPOCH_2025_04_12T19_27_35Z, DateFormats[5].value);
       expect(result.valueFormatted).toEqual('2025-04-12T19:27:35+00:00');
     });
     describe('Test numeric to America/Denver formatting', () => {
-      const result = TimeFormatter('America/Denver', 1744486055000, 'YYYY-MM-DDTHH:mm:ssZ');
+      const result = TimeFormatter('America/Denver', EPOCH_2025_04_12T19_27_35Z, 'YYYY-MM-DDTHH:mm:ssZ');
       expect(result.valueFormatted).toEqual('2025-04-12T13:27:35-06:00');
     });
   });
@@ -460,7 +465,7 @@ describe('Cell Renderer', () => {
   });
 
   describe('TimeFormatter', () => {
-    const epoch = 1744486055000; // 2025-04-12T19:27:35Z
+    const epoch = EPOCH_2025_04_12T19_27_35Z;
 
     it('formats a timestamp in UTC when timeZone is "utc"', () => {
       const result = TimeFormatter('utc', epoch, 'YYYY-MM-DD HH:mm:ss');

@@ -69,12 +69,10 @@ describe('ApplyGrafanaOverrides', () => {
 
     ApplyGrafanaOverrides([df], theme, spy);
 
-    // The plumbing passed our spy to applyFieldOverrides; it was free to
-    // invoke it (or not). Either outcome proves we handed in OUR stub —
-    // a no-op default would have prevented any invocation. The stronger
-    // assertion is that the call completed without throwing, which it
-    // does only if the stub signature matched what applyFieldOverrides
-    // expects.
-    expect(Array.isArray(calls)).toBe(true);
+    // No templates in the hard-coded `defaults: {}` / `overrides: []`, so the
+    // spy must never fire — pins the no-work short-circuit of the override
+    // pipeline while also proving the plumbing accepts our stub signature
+    // (a mismatched signature would have thrown before this assertion).
+    expect(calls).toEqual([]);
   });
 });

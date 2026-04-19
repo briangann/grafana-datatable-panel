@@ -251,6 +251,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.columnAliases,
     props.options.columnStylesConfig,
     props.options.columnWidthHints,
+    // emptyDataEnabled / emptyDataText are currently unreachable at runtime
+    // (see #296), so neither effect body reads them today. Kept in the deps
+    // array as a placeholder for the option-B remediation that wires the
+    // option into defaultContent — when that lands, this effect WILL need
+    // to re-run on toggle, and the dep is ready to carry that change.
     props.options.emptyDataEnabled,
     props.options.emptyDataText,
     props.options.fontSizePercent,
@@ -373,6 +378,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.columnStylesConfig,
     props.options.columnWidthHints,
     props.options.datatablePagingType,
+    // See the equivalent comment on the BuildColumnDefs effect above — kept
+    // in deps for the #296 option-B path that would make this effect sensitive
+    // to emptyData toggles via the re-init chain through cachedColumnDefs.
     props.options.emptyDataEnabled,
     props.options.emptyDataText,
     props.options.fontSizePercent,
