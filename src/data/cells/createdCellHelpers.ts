@@ -1,6 +1,5 @@
-import { DTData } from "components/DataTablePanel";
 import { getCellColors } from "../dataHelpers";
-import { DTColumnType, FormattedColumnValue } from "../types";
+import { DTColumnType, DTData, FormattedColumnValue } from "../types";
 import { ProcessClickthrough } from "./cellRenderer";
 import { ColumnStyleItemType, ColumnStyles } from "components/options/columnstyles/types";
 import { InterpolateFunction, TimeRange } from "@grafana/data";

@@ -29,15 +29,10 @@ import { ApplyColumnWidthHints } from 'data/columns/columnWidthHints';
 import { buildSearchBarLayout } from 'data/layout/buildSearchBarLayout';
 import { datatableThemedStyles } from './styles';
 import { GetDataTransformerID } from 'data/transformations';
-import { DTColumnType } from 'data/types';
+import { DTColumnType, DTData } from 'data/types';
 import { ApplyColumnAliases } from 'data/columns/columnAliasing';
 
 interface Props extends PanelProps<DatatableOptions> { }
-
-export interface DTData {
-  Columns: DTColumnType[],
-  Rows: any[],
-};
 
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
 

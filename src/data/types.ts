@@ -18,3 +18,8 @@ export interface FormattedColumnValue {
   valueRounded: number | null,
   valueRoundedAndFormatted: string | null,
 };
+
+export interface DTData {
+  Columns: DTColumnType[];
+  Rows: any[];
+};
