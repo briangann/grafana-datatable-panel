@@ -1,21 +1,34 @@
 import React, { useState } from 'react';
 
 import {
-  IconName,
-  Input,
+  Card,
+  Cascader,
+  CascaderOption,
   Field,
   FieldSet,
-  Switch,
-  Card,
   IconButton,
-  UnitPicker,
-  Cascader,
+  IconName,
+  Input,
   Select,
+  Switch,
+  UnitPicker,
 } from '@grafana/ui';
-import { ColumnStyleItemProps } from './types';
 import { ThresholdsEditor } from '../thresholds/ThresholdsEditor';
 import { ColorModeOptions, ColumnAlignment, ColumnAlignmentOptions, ColumnStyleItemType, DateFormats, Threshold } from 'types';
 import { SelectableValue } from '@grafana/data';
+
+interface ColumnStyleItemProps {
+  columnHints: CascaderOption[];
+  style: ColumnStyleItemType;
+  ID: string;
+  enabled: boolean;
+  setter: any;
+  remover: any;
+  moveUp: any;
+  moveDown: any;
+  createDuplicate: any;
+  context: any;
+}
 
 export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
   const [style, _setColumnStyle] = useState(props.style);

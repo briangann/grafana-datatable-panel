@@ -190,7 +190,7 @@ export interface ColumnStyleMetric {
   alias: string;
   thresholds: Threshold[];
   colors: string[];
-  colorMode?: string;
+  colorMode?: ColumnStyleColoring;
   decimals: string;
   scaledDecimals: number | null;
   unitFormat: string;
@@ -220,7 +220,9 @@ export interface ColumnStyleItemType {
   label: string;
   nameOrRegex: string;
   order: number;
+  // per-column cell alignment override; 'default' defers to the panel-level setting
   align?: ColumnAlignment;
+  // allows switching the styles without losing data
   dateStyle: ColumnStyleDate;
   hiddenStyle: ColumnStyleHidden;
   metricStyle: ColumnStyleMetric;

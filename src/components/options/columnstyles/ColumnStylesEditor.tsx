@@ -8,7 +8,6 @@ import {
   DEFAULT_OK_COLOR_HEX,
   DEFAULT_WARNING_COLOR_HEX,
 } from '../defaults';
-import { ColumnStyleItemTracker } from './types';
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { getColumnHints } from './columnHints';
 import {
@@ -24,6 +23,11 @@ import {
   Threshold,
 } from 'types';
 import { TrackerAdapter, useTracker } from 'hooks/useTracker';
+
+interface ColumnStyleItemTracker {
+  style: ColumnStyleItemType;
+  ID: string;
+}
 
 const columnStyleAdapter: TrackerAdapter<ColumnStyleItemTracker, ColumnStyleItemType> = {
   toPayload: (t) => t.style,

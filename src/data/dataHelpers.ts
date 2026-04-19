@@ -53,12 +53,12 @@ export const DataFrameToDisplay = (frames: DataFrame[]) => {
 };
 
 
-export type AlignmentFlags = {
+type AlignmentFlags = {
   numbers: boolean;
   strings: boolean;
 };
 
-export type ConvertDataFrameOptions = {
+type ConvertDataFrameOptions = {
   dataFrames: DataFrame[];
   fieldConfig: FieldConfigSource<any>;
   userTimeZone: string;
@@ -150,7 +150,7 @@ export const ConvertDataFrameToDataTableFormat = (
   return { columns, rows };
 }
 
-export type BuildColumnDefsOptions = {
+type BuildColumnDefsOptions = {
   rowNumbersEnabled: boolean;
   fontSizePercent: string;
   alignment: AlignmentFlags;

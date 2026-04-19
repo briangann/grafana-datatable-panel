@@ -1,10 +1,12 @@
 import { ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, FormattedColumnValue } from 'types';
 
+// text color overlaid on a colored cell background; white is chosen for contrast against the threshold palette
+const CELL_TEXT_ON_BG = 'white';
+
 export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData: FormattedColumnValue) => {
   if (aColumnStyle === null || cellData === null || cellData === undefined) {
     return null;
   }
-  // only color cell if the content is a number
   if (aColumnStyle.activeStyle !== ColumnStyles.METRIC) {
     return null;
   }
@@ -13,8 +15,7 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData
   let color = null;
   let colorIndex = null;
 
-  if (aColumnStyle && aColumnStyle.metricStyle.colorMode != null && aColumnStyle.metricStyle.thresholds.length > 0) {
-    // check color for either cell or row
+  if (aColumnStyle.metricStyle.colorMode != null && aColumnStyle.metricStyle.thresholds.length > 0) {
     if (aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Cell ||
       aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Row ||
       aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.RowColumn) {
@@ -22,9 +23,8 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData
         bgColor = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
         bgColorIndex = GetColorIndexForValue(cellData.valueRaw as number, aColumnStyle);
       }
-      color = 'white';
+      color = CELL_TEXT_ON_BG;
     }
-    // just the value color is set
     if (aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Value) {
       if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
         color = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
@@ -49,7 +49,6 @@ export const GetColorForValue = (value: number, style: ColumnStyleItemType) => {
     const checkValue = style.metricStyle.thresholds[i].value;
     if (value >= checkValue) {
       color = style.metricStyle.thresholds[i].color;
-      // found highest match
       break;
     }
   }
@@ -57,7 +56,7 @@ export const GetColorForValue = (value: number, style: ColumnStyleItemType) => {
 };
 
 // to determine the overall row color, the index of the threshold is needed
-export const GetColorIndexForValue = (value: any, style: any) => {
+export const GetColorIndexForValue = (value: number, style: ColumnStyleItemType) => {
   if (!style.metricStyle.thresholds) {
     return null;
   }
