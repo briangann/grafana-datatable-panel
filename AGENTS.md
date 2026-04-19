@@ -42,8 +42,8 @@ src/
 │   ├── DataTablePanel.tsx       the panel
 │   ├── styles.ts                Emotion styling
 │   └── options/                 editor UI (Grafana options panel)
-│       ├── columnstyles/        per-column style editor + UI-only types
-│       └── thresholds/          per-style threshold editor + UI-only types
+│       ├── columnstyles/        per-column style editor (ColumnStyleItem + ColumnStylesEditor)
+│       └── thresholds/          per-style threshold editor (ThresholdItem + ThresholdsEditor)
 ├── data/                        panel options → DataTables config pipeline
 │   ├── dataHelpers.ts           orchestrator (DataFrame → DataTables rows)
 │   ├── transformations.ts       Grafana DataFrame transformers

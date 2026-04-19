@@ -252,6 +252,45 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   tracked in
   [#296](https://github.com/briangann/grafana-datatable-panel/issues/296).
 
+#### File structure & type consolidation (closes #298)
+
+- Reorganize `src/data/` into topical subdirectories:
+  `cells/` (cellRenderer, createdCellHelpers, cellColors),
+  `columns/` (columnAliasing, columnStyles, columnWidthHints),
+  `mappings/` (mappingProcessor, overrides, valueMappings), and
+  `layout/` (buildSearchBarLayout). `dataHelpers.ts` and
+  `transformations.ts` stay at the `src/data/` root as orchestrators.
+- Extract color helpers (`getCellColors`, `GetColorForValue`,
+  `GetColorIndexForValue`) out of `dataHelpers.ts` into a new
+  `src/data/cells/cellColors.ts` (own test file).
+- Consolidate domain types in `src/types.ts` as the single source of
+  truth. `DTData`, `Threshold` / `ThresholdStates`, `ColumnStyleItemType`
+  and its sub-styles, `ColumnStyles`, `DTColumnType`, and
+  `FormattedColumnValue` are promoted from component-local `types.ts`
+  files. The intermediate `src/data/types.ts` is deleted, eliminating
+  six upward cross-layer imports from `src/data/` back into
+  `src/components/`.
+- Tighten `ColumnStyleMetric.colorMode` from `string` to the existing
+  `ColumnStyleColoring` enum. Runtime values unchanged.
+- Co-locate the three single-consumer UI-adapter interfaces with their
+  sole consumer files: `ColumnStyleItemProps` → `ColumnStyleItem.tsx`,
+  `ColumnStyleItemTracker` → `ColumnStylesEditor.tsx`,
+  `ThresholdItemTracker` → `ThresholdsEditor.tsx`. Both
+  component-local `types.ts` files are deleted.
+- Drop `export` from three internal-only types in `dataHelpers.ts`
+  (`AlignmentFlags`, `ConvertDataFrameOptions`,
+  `BuildColumnDefsOptions`).
+- Drop four unused parameters from cell helpers: `FormatColumnValue`
+  (`colIndex` / `rowIndex` / `theme`), `ProcessClickthrough`
+  (`columns` / `rowIndex`), `ProcessStringValueStyle`
+  (`columnsInCellData` / `rowIndex`), `processRowColumnStyle`
+  (`rowNumbersEnabled`).
+- Minor cleanup in `cellColors.ts`: drop a redundant null-check,
+  name the `'white'` text-color literal as a local
+  `CELL_TEXT_ON_BG` constant, and tighten `GetColorIndexForValue`
+  from `(any, any)` to `(number, ColumnStyleItemType)` to match its
+  sibling.
+
 #### Style & convention
 
 - Rename unused positional parameters in the DataTables `data:` /
