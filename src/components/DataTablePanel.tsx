@@ -26,7 +26,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { BuildColumnDefs, ConvertDataFrameToDataTableFormat } from 'datatable/dataHelpers';
 import { ApplyColumnWidthHints } from 'datatable/columnWidthHints';
-import { buildSearchBarLayout } from 'datatable/buildSearchBarLayout';
+import { buildSearchBarLayout } from 'datatable/layout/buildSearchBarLayout';
 import { datatableThemedStyles } from './styles';
 import { GetDataTransformerID } from 'pipeline/transformations';
 import { DTColumnType } from 'datatable/types';
