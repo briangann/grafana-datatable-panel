@@ -13,7 +13,7 @@ import {
   TimeFormatter,
 } from './cellRenderer';
 import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
-import { FormattedColumnValue } from '../types';
+import { FormattedColumnValue } from 'types';
 import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
 // Single reference epoch reused across FormatColumnValue / TimeFormatter
 // cases so the human-readable date is declared once at the top of the file

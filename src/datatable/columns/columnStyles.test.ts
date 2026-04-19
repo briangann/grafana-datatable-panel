@@ -4,7 +4,7 @@
 
 import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
-import { DTColumnType } from '../types';
+import { DTColumnType } from 'types';
 import { DateFormats } from 'types';
 
 describe('Column Styles', () => {

@@ -29,7 +29,7 @@ import { ApplyColumnWidthHints } from 'datatable/columns/columnWidthHints';
 import { buildSearchBarLayout } from 'datatable/layout/buildSearchBarLayout';
 import { datatableThemedStyles } from './styles';
 import { GetDataTransformerID } from 'pipeline/transformations';
-import { DTColumnType } from 'datatable/types';
+import { DTColumnType } from 'types';
 import { ApplyColumnAliases } from 'datatable/columns/columnAliasing';
 
 interface Props extends PanelProps<DatatableOptions> { }

@@ -1,5 +1,5 @@
 import { ApplyColumnAliases } from './columnAliasing';
-import { DTColumnType } from '../types';
+import { DTColumnType } from 'types';
 
 const col = (title: string): DTColumnType =>
   ({

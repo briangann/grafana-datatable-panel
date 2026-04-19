@@ -8,7 +8,7 @@ import {
 } from './dataHelpers';
 import { ColumnStyleColoring } from 'types';
 import { ColumnStyles, ColumnStyleItemType } from 'components/options/columnstyles/types';
-import { DTColumnType, FormattedColumnValue } from './types';
+import { DTColumnType, FormattedColumnValue } from 'types';
 import {
   createTheme,
   dateTime,

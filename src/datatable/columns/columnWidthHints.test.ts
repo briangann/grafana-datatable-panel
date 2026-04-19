@@ -1,5 +1,5 @@
 import { ApplyColumnWidthHints } from './columnWidthHints';
-import { DTColumnType } from '../types';
+import { DTColumnType } from 'types';
 
 const col = (title: string): DTColumnType =>
   ({

@@ -11,7 +11,7 @@ import {
 
 import _ from 'lodash';
 import { DateFormats } from "types";
-import { FormattedColumnValue } from "../types";
+import { FormattedColumnValue } from 'types';
 import moment from 'moment-timezone';
 import { ColumnStyleItemType, ColumnStyles } from "components/options/columnstyles/types";
 

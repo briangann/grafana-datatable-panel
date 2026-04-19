@@ -1,5 +1,5 @@
 import { ColumnAliasField } from "types";
-import { DTColumnType } from "../types";
+import { DTColumnType } from 'types';
 
 const getColumnAlias = (columnName: any, columnAliases: ColumnAliasField[]) => {
   // default to the columnName
