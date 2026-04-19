@@ -100,6 +100,17 @@ Show rows per page selection
 
 ### Search Options
 
+| Option                       | Effect                                                      |
+| ---------------------------- | ----------------------------------------------------------- |
+| Allow Searching Within Table | Show the global search input above or below the table       |
+| Search Bar Position          | Where the search input renders: Top Left, Top Right,        |
+|                              | Bottom Left, or Bottom Right. Default: Top Right            |
+| Highlight Search Results     | Highlights the matching substring inside each cell          |
+| Show Column Filters          | Renders a per-column filter input row in the table header   |
+
+When `Search Bar Position` is set to a bottom slot, the table's info text
+and pagination controls stack together in the opposite bottom cell.
+
 ### Data Options
 
 #### Fill Empty Data with Custom Value
