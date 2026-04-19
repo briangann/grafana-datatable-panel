@@ -6,8 +6,6 @@ export function buildSearchBarLayout(
   position: SearchPosition,
 ): Config['layout'] {
   if (!enabled) {
-    // Only suppress the default search slot; leave topStart (pageLength),
-    // bottomStart (info), and bottomEnd (paging) to DataTables' defaults.
     return { topEnd: null };
   }
 
@@ -30,7 +28,7 @@ export function buildSearchBarLayout(
       };
     default: {
       const _exhaustive: never = position;
-      return _exhaustive;
+      throw new Error(`unhandled SearchPosition: ${_exhaustive}`);
     }
   }
 }

@@ -341,10 +341,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               smart: false,
             },
             // Column filters drive `.column(i).search()`, which requires
-            // DataTables' search feature to be enabled. When the user has
-            // only turned on column filters (not the global search box),
-            // `buildSearchBarLayout` clears the top-row search slots so no
-            // stray global input appears.
+            // DataTables' search feature to be enabled even when the
+            // global search box is off.
             searching: props.options.searchEnabled || props.options.columnFiltersEnabled,
             layout: buildSearchBarLayout(
               props.options.searchEnabled,

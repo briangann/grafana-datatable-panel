@@ -5,7 +5,7 @@ export type SearchPosition = 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd'
 
 export const DEFAULT_SEARCH_POSITION: SearchPosition = 'topEnd';
 
-export const SEARCH_POSITION_OPTIONS: Array<{ value: SearchPosition; label: string }> = [
+export const SEARCH_POSITION_OPTIONS: Array<SelectableValue<SearchPosition>> = [
   { value: 'topStart', label: 'Top Left' },
   { value: 'topEnd', label: 'Top Right' },
   { value: 'bottomStart', label: 'Bottom Left' },
