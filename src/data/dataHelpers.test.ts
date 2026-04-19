@@ -288,6 +288,11 @@ describe('BuildColumnDefs', () => {
     Rows: [{ name: 'A', value: 1 }],
   };
 
+  // `ConfigColumnDefs` from datatables.net is a narrow union that doesn't
+  // expose an index signature, so probing runtime properties needs a cast.
+  // Factor it once so the assertions below stay readable.
+  const asRecord = (d: unknown) => d as Record<string, unknown>;
+
   // Pins the options-object API so a future refactor can't silently revert to
   // positional args. Also asserts the sentinel `{ targets: '_all' }` entry
   // that BuildColumnDefs appends — DataTables relies on it to suppress a
@@ -308,12 +313,12 @@ describe('BuildColumnDefs', () => {
 
     // 2 column defs + 1 sentinel
     expect(defs).toHaveLength(3);
-    const realDefs = defs.filter((d) => (d as unknown as Record<string, unknown>).targets !== '_all');
+    const realDefs = defs.filter((d) => asRecord(d).targets !== '_all');
     expect(realDefs).toHaveLength(2);
-    expect(realDefs.map((d) => (d as unknown as Record<string, unknown>).targets)).toEqual([0, 1]);
+    expect(realDefs.map((d) => asRecord(d).targets)).toEqual([0, 1]);
 
-    const sentinel = defs.find((d) => (d as unknown as Record<string, unknown>).targets === '_all');
+    const sentinel = defs.find((d) => asRecord(d).targets === '_all');
     expect(sentinel).toBeDefined();
-    expect((sentinel as unknown as Record<string, unknown>).defaultContent).toBe('-');
+    expect(asRecord(sentinel).defaultContent).toBe('-');
   });
 });
