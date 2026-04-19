@@ -21,7 +21,7 @@ import 'datatables.mark.js';
 import { LoadingState, PanelProps, textUtil } from '@grafana/data';
 
 import { useStyles2, useTheme2 } from '@grafana/ui';
-import { useApplyTransformation } from 'hooks/useApplyTransformation';
+import { useApplyTransformation } from 'pipeline/useApplyTransformation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { BuildColumnDefs, ConvertDataFrameToDataTableFormat } from 'datatable/dataHelpers';

@@ -1,6 +1,6 @@
 import { DataFrame, DataTransformerID } from '@grafana/data';
 import React from 'react';
-import { transformData } from 'pipeline/transformations';
+import { transformData } from './transformations';
 import { AggregationType } from 'types';
 
 export const useApplyTransformation = (dataSeries: DataFrame[], transformID: DataTransformerID, aggregations: AggregationType[]) => {
