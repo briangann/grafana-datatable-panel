@@ -1,5 +1,5 @@
 import { ColumnWidthHint } from "types";
-import { DTColumnType } from "./types";
+import { DTColumnType } from "../types";
 
 const getColumnWidthHint = (name: string, columnWidthHints: ColumnWidthHint[]) => {
   for (let i = 0; i < columnWidthHints.length; i++) {

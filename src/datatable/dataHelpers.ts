@@ -14,7 +14,7 @@ import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
 import { ColumnAlignment, ColumnAlignmentOptions, ColumnStyleColoring } from 'types';
 import { DTColumnType, FormattedColumnValue } from './types';
 import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
-import { ApplyColumnStyles } from './columnStyles';
+import { ApplyColumnStyles } from './columns/columnStyles';
 import { DTData } from 'components/DataTablePanel';
 import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './createdCellHelpers';
 import { ApplyMappings, GetMappings } from './mappingProcessor';
