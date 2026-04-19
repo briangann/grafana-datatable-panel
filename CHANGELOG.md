@@ -172,16 +172,22 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   unconditionally overwritten on the next line. `TimeFormatter`'s unit
   test now pins a real UTC→EDT conversion instead of the prior
   shape-only assertion.
-- Raise `src/data/` unit-test coverage from 44% to 60% by adding tests
-  for `columnAliasing.ts` (7 cases), `columnWidthHints.ts` (7 cases),
-  the previously-untested helpers in `cellRenderer.ts`
-  (`ReplaceTimeMacros`, `ReplaceCellMacros`, `ReplaceCellSplitByPattern`,
-  `resolveClickThroughTarget`, `TimeFormatter` — 19 cases across five
-  new describe blocks), and the color-threshold helpers in
-  `dataHelpers.ts` (`GetColorForValue`, `GetColorIndexForValue`,
-  `getCellColors` — 25 cases). `dataHelpers.test.ts` earlier covered
-  only `getColumnClassName`; it now exercises the full threshold-colour
-  path plus null/disabled edge cases.
+- Raise `src/data/` unit-test coverage from 44% to 73%. First pass added
+  tests for `columnAliasing.ts` (7 cases), `columnWidthHints.ts` (7
+  cases), and extended `cellRenderer.test.ts` +
+  `dataHelpers.test.ts` with previously-untested helper and
+  threshold-colour paths. Follow-up round closed additional branches:
+  `columnStyles.test.ts` regex-match + exact-match paths, remaining
+  `SpecialValueMatch` sub-case fall-throughs and
+  `RangeToText`/`RegexToText` null-guards in `valueMappings.test.ts`,
+  `FormatColumnValue` paths for string columns, DATE columnStyle
+  custom `dateFormat`, and columnStyle `unitFormat` / `decimals`
+  overrides, `ProcessClickthrough` `splitByPattern` and
+  `clickThroughSanitize` branches, `applyFormat` currency-prefix
+  branch, and four new `ConvertDataFrameToDataTableFormat` cases
+  covering field-to-column shape mapping, row-object build, the
+  `rowNumbersEnabled` branch (prepend `row` column + stamp indices),
+  and the HIDDEN-style visibility toggle.
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook
   encapsulating the ordered-tracker-with-onChange-fan-out pattern used by
   `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`,

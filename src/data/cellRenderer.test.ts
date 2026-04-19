@@ -14,7 +14,7 @@ import {
 } from './cellRenderer';
 import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
 import { FormattedColumnValue } from './types';
-import { ColumnStyleItemType } from 'components/options/columnstyles/types';
+import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
 describe('Cell Renderer', () => {
   const theme2 = {} as unknown as GrafanaTheme2;
   describe('Test FormatColumnValue', () => {
@@ -63,6 +63,60 @@ describe('Cell Renderer', () => {
         );
         // show just return a string with the value inside
         expect(result.valueFormatted).toEqual('123.456');
+      });
+    });
+
+    describe('with a string column', () => {
+      const aField: Field = {
+        name: '',
+        type: FieldType.string,
+        config: [] as FieldConfig,
+        values: [],
+      };
+      it('passes the string value through unchanged', () => {
+        const result = FormatColumnValue('utc', null, aField, 0, 0, 'hello', 'string', {} as GrafanaTheme2);
+        expect(result).toEqual({
+          valueRaw: 'hello',
+          valueFormatted: 'hello',
+          valueRounded: null,
+          valueRoundedAndFormatted: null,
+        });
+      });
+    });
+
+    describe('with a DATE columnStyle and custom dateFormat', () => {
+      const aField: Field = {
+        name: '',
+        type: FieldType.time,
+        config: [] as FieldConfig,
+        values: [],
+      };
+      const dateStyle = {
+        activeStyle: ColumnStyles.DATE,
+        dateStyle: { dateFormat: 'YYYY/MM/DD' },
+      } as unknown as ColumnStyleItemType;
+      it('uses the columnStyle date format when present', () => {
+        const result = FormatColumnValue('utc', dateStyle, aField, 0, 0, 1744486055000, 'time', {} as GrafanaTheme2);
+        expect(result.valueFormatted).toBe('2025/04/12');
+      });
+    });
+
+    describe('with columnStyle metric overrides', () => {
+      const aField: Field = {
+        name: '',
+        type: FieldType.number,
+        config: { unit: 'kwh', decimals: 3 } as FieldConfig,
+        values: [],
+      };
+      const metricStyle = {
+        activeStyle: ColumnStyles.METRIC,
+        metricStyle: { unitFormat: 'percentunit', decimals: '1' },
+      } as unknown as ColumnStyleItemType;
+
+      it('columnStyle unit/decimals override the field config', () => {
+        const result = FormatColumnValue('utc', metricStyle, aField, 0, 0, 0.5, 'number', {} as GrafanaTheme2);
+        // percentunit 0.5 at 1 decimal → "50.0%"
+        expect(result.valueFormatted).toBe('50.0%');
       });
     });
 
@@ -141,6 +195,14 @@ describe('Cell Renderer', () => {
       expect(result.valueFormatted).toEqual('123.46 kwh');
       expect(result.valueRounded).toEqual(123.46);
       expect(result.valueRoundedAndFormatted).toEqual('123.46 kwh');
+    });
+
+    it('prepends the prefix for currency formats', () => {
+      // currencyUSD has a '$' prefix — exercises the `formatted.prefix`
+      // branch that concatenates before the value.
+      const result = applyFormat(12.34, 2, 'currencyUSD');
+      expect(result.valueFormatted.startsWith('$')).toBe(true);
+      expect(result.valueFormatted).toContain('12.34');
     });
   });
 
@@ -235,6 +297,50 @@ describe('Cell Renderer', () => {
       const html = run('http://example.com/x?v=$__cell', replaceVariables);
       expect(html).toContain('href="http://example.com/x?v=cellText"');
       expect(html).not.toContain('INTERCEPTED');
+    });
+
+    it('splits the cell value by splitByPattern and expands $__pattern_N', () => {
+      const style = {
+        stringStyle: {
+          ...baseStringStyle,
+          clickThrough: 'http://example.com/?host=$__pattern_0&env=$__pattern_1',
+          splitByPattern: '/\\s/',
+        },
+      } as unknown as ColumnStyleItemType;
+      const html = ProcessClickthrough(
+        style,
+        [],
+        [],
+        0,
+        { valueFormatted: 'web-01 prod' } as FormattedColumnValue,
+        fakeTimeRange,
+        noopReplaceVariables,
+      );
+      expect(html).toContain('href="http://example.com/?host=web-01&env=prod"');
+    });
+
+    it('sanitizes the URL when clickThroughSanitize is enabled', () => {
+      // `textUtil.sanitizeUrl` strips known-dangerous schemes; here we
+      // just assert the sanitize branch runs without throwing by
+      // feeding a normal URL. Changed behaviour (scheme stripping) is
+      // owned by @grafana/data and isn't re-tested at this layer.
+      const style = {
+        stringStyle: {
+          ...baseStringStyle,
+          clickThrough: 'http://example.com/x',
+          clickThroughSanitize: true,
+        },
+      } as unknown as ColumnStyleItemType;
+      const html = ProcessClickthrough(
+        style,
+        [],
+        [],
+        0,
+        { valueFormatted: 'cell' } as FormattedColumnValue,
+        fakeTimeRange,
+        noopReplaceVariables,
+      );
+      expect(html).toContain('href="http://example.com/x"');
     });
   });
 

@@ -129,6 +129,37 @@ describe('getValueMappingResult', () => {
       const mapping = specialValue(match, { text: expected });
       expect(getValueMappingResult([mapping], input)).toEqual({ text: expected });
     });
+
+    // Each SpecialValueMatch sub-case has a `break;` path that fires when
+    // the discriminant matches but the value doesn't fit the sub-case's
+    // predicate — the outer loop then moves to the next mapping. Pin that
+    // fall-through for every sub-case.
+    it.each([
+      [SpecialValueMatch.Null, 42],
+      [SpecialValueMatch.NaN, 42],
+      [SpecialValueMatch.NullAndNaN, 42],
+      [SpecialValueMatch.True, 'not-true'],
+      [SpecialValueMatch.False, 'not-false'],
+      [SpecialValueMatch.Empty, 'not-empty'],
+    ])('%s with non-matching value falls through to the next mapping', (match, input) => {
+      const special = specialValue(match, { text: 'should-not-hit' });
+      const fallback = valueToText({ [String(input)]: { text: 'hit' } });
+      expect(getValueMappingResult([special, fallback], input)).toEqual({ text: 'hit' });
+    });
+  });
+
+  it('skips RangeToText when value is null', () => {
+    // Hits the `continue;` at the null-guard inside the RangeToText case.
+    const range = rangeToText(0, 10, { text: 'range' });
+    const fallback = specialValue(SpecialValueMatch.Null, { text: 'null-hit' });
+    expect(getValueMappingResult([range, fallback], null)).toEqual({ text: 'null-hit' });
+  });
+
+  it('skips RegexToText when value is null', () => {
+    // Hits the `continue;` at the null-guard inside the RegexToText case.
+    const regex = regexToText('/./', { text: 'regex' });
+    const fallback = specialValue(SpecialValueMatch.Null, { text: 'null-hit' });
+    expect(getValueMappingResult([regex, fallback], null)).toEqual({ text: 'null-hit' });
   });
 
   it('returns null when no mapping matches', () => {
