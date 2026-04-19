@@ -6,32 +6,27 @@ export function buildLayout(
   position: SearchPosition,
 ): Config['layout'] {
   if (!enabled) {
-    return { topStart: null, topEnd: null };
+    // Only suppress the default search slot; leave topStart (pageLength),
+    // bottomStart (info), and bottomEnd (paging) to DataTables' defaults.
+    return { topEnd: null };
   }
-
-  const layout: Config['layout'] = {
-    topStart: null,
-    topEnd: null,
-    bottomStart: 'info',
-    bottomEnd: 'paging',
-  };
 
   switch (position) {
     case 'topStart':
-      layout.topStart = 'search';
-      break;
+      return { topStart: 'search', topEnd: null };
     case 'topEnd':
-      layout.topEnd = 'search';
-      break;
+      return { topEnd: 'search' };
     case 'bottomStart':
-      layout.bottomStart = 'search';
-      layout.bottomEnd = ['info', 'paging'];
-      break;
+      return {
+        topEnd: null,
+        bottomStart: 'search',
+        bottomEnd: ['info', 'paging'],
+      };
     case 'bottomEnd':
-      layout.bottomEnd = 'search';
-      layout.bottomStart = ['paging', 'info'];
-      break;
+      return {
+        topEnd: null,
+        bottomStart: ['paging', 'info'],
+        bottomEnd: 'search',
+      };
   }
-
-  return layout;
 }
