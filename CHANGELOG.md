@@ -188,6 +188,43 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   covering field-to-column shape mapping, row-object build, the
   `rowNumbersEnabled` branch (prepend `row` column + stamp indices),
   and the HIDDEN-style visibility toggle.
+- Convert `ConvertDataFrameToDataTableFormat` (`src/data/dataHelpers.ts`)
+  from 9 positional arguments to a `ConvertDataFrameOptions` object.
+  The call site in `DataTablePanel.tsx` is now self-documenting at the
+  named-argument level. Also drops the unused `timeRange` parameter
+  that the prior signature carried but the function body never read.
+- Convert `BuildColumnDefs` (`src/data/dataHelpers.ts`) from 6
+  positional arguments to a `BuildColumnDefsOptions` object, matching
+  the `ConvertDataFrameOptions` precedent so the two sibling helpers
+  share the same call shape. Covered by a new `BuildColumnDefs` unit
+  test that pins the options-object API and the
+  `{ targets: '_all', defaultContent: '-' }` sentinel that
+  DataTables relies on to suppress a dialog when toggling the
+  row-number column at runtime.
+- `getCellColors` (`src/data/dataHelpers.ts`) drops its unused
+  `columnNumber` parameter (3 call sites + 7 test sites updated). The
+  `createdCell` helper's `actualColumn = colIndex - rowNumbersEnabled
+  ? 1 : 0` offset fed only that now-removed parameter, so it was dead
+  too and has been removed with it.
+- Drop unused `emptyDataEnabled` / `emptyDataText` parameters from
+  `BuildColumnDefs`. The options never had a runtime consumer — the
+  commented-out `defaultContent: emptyDataEnabled ? emptyDataText : ''`
+  reference was the only code that had ever read them, and wiring it
+  up turned out to conflict with the existing render pipeline. The
+  options are still surfaced in the editor and preserved by migration
+  for now; the architectural mismatch and remediation options are
+  tracked in
+  [#296](https://github.com/briangann/grafana-datatable-panel/issues/296).
+- Rename unused positional parameters in the DataTables `data:` /
+  `render:` column-def callbacks to the `_`-prefixed convention
+  (`_set`, `_data`) so the `@typescript-eslint/no-unused-vars` check
+  passes without a suppress comment while preserving the
+  library-dictated positional signatures.
+- Block-scope the `case` bodies in
+  `src/data/valueMappings.ts:getValueMappingResult` that declare
+  `const` identifiers. Fixes the `no-case-declarations` style
+  concern for the `ValueToText`, `RangeToText`, and `RegexToText`
+  cases.
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook
   encapsulating the ordered-tracker-with-onChange-fan-out pattern used by
   `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`,
