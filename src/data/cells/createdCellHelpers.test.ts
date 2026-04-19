@@ -32,8 +32,6 @@ describe('ProcessStringValueStyle', () => {
     const html = ProcessStringValueStyle(
       makeStyle('http://example.com/h/$host?cell=$__cell'),
       [],
-      [],
-      0,
       processedItem,
       fakeTimeRange,
       replaceVariables,
@@ -46,8 +44,6 @@ describe('ProcessStringValueStyle', () => {
     const html = ProcessStringValueStyle(
       makeStyle(''),
       [],
-      [],
-      0,
       processedItem,
       fakeTimeRange,
       replaceVariables,

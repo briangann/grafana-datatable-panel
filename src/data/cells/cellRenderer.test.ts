@@ -12,14 +12,13 @@ import {
   resolveClickThroughTarget,
   TimeFormatter,
 } from './cellRenderer';
-import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
+import { Field, FieldConfig, FieldType, TimeRange, dateTime} from '@grafana/data';
 // Single reference epoch reused across FormatColumnValue / TimeFormatter
 // cases so the human-readable date is declared once at the top of the file
 // instead of inferred from each assertion's `.toBe('2025-04-12 …')`.
 const EPOCH_2025_04_12T19_27_35Z = 1744486055000;
 
 describe('Cell Renderer', () => {
-  const theme2 = {} as unknown as GrafanaTheme2;
   describe('Test FormatColumnValue', () => {
     describe('with time column', () => {
       const aField: Field = {
@@ -33,11 +32,8 @@ describe('Cell Renderer', () => {
           'utc',
           null,
           aField,
-          1,
-          0,
           EPOCH_2025_04_12T19_27_35Z,
           'time',
-          theme2,
         );
         expect(result.valueFormatted).toEqual('2025-04-12T19:27:35+00:00');
       });
@@ -58,11 +54,8 @@ describe('Cell Renderer', () => {
           'utc',
           null,
           aField,
-          1,
-          0,
           123.456,
           'other',
-          theme2,
         );
         // show just return a string with the value inside
         expect(result.valueFormatted).toEqual('123.456');
@@ -77,7 +70,7 @@ describe('Cell Renderer', () => {
         values: [],
       };
       it('passes the string value through unchanged', () => {
-        const result = FormatColumnValue('utc', null, aField, 0, 0, 'hello', 'string', {} as GrafanaTheme2);
+        const result = FormatColumnValue('utc', null, aField, 'hello', 'string');
         expect(result).toEqual({
           valueRaw: 'hello',
           valueFormatted: 'hello',
@@ -99,7 +92,7 @@ describe('Cell Renderer', () => {
         dateStyle: { dateFormat: 'YYYY/MM/DD' },
       } as unknown as ColumnStyleItemType;
       it('uses the columnStyle date format when present', () => {
-        const result = FormatColumnValue('utc', dateStyle, aField, 0, 0, EPOCH_2025_04_12T19_27_35Z, 'time', {} as GrafanaTheme2);
+        const result = FormatColumnValue('utc', dateStyle, aField, EPOCH_2025_04_12T19_27_35Z, 'time');
         expect(result.valueFormatted).toBe('2025/04/12');
       });
     });
@@ -117,7 +110,7 @@ describe('Cell Renderer', () => {
       } as unknown as ColumnStyleItemType;
 
       it('columnStyle unit/decimals override the field config', () => {
-        const result = FormatColumnValue('utc', metricStyle, aField, 0, 0, 0.5, 'number', {} as GrafanaTheme2);
+        const result = FormatColumnValue('utc', metricStyle, aField, 0.5, 'number');
         // percentunit 0.5 at 1 decimal → "50.0%"
         expect(result.valueFormatted).toBe('50.0%');
       });
@@ -138,11 +131,8 @@ describe('Cell Renderer', () => {
           'utc',
           null,
           aField,
-          1,
-          0,
           123.456,
           'number',
-          theme2,
         );
         expect(result.valueFormatted).toEqual('123.456 kwh');
       });
@@ -234,9 +224,7 @@ describe('Cell Renderer', () => {
     const run = (clickThrough: string, replaceVariables: (s: string) => string = noopReplaceVariables) =>
       ProcessClickthrough(
         { stringStyle: { ...baseStringStyle, clickThrough } } as unknown as ColumnStyleItemType,
-        /* columns */ [],
         /* rows */ [],
-        /* rowIndex */ 0,
         processedItem,
         fakeTimeRange,
         replaceVariables,
@@ -313,8 +301,6 @@ describe('Cell Renderer', () => {
       const html = ProcessClickthrough(
         style,
         [],
-        [],
-        0,
         { valueFormatted: 'web-01 prod' } as FormattedColumnValue,
         fakeTimeRange,
         noopReplaceVariables,
@@ -337,8 +323,6 @@ describe('Cell Renderer', () => {
       const html = ProcessClickthrough(
         style,
         [],
-        [],
-        0,
         { valueFormatted: 'cell' } as FormattedColumnValue,
         fakeTimeRange,
         noopReplaceVariables,

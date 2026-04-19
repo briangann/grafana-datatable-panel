@@ -102,7 +102,7 @@ export const ConvertDataFrameToDataTableFormat = (
       const valueType = frameFields.type;
       if (aColumn.columnStyles && aColumn.columnStyles.length > 0) {
         const aStyle = aColumn.columnStyles[0];
-        value = FormatColumnValue(userTimeZone, aStyle, frameFields, j, i, value, valueType, theme);
+        value = FormatColumnValue(userTimeZone, aStyle, frameFields, value, valueType);
       }
       // run through mappings
       const mappings = GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings);
@@ -280,9 +280,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         if (aStyle.activeStyle === ColumnStyles.STRING) {
           const newCell = ProcessStringValueStyle(
             aStyle,
-            columnsInCellData,
             rowData,
-            rowIndex,
             cellValueFormatted,
             timeRange,
             replaceVariables,
@@ -304,7 +302,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
            * This mode highlights the entire row and applies the threshold color to each cell
            */
           if (colorMode === ColumnStyleColoring.RowColumn) {
-            processRowColumnStyle(cell, rowData, columnsInCellData, rowNumbersEnabled, rowNumberOffset);
+            processRowColumnStyle(cell, rowData, columnsInCellData, rowNumberOffset);
           }
           // Process cell coloring
           // Two scenarios:

@@ -48,7 +48,7 @@ export const processRowStyle = (
 
   $(cell.parentNode)
     .children()
-    .attr('style', function (i, s) { return s + fmtColors });
+    .attr('style', function (_i, s) { return s + fmtColors });
 
 }
 
@@ -56,7 +56,6 @@ export const processRowColumnStyle = (
   cell: any,
   rowData: any,
   columnsInCellData: DTColumnType[],
-  rowNumbersEnabled: boolean,
   rowNumberOffset: number) => {
 
   let rowColorIndex = -1;
@@ -101,7 +100,7 @@ export const processRowColumnStyle = (
       $(aChild).css('color', color);
       if (rowColor) {
         const fmtColors = 'background-color: ' + rowColor + ' !important;';
-        $(aChild).children().attr('style', function (i, s) { return s + fmtColors });
+        $(aChild).children().attr('style', function (_i, s) { return s + fmtColors });
       }
     }
     // a metric style will already be applied and will indicate whatever threshold is met
@@ -111,7 +110,7 @@ export const processRowColumnStyle = (
       let aChild = children[columnNumber];
       if (rowColor) {
         const fmtColors = 'background-color: ' + rowColor + ' !important;';
-        $(aChild).attr('style', function (i, s) { return s + fmtColors });
+        $(aChild).attr('style', function (_i, s) { return s + fmtColors });
       }
     }
 
@@ -120,18 +119,14 @@ export const processRowColumnStyle = (
 
 export const ProcessStringValueStyle = (
   columnStyle: ColumnStyleItemType | null,
-  columnsInCellData: DTColumnType[],
   rowData: any,
-  rowIndex: number,
   valueFormatted: FormattedColumnValue,
   timeRange: TimeRange,
   replaceVariables: InterpolateFunction): string | null => {
 
   const processedURL = ProcessClickthrough(
     columnStyle,
-    columnsInCellData,
     rowData,
-    rowIndex,
     valueFormatted,
     timeRange,
     replaceVariables);
