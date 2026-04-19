@@ -167,6 +167,19 @@ export const ColumnAlignmentOptions = [
   { label: 'Right', value: ColumnAlignment.RIGHT },
 ];
 
+export interface Threshold {
+  color: string;
+  state: number;
+  value: number;
+};
+
+export const ThresholdStates: SelectableValue[] = [
+  { value: 0, label: 'ok' },
+  { value: 1, label: 'warning' },
+  { value: 2, label: 'critical' },
+  { value: 3, label: 'custom' },
+];
+
 export type ColumnStyling = {
   nameOrRegex: string;
   type: ColumnStyleType;

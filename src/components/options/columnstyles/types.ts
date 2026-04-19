@@ -1,6 +1,5 @@
 import { CascaderOption } from '@grafana/ui';
-import { Threshold } from '../thresholds/types';
-import { ColumnAlignment } from 'types';
+import { ColumnAlignment, Threshold } from 'types';
 
 export interface ColumnStyleItemProps {
   columnHints: CascaderOption[];

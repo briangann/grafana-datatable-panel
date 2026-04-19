@@ -18,9 +18,8 @@ import {
   ColumnStyleString,
 } from './types';
 import { ColumnStyleItem } from './ColumnStyleItem';
-import { Threshold } from '../thresholds/types';
 import { getColumnHints } from './columnHints';
-import { ColumnAlignment, ColumnStyleColoring, DateFormats } from 'types';
+import { ColumnAlignment, ColumnStyleColoring, DateFormats, Threshold } from 'types';
 import { TrackerAdapter, useTracker } from 'hooks/useTracker';
 
 const columnStyleAdapter: TrackerAdapter<ColumnStyleItemTracker, ColumnStyleItemType> = {

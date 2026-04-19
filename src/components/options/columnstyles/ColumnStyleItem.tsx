@@ -14,8 +14,7 @@ import {
 } from '@grafana/ui';
 import { ColumnStyleItemProps, ColumnStyleItemType } from './types';
 import { ThresholdsEditor } from '../thresholds/ThresholdsEditor';
-import { Threshold } from '../thresholds/types';
-import { ColorModeOptions, ColumnAlignment, ColumnAlignmentOptions, DateFormats } from 'types';
+import { ColorModeOptions, ColumnAlignment, ColumnAlignmentOptions, DateFormats, Threshold } from 'types';
 import { SelectableValue } from '@grafana/data';
 
 export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {

@@ -2,7 +2,8 @@ import React from 'react';
 import { orderBy } from 'lodash';
 import { Button, useTheme2 } from '@grafana/ui';
 import { v4 as UUIdv4 } from 'uuid';
-import { Threshold, ThresholdItemTracker } from './types';
+import { Threshold } from 'types';
+import { ThresholdItemTracker } from './types';
 import { ThresholdItem } from './ThresholdItem';
 import {
   DEFAULT_OK_COLOR_HEX,

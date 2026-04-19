@@ -1,7 +1,7 @@
 import React, { act } from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThresholdsEditor } from './ThresholdsEditor';
-import type { Threshold } from './types';
+import type { Threshold } from 'types';
 
 // Stub ThresholdItem so we can drive setters/remover via deterministic buttons.
 jest.mock('./ThresholdItem', () => ({

@@ -18,7 +18,7 @@ import {
   SearchPosition,
   TransformationOptions,
 } from './types';
-import { Threshold } from 'components/options/thresholds/types';
+import { Threshold } from 'types';
 import { ColumnStyleDate, ColumnStyleHidden, ColumnStyleItemType, ColumnStyleMetric, ColumnStyles, ColumnStyleString } from 'components/options/columnstyles/types';
 //import { DEFAULT_CRITICAL_COLOR_RGBA, DEFAULT_OK_COLOR_RGBA, DEFAULT_WARNING_COLOR_RGBA } from 'components/options/defaults';
 
