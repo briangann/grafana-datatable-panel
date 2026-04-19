@@ -12,12 +12,13 @@ permissions: read-all
 jobs:
   release:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     permissions:
       id-token: write # new line
       contents: write # new line
       attestations: write # new line
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           persist-credentials: false
       - uses: grafana/plugin-actions/build-plugin@build-plugin/v1.0.2
