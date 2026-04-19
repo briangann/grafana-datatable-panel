@@ -1,5 +1,5 @@
 import { PanelOptionsEditorBuilder, StandardEditorContext } from '@grafana/data';
-import { AggregationOptions, AggregationType, ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
+import { AggregationOptions, AggregationType, ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, DEFAULT_SEARCH_POSITION, FontSizes, SEARCH_POSITION_OPTIONS } from 'types';
 import { ColumnAliasesEditor } from './ColumnAliasesEditor';
 import { ColumnWidthHints } from './ColumnWidthHintsEditor';
 import { ColumnSortingEditor } from './ColumnSortingEditor';
@@ -131,14 +131,26 @@ export async function optionsBuilder(
     path: 'searchEnabled',
     defaultValue: true,
     category: ['Search Options'],
-    description: 'Provides search option at top right of table'
+    description: 'Provides search option (position configurable below)'
+  });
+  builder.addSelect({
+    path: 'searchPosition',
+    name: 'Search Bar Position',
+    description: 'Where the search input is rendered relative to the table',
+    defaultValue: DEFAULT_SEARCH_POSITION,
+    category: ['Search Options'],
+    settings: {
+      options: SEARCH_POSITION_OPTIONS,
+    },
+    showIf: (context) => context['searchEnabled'] === true,
   });
   builder.addBooleanSwitch({
     name: 'Highlight Search Results',
     path: 'searchHighlightingEnabled',
     defaultValue: true,
     category: ['Search Options'],
-    description: 'Highlight matching text during search'
+    description: 'Highlight matching text during search',
+    showIf: (context) => context['searchEnabled'] === true,
   });
 
   // Column Filters

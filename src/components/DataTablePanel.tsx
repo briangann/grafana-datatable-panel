@@ -26,6 +26,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { BuildColumnDefs, ConvertDataFrameToDataTableFormat } from 'data/dataHelpers';
 import { ApplyColumnWidthHints } from 'data/columnWidthHints';
+import { buildSearchBarLayout } from 'data/buildSearchBarLayout';
 import { datatableThemedStyles } from './styles';
 import { GetDataTransformerID } from 'data/transformations';
 import { DTColumnType } from 'data/types';
@@ -340,14 +341,13 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               smart: false,
             },
             // Column filters drive `.column(i).search()`, which requires
-            // DataTables' search feature to be enabled. When the user has
-            // only turned on column filters (not the global search box),
-            // keep the feature on but suppress the top-end search control
-            // via layout so no stray global input appears.
+            // DataTables' search feature to be enabled even when the
+            // global search box is off.
             searching: props.options.searchEnabled || props.options.columnFiltersEnabled,
-            ...(!props.options.searchEnabled && props.options.columnFiltersEnabled
-              ? { layout: { topEnd: null } }
-              : {}),
+            layout: buildSearchBarLayout(
+              props.options.searchEnabled,
+              props.options.searchPosition,
+            ),
             //select: selectSettings,
             stateSave: false,
             initComplete: function () {
@@ -391,6 +391,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.rowsPerPage,
     props.options.scroll,
     props.options.searchEnabled,
+    props.options.searchPosition,
     props.options.searchHighlightingEnabled,
     props.options.transformationAggregations,
     props.options.transformation,

@@ -74,4 +74,24 @@ describe('Datatable -> DatatableV2 migrations', () => {
     expect(migrated.alignStringsToRightEnabled).toBe(true);
     expect(migrated.columnStylesConfig[0].align).toBe(ColumnAlignment.DEFAULT);
   });
+
+  it('migrateDefaults seeds searchPosition=topEnd so existing panels keep the search bar on the right', () => {
+    const options = migrateDefaults({});
+    expect(options.searchPosition).toBe('topEnd');
+  });
+
+  it('applyOptionDefaults patches searchPosition=topEnd when missing', () => {
+    const options = { columnStylesConfig: [] } as unknown as DatatableOptions;
+    const patched = applyOptionDefaults(options);
+    expect(patched.searchPosition).toBe('topEnd');
+  });
+
+  it('applyOptionDefaults preserves an explicit searchPosition', () => {
+    const options = {
+      columnStylesConfig: [],
+      searchPosition: 'topStart',
+    } as unknown as DatatableOptions;
+    const patched = applyOptionDefaults(options);
+    expect(patched.searchPosition).toBe('topStart');
+  });
 });

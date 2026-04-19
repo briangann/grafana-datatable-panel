@@ -3,5 +3,6 @@
 exports[`Datatable -> DatatableV2 migrations migrates old datatable config 1`] = `
 {
   "alignStringsToRightEnabled": true,
+  "searchPosition": "topEnd",
 }
 `;

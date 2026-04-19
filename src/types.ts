@@ -1,6 +1,17 @@
 import { SelectableValue } from "@grafana/data";
 import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
+export type SearchPosition = 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd';
+
+export const DEFAULT_SEARCH_POSITION: SearchPosition = 'topEnd';
+
+export const SEARCH_POSITION_OPTIONS: Array<SelectableValue<SearchPosition>> = [
+  { value: 'topStart', label: 'Top Left' },
+  { value: 'topEnd', label: 'Top Right' },
+  { value: 'bottomStart', label: 'Bottom Left' },
+  { value: 'bottomEnd', label: 'Bottom Right' },
+];
+
 export interface DatatableOptions {
   alignNumbersToRightEnabled: boolean;
   alignStringsToRightEnabled: boolean;
@@ -22,6 +33,7 @@ export interface DatatableOptions {
   scroll: boolean;
   searchEnabled: boolean;
   searchHighlightingEnabled: boolean;
+  searchPosition: SearchPosition;
   columnSorting: ColumnSorting[],
   stripedRowsEnabled: boolean;
   columnStylesConfig: ColumnStyleItemType[];

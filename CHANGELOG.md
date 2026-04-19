@@ -7,6 +7,15 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Added
 
+- **Configurable search bar position** (closes #191). The global search
+  input is now placeable in any of the four table corners — Top Left,
+  Top Right, Bottom Left, or Bottom Right — via a new **Search Bar
+  Position** Select in the panel options. Default is Top Right, matching
+  the pre-existing DataTables default. When the search bar is placed in
+  a bottom slot, the table's info text and pagination controls stack
+  together in the opposite bottom cell so the two halves of the footer
+  line up predictably. Works independently of the **Show Column
+  Filters** toggle.
 - **Configurable text alignment for string columns** (closes #282). String
   columns were previously hard-coded to right-align in `getColumnClassName`
   with no user-visible knob. Two complementary controls:
