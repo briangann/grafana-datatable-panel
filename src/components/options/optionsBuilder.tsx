@@ -131,7 +131,23 @@ export async function optionsBuilder(
     path: 'searchEnabled',
     defaultValue: true,
     category: ['Search Options'],
-    description: 'Provides search option at top right of table'
+    description: 'Provides search option (position configurable below)'
+  });
+  builder.addSelect({
+    path: 'searchPosition',
+    name: 'Search Bar Position',
+    description: 'Where the search input is rendered relative to the table',
+    defaultValue: 'topEnd',
+    category: ['Search Options'],
+    settings: {
+      options: [
+        { value: 'topStart', label: 'Top Left' },
+        { value: 'topEnd', label: 'Top Right' },
+        { value: 'bottomStart', label: 'Bottom Left' },
+        { value: 'bottomEnd', label: 'Bottom Right' },
+      ],
+    },
+    showIf: (context) => context['searchEnabled'] === true,
   });
   builder.addBooleanSwitch({
     name: 'Highlight Search Results',
