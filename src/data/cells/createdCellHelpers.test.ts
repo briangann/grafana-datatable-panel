@@ -1,6 +1,5 @@
 import { ProcessStringValueStyle } from './createdCellHelpers';
-import { ColumnStyleItemType } from 'types';
-import { FormattedColumnValue } from '../types';
+import { ColumnStyleItemType, FormattedColumnValue } from 'types';
 import { TimeRange, dateTime } from '@grafana/data';
 
 // Covers the plumbing that forwards `replaceVariables` from BuildColumnDefs

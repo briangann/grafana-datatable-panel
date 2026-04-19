@@ -1,4 +1,4 @@
-import { SelectableValue } from "@grafana/data";
+import { FieldConfig, SelectableValue } from "@grafana/data";
 
 export type SearchPosition = 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd';
 
@@ -225,6 +225,29 @@ export interface ColumnStyleItemType {
   hiddenStyle: ColumnStyleHidden;
   metricStyle: ColumnStyleMetric;
   stringStyle: ColumnStyleString;
+};
+
+export interface DTColumnType {
+  title: string;
+  data: string;
+  type: string;
+  className: string;
+  fieldConfig?: FieldConfig<any>;
+  columnStyles: ColumnStyleItemType[];
+  widthHint?: string;
+  visible: boolean;
+};
+
+export interface FormattedColumnValue {
+  valueRaw: number | string | null,
+  valueFormatted: string,
+  valueRounded: number | null,
+  valueRoundedAndFormatted: string | null,
+};
+
+export interface DTData {
+  Columns: DTColumnType[];
+  Rows: any[];
 };
 
 export type ColumnStyling = {

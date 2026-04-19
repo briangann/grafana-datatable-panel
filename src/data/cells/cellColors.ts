@@ -1,5 +1,4 @@
-import { ColumnStyleColoring, ColumnStyleItemType, ColumnStyles } from 'types';
-import { FormattedColumnValue } from '../types';
+import { ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, FormattedColumnValue } from 'types';
 
 export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData: FormattedColumnValue) => {
   if (aColumnStyle === null || cellData === null || cellData === undefined) {

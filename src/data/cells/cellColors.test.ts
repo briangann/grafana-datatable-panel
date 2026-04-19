@@ -1,6 +1,5 @@
 import { getCellColors, GetColorForValue, GetColorIndexForValue } from './cellColors';
-import { ColumnStyleColoring, ColumnStyles, ColumnStyleItemType } from 'types';
-import { FormattedColumnValue } from '../types';
+import { ColumnStyleColoring, ColumnStyles, ColumnStyleItemType, FormattedColumnValue } from 'types';
 
 const metricStyle = (
   colorMode: ColumnStyleColoring | undefined,

@@ -10,8 +10,7 @@ import {
 } from "@grafana/data";
 
 import _ from 'lodash';
-import { ColumnStyleItemType, ColumnStyles, DateFormats } from "types";
-import { FormattedColumnValue } from "../types";
+import { ColumnStyleItemType, ColumnStyles, DateFormats, FormattedColumnValue } from "types";
 import moment from 'moment-timezone';
 
 // Fallback base for `new URL(input, base)` when parsing path-relative

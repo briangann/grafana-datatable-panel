@@ -3,8 +3,7 @@ import {
   ConvertDataFrameToDataTableFormat,
   getColumnClassName,
 } from './dataHelpers';
-import { ColumnStyleItemType, ColumnStyles } from 'types';
-import { DTColumnType } from './types';
+import { ColumnStyleItemType, ColumnStyles, DTColumnType } from 'types';
 import {
   createTheme,
   dateTime,
