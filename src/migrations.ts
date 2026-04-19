@@ -14,6 +14,7 @@ import {
   ColumnWidthHint,
   DatatableOptions,
   DatatablePagingType,
+  SearchPosition,
   TransformationOptions,
 } from './types';
 import { Threshold } from 'components/options/thresholds/types';
@@ -43,6 +44,7 @@ interface AngularDatatableOptions {
   scrollHeight?: string;
   searchEnabled?: boolean;
   searchHighlightingEnabled?: boolean;
+  searchPosition?: SearchPosition;
   showCellBorders?: boolean;
   showRowBorders?: boolean,
   sort?: any;
@@ -106,6 +108,9 @@ export const applyOptionDefaults = (options: DatatableOptions): DatatableOptions
       style.align === undefined ? { ...style, align: ColumnAlignment.DEFAULT } : style,
     );
   }
+  if (patched.searchPosition === undefined) {
+    patched.searchPosition = 'topEnd';
+  }
   return patched;
 };
 
@@ -131,6 +136,7 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     scroll: false,
     searchEnabled: false,
     searchHighlightingEnabled: false,
+    searchPosition: 'topEnd',
     columnSorting: [{ index: 0, order: ColumnSortingOptions.Descending }],
     stripedRowsEnabled: false,
     columnStylesConfig: [],
