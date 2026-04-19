@@ -191,8 +191,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   useEffect(() => {
     if (cachedProcessedData !== undefined) {
       const calcColumnDefs = BuildColumnDefs(
-        props.options.emptyDataEnabled,
-        props.options.emptyDataText,
         props.options.rowNumbersEnabled,
         props.options.fontSizePercent,
         alignment,
@@ -206,8 +204,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     cachedProcessedData,
     props.timeRange,
     props.replaceVariables,
-    props.options.emptyDataEnabled,
-    props.options.emptyDataText,
     props.options.fontSizePercent,
     props.options.rowNumbersEnabled]);
 
@@ -220,16 +216,16 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
         let dtColumns: DTColumnType[] = [];
         let flattenedRows: any[] = [];
-        const result = ConvertDataFrameToDataTableFormat(
+        const result = ConvertDataFrameToDataTableFormat({
           dataFrames,
-          props.fieldConfig,
-          props.timeZone,
-          props.timeRange,
+          fieldConfig: props.fieldConfig,
+          userTimeZone: props.timeZone,
           alignment,
-          props.options.rowNumbersEnabled,
-          props.options.columnStylesConfig,
-          theme2,
-          props.replaceVariables);
+          rowNumbersEnabled: props.options.rowNumbersEnabled,
+          columnStyles: props.options.columnStylesConfig,
+          theme: theme2,
+          replaceVariables: props.replaceVariables,
+        });
         dtColumns = result.columns;
         // get the column widths
         dtColumns = ApplyColumnWidthHints(dtColumns, props.options.columnWidthHints);

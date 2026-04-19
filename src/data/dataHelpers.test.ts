@@ -10,10 +10,8 @@ import { ColumnStyles, ColumnStyleItemType } from 'components/options/columnstyl
 import { FormattedColumnValue } from './types';
 import {
   createTheme,
-  dateTime,
   FieldConfigSource,
   FieldType,
-  TimeRange,
   toDataFrame,
 } from '@grafana/data';
 
@@ -125,23 +123,23 @@ describe('getCellColors', () => {
   ];
 
   it('returns null for a null column style', () => {
-    expect(getCellColors(null, 0, cell(42))).toBeNull();
+    expect(getCellColors(null, cell(42))).toBeNull();
   });
 
   it('returns null for a non-metric column', () => {
     const stringStyle = { ...metricStyle(ColumnStyleColoring.Cell, thresholds), activeStyle: ColumnStyles.STRING };
-    expect(getCellColors(stringStyle, 0, cell(42))).toBeNull();
+    expect(getCellColors(stringStyle, cell(42))).toBeNull();
   });
 
   it('returns bgColor + white text when colorMode=Cell and value in high band', () => {
     const style = metricStyle(ColumnStyleColoring.Cell, thresholds);
-    const result = getCellColors(style, 0, cell(75));
+    const result = getCellColors(style, cell(75));
     expect(result).toEqual({ bgColor: 'red', bgColorIndex: 1, color: 'white', colorIndex: null });
   });
 
   it('returns color on text (no bg) when colorMode=Value', () => {
     const style = metricStyle(ColumnStyleColoring.Value, thresholds);
-    const result = getCellColors(style, 0, cell(75));
+    const result = getCellColors(style, cell(75));
     expect(result).toEqual({ bgColor: null, bgColorIndex: null, color: 'red', colorIndex: 1 });
   });
 
@@ -150,7 +148,7 @@ describe('getCellColors', () => {
     // enters when thresholds exist, but neither inner branch matches, so
     // every color field stays null.
     const style = metricStyle(ColumnStyleColoring.Disabled, thresholds);
-    expect(getCellColors(style, 0, cell(75))).toEqual({
+    expect(getCellColors(style, cell(75))).toEqual({
       bgColor: null,
       bgColorIndex: null,
       color: null,
@@ -160,7 +158,7 @@ describe('getCellColors', () => {
 
   it('skips coloring when valueRaw is null', () => {
     const style = metricStyle(ColumnStyleColoring.Cell, thresholds);
-    const result = getCellColors(style, 0, cell(null));
+    const result = getCellColors(style, cell(null));
     // bg/color stay null, but color is still set to 'white' because the
     // colorMode triggered the Cell branch regardless of value validity.
     expect(result).toEqual({ bgColor: null, bgColorIndex: null, color: 'white', colorIndex: null });
@@ -168,7 +166,7 @@ describe('getCellColors', () => {
 
   it('returns null when cellData is null', () => {
     const style = metricStyle(ColumnStyleColoring.Cell, thresholds);
-    expect(getCellColors(style, 0, null as unknown as FormattedColumnValue)).toBeNull();
+    expect(getCellColors(style, null as unknown as FormattedColumnValue)).toBeNull();
   });
 });
 
@@ -176,11 +174,6 @@ describe('ConvertDataFrameToDataTableFormat', () => {
   const theme = createTheme();
   const noopReplaceVariables = (s: string) => s;
   const emptyFieldConfig = { defaults: {}, overrides: [] } as unknown as FieldConfigSource;
-  const fakeTimeRange = {
-    from: dateTime(0),
-    to: dateTime(0),
-    raw: { from: 'now-1h', to: 'now' },
-  } as unknown as TimeRange;
   const alignment = { numbers: true, strings: false };
 
   const twoFieldFrame = () =>
@@ -191,18 +184,21 @@ describe('ConvertDataFrameToDataTableFormat', () => {
       ],
     });
 
+  const baseOpts = {
+    fieldConfig: emptyFieldConfig,
+    userTimeZone: 'utc',
+    alignment,
+    theme,
+    replaceVariables: noopReplaceVariables,
+  };
+
   it('maps each field to a DTColumnType with the class derived from alignment', () => {
-    const { columns } = ConvertDataFrameToDataTableFormat(
-      [twoFieldFrame()],
-      emptyFieldConfig,
-      'utc',
-      fakeTimeRange,
-      alignment,
-      false,
-      [],
-      theme,
-      noopReplaceVariables,
-    );
+    const { columns } = ConvertDataFrameToDataTableFormat({
+      ...baseOpts,
+      dataFrames: [twoFieldFrame()],
+      rowNumbersEnabled: false,
+      columnStyles: [],
+    });
     expect(columns.map((c) => c.title)).toEqual(['time', 'value']);
     expect(columns.map((c) => c.type)).toEqual(['time', 'number']);
     // Numbers aligned right because alignment.numbers=true; time is coerced to number for class purposes.
@@ -211,34 +207,24 @@ describe('ConvertDataFrameToDataTableFormat', () => {
   });
 
   it('emits one row object per frame row, keyed by normalized field names', () => {
-    const { rows } = ConvertDataFrameToDataTableFormat(
-      [twoFieldFrame()],
-      emptyFieldConfig,
-      'utc',
-      fakeTimeRange,
-      alignment,
-      false,
-      [],
-      theme,
-      noopReplaceVariables,
-    );
+    const { rows } = ConvertDataFrameToDataTableFormat({
+      ...baseOpts,
+      dataFrames: [twoFieldFrame()],
+      rowNumbersEnabled: false,
+      columnStyles: [],
+    });
     expect(rows).toHaveLength(3);
     expect(rows[0]).toEqual(expect.objectContaining({ time: 1000, value: 10 }));
     expect(rows[2]).toEqual(expect.objectContaining({ time: 3000, value: 30 }));
   });
 
   it('prepends a rowNumber column and stamps row indices when rowNumbersEnabled', () => {
-    const { columns, rows } = ConvertDataFrameToDataTableFormat(
-      [twoFieldFrame()],
-      emptyFieldConfig,
-      'utc',
-      fakeTimeRange,
-      alignment,
-      true,
-      [],
-      theme,
-      noopReplaceVariables,
-    );
+    const { columns, rows } = ConvertDataFrameToDataTableFormat({
+      ...baseOpts,
+      dataFrames: [twoFieldFrame()],
+      rowNumbersEnabled: true,
+      columnStyles: [],
+    });
     expect(columns[0]).toEqual(
       expect.objectContaining({ title: 'row', data: 'rowNumber', widthHint: '1%' }),
     );
@@ -262,17 +248,12 @@ describe('ConvertDataFrameToDataTableFormat', () => {
       stringStyle: {},
     } as unknown as ColumnStyleItemType;
 
-    const { columns } = ConvertDataFrameToDataTableFormat(
-      [twoFieldFrame()],
-      emptyFieldConfig,
-      'utc',
-      fakeTimeRange,
-      alignment,
-      true,
-      [hiddenStyle],
-      theme,
-      noopReplaceVariables,
-    );
+    const { columns } = ConvertDataFrameToDataTableFormat({
+      ...baseOpts,
+      dataFrames: [twoFieldFrame()],
+      rowNumbersEnabled: true,
+      columnStyles: [hiddenStyle],
+    });
     const valueCol = columns.find((c) => c.title === 'value');
     expect(valueCol?.visible).toBe(false);
   });

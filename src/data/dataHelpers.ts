@@ -60,18 +60,23 @@ export type AlignmentFlags = {
   strings: boolean;
 };
 
+export type ConvertDataFrameOptions = {
+  dataFrames: DataFrame[];
+  fieldConfig: FieldConfigSource<any>;
+  userTimeZone: string;
+  alignment: AlignmentFlags;
+  rowNumbersEnabled: boolean;
+  columnStyles: ColumnStyleItemType[];
+  theme: GrafanaTheme2;
+  replaceVariables: InterpolateFunction;
+};
+
 export const ConvertDataFrameToDataTableFormat = (
-  dataFrames: DataFrame[],
-  fieldConfig: FieldConfigSource<any>,
-  userTimeZone: string,
-  timeRange: TimeRange,
-  alignment: AlignmentFlags,
-  rowNumbersEnabled: boolean,
-  columnStyles: ColumnStyleItemType[],
-  theme: GrafanaTheme2,
-  replaceVariables: InterpolateFunction): { columns: DTColumnType[]; rows: any[] } => {
-  DataFrameToDisplay(dataFrames);
-  dataFrames = ApplyGrafanaOverrides(dataFrames, theme, replaceVariables);
+  opts: ConvertDataFrameOptions,
+): { columns: DTColumnType[]; rows: any[] } => {
+  const { fieldConfig, userTimeZone, alignment, rowNumbersEnabled, columnStyles, theme, replaceVariables } = opts;
+  DataFrameToDisplay(opts.dataFrames);
+  const dataFrames = ApplyGrafanaOverrides(opts.dataFrames, theme, replaceVariables);
   const dataFrame = dataFrames[0];
   let columns: DTColumnType[] = dataFrame.fields.map((field) => {
     const columnClassName = getColumnClassName(alignment, field.type as string)
@@ -148,8 +153,6 @@ export const ConvertDataFrameToDataTableFormat = (
 }
 
 export const BuildColumnDefs = (
-  emptyDataEnabled: boolean,
-  emptyDataText: string,
   rowNumbersEnabled: boolean,
   fontSizePercent: string,
   alignment: AlignmentFlags,
@@ -184,8 +187,7 @@ export const BuildColumnDefs = (
       width: dtData.Columns[i].widthHint,
       targets: i + rowNumberOffset,
       defaultContent: dtData.Columns,
-      //defaultContent: emptyDataEnabled ? emptyDataText : '',
-      data: function (row: any, type: any, set: any, meta: any) {
+      data: function (row: any, type: any, _set: any, meta: any) {
         if (type === undefined) {
           return null;
         }
@@ -195,7 +197,7 @@ export const BuildColumnDefs = (
         }
         return null;
       },
-      render: function (data: any, type: any, val: any[], meta: CellMetaSettings) {
+      render: function (_data: any, type: any, val: any[], meta: CellMetaSettings) {
         if (type === undefined) {
           return null;
         }
@@ -248,11 +250,6 @@ export const BuildColumnDefs = (
         // hidden columns have null data
         if (cellContent === null || rowData === null) {
           return;
-        }
-        // undefined types should have numerical data, any others are already formatted
-        let actualColumn = colIndex;
-        if (rowNumbersEnabled) {
-          actualColumn -= 1;
         }
         // instead of using cellContent, use the formatted data from dtData.Rows
         const aRow = dtData.Rows[rowIndex];
@@ -307,7 +304,7 @@ export const BuildColumnDefs = (
           //    set the cell colors individually
           //
           let colorData: any;
-          colorData = getCellColors(aStyle, actualColumn, cellValueFormatted);
+          colorData = getCellColors(aStyle, cellValueFormatted);
           if (!colorData) {
             return;
           }
@@ -382,7 +379,7 @@ export const getColumnClassName = (alignment: AlignmentFlags, columnType: string
   return columnClassName;
 }
 
-export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, columnNumber: any, cellData: FormattedColumnValue) => {
+export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData: FormattedColumnValue) => {
   if (aColumnStyle === null || cellData === null || cellData === undefined) {
     return null;
   }
