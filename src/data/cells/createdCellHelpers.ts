@@ -1,4 +1,4 @@
-import { getCellColors } from "../dataHelpers";
+import { getCellColors } from "./cellColors";
 import { DTColumnType, DTData, FormattedColumnValue } from "../types";
 import { ProcessClickthrough } from "./cellRenderer";
 import { ColumnStyleItemType, ColumnStyles } from "types";
