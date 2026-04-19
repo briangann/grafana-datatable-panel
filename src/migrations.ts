@@ -14,6 +14,7 @@ import {
   ColumnWidthHint,
   DatatableOptions,
   DatatablePagingType,
+  DEFAULT_SEARCH_POSITION,
   SearchPosition,
   TransformationOptions,
 } from './types';
@@ -109,7 +110,7 @@ export const applyOptionDefaults = (options: DatatableOptions): DatatableOptions
     );
   }
   if (patched.searchPosition === undefined) {
-    patched.searchPosition = 'topEnd';
+    patched.searchPosition = DEFAULT_SEARCH_POSITION;
   }
   return patched;
 };
@@ -136,7 +137,7 @@ export const migrateDefaults = (angular: AngularDatatableOptions) => {
     scroll: false,
     searchEnabled: false,
     searchHighlightingEnabled: false,
-    searchPosition: 'topEnd',
+    searchPosition: DEFAULT_SEARCH_POSITION,
     columnSorting: [{ index: 0, order: ColumnSortingOptions.Descending }],
     stripedRowsEnabled: false,
     columnStylesConfig: [],

@@ -3,6 +3,15 @@ import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
 export type SearchPosition = 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd';
 
+export const DEFAULT_SEARCH_POSITION: SearchPosition = 'topEnd';
+
+export const SEARCH_POSITION_OPTIONS: Array<{ value: SearchPosition; label: string }> = [
+  { value: 'topStart', label: 'Top Left' },
+  { value: 'topEnd', label: 'Top Right' },
+  { value: 'bottomStart', label: 'Bottom Left' },
+  { value: 'bottomEnd', label: 'Bottom Right' },
+];
+
 export interface DatatableOptions {
   alignNumbersToRightEnabled: boolean;
   alignStringsToRightEnabled: boolean;

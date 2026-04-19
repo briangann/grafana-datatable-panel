@@ -1,5 +1,5 @@
 import { PanelOptionsEditorBuilder, StandardEditorContext } from '@grafana/data';
-import { AggregationOptions, AggregationType, ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, FontSizes } from 'types';
+import { AggregationOptions, AggregationType, ColumnSortingOptions, ColumnStyling, DatatableOptions, DatatablePagingOptions, DatatablePagingType, DEFAULT_SEARCH_POSITION, FontSizes, SEARCH_POSITION_OPTIONS } from 'types';
 import { ColumnAliasesEditor } from './ColumnAliasesEditor';
 import { ColumnWidthHints } from './ColumnWidthHintsEditor';
 import { ColumnSortingEditor } from './ColumnSortingEditor';
@@ -137,15 +137,10 @@ export async function optionsBuilder(
     path: 'searchPosition',
     name: 'Search Bar Position',
     description: 'Where the search input is rendered relative to the table',
-    defaultValue: 'topEnd',
+    defaultValue: DEFAULT_SEARCH_POSITION,
     category: ['Search Options'],
     settings: {
-      options: [
-        { value: 'topStart', label: 'Top Left' },
-        { value: 'topEnd', label: 'Top Right' },
-        { value: 'bottomStart', label: 'Bottom Left' },
-        { value: 'bottomEnd', label: 'Bottom Right' },
-      ],
+      options: SEARCH_POSITION_OPTIONS,
     },
     showIf: (context) => context['searchEnabled'] === true,
   });
