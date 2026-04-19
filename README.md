@@ -7,6 +7,8 @@
 ![Release](https://github.com/briangann/grafana-datatable-panel/workflows/Release/badge.svg)
 [![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
 [![All Contributors](https://img.shields.io/badge/all_contributors-10-orange.svg?style=flat-square)](#contributors)
+[![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg?logo=renovatebot)](https://docs.renovatebot.com/)
+[![Renovate Dashboard](https://img.shields.io/badge/renovate-dashboard-%23007ACC?logo=renovatebot)](https://github.com/briangann/grafana-datatable-panel/issues/309)
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel
 for [Grafana](http://www.grafana.com) 10.x/11.x/12.x.
