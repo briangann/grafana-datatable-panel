@@ -8,7 +8,7 @@ import {
   InterpolateFunction,
   TimeRange
 } from '@grafana/data';
-import { FormatColumnValue } from 'data/cellRenderer';
+import { FormatColumnValue } from './cells/cellRenderer';
 import { ApplyGrafanaOverrides } from './overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
 import { ColumnAlignment, ColumnAlignmentOptions, ColumnStyleColoring } from 'types';
@@ -16,7 +16,7 @@ import { DTColumnType, FormattedColumnValue } from './types';
 import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
 import { ApplyColumnStyles } from './columnStyles';
 import { DTData } from 'components/DataTablePanel';
-import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './createdCellHelpers';
+import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './cells/createdCellHelpers';
 import { ApplyMappings, GetMappings } from './mappingProcessor';
 
 function normalizeFieldName(field: string) {
