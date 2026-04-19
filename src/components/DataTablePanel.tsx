@@ -26,7 +26,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { DatatableOptions } from 'types';
 import { BuildColumnDefs, ConvertDataFrameToDataTableFormat } from 'data/dataHelpers';
 import { ApplyColumnWidthHints } from 'data/columnWidthHints';
-import { buildLayout } from './buildLayout';
+import { buildSearchBarLayout } from './buildSearchBarLayout';
 import { datatableThemedStyles } from './styles';
 import { GetDataTransformerID } from 'data/transformations';
 import { DTColumnType } from 'data/types';
@@ -343,10 +343,10 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             // Column filters drive `.column(i).search()`, which requires
             // DataTables' search feature to be enabled. When the user has
             // only turned on column filters (not the global search box),
-            // `buildLayout` clears the top-row search slots so no stray
-            // global input appears.
+            // `buildSearchBarLayout` clears the top-row search slots so no
+            // stray global input appears.
             searching: props.options.searchEnabled || props.options.columnFiltersEnabled,
-            layout: buildLayout(
+            layout: buildSearchBarLayout(
               props.options.searchEnabled,
               props.options.searchPosition,
             ),

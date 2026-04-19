@@ -1,7 +1,7 @@
 import type { Config } from 'datatables.net-dt';
 import type { SearchPosition } from '../types';
 
-export function buildLayout(
+export function buildSearchBarLayout(
   enabled: boolean,
   position: SearchPosition,
 ): Config['layout'] {
