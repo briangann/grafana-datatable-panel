@@ -7,7 +7,7 @@ import {
   getColumnClassName,
 } from './dataHelpers';
 import { ColumnStyleColoring } from 'types';
-import { ColumnStyles, ColumnStyleItemType } from 'components/options/columnstyles/types';
+import { ColumnStyles, ColumnStyleItemType } from 'types';
 import { DTColumnType, FormattedColumnValue } from './types';
 import {
   createTheme,

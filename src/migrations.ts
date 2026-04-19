@@ -19,7 +19,7 @@ import {
   TransformationOptions,
 } from './types';
 import { Threshold } from 'types';
-import { ColumnStyleDate, ColumnStyleHidden, ColumnStyleItemType, ColumnStyleMetric, ColumnStyles, ColumnStyleString } from 'components/options/columnstyles/types';
+import { ColumnStyleDate, ColumnStyleHidden, ColumnStyleItemType, ColumnStyleMetric, ColumnStyles, ColumnStyleString } from 'types';
 //import { DEFAULT_CRITICAL_COLOR_RGBA, DEFAULT_OK_COLOR_RGBA, DEFAULT_WARNING_COLOR_RGBA } from 'components/options/defaults';
 
 interface AngularDatatableOptions {

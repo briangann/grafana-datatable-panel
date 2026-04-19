@@ -1,5 +1,5 @@
 import { ProcessStringValueStyle } from './createdCellHelpers';
-import { ColumnStyleItemType } from 'components/options/columnstyles/types';
+import { ColumnStyleItemType } from 'types';
 import { FormattedColumnValue } from '../types';
 import { TimeRange, dateTime } from '@grafana/data';
 

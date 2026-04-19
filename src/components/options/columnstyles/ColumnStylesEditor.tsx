@@ -8,18 +8,21 @@ import {
   DEFAULT_OK_COLOR_HEX,
   DEFAULT_WARNING_COLOR_HEX,
 } from '../defaults';
-import {
-  ColumnStyles,
-  ColumnStyleDate,
-  ColumnStyleHidden,
-  ColumnStyleItemTracker,
-  ColumnStyleItemType,
-  ColumnStyleMetric,
-  ColumnStyleString,
-} from './types';
+import { ColumnStyleItemTracker } from './types';
 import { ColumnStyleItem } from './ColumnStyleItem';
 import { getColumnHints } from './columnHints';
-import { ColumnAlignment, ColumnStyleColoring, DateFormats, Threshold } from 'types';
+import {
+  ColumnAlignment,
+  ColumnStyleColoring,
+  ColumnStyleDate,
+  ColumnStyleHidden,
+  ColumnStyleItemType,
+  ColumnStyleMetric,
+  ColumnStyles,
+  ColumnStyleString,
+  DateFormats,
+  Threshold,
+} from 'types';
 import { TrackerAdapter, useTracker } from 'hooks/useTracker';
 
 const columnStyleAdapter: TrackerAdapter<ColumnStyleItemTracker, ColumnStyleItemType> = {

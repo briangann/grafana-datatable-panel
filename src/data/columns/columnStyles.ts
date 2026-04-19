@@ -1,4 +1,4 @@
-import { ColumnStyleItemType } from "components/options/columnstyles/types";
+import { ColumnStyleItemType } from "types";
 import { DTColumnType } from "../types";
 
 export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnStyleItemType[]) => {

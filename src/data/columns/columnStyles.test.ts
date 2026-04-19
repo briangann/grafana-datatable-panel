@@ -2,7 +2,7 @@
  * Tests for Column Styling
  */
 
-import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
+import { ColumnStyleItemType, ColumnStyles } from 'types';
 import { ApplyColumnStyles } from './columnStyles';
 import { DTColumnType } from '../types';
 import { DateFormats } from 'types';

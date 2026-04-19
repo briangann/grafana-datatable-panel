@@ -1,5 +1,5 @@
 import { CascaderOption } from '@grafana/ui';
-import { ColumnAlignment, Threshold } from 'types';
+import { ColumnStyleItemType } from 'types';
 
 export interface ColumnStyleItemProps {
   columnHints: CascaderOption[];
@@ -12,56 +12,6 @@ export interface ColumnStyleItemProps {
   moveDown: any;
   createDuplicate: any;
   context: any;
-};
-
-export interface ColumnStyleHidden {
-};
-
-export interface ColumnStyleDate {
-  dateFormat?: string;
-};
-
-export interface ColumnStyleMetric {
-  alias: string;
-  thresholds: Threshold[];
-  colors: string[];
-  colorMode?: string;
-  decimals: string;
-  scaledDecimals: number | null;
-  unitFormat: string;
-  ignoreNullValues: boolean;
-};
-export interface ColumnStyleString {
-  clickThrough: string;
-  clickThroughSanitize: boolean;
-  clickThroughOpenNewTab: boolean;
-  clickThroughCustomTargetEnabled: boolean;
-  clickThroughCustomTarget: string;
-  mappingType?: number;
-  splitByPattern: string,
-};
-
-export enum ColumnStyles {
-  DATE = 'date',
-  HIDDEN = 'hidden',
-  METRIC = 'metric',
-  STRING = 'string',
-}
-
-export interface ColumnStyleItemType {
-  // common properties
-  activeStyle: ColumnStyles;
-  enabled: boolean;
-  label: string;
-  nameOrRegex: string;
-  order: number;
-  // per-column cell alignment override; 'default' defers to the panel-level setting
-  align?: ColumnAlignment;
-  // allows switching the styles without losing data
-  dateStyle: ColumnStyleDate;
-  hiddenStyle: ColumnStyleHidden;
-  metricStyle: ColumnStyleMetric;
-  stringStyle: ColumnStyleString;
 };
 
 export interface ColumnStyleItemTracker {

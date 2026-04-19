@@ -1,5 +1,4 @@
 import { SelectableValue } from "@grafana/data";
-import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
 export type SearchPosition = 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd';
 
@@ -179,6 +178,54 @@ export const ThresholdStates: SelectableValue[] = [
   { value: 2, label: 'critical' },
   { value: 3, label: 'custom' },
 ];
+
+export interface ColumnStyleHidden {
+};
+
+export interface ColumnStyleDate {
+  dateFormat?: string;
+};
+
+export interface ColumnStyleMetric {
+  alias: string;
+  thresholds: Threshold[];
+  colors: string[];
+  colorMode?: string;
+  decimals: string;
+  scaledDecimals: number | null;
+  unitFormat: string;
+  ignoreNullValues: boolean;
+};
+
+export interface ColumnStyleString {
+  clickThrough: string;
+  clickThroughSanitize: boolean;
+  clickThroughOpenNewTab: boolean;
+  clickThroughCustomTargetEnabled: boolean;
+  clickThroughCustomTarget: string;
+  mappingType?: number;
+  splitByPattern: string,
+};
+
+export enum ColumnStyles {
+  DATE = 'date',
+  HIDDEN = 'hidden',
+  METRIC = 'metric',
+  STRING = 'string',
+}
+
+export interface ColumnStyleItemType {
+  activeStyle: ColumnStyles;
+  enabled: boolean;
+  label: string;
+  nameOrRegex: string;
+  order: number;
+  align?: ColumnAlignment;
+  dateStyle: ColumnStyleDate;
+  hiddenStyle: ColumnStyleHidden;
+  metricStyle: ColumnStyleMetric;
+  stringStyle: ColumnStyleString;
+};
 
 export type ColumnStyling = {
   nameOrRegex: string;

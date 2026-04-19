@@ -1,5 +1,5 @@
 import { FieldConfig } from "@grafana/data";
-import { ColumnStyleItemType } from "components/options/columnstyles/types";
+import { ColumnStyleItemType } from "types";
 
 export interface DTColumnType {
   title: string;

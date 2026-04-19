@@ -12,9 +12,9 @@ import {
   Cascader,
   Select,
 } from '@grafana/ui';
-import { ColumnStyleItemProps, ColumnStyleItemType } from './types';
+import { ColumnStyleItemProps } from './types';
 import { ThresholdsEditor } from '../thresholds/ThresholdsEditor';
-import { ColorModeOptions, ColumnAlignment, ColumnAlignmentOptions, DateFormats, Threshold } from 'types';
+import { ColorModeOptions, ColumnAlignment, ColumnAlignmentOptions, ColumnStyleItemType, DateFormats, Threshold } from 'types';
 import { SelectableValue } from '@grafana/data';
 
 export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
