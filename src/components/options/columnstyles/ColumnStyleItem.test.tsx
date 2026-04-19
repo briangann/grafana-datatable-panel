@@ -1,8 +1,7 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ColumnStyleItem } from './ColumnStyleItem';
-import { ColumnAlignment, ColumnStyleColoring, ColumnStyles, ColumnStyleItemType, DateFormats } from 'types';
-import type { Threshold } from 'types';
+import { ColumnAlignment, ColumnStyleColoring, ColumnStyles, ColumnStyleItemType, DateFormats, type Threshold } from 'types';
 
 // Stub ThresholdsEditor so we can invoke its `setter` directly from a test
 // button. The real editor's internal behavior is covered by its own tests.

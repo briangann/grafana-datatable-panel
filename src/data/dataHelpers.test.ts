@@ -6,8 +6,7 @@ import {
   GetColorIndexForValue,
   getColumnClassName,
 } from './dataHelpers';
-import { ColumnStyleColoring } from 'types';
-import { ColumnStyles, ColumnStyleItemType } from 'types';
+import { ColumnStyleColoring, ColumnStyles, ColumnStyleItemType } from 'types';
 import { DTColumnType, FormattedColumnValue } from './types';
 import {
   createTheme,

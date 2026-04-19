@@ -2,10 +2,9 @@
  * Tests for Column Styling
  */
 
-import { ColumnStyleItemType, ColumnStyles } from 'types';
+import { ColumnStyleItemType, ColumnStyles, DateFormats } from 'types';
 import { ApplyColumnStyles } from './columnStyles';
 import { DTColumnType } from '../types';
-import { DateFormats } from 'types';
 
 describe('Column Styles', () => {
   const columns: DTColumnType[] = [

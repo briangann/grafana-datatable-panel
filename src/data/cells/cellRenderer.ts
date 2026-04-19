@@ -10,10 +10,9 @@ import {
 } from "@grafana/data";
 
 import _ from 'lodash';
-import { DateFormats } from "types";
+import { ColumnStyleItemType, ColumnStyles, DateFormats } from "types";
 import { FormattedColumnValue } from "../types";
 import moment from 'moment-timezone';
-import { ColumnStyleItemType, ColumnStyles } from "types";
 
 // Fallback base for `new URL(input, base)` when parsing path-relative
 // clickthrough inputs. Dashboards always run in a browser, so

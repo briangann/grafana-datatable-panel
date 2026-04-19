@@ -11,9 +11,8 @@ import {
 import { FormatColumnValue } from './cells/cellRenderer';
 import { ApplyGrafanaOverrides } from './mappings/overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
-import { ColumnAlignment, ColumnAlignmentOptions, ColumnStyleColoring } from 'types';
+import { ColumnAlignment, ColumnAlignmentOptions, ColumnStyleColoring, ColumnStyleItemType, ColumnStyles } from 'types';
 import { DTColumnType, DTData, FormattedColumnValue } from './types';
-import { ColumnStyleItemType, ColumnStyles } from 'types';
 import { ApplyColumnStyles } from './columns/columnStyles';
 import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './cells/createdCellHelpers';
 import { ApplyMappings, GetMappings } from './mappings/mappingProcessor';

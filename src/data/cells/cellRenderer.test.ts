@@ -1,7 +1,7 @@
 /**
  * Tests for Rendering a Cell
  */
-import { DateFormats } from 'types';
+import { ColumnStyleItemType, ColumnStyles, DateFormats } from 'types';
 import {
   applyFormat,
   FormatColumnValue,
@@ -14,7 +14,6 @@ import {
 } from './cellRenderer';
 import { Field, FieldConfig, FieldType, GrafanaTheme2, TimeRange, dateTime} from '@grafana/data';
 import { FormattedColumnValue } from '../types';
-import { ColumnStyleItemType, ColumnStyles } from 'types';
 // Single reference epoch reused across FormatColumnValue / TimeFormatter
 // cases so the human-readable date is declared once at the top of the file
 // instead of inferred from each assertion's `.toBe('2025-04-12 …')`.
