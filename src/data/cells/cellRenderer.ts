@@ -2,7 +2,6 @@ import {
   dateTime,
   Field,
   getValueFormat,
-  GrafanaTheme2,
   InterpolateFunction,
   stringToJsRegex,
   textUtil,
@@ -10,10 +9,8 @@ import {
 } from "@grafana/data";
 
 import _ from 'lodash';
-import { DateFormats } from "types";
-import { FormattedColumnValue } from "./types";
+import { ColumnStyleItemType, ColumnStyles, DateFormats, FormattedColumnValue } from "types";
 import moment from 'moment-timezone';
-import { ColumnStyleItemType, ColumnStyles } from "components/options/columnstyles/types";
 
 // Fallback base for `new URL(input, base)` when parsing path-relative
 // clickthrough inputs. Dashboards always run in a browser, so
@@ -79,29 +76,12 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
   return formatted;
 }
 
-/**
- * [FormatColumnValue description]
- *
- * @param   {Field}          field      [field description]
- * @param   {number}         colIndex   [colIndex description]
- * @param   {number}         rowIndex   [rowIndex description]
- * @param   {any}            value      [value description]
- * @param   {string}         valueType  [valueType description]
- * @param   {string}         timeFrom   [timeFrom description]
- * @param   {string}         timeTo     [timeTo description]
- * @param   {GrafanaTheme2}  theme      [theme description]
- *
- * @return  {string}                    [Formatted Value]
- */
 export const FormatColumnValue = (
   userTimeZone: string,
   columnStyle: ColumnStyleItemType | null,
   field: Field,
-  colIndex: number,
-  rowIndex: number,
   value: any,
-  valueType: string,
-  theme: GrafanaTheme2): FormattedColumnValue => {
+  valueType: string): FormattedColumnValue => {
 
   if ((valueType === 'time') && !isNaN(value as any)) {
     const parsed = parseInt(value, 10);
@@ -160,9 +140,7 @@ export const FormatColumnValue = (
 
 export const ProcessClickthrough = (
   columnStyle: ColumnStyleItemType | null,
-  columns: any,
   rows: any,
-  rowIndex: number,
   processedItem: FormattedColumnValue,
   timeRange: TimeRange,
   replaceVariables: InterpolateFunction) => {

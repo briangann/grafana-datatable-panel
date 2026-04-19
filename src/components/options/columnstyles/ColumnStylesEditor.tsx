@@ -8,20 +8,26 @@ import {
   DEFAULT_OK_COLOR_HEX,
   DEFAULT_WARNING_COLOR_HEX,
 } from '../defaults';
+import { ColumnStyleItem } from './ColumnStyleItem';
+import { getColumnHints } from './columnHints';
 import {
-  ColumnStyles,
+  ColumnAlignment,
+  ColumnStyleColoring,
   ColumnStyleDate,
   ColumnStyleHidden,
-  ColumnStyleItemTracker,
   ColumnStyleItemType,
   ColumnStyleMetric,
+  ColumnStyles,
   ColumnStyleString,
-} from './types';
-import { ColumnStyleItem } from './ColumnStyleItem';
-import { Threshold } from '../thresholds/types';
-import { getColumnHints } from './columnHints';
-import { ColumnAlignment, ColumnStyleColoring, DateFormats } from 'types';
+  DateFormats,
+  Threshold,
+} from 'types';
 import { TrackerAdapter, useTracker } from 'hooks/useTracker';
+
+interface ColumnStyleItemTracker {
+  style: ColumnStyleItemType;
+  ID: string;
+}
 
 const columnStyleAdapter: TrackerAdapter<ColumnStyleItemTracker, ColumnStyleItemType> = {
   toPayload: (t) => t.style,

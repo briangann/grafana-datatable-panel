@@ -3,7 +3,7 @@ import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { Input, ColorPicker, IconButton, useStyles2, Select } from '@grafana/ui';
 import { css } from '@emotion/css';
 
-import { Threshold, ThresholdStates } from './types';
+import { Threshold, ThresholdStates } from 'types';
 
 interface ThresholdItemProps {
   threshold: Threshold;

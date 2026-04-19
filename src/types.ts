@@ -1,5 +1,4 @@
-import { SelectableValue } from "@grafana/data";
-import { ColumnStyleItemType } from "components/options/columnstyles/types";
+import { FieldConfig, SelectableValue } from "@grafana/data";
 
 export type SearchPosition = 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd';
 
@@ -166,6 +165,92 @@ export const ColumnAlignmentOptions = [
   { label: 'Center', value: ColumnAlignment.CENTER },
   { label: 'Right', value: ColumnAlignment.RIGHT },
 ];
+
+export interface Threshold {
+  color: string;
+  state: number;
+  value: number;
+};
+
+export const ThresholdStates: SelectableValue[] = [
+  { value: 0, label: 'ok' },
+  { value: 1, label: 'warning' },
+  { value: 2, label: 'critical' },
+  { value: 3, label: 'custom' },
+];
+
+export interface ColumnStyleHidden {
+};
+
+export interface ColumnStyleDate {
+  dateFormat?: string;
+};
+
+export interface ColumnStyleMetric {
+  alias: string;
+  thresholds: Threshold[];
+  colors: string[];
+  colorMode?: ColumnStyleColoring;
+  decimals: string;
+  scaledDecimals: number | null;
+  unitFormat: string;
+  ignoreNullValues: boolean;
+};
+
+export interface ColumnStyleString {
+  clickThrough: string;
+  clickThroughSanitize: boolean;
+  clickThroughOpenNewTab: boolean;
+  clickThroughCustomTargetEnabled: boolean;
+  clickThroughCustomTarget: string;
+  mappingType?: number;
+  splitByPattern: string,
+};
+
+export enum ColumnStyles {
+  DATE = 'date',
+  HIDDEN = 'hidden',
+  METRIC = 'metric',
+  STRING = 'string',
+}
+
+export interface ColumnStyleItemType {
+  activeStyle: ColumnStyles;
+  enabled: boolean;
+  label: string;
+  nameOrRegex: string;
+  order: number;
+  // per-column cell alignment override; 'default' defers to the panel-level setting
+  align?: ColumnAlignment;
+  // allows switching the styles without losing data
+  dateStyle: ColumnStyleDate;
+  hiddenStyle: ColumnStyleHidden;
+  metricStyle: ColumnStyleMetric;
+  stringStyle: ColumnStyleString;
+};
+
+export interface DTColumnType {
+  title: string;
+  data: string;
+  type: string;
+  className: string;
+  fieldConfig?: FieldConfig<any>;
+  columnStyles: ColumnStyleItemType[];
+  widthHint?: string;
+  visible: boolean;
+};
+
+export interface FormattedColumnValue {
+  valueRaw: number | string | null,
+  valueFormatted: string,
+  valueRounded: number | null,
+  valueRoundedAndFormatted: string | null,
+};
+
+export interface DTData {
+  Columns: DTColumnType[];
+  Rows: any[];
+};
 
 export type ColumnStyling = {
   nameOrRegex: string;

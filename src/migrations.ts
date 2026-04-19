@@ -12,15 +12,19 @@ import {
   ColumnSorting,
   ColumnSortingOptions,
   ColumnWidthHint,
+  ColumnStyleDate,
+  ColumnStyleHidden,
+  ColumnStyleItemType,
+  ColumnStyleMetric,
+  ColumnStyles,
+  ColumnStyleString,
   DatatableOptions,
   DatatablePagingType,
   DEFAULT_SEARCH_POSITION,
   SearchPosition,
+  Threshold,
   TransformationOptions,
 } from './types';
-import { Threshold } from 'components/options/thresholds/types';
-import { ColumnStyleDate, ColumnStyleHidden, ColumnStyleItemType, ColumnStyleMetric, ColumnStyles, ColumnStyleString } from 'components/options/columnstyles/types';
-//import { DEFAULT_CRITICAL_COLOR_RGBA, DEFAULT_OK_COLOR_RGBA, DEFAULT_WARNING_COLOR_RGBA } from 'components/options/defaults';
 
 interface AngularDatatableOptions {
   alignNumbersToRightEnabled?: boolean;

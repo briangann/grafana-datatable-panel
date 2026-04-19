@@ -1,5 +1,5 @@
 import { ValueMapping } from "@grafana/data";
-import { FormattedColumnValue } from "./types";
+import { FormattedColumnValue } from "types";
 import { getValueMappingResult } from "./valueMappings";
 
 export const GetMappings = (fieldConfigMappings: ValueMapping[] | undefined, dataMappings: ValueMapping[] | undefined) => {

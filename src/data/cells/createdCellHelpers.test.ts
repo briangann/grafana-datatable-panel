@@ -1,6 +1,5 @@
 import { ProcessStringValueStyle } from './createdCellHelpers';
-import { ColumnStyleItemType } from 'components/options/columnstyles/types';
-import { FormattedColumnValue } from './types';
+import { ColumnStyleItemType, FormattedColumnValue } from 'types';
 import { TimeRange, dateTime } from '@grafana/data';
 
 // Covers the plumbing that forwards `replaceVariables` from BuildColumnDefs
@@ -33,8 +32,6 @@ describe('ProcessStringValueStyle', () => {
     const html = ProcessStringValueStyle(
       makeStyle('http://example.com/h/$host?cell=$__cell'),
       [],
-      [],
-      0,
       processedItem,
       fakeTimeRange,
       replaceVariables,
@@ -47,8 +44,6 @@ describe('ProcessStringValueStyle', () => {
     const html = ProcessStringValueStyle(
       makeStyle(''),
       [],
-      [],
-      0,
       processedItem,
       fakeTimeRange,
       replaceVariables,

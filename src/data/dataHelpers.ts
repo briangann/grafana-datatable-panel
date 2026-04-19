@@ -8,16 +8,14 @@ import {
   InterpolateFunction,
   TimeRange
 } from '@grafana/data';
-import { FormatColumnValue } from 'data/cellRenderer';
-import { ApplyGrafanaOverrides } from './overrides';
+import { getCellColors } from './cells/cellColors';
+import { FormatColumnValue } from './cells/cellRenderer';
+import { ApplyGrafanaOverrides } from './mappings/overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
-import { ColumnAlignment, ColumnAlignmentOptions, ColumnStyleColoring } from 'types';
-import { DTColumnType, FormattedColumnValue } from './types';
-import { ColumnStyleItemType, ColumnStyles } from 'components/options/columnstyles/types';
-import { ApplyColumnStyles } from './columnStyles';
-import { DTData } from 'components/DataTablePanel';
-import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './createdCellHelpers';
-import { ApplyMappings, GetMappings } from './mappingProcessor';
+import { ColumnAlignment, ColumnAlignmentOptions, ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FormattedColumnValue } from 'types';
+import { ApplyColumnStyles } from './columns/columnStyles';
+import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './cells/createdCellHelpers';
+import { ApplyMappings, GetMappings } from './mappings/mappingProcessor';
 
 function normalizeFieldName(field: string) {
   return field
@@ -55,12 +53,12 @@ export const DataFrameToDisplay = (frames: DataFrame[]) => {
 };
 
 
-export type AlignmentFlags = {
+type AlignmentFlags = {
   numbers: boolean;
   strings: boolean;
 };
 
-export type ConvertDataFrameOptions = {
+type ConvertDataFrameOptions = {
   dataFrames: DataFrame[];
   fieldConfig: FieldConfigSource<any>;
   userTimeZone: string;
@@ -104,7 +102,7 @@ export const ConvertDataFrameToDataTableFormat = (
       const valueType = frameFields.type;
       if (aColumn.columnStyles && aColumn.columnStyles.length > 0) {
         const aStyle = aColumn.columnStyles[0];
-        value = FormatColumnValue(userTimeZone, aStyle, frameFields, j, i, value, valueType, theme);
+        value = FormatColumnValue(userTimeZone, aStyle, frameFields, value, valueType);
       }
       // run through mappings
       const mappings = GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings);
@@ -152,7 +150,7 @@ export const ConvertDataFrameToDataTableFormat = (
   return { columns, rows };
 }
 
-export type BuildColumnDefsOptions = {
+type BuildColumnDefsOptions = {
   rowNumbersEnabled: boolean;
   fontSizePercent: string;
   alignment: AlignmentFlags;
@@ -282,9 +280,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         if (aStyle.activeStyle === ColumnStyles.STRING) {
           const newCell = ProcessStringValueStyle(
             aStyle,
-            columnsInCellData,
             rowData,
-            rowIndex,
             cellValueFormatted,
             timeRange,
             replaceVariables,
@@ -306,7 +302,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
            * This mode highlights the entire row and applies the threshold color to each cell
            */
           if (colorMode === ColumnStyleColoring.RowColumn) {
-            processRowColumnStyle(cell, rowData, columnsInCellData, rowNumbersEnabled, rowNumberOffset);
+            processRowColumnStyle(cell, rowData, columnsInCellData, rowNumberOffset);
           }
           // Process cell coloring
           // Two scenarios:
@@ -390,86 +386,3 @@ export const getColumnClassName = (alignment: AlignmentFlags, columnType: string
   return columnClassName;
 }
 
-export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData: FormattedColumnValue) => {
-  if (aColumnStyle === null || cellData === null || cellData === undefined) {
-    return null;
-  }
-  // only color cell if the content is a number
-  if (aColumnStyle.activeStyle !== ColumnStyles.METRIC) {
-    return null;
-  }
-  // let useData = cellData;
-  // if (cellData.valueRaw) {
-  //   useData = cellData.valueRaw;
-  // } else {
-  //   // this should not happen
-  //   return null;
-  // }
-  //const items = useData.valueFormatted.split(/([^0-9.,]+)/);
-  let bgColor = null;
-  let bgColorIndex = null;
-  let color = null;
-  let colorIndex = null;
-  //let value = null;
-  // check if the content has a numeric value after the split
-  // if (!isNaN(Number(cellData.valueFormatted))) {
-  //   value = parseFloat(items[0].replace(',', '.'));
-  // }
-
-  if (aColumnStyle && aColumnStyle.metricStyle.colorMode != null && aColumnStyle.metricStyle.thresholds.length > 0) {
-    // check color for either cell or row
-    if (aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Cell ||
-      aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Row ||
-      aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.RowColumn) {
-      if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
-        bgColor = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
-        bgColorIndex = GetColorIndexForValue(cellData.valueRaw as number, aColumnStyle);
-      }
-      color = 'white';
-    }
-    // just the value color is set
-    if (aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Value) {
-      if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
-        color = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
-        colorIndex = GetColorIndexForValue(cellData.valueRaw as number, aColumnStyle);
-      }
-    }
-  }
-  return {
-    bgColor: bgColor,
-    bgColorIndex: bgColorIndex,
-    color: color,
-    colorIndex: colorIndex,
-  };
-};
-
-export const GetColorForValue = (value: number, style: ColumnStyleItemType) => {
-  if (!style.metricStyle.thresholds) {
-    return null;
-  }
-  let color = style.metricStyle.thresholds[0].color;
-  for (let i = style.metricStyle.thresholds.length - 1; i > 0; i--) {
-    const checkValue = style.metricStyle.thresholds[i].value;
-    if (value >= checkValue) {
-      color = style.metricStyle.thresholds[i].color;
-      // found highest match
-      break;
-    }
-  }
-  return color;
-};
-
-// to determine the overall row color, the index of the threshold is needed
-export const GetColorIndexForValue = (value: any, style: any) => {
-  if (!style.metricStyle.thresholds) {
-    return null;
-  }
-  let colorIndex = 0;
-  for (let i = style.metricStyle.thresholds.length - 1; i > 0; i--) {
-    if (value >= style.metricStyle.thresholds[i].value) {
-      colorIndex = i;
-      break;
-    }
-  }
-  return colorIndex;
-};
