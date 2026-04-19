@@ -16,7 +16,7 @@ Build, lint, test:
 - `pnpm run lint` / `pnpm run lint:fix` — ESLint (+ Prettier on `:fix`).
 - `pnpm run test` — Jest watch mode (only changed files).
 - `pnpm run test:ci` — full Jest run used in CI (`--passWithNoTests --maxWorkers 4`, coverage on).
-- Run a single Jest test file: `pnpm exec jest src/data/columnStyles.test.ts`.
+- Run a single Jest test file: `pnpm exec jest src/data/columns/columnStyles.test.ts`.
 - Run a single test by name: `pnpm exec jest -t "partial test name"`.
 - `pnpm run spellcheck` — cspell.
 
@@ -63,11 +63,14 @@ E2E (requires a running Grafana with the plugin mounted):
 3. `BuildColumnDefs` + `ConvertDataFrameToDataTableFormat`
    (`src/data/dataHelpers.ts`) turn the DataFrames into DataTables.net `columns`
    / `rows`.
-4. `ApplyColumnAliases` (`columnAliasing.ts`) and `ApplyColumnWidthHints`
-   (`columnWidthHints.ts`) mutate the column defs based on user options.
-5. `cellRenderer.ts` + `createdCellHelpers.ts` produce per-cell `render` /
-   `createdCell` callbacks that apply column styles, value/range mappings
-   (`valueMappings.ts`, `mappingProcessor.ts`), thresholds (`overrides.ts` +
+4. `ApplyColumnAliases` (`data/columns/columnAliasing.ts`) and
+   `ApplyColumnWidthHints` (`data/columns/columnWidthHints.ts`) mutate the
+   column defs based on user options.
+5. `data/cells/cellRenderer.ts` + `data/cells/createdCellHelpers.ts` produce
+   per-cell `render` / `createdCell` callbacks that apply column styles,
+   value/range mappings (`data/mappings/valueMappings.ts`,
+   `data/mappings/mappingProcessor.ts`), thresholds
+   (`data/mappings/overrides.ts` + `data/cells/cellColors.ts` +
    `src/utils/color.ts`), and URL macro expansion (`$__cell`, `$__cell_N`,
    `$__pattern_N`, `$__keepTime`, `$__from`, `$__to`).
 6. The DataTables.net instance is constructed imperatively against a `ref` table
@@ -79,10 +82,10 @@ E2E (requires a running Grafana with the plugin mounted):
 
 ### Column styles
 
-Four style kinds (see `src/components/options/columnstyles/types.ts` and
-`src/data/columnStyles.ts`): `Date`, `String`, `Hidden`, `Metric`. First matching
-style per column wins — ordering matters. Metric style is where thresholds +
-unit/decimal formatting apply.
+Four style kinds (see the `ColumnStyles` enum in `src/types.ts` and the
+matcher in `src/data/columns/columnStyles.ts`): `Date`, `String`, `Hidden`,
+`Metric`. First matching style per column wins — ordering matters. Metric
+style is where thresholds + unit/decimal formatting apply.
 
 ### Migrations
 
