@@ -8,7 +8,7 @@ import {
   InterpolateFunction,
   TimeRange
 } from '@grafana/data';
-import { FormatColumnValue } from 'data/cellRenderer';
+import { FormatColumnValue } from 'datatable/cellRenderer';
 import { ApplyGrafanaOverrides } from './overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
 import { ColumnAlignment, ColumnAlignmentOptions, ColumnStyleColoring } from 'types';
