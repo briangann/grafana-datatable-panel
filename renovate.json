@@ -10,6 +10,15 @@
     "enabled": true,
     "schedule": ["before 4am on Monday"]
   },
+  "osvVulnerabilityAlerts": true,
+  "vulnerabilityAlerts": {
+    "enabled": true,
+    "labels": ["dependencies", "security"],
+    "prPriority": 10,
+    "schedule": ["at any time"],
+    "commitMessagePrefix": "security:",
+    "minimumReleaseAge": null
+  },
   "packageRules": [
     {
       "description": "Block @grafana/*@13.x until the grafanaDependency upper bound in plugin.json is raised past <13.0.0.",
