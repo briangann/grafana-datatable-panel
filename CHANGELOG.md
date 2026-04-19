@@ -225,6 +225,32 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `const` identifiers. Fixes the `no-case-declarations` style
   concern for the `ValueToText`, `RangeToText`, and `RegexToText`
   cases.
+- Factor the repeated `as unknown as Record<string, unknown>` cast in
+  the `BuildColumnDefs` unit test (`src/data/dataHelpers.test.ts`)
+  into a single `asRecord(d)` helper scoped to the describe block.
+  DataTables' `ConfigColumnDefs` is a narrow union with no index
+  signature, so probing runtime properties needs the bounce through
+  `unknown`; the helper keeps the test assertions grep-able.
+- Sharpen the no-work short-circuit assertion in
+  `src/data/overrides.test.ts`. The previous
+  `expect(Array.isArray(calls)).toBe(true)` was tautological (the
+  array was declared as `[]` in scope). Replaced with
+  `expect(calls).toEqual([])` so the test actually pins that
+  `applyFieldOverrides` does not invoke the spy when the
+  `fieldConfig` carries no template syntax.
+- Hoist the reused `1744486055000` timestamp in
+  `src/data/cellRenderer.test.ts` (five occurrences across
+  `FormatColumnValue` and `TimeFormatter` cases) into a single
+  file-scope `EPOCH_2025_04_12T19_27_35Z` constant. The human-readable
+  date now reads off the identifier instead of being inferred from
+  each assertion's `.toBe('2025-04-12 …')`.
+- Keep `props.options.emptyDataEnabled` and `props.options.emptyDataText`
+  in the two `useEffect` dep arrays in
+  `src/components/DataTablePanel.tsx` even though neither effect body
+  reads them today. Added a comment on each site explaining the deps
+  are placeholders for the option-B remediation in #296 that would
+  wire the option into `defaultContent`; when that lands, the effects
+  must re-run on toggle and the deps are already in place.
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook
   encapsulating the ordered-tracker-with-onChange-fan-out pattern used by
   `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`,
