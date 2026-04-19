@@ -13,7 +13,7 @@ import {
 export function getValueMappingResult(valueMappings: ValueMapping[], value: any): ValueMappingResult | null {
   for (const vm of valueMappings) {
     switch (vm.type) {
-      case MappingType.ValueToText:
+      case MappingType.ValueToText: {
         if (value == null) {
           continue;
         }
@@ -24,8 +24,9 @@ export function getValueMappingResult(valueMappings: ValueMapping[], value: any)
         }
 
         break;
+      }
 
-      case MappingType.RangeToText:
+      case MappingType.RangeToText: {
         if (value == null) {
           continue;
         }
@@ -50,8 +51,9 @@ export function getValueMappingResult(valueMappings: ValueMapping[], value: any)
         }
 
         return vm.options.result;
+      }
 
-      case MappingType.RegexToText:
+      case MappingType.RegexToText: {
         if (value == null) {
           continue;
         }
@@ -70,6 +72,9 @@ export function getValueMappingResult(valueMappings: ValueMapping[], value: any)
 
           return res;
         }
+
+        break;
+      }
 
       case MappingType.SpecialValue:
         switch ((vm.options as SpecialValueOptions).match) {

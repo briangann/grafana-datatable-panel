@@ -31,7 +31,6 @@ export const processRowStyle = (
     }
     rowColorData = getCellColors(
       aColumnStyle,
-      columnNumber,
       rowData[columnNumber + rowNumberOffset]
     );
     if (!rowColorData) {
@@ -81,7 +80,6 @@ export const processRowColumnStyle = (
         }
         rowColorData = getCellColors(
           aColumnStyle,
-          columnNumber,
           rowData[columnNumber + rowNumberOffset]
         );
       }

@@ -140,6 +140,131 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Refactoring
 
+#### Correctness
+
+- Remove a stale `// @ts-ignore` + `TODO: fix this ignore, it works but should not be
+  required` in `src/data/transformations.ts:transformData`. The ignore was covering
+  a type mismatch between `lastValueFrom` and the `Observable<DataFrame[]>` returned
+  by `transformDataFrame`; current `@grafana/data` / `rxjs` versions align
+  (both resolve to `rxjs@7.8.2`) so the call typechecks cleanly now.
+- Wire `props.replaceVariables` into `ApplyGrafanaOverrides`
+  (`src/data/overrides.ts`). The function previously passed a no-op
+  `(value) => value` to `applyFieldOverrides`; now that the panel already
+  threads `replaceVariables` for clickthrough URLs, the override pass
+  picks up the real interpolator too, so Grafana dashboard variables
+  referenced inside field-config defaults resolve identically to the
+  stock link/threshold pipelines.
+- Add the missing `break;` after `case MappingType.RegexToText:` in
+  `src/data/valueMappings.ts:getValueMappingResult`. The previous code
+  fell through into `case MappingType.SpecialValue:` when a regex did
+  not match — latent (the inner switch's `match` discriminant is
+  `undefined` on a RegexToText options object, so every `SpecialValue`
+  sub-case was a no-op in practice) but fragile. Pinned with a new
+  regression test that confirms the iteration continues cleanly to the
+  next mapping after a non-matching regex.
+- Fix `TimeFormatter` in `src/data/cellRenderer.ts` for non-UTC
+  timezones. The function used `moment.tz(iso, format, tz)` — the
+  parsing overload, which treats `iso` as already-local-to-tz — so the
+  output was the UTC time digits labeled as the target zone. A
+  dashboard in `America/New_York` at 15:27:35 EDT would render as
+  `19:27:35` (the UTC digits). Switched to the conversion overload
+  `moment.tz(ms, tz)`, which takes a UTC-millis timestamp and returns
+  the corresponding Moment in the target zone; also removed a dead
+  `let formattedWithTimezone = dateTime(...)` initialiser that was
+  unconditionally overwritten on the next line. `TimeFormatter`'s unit
+  test now pins a real UTC→EDT conversion instead of the prior
+  shape-only assertion.
+
+#### Test coverage & quality
+
+- Raise `src/data/` unit-test coverage from 44% to 73%. First pass added
+  tests for `columnAliasing.ts` (7 cases), `columnWidthHints.ts` (7
+  cases), and extended `cellRenderer.test.ts` +
+  `dataHelpers.test.ts` with previously-untested helper and
+  threshold-colour paths. Follow-up round closed additional branches:
+  `columnStyles.test.ts` regex-match + exact-match paths, remaining
+  `SpecialValueMatch` sub-case fall-throughs and
+  `RangeToText`/`RegexToText` null-guards in `valueMappings.test.ts`,
+  `FormatColumnValue` paths for string columns, DATE columnStyle
+  custom `dateFormat`, and columnStyle `unitFormat` / `decimals`
+  overrides, `ProcessClickthrough` `splitByPattern` and
+  `clickThroughSanitize` branches, `applyFormat` currency-prefix
+  branch, and four new `ConvertDataFrameToDataTableFormat` cases
+  covering field-to-column shape mapping, row-object build, the
+  `rowNumbersEnabled` branch (prepend `row` column + stamp indices),
+  and the HIDDEN-style visibility toggle.
+- Factor the repeated `as unknown as Record<string, unknown>` cast in
+  the `BuildColumnDefs` unit test (`src/data/dataHelpers.test.ts`)
+  into a single `asRecord(d)` helper scoped to the describe block.
+  DataTables' `ConfigColumnDefs` is a narrow union with no index
+  signature, so probing runtime properties needs the bounce through
+  `unknown`; the helper keeps the test assertions grep-able.
+- Sharpen the no-work short-circuit assertion in
+  `src/data/overrides.test.ts`. The previous
+  `expect(Array.isArray(calls)).toBe(true)` was tautological (the
+  array was declared as `[]` in scope). Replaced with
+  `expect(calls).toEqual([])` so the test actually pins that
+  `applyFieldOverrides` does not invoke the spy when the
+  `fieldConfig` carries no template syntax.
+- Hoist the reused `1744486055000` timestamp in
+  `src/data/cellRenderer.test.ts` (five occurrences across
+  `FormatColumnValue` and `TimeFormatter` cases) into a single
+  file-scope `EPOCH_2025_04_12T19_27_35Z` constant. The human-readable
+  date now reads off the identifier instead of being inferred from
+  each assertion's `.toBe('2025-04-12 …')`.
+
+#### API cleanup
+
+- Convert `ConvertDataFrameToDataTableFormat` (`src/data/dataHelpers.ts`)
+  from 9 positional arguments to a `ConvertDataFrameOptions` object.
+  The call site in `DataTablePanel.tsx` is now self-documenting at the
+  named-argument level. Also drops the unused `timeRange` parameter
+  that the prior signature carried but the function body never read.
+- Convert `BuildColumnDefs` (`src/data/dataHelpers.ts`) from 6
+  positional arguments to a `BuildColumnDefsOptions` object, matching
+  the `ConvertDataFrameOptions` precedent so the two sibling helpers
+  share the same call shape. Covered by a new `BuildColumnDefs` unit
+  test that pins the options-object API and the
+  `{ targets: '_all', defaultContent: '-' }` sentinel that
+  DataTables relies on to suppress a dialog when toggling the
+  row-number column at runtime.
+- `getCellColors` (`src/data/dataHelpers.ts`) drops its unused
+  `columnNumber` parameter (3 call sites + 7 test sites updated). The
+  `createdCell` helper's `actualColumn = colIndex - rowNumbersEnabled
+  ? 1 : 0` offset fed only that now-removed parameter, so it was dead
+  too and has been removed with it.
+- Drop unused `emptyDataEnabled` / `emptyDataText` parameters from
+  `BuildColumnDefs`. The options never had a runtime consumer — the
+  commented-out `defaultContent: emptyDataEnabled ? emptyDataText : ''`
+  reference was the only code that had ever read them, and wiring it
+  up turned out to conflict with the existing render pipeline. The
+  options are still surfaced in the editor and preserved by migration
+  for now; the architectural mismatch and remediation options are
+  tracked in
+  [#296](https://github.com/briangann/grafana-datatable-panel/issues/296).
+
+#### Style & convention
+
+- Rename unused positional parameters in the DataTables `data:` /
+  `render:` column-def callbacks to the `_`-prefixed convention
+  (`_set`, `_data`) so the `@typescript-eslint/no-unused-vars` check
+  passes without a suppress comment while preserving the
+  library-dictated positional signatures.
+- Block-scope the `case` bodies in
+  `src/data/valueMappings.ts:getValueMappingResult` that declare
+  `const` identifiers. Fixes the `no-case-declarations` style
+  concern for the `ValueToText`, `RangeToText`, and `RegexToText`
+  cases.
+
+#### React effects & state
+
+- Keep `props.options.emptyDataEnabled` and `props.options.emptyDataText`
+  in the two `useEffect` dep arrays in
+  `src/components/DataTablePanel.tsx` even though neither effect body
+  reads them today. Added a comment on each site explaining the deps
+  are placeholders for the option-B remediation in #296 that would
+  wire the option into `defaultContent`; when that lands, the effects
+  must re-run on toggle and the deps are already in place.
 - Add `src/hooks/useTracker.ts`: a typed, immutable `useTracker<Item, Payload>` hook
   encapsulating the ordered-tracker-with-onChange-fan-out pattern used by
   `ThresholdsEditor` and `ColumnStylesEditor`. Exposes `items`, `setAll`, `add`,

@@ -190,15 +190,14 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     if (cachedProcessedData !== undefined) {
-      const calcColumnDefs = BuildColumnDefs(
-        props.options.emptyDataEnabled,
-        props.options.emptyDataText,
-        props.options.rowNumbersEnabled,
-        props.options.fontSizePercent,
+      const calcColumnDefs = BuildColumnDefs({
+        rowNumbersEnabled: props.options.rowNumbersEnabled,
+        fontSizePercent: props.options.fontSizePercent,
         alignment,
-        props.timeRange,
-        props.replaceVariables,
-        cachedProcessedData);
+        timeRange: props.timeRange,
+        replaceVariables: props.replaceVariables,
+        dtData: cachedProcessedData,
+      });
       setCachedColumnDefs(calcColumnDefs);
     }
   }, [
@@ -206,8 +205,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     cachedProcessedData,
     props.timeRange,
     props.replaceVariables,
-    props.options.emptyDataEnabled,
-    props.options.emptyDataText,
     props.options.fontSizePercent,
     props.options.rowNumbersEnabled]);
 
@@ -220,15 +217,16 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
         let dtColumns: DTColumnType[] = [];
         let flattenedRows: any[] = [];
-        const result = ConvertDataFrameToDataTableFormat(
+        const result = ConvertDataFrameToDataTableFormat({
           dataFrames,
-          props.fieldConfig,
-          props.timeZone,
-          props.timeRange,
+          fieldConfig: props.fieldConfig,
+          userTimeZone: props.timeZone,
           alignment,
-          props.options.rowNumbersEnabled,
-          props.options.columnStylesConfig,
-          theme2);
+          rowNumbersEnabled: props.options.rowNumbersEnabled,
+          columnStyles: props.options.columnStylesConfig,
+          theme: theme2,
+          replaceVariables: props.replaceVariables,
+        });
         dtColumns = result.columns;
         // get the column widths
         dtColumns = ApplyColumnWidthHints(dtColumns, props.options.columnWidthHints);
@@ -247,11 +245,17 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.fieldConfig,
     props.timeZone,
     props.timeRange,
+    props.replaceVariables,
     props.data.state,
     props.data.series,
     props.options.columnAliases,
     props.options.columnStylesConfig,
     props.options.columnWidthHints,
+    // emptyDataEnabled / emptyDataText are currently unreachable at runtime
+    // (see #296), so neither effect body reads them today. Kept in the deps
+    // array as a placeholder for the option-B remediation that wires the
+    // option into defaultContent — when that lands, this effect WILL need
+    // to re-run on toggle, and the dep is ready to carry that change.
     props.options.emptyDataEnabled,
     props.options.emptyDataText,
     props.options.fontSizePercent,
@@ -374,6 +378,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     props.options.columnStylesConfig,
     props.options.columnWidthHints,
     props.options.datatablePagingType,
+    // See the equivalent comment on the BuildColumnDefs effect above — kept
+    // in deps for the #296 option-B path that would make this effect sensitive
+    // to emptyData toggles via the re-init chain through cachedColumnDefs.
     props.options.emptyDataEnabled,
     props.options.emptyDataText,
     props.options.fontSizePercent,

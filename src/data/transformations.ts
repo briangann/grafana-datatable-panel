@@ -35,8 +35,6 @@ export async function transformData(
     options: options,
   };
   const transformedData = transformDataFrame([transformConfig], data);
-  // TODO: fix this ignore, it works but should not be required
-  // @ts-ignore
   return await lastValueFrom(transformedData);
 }
 
