@@ -140,6 +140,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Refactoring
 
+#### Correctness
+
 - Remove a stale `// @ts-ignore` + `TODO: fix this ignore, it works but should not be
   required` in `src/data/transformations.ts:transformData`. The ignore was covering
   a type mismatch between `lastValueFrom` and the `Observable<DataFrame[]>` returned
@@ -172,6 +174,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   unconditionally overwritten on the next line. `TimeFormatter`'s unit
   test now pins a real UTC→EDT conversion instead of the prior
   shape-only assertion.
+
+#### Test coverage & quality
+
 - Raise `src/data/` unit-test coverage from 44% to 73%. First pass added
   tests for `columnAliasing.ts` (7 cases), `columnWidthHints.ts` (7
   cases), and extended `cellRenderer.test.ts` +
@@ -188,6 +193,28 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   covering field-to-column shape mapping, row-object build, the
   `rowNumbersEnabled` branch (prepend `row` column + stamp indices),
   and the HIDDEN-style visibility toggle.
+- Factor the repeated `as unknown as Record<string, unknown>` cast in
+  the `BuildColumnDefs` unit test (`src/data/dataHelpers.test.ts`)
+  into a single `asRecord(d)` helper scoped to the describe block.
+  DataTables' `ConfigColumnDefs` is a narrow union with no index
+  signature, so probing runtime properties needs the bounce through
+  `unknown`; the helper keeps the test assertions grep-able.
+- Sharpen the no-work short-circuit assertion in
+  `src/data/overrides.test.ts`. The previous
+  `expect(Array.isArray(calls)).toBe(true)` was tautological (the
+  array was declared as `[]` in scope). Replaced with
+  `expect(calls).toEqual([])` so the test actually pins that
+  `applyFieldOverrides` does not invoke the spy when the
+  `fieldConfig` carries no template syntax.
+- Hoist the reused `1744486055000` timestamp in
+  `src/data/cellRenderer.test.ts` (five occurrences across
+  `FormatColumnValue` and `TimeFormatter` cases) into a single
+  file-scope `EPOCH_2025_04_12T19_27_35Z` constant. The human-readable
+  date now reads off the identifier instead of being inferred from
+  each assertion's `.toBe('2025-04-12 …')`.
+
+#### API cleanup
+
 - Convert `ConvertDataFrameToDataTableFormat` (`src/data/dataHelpers.ts`)
   from 9 positional arguments to a `ConvertDataFrameOptions` object.
   The call site in `DataTablePanel.tsx` is now self-documenting at the
@@ -215,6 +242,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   for now; the architectural mismatch and remediation options are
   tracked in
   [#296](https://github.com/briangann/grafana-datatable-panel/issues/296).
+
+#### Style & convention
+
 - Rename unused positional parameters in the DataTables `data:` /
   `render:` column-def callbacks to the `_`-prefixed convention
   (`_set`, `_data`) so the `@typescript-eslint/no-unused-vars` check
@@ -225,25 +255,9 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `const` identifiers. Fixes the `no-case-declarations` style
   concern for the `ValueToText`, `RangeToText`, and `RegexToText`
   cases.
-- Factor the repeated `as unknown as Record<string, unknown>` cast in
-  the `BuildColumnDefs` unit test (`src/data/dataHelpers.test.ts`)
-  into a single `asRecord(d)` helper scoped to the describe block.
-  DataTables' `ConfigColumnDefs` is a narrow union with no index
-  signature, so probing runtime properties needs the bounce through
-  `unknown`; the helper keeps the test assertions grep-able.
-- Sharpen the no-work short-circuit assertion in
-  `src/data/overrides.test.ts`. The previous
-  `expect(Array.isArray(calls)).toBe(true)` was tautological (the
-  array was declared as `[]` in scope). Replaced with
-  `expect(calls).toEqual([])` so the test actually pins that
-  `applyFieldOverrides` does not invoke the spy when the
-  `fieldConfig` carries no template syntax.
-- Hoist the reused `1744486055000` timestamp in
-  `src/data/cellRenderer.test.ts` (five occurrences across
-  `FormatColumnValue` and `TimeFormatter` cases) into a single
-  file-scope `EPOCH_2025_04_12T19_27_35Z` constant. The human-readable
-  date now reads off the identifier instead of being inferred from
-  each assertion's `.toBe('2025-04-12 …')`.
+
+#### React effects & state
+
 - Keep `props.options.emptyDataEnabled` and `props.options.emptyDataText`
   in the two `useEffect` dep arrays in
   `src/components/DataTablePanel.tsx` even though neither effect body
