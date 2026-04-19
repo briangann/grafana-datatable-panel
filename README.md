@@ -4,11 +4,8 @@
 ![Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fbriangann-datatable-panel&query=downloads&logo=grafana&label=Downloads&color=orange)
 [![License](https://img.shields.io/github/license/briangann/grafana-datatable-panel)](LICENSE)
 ![CI (main)](https://github.com/briangann/grafana-datatable-panel/actions/workflows/ci.yml/badge.svg?branch=main)
-
-[![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
 ![Release](https://github.com/briangann/grafana-datatable-panel/workflows/Release/badge.svg)
-
-[![Known Vulnerabilities](https://snyk.io/test/github/briangann/grafana-datatable-panel/badge.svg)](https://snyk.io/test/github/briangann/grafana-datatable-panel)
+[![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel
 for [Grafana](http://www.grafana.com) 10.x/11.x/12.x.
