@@ -7,7 +7,7 @@
 ![Release](https://github.com/briangann/grafana-datatable-panel/workflows/Release/badge.svg)
 [![Renovate enabled](https://img.shields.io/badge/renovate-enabled-brightgreen.svg?logo=renovatebot)](https://docs.renovatebot.com/)
 [![Renovate Dashboard](https://img.shields.io/badge/renovate-dashboard-%23007ACC?logo=renovatebot)](https://github.com/briangann/grafana-datatable-panel/issues?q=is%3Aissue+is%3Aopen+author%3Aapp%2Frenovate+in%3Atitle+%22Dependency+Dashboard%22)
-[![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
+[![Follow on X](https://img.shields.io/badge/follow-%40jepetlefeu-black?logo=x)](https://x.com/jepetlefeu)
 [![All Contributors](https://img.shields.io/badge/all_contributors-10-orange.svg?style=flat-square)](#contributors)
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel
