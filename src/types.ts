@@ -22,6 +22,7 @@ export interface DatatableOptions {
   scroll: boolean;
   searchEnabled: boolean;
   searchHighlightingEnabled: boolean;
+  searchPosition: 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd';
   columnSorting: ColumnSorting[],
   stripedRowsEnabled: boolean;
   columnStylesConfig: ColumnStyleItemType[];
