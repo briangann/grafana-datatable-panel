@@ -6,6 +6,7 @@
 ![CI (main)](https://github.com/briangann/grafana-datatable-panel/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Release](https://github.com/briangann/grafana-datatable-panel/workflows/Release/badge.svg)
 [![Twitter Follow](https://img.shields.io/twitter/follow/jepetlefeu.svg?style=social)](https://twitter.com/jepetlefeu)
+[![All Contributors](https://img.shields.io/badge/all_contributors-10-orange.svg?style=flat-square)](#contributors)
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel
 for [Grafana](http://www.grafana.com) 10.x/11.x/12.x.
@@ -367,3 +368,38 @@ This means - a row can have an overall color, with each cell indicating it's rea
 This panel is based on the "Table" panel by GrafanaLabs
 
 Special thanks to Esteban Beltran for his help porting from Angular!
+
+## Contributors
+
+Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/docs/en/emoji-key)):
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/briangann"><img src="https://avatars.githubusercontent.com/u/7364245?v=4" width="100px;" alt="Brian Gann"/><br /><sub><b>Brian Gann</b></sub></a><br /><a href="https://github.com/briangann/grafana-datatable-panel/commits?author=briangann" title="Code">💻</a> <a href="https://github.com/briangann/grafana-datatable-panel/commits?author=briangann" title="Documentation">📖</a> <a href="#maintenance-briangann" title="Maintenance">🚧</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/peterhpchen"><img src="https://avatars.githubusercontent.com/u/6873700?v=4" width="100px;" alt="Peter Chen"/><br /><sub><b>Peter Chen</b></sub></a><br /><a href="https://github.com/briangann/grafana-datatable-panel/commits?author=peterhpchen" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jonstout"><img src="https://avatars.githubusercontent.com/u/173253?v=4" width="100px;" alt="Jonathan Stout"/><br /><sub><b>Jonathan Stout</b></sub></a><br /><a href="https://github.com/briangann/grafana-datatable-panel/commits?author=jonstout" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/lvta0909"><img src="https://avatars.githubusercontent.com/u/6395687?v=4" width="100px;" alt="lvta0909"/><br /><sub><b>lvta0909</b></sub></a><br /><a href="https://github.com/briangann/grafana-datatable-panel/commits?author=lvta0909" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/iruizr7"><img src="https://avatars.githubusercontent.com/u/65398602?v=4" width="100px;" alt="Iñigo R."/><br /><sub><b>Iñigo R.</b></sub></a><br /><a href="https://github.com/briangann/grafana-datatable-panel/commits?author=iruizr7" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jacquelinegarrahan"><img src="https://avatars.githubusercontent.com/u/25035114?v=4" width="100px;" alt="Jacqueline Garrahan"/><br /><sub><b>Jacqueline Garrahan</b></sub></a><br /><a href="https://github.com/briangann/grafana-datatable-panel/commits?author=jacquelinegarrahan" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mweber55"><img src="https://avatars.githubusercontent.com/u/13062140?v=4" width="100px;" alt="mweber55"/><br /><sub><b>mweber55</b></sub></a><br /><a href="https://github.com/briangann/grafana-datatable-panel/commits?author=mweber55" title="Code">💻</a></td>
+    </tr>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/jmp0x00"><img src="https://avatars.githubusercontent.com/u/19555758?v=4" width="100px;" alt="jmp0x00"/><br /><sub><b>jmp0x00</b></sub></a><br /><a href="https://github.com/briangann/grafana-datatable-panel/commits?author=jmp0x00" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/warezWally"><img src="https://avatars.githubusercontent.com/u/23071053?v=4" width="100px;" alt="Chris Robertson"/><br /><sub><b>Chris Robertson</b></sub></a><br /><a href="https://github.com/briangann/grafana-datatable-panel/commits?author=warezWally" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/welyss"><img src="https://avatars.githubusercontent.com/u/7651126?v=4" width="100px;" alt="welyss"/><br /><sub><b>welyss</b></sub></a><br /><a href="https://github.com/briangann/grafana-datatable-panel/commits?author=welyss" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
+
+This project follows the
+[all-contributors](https://github.com/all-contributors/all-contributors)
+specification. Contributions of any kind are welcome!
