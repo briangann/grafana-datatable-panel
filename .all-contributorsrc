@@ -1,0 +1,83 @@
+{
+  "projectName": "grafana-datatable-panel",
+  "projectOwner": "briangann",
+  "repoType": "github",
+  "repoHost": "https://github.com",
+  "files": ["README.md"],
+  "imageSize": 100,
+  "commit": false,
+  "commitConvention": "none",
+  "contributors": [
+    {
+      "login": "briangann",
+      "name": "Brian Gann",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7364245?v=4",
+      "profile": "https://github.com/briangann",
+      "contributions": ["code", "doc", "maintenance"]
+    },
+    {
+      "login": "peterhpchen",
+      "name": "Peter Chen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6873700?v=4",
+      "profile": "https://github.com/peterhpchen",
+      "contributions": ["code"]
+    },
+    {
+      "login": "jonstout",
+      "name": "Jonathan Stout",
+      "avatar_url": "https://avatars.githubusercontent.com/u/173253?v=4",
+      "profile": "https://github.com/jonstout",
+      "contributions": ["code"]
+    },
+    {
+      "login": "lvta0909",
+      "name": "lvta0909",
+      "avatar_url": "https://avatars.githubusercontent.com/u/6395687?v=4",
+      "profile": "https://github.com/lvta0909",
+      "contributions": ["code"]
+    },
+    {
+      "login": "iruizr7",
+      "name": "Iñigo R.",
+      "avatar_url": "https://avatars.githubusercontent.com/u/65398602?v=4",
+      "profile": "https://github.com/iruizr7",
+      "contributions": ["code"]
+    },
+    {
+      "login": "jacquelinegarrahan",
+      "name": "Jacqueline Garrahan",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25035114?v=4",
+      "profile": "https://github.com/jacquelinegarrahan",
+      "contributions": ["code"]
+    },
+    {
+      "login": "mweber55",
+      "name": "mweber55",
+      "avatar_url": "https://avatars.githubusercontent.com/u/13062140?v=4",
+      "profile": "https://github.com/mweber55",
+      "contributions": ["code"]
+    },
+    {
+      "login": "jmp0x00",
+      "name": "jmp0x00",
+      "avatar_url": "https://avatars.githubusercontent.com/u/19555758?v=4",
+      "profile": "https://github.com/jmp0x00",
+      "contributions": ["code"]
+    },
+    {
+      "login": "warezWally",
+      "name": "Chris Robertson",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23071053?v=4",
+      "profile": "https://github.com/warezWally",
+      "contributions": ["code"]
+    },
+    {
+      "login": "welyss",
+      "name": "welyss",
+      "avatar_url": "https://avatars.githubusercontent.com/u/7651126?v=4",
+      "profile": "https://github.com/welyss",
+      "contributions": ["code"]
+    }
+  ],
+  "contributorsPerLine": 7
+}
