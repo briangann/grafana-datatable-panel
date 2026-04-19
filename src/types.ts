@@ -1,6 +1,8 @@
 import { SelectableValue } from "@grafana/data";
 import { ColumnStyleItemType } from "components/options/columnstyles/types";
 
+export type SearchPosition = 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd';
+
 export interface DatatableOptions {
   alignNumbersToRightEnabled: boolean;
   alignStringsToRightEnabled: boolean;
@@ -22,7 +24,7 @@ export interface DatatableOptions {
   scroll: boolean;
   searchEnabled: boolean;
   searchHighlightingEnabled: boolean;
-  searchPosition: 'topStart' | 'topEnd' | 'bottomStart' | 'bottomEnd';
+  searchPosition: SearchPosition;
   columnSorting: ColumnSorting[],
   stripedRowsEnabled: boolean;
   columnStylesConfig: ColumnStyleItemType[];
