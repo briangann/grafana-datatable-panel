@@ -13,6 +13,7 @@
   "osvVulnerabilityAlerts": true,
   "vulnerabilityAlerts": {
     "enabled": true,
+    "groupName": "security",
     "labels": ["dependencies", "security"],
     "prPriority": 10,
     "schedule": ["at any time"],
