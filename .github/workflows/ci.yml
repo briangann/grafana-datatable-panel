@@ -164,7 +164,7 @@ jobs:
           persist-credentials: false
       - name: Resolve Grafana E2E versions
         id: resolve-versions
-        uses: grafana/plugin-actions/e2e-version@e2e-version/v1.1.2
+        uses: grafana/plugin-actions/e2e-version@698612a13f3253e7dcd5b3c66823acc73321a5ed # e2e-version/v1.1.2
         with:
           version-resolver-type: plugin-grafana-dependency
           limit: "4"
@@ -224,7 +224,7 @@ jobs:
           ANONYMOUS_AUTH_ENABLED=false DEVELOPMENT=false GRAFANA_VERSION=${{ matrix.GRAFANA_IMAGE.VERSION }} GRAFANA_IMAGE=${{ matrix.GRAFANA_IMAGE.NAME }} docker compose up -d
 
       - name: Wait for grafana server
-        uses: grafana/plugin-actions/wait-for-grafana@wait-for-grafana/v1.0.2
+        uses: grafana/plugin-actions/wait-for-grafana@c8ad89b7d81f8cb9967bb65e444d85f5b3d7c674 # wait-for-grafana/v1.0.2
         with:
           url: http://localhost:3000/login
 
@@ -233,7 +233,7 @@ jobs:
         run: pnpm run playwright:test
 
       - name: Upload e2e test summary
-        uses: grafana/plugin-actions/playwright-gh-pages/upload-report-artifacts@upload-report-artifacts/v1.0.1
+        uses: grafana/plugin-actions/playwright-gh-pages/upload-report-artifacts@fa3356df288e68f5e900ab466e98b0bf9bad3118 # upload-report-artifacts/v1.0.1
         if: ${{ always() && !cancelled() }}
         with:
           upload-report: true
@@ -275,6 +275,6 @@ jobs:
           # fetch with `Duplicate header: Authorization` / HTTP 400.
           persist-credentials: false
       - name: Publish report
-        uses: grafana/plugin-actions/playwright-gh-pages/deploy-report-pages@deploy-report-pages/v1.1.0
+        uses: grafana/plugin-actions/playwright-gh-pages/deploy-report-pages@5da62466881cdba091672353cf3c72ca348d01b1 # deploy-report-pages/v1.1.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

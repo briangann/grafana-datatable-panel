@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           persist-credentials: false
-      - uses: grafana/plugin-actions/build-plugin@build-plugin/v1.0.2
+      - uses: grafana/plugin-actions/build-plugin@62c2d322b176c9b104fae6b300029e08d0a0ee8e # build-plugin/v1.0.2
         with:
           # see https://grafana.com/developers/plugin-tools/publish-a-plugin/sign-a-plugin#generate-an-access-policy-token to generate it
           # save the value in your repository secrets

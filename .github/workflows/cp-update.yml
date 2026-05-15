@@ -22,7 +22,7 @@ jobs:
     # above only apply if you switch `token` back to secrets.GITHUB_TOKEN.
     permissions: {}
     steps:
-      - uses: grafana/plugin-actions/create-plugin-update@create-plugin-update/v2.0.1
+      - uses: grafana/plugin-actions/create-plugin-update@244c3bc9c6eb94bc1dd6458ade2462499bbf0f5b # create-plugin-update/v2.0.1
         with:
           # Fine-grained personal access token saved in repo secrets as `GH_PAT_TOKEN`.
           # See https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens
