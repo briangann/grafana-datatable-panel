@@ -122,6 +122,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Dependencies
 
+- Bumped `uuid` 13.0.0 → 14.0.0
+- Bumped `glob` 12.0.0 → 13.0.6
 - Bumped `datatables.net` / `datatables.net-dt` / `datatables.net-jqui` 2.3.7 → 2.3.8
 - Bumped `moment-timezone` 0.6.1 → 0.6.2
 - Bumped `pdfmake` 0.3.7 → 0.3.8
