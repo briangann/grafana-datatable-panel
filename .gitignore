@@ -40,6 +40,7 @@ e2e-results/
 playwright/.auth/admin.json
 playwright/.auth/grafanaAPICredentials.json
 playwright-report
+.playwright-mcp/
 
 .stignore
 .stfolder/
