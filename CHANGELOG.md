@@ -122,6 +122,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Dependencies
 
+- Updated `@grafana/create-plugin` scaffolding 7.1.7 → 7.6.0; applies three migrations:
+  - `008`: harden bundle-stats workflow permissions (contents: write → read)
+  - `009`: replace deprecated `baseUrl` with `paths` in `.config/tsconfig.json` (TypeScript 6 compat)
+  - `010`: update ts-node compiler options to `nodenext/nodenext/es2022` (fixes `moduleResolution: bundler` conflict)
 - Bumped `uuid` 13.0.0 → 14.0.0
 - Bumped `glob` 12.0.0 → 13.0.6
 - Bumped `datatables.net` / `datatables.net-dt` / `datatables.net-jqui` 2.3.7 → 2.3.8
