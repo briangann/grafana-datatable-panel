@@ -122,6 +122,17 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 
 ### Dependencies
 
+- Bumped `datatables.net` / `datatables.net-dt` / `datatables.net-jqui` 2.3.7 → 2.3.8
+- Bumped `moment-timezone` 0.6.1 → 0.6.2
+- Bumped `pdfmake` 0.3.7 → 0.3.8
+- Bumped `@grafana/plugin-e2e` 3.5.1 → 3.8.0
+- Bumped `@grafana/tsconfig` 2.0.1 → 2.1.0
+- Bumped `@playwright/test` 1.59.1 → 1.60.0
+- Bumped `@swc/core` 1.15.30 → 1.15.33
+- Bumped `@typescript-eslint/eslint-plugin` and `@typescript-eslint/parser` 8.58.2 → 8.59.3
+- Bumped `markdownlint-cli2` 0.22.0 → 0.22.1
+- Bumped `semver` 7.7.4 → 7.8.0
+- Bumped `terser-webpack-plugin` 5.4.0 → 5.6.0
 - Pin every direct `@grafana/*` dependency to exact `12.4.2`; drop
   the `pnpm.overrides` workaround for `@grafana/runtime@12.4.3`
   (unpublished `@grafana/ui@12.4.3` peer).
