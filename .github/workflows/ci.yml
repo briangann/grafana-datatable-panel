@@ -145,7 +145,7 @@ jobs:
         with:
           name: ${{ steps.metadata.outputs.plugin-id }}-${{ steps.metadata.outputs.plugin-version }}
           path: ${{ steps.metadata.outputs.plugin-id }}
-          retention-days: 5
+          retention-days: 3
 
   resolve-versions:
     name: Resolve e2e images
@@ -255,7 +255,7 @@ jobs:
         with:
           name: ${{ matrix.GRAFANA_IMAGE.NAME }}-v${{ matrix.GRAFANA_IMAGE.VERSION }}-${{github.run_id}}-server-log
           path: grafana-server.log
-          retention-days: 5
+          retention-days: 3
 
   publish-report:
     if: ${{ always() && !cancelled() }}
