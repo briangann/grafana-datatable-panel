@@ -119,9 +119,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `persist-credentials: false` — the nested `gh-pages` checkout inside
   `deploy-report-pages` was stacking a second Authorization header and failing
   with `Duplicate header: Authorization` / HTTP 400.
-- Convert all standard GitHub Actions from SHA pinning to version-tag pinning
-  (`actions/*`, `pnpm/action-setup`, `magefile/mage-action`, `davelosert/*`,
-  `raven-actions/*`, `zizmorcore/*`) per project policy
+- Convert all standard GitHub Actions from tag pinning to SHA pinning with
+  `# vX.Y.Z` version comments (`actions/*`, `pnpm/action-setup`,
+  `magefile/mage-action`, `davelosert/*`, `raven-actions/*`, `zizmorcore/*`);
+  correct AGENTS.md "Action Pinning" policy accordingly
 - Bump `actions/checkout` v6.0.2 → v6.0.3
 - Bump `actions/cache` v4.3.0 → v5.0.5
 - Bump `actions/setup-node` v6.2.0 → v6.4.0
