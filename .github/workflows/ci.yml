@@ -168,7 +168,7 @@ jobs:
         with:
           version-resolver-type: plugin-grafana-dependency
           limit: "4"
-          skip-grafana-dev-image: true
+          skip-grafana-nightly-image: true
 
   playwright-tests:
     needs: [resolve-versions, build]
