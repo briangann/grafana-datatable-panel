@@ -164,6 +164,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   v7 enables `react-hooks/immutability` and `react-hooks/set-state-in-effect`, which are
   now clean after the `useTracker` refactor. `@grafana/eslint-config@9` consumes the v7
   plugin's flat-config export.
+- Bump `@babel/core` 7.29.0 → 7.29.7
+- Bump `@grafana/plugin-e2e` 3.8.0 → 3.9.0
+- Bump `@grafana/tsconfig` 2.1.0 → 2.2.0
+- Bump `@swc/core` 1.15.33 → 1.15.40
+- Bump `@swc/helpers` 0.5.21 → 0.5.23
+- Bump `@types/pdfmake` 0.3.2 → 0.3.3
+- Bump `@typescript-eslint/eslint-plugin` 8.59.3 → 8.60.1
+- Bump `@typescript-eslint/parser` 8.59.3 → 8.60.1
+- Bump `pdfmake` 0.3.8 → 0.3.9
+- Bump `semver` 7.8.0 → 7.8.1
+- Bump `terser-webpack-plugin` 5.6.0 → 5.6.1
+- Bump `webpack` 5.106.2 → 5.107.2
 
 ### Refactoring
 
