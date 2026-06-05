@@ -478,6 +478,28 @@ describe('Cell Renderer', () => {
       // reference unresolved.
       expect(ReplaceCellMacros('name=$__cell&label=$__cell', 'srv', rows)).toBe('name=srv&label=srv');
     });
+    it('treats cell content containing $& literally, not as a regex replacement pattern', () => {
+      // Bug: String.replace(regex, string) interprets $& in the replacement as
+      // "insert the matched text". A cell value like "$&-suffix" causes the
+      // macro token ($__cell) to be re-inserted instead of replaced.
+      // e.g. 'url=$__cell'.replace(/\$__cell\b/g, '$&-suffix')
+      //   → 'url=$__cell-suffix'   ← macro NOT substituted
+      // Fix: use a callback () => cellContent so $ is never interpreted.
+      expect(ReplaceCellMacros('url=$__cell', '$&-suffix', rows)).toBe('url=$&-suffix');
+    });
+
+    it('treats cell content containing $$ literally, not as a regex replacement pattern', () => {
+      // $$ in a replacement string is the escape for a literal $, so
+      // String.replace(regex, '$$10') produces '$10' rather than '$$10'.
+      expect(ReplaceCellMacros('v=$__cell', '$$10', rows)).toBe('v=$$10');
+    });
+
+    it("treats cell content containing $' literally, not as a regex replacement pattern", () => {
+      // $' inserts the portion of the string after the match.
+      // For 'prefix/$__cell/suffix', replacing with "$'" would inject '/suffix'
+      // instead of the literal string "$'".
+      expect(ReplaceCellMacros("prefix/$__cell/suffix", "$'", rows)).toBe("prefix/$'/suffix");
+    });
 
     it('respects word boundary so $__cell does not clobber $__cell_N', () => {
       // Should replace $__cell (word-boundary) but NOT the $__cell prefix

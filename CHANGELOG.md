@@ -90,6 +90,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   silently creating a spurious extra parameter instead of a literal `%26` in the
   value. Pinned with a test; fixing requires pre-encoding cell values before
   injection and is tracked as a follow-up.
+- **Fix `$__cell` replacement silently misinterpreting `$`-special patterns in cell values**.
+  `String.replace(regex, string)` treats `$&`, `$$`, `` $` ``, and `$'` as special
+  replacement patterns. A cell value containing any of these (e.g. `$&-suffix` or `$$10`)
+  would produce garbled output — `$&-suffix` re-inserts the matched macro token instead of
+  substituting it. Fixed by switching to a callback form `() => cellContent`, which bypasses
+  all `$`-pattern interpretation.
 
 ### Scaffolding & Configuration
 
