@@ -552,26 +552,37 @@ describe('Cell Renderer', () => {
     });
 
     it('treats cell content containing $& literally, not as a regex replacement pattern', () => {
-      // Bug: String.replace(regex, string) interprets $& in the replacement as
-      // "insert the matched text". A cell value like "$&-suffix" causes the
-      // macro token ($__cell) to be re-inserted instead of replaced.
-      // e.g. 'url=$__cell'.replace(/\$__cell\b/g, '$&-suffix')
-      //   → 'url=$__cell-suffix'   ← macro NOT substituted
+      // $& re-inserts the entire matched token. With a realistic URL, the
+      // broken output has $__cell literally still in the href:
+      //
+      //   Broken:  ?host=$__cell-suffix&env=prod   ← macro not substituted
+      //   Correct: ?host=$&-suffix&env=prod
+      //
       // Fix: use a callback () => cellContent so $ is never interpreted.
-      expect(ReplaceCellMacros('url=$__cell', '$&-suffix', rows)).toBe('url=$&-suffix');
+      expect(
+        ReplaceCellMacros('https://grafana.example.com/d?host=$__cell&env=prod', '$&-suffix', rows),
+      ).toBe('https://grafana.example.com/d?host=$&-suffix&env=prod');
     });
 
     it('treats cell content containing $$ literally, not as a regex replacement pattern', () => {
-      // $$ in a replacement string is the escape for a literal $, so
-      // String.replace(regex, '$$10') produces '$10' rather than '$$10'.
-      expect(ReplaceCellMacros('v=$__cell', '$$10', rows)).toBe('v=$$10');
+      // $$ collapses to a single $ in the output:
+      //
+      //   Broken:  ?host=$10&env=prod   ← $$ → $, token number appended
+      //   Correct: ?host=$$10&env=prod
+      expect(
+        ReplaceCellMacros('https://grafana.example.com/d?host=$__cell&env=prod', '$$10', rows),
+      ).toBe('https://grafana.example.com/d?host=$$10&env=prod');
     });
 
     it("treats cell content containing $' literally, not as a regex replacement pattern", () => {
-      // $' inserts the portion of the string after the match.
-      // For 'prefix/$__cell/suffix', replacing with "$'" would inject '/suffix'
-      // instead of the literal string "$'".
-      expect(ReplaceCellMacros("prefix/$__cell/suffix", "$'", rows)).toBe("prefix/$'/suffix");
+      // $' injects the text AFTER the match. With a URL that has a param after
+      // $__cell, the broken output duplicates that trailing content:
+      //
+      //   Broken:  ?host=&env=prod&env=prod   ← "&env=prod" injected twice
+      //   Correct: ?host=$'&env=prod
+      expect(
+        ReplaceCellMacros("https://grafana.example.com/d?host=$__cell&env=prod", "$'", rows),
+      ).toBe("https://grafana.example.com/d?host=$'&env=prod");
     });
 
     it('respects word boundary so $__cell does not clobber $__cell_N', () => {
