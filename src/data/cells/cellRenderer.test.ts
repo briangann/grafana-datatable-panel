@@ -487,34 +487,48 @@ describe('Cell Renderer', () => {
       expect(ReplaceTimeMacros(tr, 'a=$__to&b=$__to')).toBe('a=now&b=now');
     });
     it('treats $& in a raw.from value literally, not as "insert matched text"', () => {
-      // Bug: .replace(/\$__from/g, '$&') re-inserts the matched token ($__from)
-      // instead of substituting it — the macro appears to not have been replaced.
-      // e.g. 'f=$__from'.replace(/\$__from/g, '$&-path')
-      //   → 'f=$__from-path'   ← $__from still present
-      // Fix: callback form () => from bypasses all $-pattern interpretation.
-      const pathological = {
+      // $& in a replacement string re-inserts the entire matched token.
+      // With a realistic URL containing both macros, the broken output has
+      // $__from literally still present in the href — unmistakably wrong:
+      //
+      //   Broken:  ?from=$__from-path&to=now   ← macro not substituted
+      //   Correct: ?from=$&-path&to=now
+      //
+      // Fix: callback () => from bypasses all $-pattern interpretation.
+      const tr2 = {
         raw: { from: '$&-path', to: 'now' },
       } as unknown as TimeRange;
-      expect(ReplaceTimeMacros(pathological, 'f=$__from')).toBe('f=$&-path');
+      expect(ReplaceTimeMacros(tr2, 'https://grafana.example.com/d/uid?from=$__from&to=$__to')).toBe(
+        'https://grafana.example.com/d/uid?from=$&-path&to=now',
+      );
     });
 
     it('treats $$ in a raw.from value literally, not as an escaped $', () => {
-      // Bug: .replace(regex, '$$10') collapses $$ to a single $ in the output.
-      const pathological = {
+      // $$ in a replacement string collapses to a single $:
+      //
+      //   Broken:  ?from=$10&to=now   ← $$ → $, token number appended
+      //   Correct: ?from=$$10&to=now
+      const tr2 = {
         raw: { from: '$$10', to: 'now' },
       } as unknown as TimeRange;
-      expect(ReplaceTimeMacros(pathological, 'v=$__from')).toBe('v=$$10');
+      expect(ReplaceTimeMacros(tr2, 'https://grafana.example.com/d/uid?from=$__from&to=$__to')).toBe(
+        'https://grafana.example.com/d/uid?from=$$10&to=now',
+      );
     });
 
     it("treats $' in a raw.to value literally, not as 'text after match'", () => {
-      // Bug: .replace(regex, "$'") injects the portion of the string after
-      // the match position rather than the literal two-character string "$'".
-      // e.g. 'a=$__to/extra'.replace(/\$__to/g, "$'")
-      //   → 'a=/extra/extra'   ← content after $__to injected twice
-      const pathological = {
+      // $' injects the portion of the string AFTER the match position.
+      // With a URL that has content after $__to, the broken output
+      // duplicates that trailing content:
+      //
+      //   Broken:  ?to=&extra=data&extra=data   ← "&extra=data" injected twice
+      //   Correct: ?to=$'&extra=data
+      const tr2 = {
         raw: { from: 'now', to: "$'" },
       } as unknown as TimeRange;
-      expect(ReplaceTimeMacros(pathological, 'a=$__to/extra')).toBe("a=$'/extra");
+      expect(ReplaceTimeMacros(tr2, 'https://grafana.example.com/d/uid?to=$__to&extra=data')).toBe(
+        "https://grafana.example.com/d/uid?to=$'&extra=data",
+      );
     });
 
   });
