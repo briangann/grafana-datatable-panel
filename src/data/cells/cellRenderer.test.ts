@@ -329,6 +329,45 @@ describe('Cell Renderer', () => {
       );
       expect(html).toContain('href="http://example.com/x"');
     });
+
+    it('resolves $__pattern_N and multiple $__cell_N in a single URL without URL-encoding them (issue #324)', () => {
+      // Reproduces the exact scenario from issue #324:
+      //   URL template:  https://host/d/$__pattern_0_$__pattern_1/?var-Job=$__cell_5&var-Host=$__cell_4&from=$__cell_0
+      //   splitByPattern: /_/  →  cell 'goldenkpis_ipmplscore_ipmplscore' splits to
+      //                          ['goldenkpis', 'ipmplscore', 'ipmplscore']
+      //   rows[0] = '2026-06-02', rows[4] = 'GC8801-LER03', rows[5] = 'goldenkpis_ipmplscore_ipmplscore'
+      //
+      // Broken behaviour (pre-fix): only the first $__cell_N match was substituted
+      // (non-global regex), leaving $__cell_4 and $__cell_0 as literals that
+      // new URL() then percent-encoded to %24__cell_4 / %24__cell_0.
+      const rows6 = [
+        { valueFormatted: '2026-06-02' } as FormattedColumnValue,
+        { valueFormatted: 'r1' } as FormattedColumnValue,
+        { valueFormatted: 'r2' } as FormattedColumnValue,
+        { valueFormatted: 'r3' } as FormattedColumnValue,
+        { valueFormatted: 'GC8801-LER03' } as FormattedColumnValue,
+        { valueFormatted: 'goldenkpis_ipmplscore_ipmplscore' } as FormattedColumnValue,
+      ];
+      const style = {
+        stringStyle: {
+          ...baseStringStyle,
+          clickThrough:
+            'https://mygrafana.grafana.net/d/$__pattern_0_$__pattern_1/?var-Job=$__cell_5&var-Host=$__cell_4&from=$__cell_0',
+          clickThroughSanitize: false,
+          splitByPattern: '/_/',
+        },
+      } as unknown as ColumnStyleItemType;
+      const html = ProcessClickthrough(
+        style,
+        rows6,
+        { valueFormatted: 'goldenkpis_ipmplscore_ipmplscore' } as FormattedColumnValue,
+        fakeTimeRange,
+        noopReplaceVariables,
+      );
+      expect(html).toContain(
+        'href="https://mygrafana.grafana.net/d/goldenkpis_ipmplscore/?var-Job=goldenkpis_ipmplscore_ipmplscore&var-Host=GC8801-LER03&from=2026-06-02"',
+      );
+    });
   });
 
   describe('ReplaceTimeMacros', () => {
@@ -385,6 +424,27 @@ describe('Cell Renderer', () => {
 
     it('returns the input untouched when no macros are present', () => {
       expect(ReplaceCellMacros('http://x/plain', 'X', rows)).toBe('http://x/plain');
+    });
+
+    it('replaces ALL $__cell_N occurrences when the URL contains multiple references (issue #324)', () => {
+      // Bug: the non-global regex + match() only finds the first $__cell_N.
+      // With three distinct $__cell_N references in one URL, only the first
+      // was replaced; the rest were left as literals and then URL-encoded by
+      // the browser (%24__cell_N).
+      const r = [
+        { valueFormatted: '2026-06-02' } as FormattedColumnValue, // $__cell_0 — from
+        { valueFormatted: 'r1' } as FormattedColumnValue,
+        { valueFormatted: 'r2' } as FormattedColumnValue,
+        { valueFormatted: 'r3' } as FormattedColumnValue,
+        { valueFormatted: 'GC8801-LER03' } as FormattedColumnValue,  // $__cell_4 — host
+        { valueFormatted: 'job-name' } as FormattedColumnValue,       // $__cell_5 — job
+      ];
+      const out = ReplaceCellMacros(
+        'var-Job=$__cell_5&var-Host=$__cell_4&from=$__cell_0',
+        'active',
+        r,
+      );
+      expect(out).toBe('var-Job=job-name&var-Host=GC8801-LER03&from=2026-06-02');
     });
   });
 

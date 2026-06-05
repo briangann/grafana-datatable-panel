@@ -62,6 +62,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
     `$.fn.on(...)` overload instead of the deprecated
     `JQueryEventObject` one.
 
+### Bug Fixes
+
+- **Fix `$__cell_N` macros only resolving the first occurrence in a clickthrough URL** (closes #324).
+  `ReplaceCellMacros` used a non-global regex with `match()`, which returns a single
+  two-element array for the first match regardless of how many `$__cell_N` references appear
+  in the URL template. All but the first reference were left as literal `$__cell_N` strings,
+  which `new URL()` then percent-encoded to `%24__cell_N`. Fixed by switching to a global
+  `/\$__cell_(\d+)/g` regex with `matchAll()` so every occurrence is substituted. Also
+  corrects an off-by-one in the bounds check (`> rows.length` → `>= rows.length`).
+
 ### Scaffolding & Configuration
 
 - Update `@grafana/create-plugin` from 5.27.1 to 7.1.7, applying all scaffolding migrations:

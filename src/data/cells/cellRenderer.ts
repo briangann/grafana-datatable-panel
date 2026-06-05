@@ -248,19 +248,19 @@ export const ReplaceCellMacros = (
   //
   // process $__cell_N
   //
-  const cellNRegex = RegExp(/\$__cell_(\d+)/);
-  const matches = clickThrough.match(cellNRegex);
-  if (matches) {
-    for (let matchIndex = 1; matchIndex < matches.length; matchIndex++) {
-      const matchedCellNumber = parseInt(matches[matchIndex], 10);
-      if (matchedCellNumber > rows.length) {
-        //console.log(`ReplaceCellMacros: referenced cell ${matchedCellNumber} out of bounds`);
-        continue;
-      }
-      const aRow = rows[matchedCellNumber];
-      const matchedCellContent = aRow.valueFormatted;
-      formatted = formatted.replace(`$__cell_${matchedCellNumber}`, matchedCellContent);
+  // Use a global regex so matchAll() finds every $__cell_N occurrence in the
+  // URL, not just the first one. The previous non-global match() returned a
+  // single two-element array ['$__cell_N', 'N'] regardless of how many
+  // references appeared in the URL, leaving all but the first unresolved
+  // (and subsequently percent-encoded by new URL()). (issue #324)
+  const cellNRegex = /\$__cell_(\d+)/g;
+  for (const match of formatted.matchAll(cellNRegex)) {
+    const matchedCellNumber = parseInt(match[1], 10);
+    if (matchedCellNumber >= rows.length) {
+      continue;
     }
+    const matchedCellContent = rows[matchedCellNumber].valueFormatted;
+    formatted = formatted.replace(`$__cell_${matchedCellNumber}`, matchedCellContent);
   }
   return formatted;
 }
