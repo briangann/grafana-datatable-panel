@@ -16,8 +16,8 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Clickthrough URLs now resolve Grafana dashboard variables** — Variables like `$host`,
   `${var}`, and `[[var]]` are substituted in clickthrough URLs, matching the behavior of
   built-in data links. Plugin macros (`$__cell`, `$__from`, etc.) are applied first.
-- **Minimum Grafana version is now 12.3.0** — Required to support the Grafana 13 / React 19
-  upgrade path.
+- **Minimum Grafana version is now 12.3.0** — Required for Grafana 13 / React 19 compatibility.
+- **Plugin loads significantly faster** — Bundle size reduced from 1.13 MB to 445 KB (60% smaller).
 
 ### Bug Fixes
 
@@ -47,10 +47,6 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Column open/close state shifted after reordering or removing column styles** —
   Expanded column style editors now stay expanded for the correct column after a
   reorder or delete operation.
-- **Plugin bundle reduced from 1.13 MB to 445 KB (60% smaller)** — The `moment-timezone`
-  dependency (which bundled the full IANA timezone database) is replaced by
-  `dateTimeForTimeZone` from `@grafana/data`, which is already provided by Grafana at
-  runtime at zero bundle cost. Time column formatting is unchanged.
 
 ## [2.0.2] - 2025-05-29
 
