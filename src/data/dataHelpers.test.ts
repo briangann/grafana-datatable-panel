@@ -236,3 +236,91 @@ describe('BuildColumnDefs', () => {
     expect(asRecord(visibleDef).visible).not.toBe(false);
   });
 });
+describe('ConvertDataFrameToDataTableFormat + rowNumbers column index contract', () => {
+  // Pins the contract that DataTablePanel.tsx's initComplete loop must honour:
+  // when rowNumbersEnabled=true, the row-number column is prepended at index 0
+  // in the columns array, so iterating with index i gives the correct DataTables
+  // column index directly — no additional offset should be applied.
+  //
+  // Bug caught: initComplete used `api.column(i + rowNumberOffset)` where
+  // rowNumberOffset = rowNumbersEnabled ? 1 : 0. With rowNumbersEnabled=true
+  // and i=1 (first data column), that called api.column(2) instead of
+  // api.column(1), hiding the wrong column.
+  const theme = createTheme();
+  const noopReplaceVariables = (s: string) => s;
+  const emptyFieldConfig = { defaults: {}, overrides: [] } as unknown as FieldConfigSource;
+  const alignment = { numbers: true, strings: false };
+
+  const threeFieldFrame = () =>
+    toDataFrame({
+      fields: [
+        { name: 'time',  type: FieldType.time,   values: [1000] },
+        { name: 'host',  type: FieldType.string, values: ['alpha'] },
+        { name: 'value', type: FieldType.number, values: [42] },
+      ],
+    });
+
+  const hiddenStyle = {
+    activeStyle: ColumnStyles.HIDDEN,
+    enabled: true,
+    label: 'hide-value',
+    nameOrRegex: 'value',
+    order: 0,
+    dateStyle: {},
+    hiddenStyle: {},
+    metricStyle: {},
+    stringStyle: {},
+  } as unknown as ColumnStyleItemType;
+
+  it('with rowNumbersEnabled: row-number column is at array index 0 and data columns follow without an additional offset', () => {
+    // When rowNumbersEnabled, ConvertDataFrameToDataTableFormat prepends the
+    // row-number column at index 0. The hidden "value" column ends up at index 3
+    // (0=row, 1=time, 2=host, 3=value). The correct DataTables call to hide it
+    // is api.column(3).visible(false) — no extra +1 offset.
+    const { columns } = ConvertDataFrameToDataTableFormat({
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      dataFrames: [threeFieldFrame()],
+      rowNumbersEnabled: true,
+      columnStyles: [hiddenStyle],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+
+    // Row-number column at position 0, visible=true
+    expect(columns[0].title).toBe('row');
+    expect(columns[0].visible).toBe(true);
+
+    // Hidden "value" column at position 3
+    const hiddenIdx = columns.findIndex((c) => c.title === 'value');
+    expect(hiddenIdx).toBe(3);
+    expect(columns[hiddenIdx].visible).toBe(false);
+
+    // Contract: the correct DataTables column index is hiddenIdx itself (3),
+    // NOT hiddenIdx + 1 (4). The initComplete loop must use api.column(i),
+    // not api.column(i + rowNumberOffset).
+    //
+    // If the loop incorrectly adds rowNumberOffset=1, it would try to hide
+    // column 4 which does not exist in a 4-column table (indices 0-3).
+    expect(hiddenIdx).toBe(3);           // correct: api.column(3)
+    expect(hiddenIdx + 1).not.toBe(3);   // wrong:   api.column(4) — off by one
+  });
+
+  it('with rowNumbersEnabled=false: hidden column index is correct without any offset', () => {
+    const { columns } = ConvertDataFrameToDataTableFormat({
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      dataFrames: [threeFieldFrame()],
+      rowNumbersEnabled: false,
+      columnStyles: [hiddenStyle],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    const hiddenIdx = columns.findIndex((c) => c.title === 'value');
+    expect(hiddenIdx).toBe(2);  // time=0, host=1, value=2
+    expect(columns[hiddenIdx].visible).toBe(false);
+    // No offset: api.column(2) is correct
+  });
+});

@@ -350,10 +350,14 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               // columnDefs visible:false is not reliably honoured at init time in
               // DataTables 2.x; calling column(i).visible(false) after initComplete
               // is the guaranteed path.
-              const rowNumberOffset = props.options.rowNumbersEnabled ? 1 : 0;
+              //
+              // No rowNumberOffset: when rowNumbersEnabled, ConvertDataFrameToDataTableFormat
+              // prepends the row-number column at index 0 of cachedProcessedData.Columns,
+              // so i already equals the correct DataTables column index directly.
+              // Adding +1 would hide the wrong column (off-by-one).
               for (let i = 0; i < cachedProcessedData!.Columns.length; i++) {
                 if (!cachedProcessedData!.Columns[i].visible) {
-                  api.column(i + rowNumberOffset).visible(false);
+                  api.column(i).visible(false);
                 }
               }
               if (props.options.columnFiltersEnabled) {
