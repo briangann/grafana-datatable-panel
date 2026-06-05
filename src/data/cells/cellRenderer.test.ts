@@ -212,6 +212,15 @@ describe('Cell Renderer', () => {
       expect(result.valueFormatted.startsWith('$')).toBe(true);
       expect(result.valueFormatted).toContain('12.34');
     });
+    it('valueRounded is 0 when the value rounds to zero — not the original (fixes || vs ?? bug)', () => {
+      // Before fix: roundValue(0.001, 0) returns 0, then `0 || value` = 0.001 (original).
+      // A rounded-to-zero result was indistinguishable from null, so the original
+      // value leaked into valueRounded/valueRoundedAndFormatted. ?? fixes this.
+      const result = applyFormat(0.001, 0, 'short');
+      expect(result.valueRounded).toBe(0);
+      expect(result.valueRoundedAndFormatted).toBe(0);
+    });
+
   });
 
   describe('ProcessClickthrough — URL reconstruction (issue #276)', () => {

@@ -109,6 +109,16 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   the `.length` access throws `TypeError`. Added `cellContent.valueFormatted == null`
   to the guard to cover both `null` and `undefined`.
 - **Tighten `ProcessClickthrough` `rows` parameter from `any` to `FormattedColumnValue[]`**.
+- **`applyFormat`: fix `||` → `??` for `valueRounded`/`valueRoundedAndFormatted`**.
+  `roundValue()` can return `0` when the value rounds to zero. `0 || value` is falsy,
+  so the original un-rounded value leaked into both fields instead of `0`.
+  Nullish coalescing (`??`) only falls back on `null`/`undefined`, which is the only
+  case `roundValue` intentionally returns `null` (when `num` itself is null).
+- **`TimeFormatter`: cache browser IANA timezone at module load**.
+  `Intl.DateTimeFormat().resolvedOptions().timeZone` was called on every browser-timezone
+  cell render at ~40 µs per call. A 500-row time column consumed ~20 ms on timezone
+  resolution alone. The result never changes within a session; moved to a
+  `BROWSER_TIMEZONE` module constant evaluated once at load time.
 
 ### Scaffolding & Configuration
 

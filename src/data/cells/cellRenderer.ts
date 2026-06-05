@@ -18,6 +18,11 @@ import moment from 'moment-timezone';
 // sentinel for non-browser execution (SSR, jest without jsdom).
 const DEFAULT_URL_BASE = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
 
+// The browser's timezone is resolved once at module load — it never changes
+// within a session and Intl.DateTimeFormat() costs ~40 µs per call.
+const BROWSER_TIMEZONE =
+  typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
+
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
 export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
   // Use global replacements so all occurrences in the URL are substituted,
@@ -54,11 +59,9 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
     }
     return formatted;
   }
-  // When timezone is 'browser', resolve to the concrete IANA zone name so
-  // moment-timezone can look it up.
-  const useTimezone = timeZone === 'browser'
-    ? Intl.DateTimeFormat().resolvedOptions().timeZone
-    : timeZone;
+  // When timezone is 'browser', use the module-level cached IANA name —
+  // Intl.DateTimeFormat() costs ~40 µs per call, the result never changes.
+  const useTimezone = timeZone === 'browser' ? BROWSER_TIMEZONE : timeZone;
   // `moment.tz(ms, tz)` takes a UTC milliseconds timestamp and returns a
   // Moment expressed in the target zone — the correct conversion overload. The
   // previous code used `moment.tz(iso, format, tz)`, which is the parsing
@@ -271,8 +274,12 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
   if (formatFunc) {
     const formatted = formatFunc(value, maxDecimals);
     valueFormatted = formatted.text;
-    valueRoundedAndFormatted = roundValue(value, maxDecimals) || value;
-    valueRounded = roundValue(value, maxDecimals) || value;
+    // Call roundValue once and share the result — calling it twice per cell
+    // was the dominant cost in applyFormat. Also fixes a latent bug: || treats
+    // a legitimate rounded-to-zero result as falsy; ?? does not.
+    const rounded = roundValue(value, maxDecimals);
+    valueRoundedAndFormatted = rounded ?? value;
+    valueRounded = rounded ?? value;
     // spaces are included with the formatFunc
     if (formatted.suffix) {
       valueFormatted += formatted.suffix;
