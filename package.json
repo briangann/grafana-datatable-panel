@@ -21,7 +21,7 @@
     "lint": "eslint --cache .",
     "lint:fix": "pnpm run lint --fix && prettier --write --list-different .",
     "lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\" \"#dist\" \"#coverage\" \"#TODO.md\" \"#.config\"",
-    "lint:md:fix": "markdownlint-cli2 --fix \"**/*.md\" \"#node_modules\" \"#dist\" \"#coverage\" \"#TODO.md\" \"#.config\"",
+    "lint:md:fix": "prettier --prose-wrap always --print-width 120 --write \"**/*.md\" \"!node_modules\" \"!dist\" \"!.config\" && markdownlint-cli2 --fix \"**/*.md\" \"#node_modules\" \"#dist\" \"#coverage\" \"#TODO.md\" \"#.config\"",
     "server": "docker compose up --build",
     "sign": "sign-plugin",
     "spellcheck": "cspell -c cspell.config.json \"**/*.{ts,tsx,js,go,md,mdx,yml,yaml,json,scss,css}\"",
