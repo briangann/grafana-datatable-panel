@@ -216,7 +216,10 @@ describe('Cell Renderer', () => {
       // Before fix: roundValue(0.001, 0) returns 0, then `0 || value` = 0.001 (original).
       // A rounded-to-zero result was indistinguishable from null, so the original
       // value leaked into valueRounded/valueRoundedAndFormatted. ?? fixes this.
-      const result = applyFormat(0.001, 0, 'short');
+      // Use 'none' (no suffix) so valueRoundedAndFormatted stays numeric — 'short'
+      // could add a suffix on a Grafana version bump, turning 0 into '0' and
+      // breaking the type-strict toBe(0) assertion.
+      const result = applyFormat(0.001, 0, 'none');
       expect(result.valueRounded).toBe(0);
       expect(result.valueRoundedAndFormatted).toBe(0);
     });

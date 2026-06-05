@@ -31,9 +31,9 @@ export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
   const from = timeRange.raw.from.toString();
   const to = timeRange.raw.to.toString();
   let newContent = content
-    .replace(/\$__from/g, from)
-    .replace(/\$__to/g, to)
-    .replace(/\$__keepTime/g, `from=${from}&to=${to}`);
+    .replace(/\$__from/g, () => from)
+    .replace(/\$__to/g, () => to)
+    .replace(/\$__keepTime/g, () => `from=${from}&to=${to}`);
   return newContent;
 };
 
