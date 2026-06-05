@@ -1,0 +1,7 @@
+{
+  "onlyBuiltDependencies": ["@swc/core", "esbuild"],
+  "overrides": {
+    "dompurify": ">=3.4.2",
+    "immutable": ">=5.1.5"
+  }
+}
