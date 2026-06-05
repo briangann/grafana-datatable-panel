@@ -1,52 +1,47 @@
 # Change Log
 
-All notable changes to this project will be documented in this file.
-This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+All notable changes to this project will be documented in this file. This project adheres to
+[Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
 ### Added
 
-- **Configurable search bar position** (closes #191) — Move the global search input to
-  any corner of the table: Top Left, Top Right, Bottom Left, or Bottom Right. Default
-  remains Top Right.
-- **Configurable text alignment for string columns** (closes #282) — A new panel-level
-  **Right Align Text** toggle and a per-column **Cell Alignment** selector
-  (Left / Center / Right) give full control over text alignment for all column types.
-- **Clickthrough URLs now resolve Grafana dashboard variables** — Variables like `$host`,
-  `${var}`, and `[[var]]` are substituted in clickthrough URLs, matching the behavior of
-  built-in data links. Plugin macros (`$__cell`, `$__from`, etc.) are applied first.
+- **Configurable search bar position** (closes #191) — Move the global search input to any corner of the table: Top
+  Left, Top Right, Bottom Left, or Bottom Right. Default remains Top Right.
+- **Configurable text alignment for string columns** (closes #282) — A new panel-level **Right Align Text** toggle and a
+  per-column **Cell Alignment** selector (Left / Center / Right) give full control over text alignment for all column
+  types.
+- **Clickthrough URLs now resolve Grafana dashboard variables** — Variables like `$host`, `${var}`, and `[[var]]` are
+  substituted in clickthrough URLs, matching the behavior of built-in data links. Plugin macros (`$__cell`, `$__from`,
+  etc.) are applied first.
 - **Minimum Grafana version is now 12.3.0** — Required for Grafana 13 / React 19 compatibility.
 - **Plugin loads significantly faster** — Bundle size reduced from 1.13 MB to 445 KB (60% smaller).
 
 ### Bug Fixes
 
-- **Clickthrough macros only replaced the first occurrence** (closes #324) — `$__cell_N`,
-  `$__cell`, `$__from`, `$__to`, `$__keepTime`, and `$__pattern_N` now replace every
-  occurrence in a URL template, not just the first. A URL like
+- **Clickthrough macros only replaced the first occurrence** (closes #324) — `$__cell_N`, `$__cell`, `$__from`, `$__to`,
+  `$__keepTime`, and `$__pattern_N` now replace every occurrence in a URL template, not just the first. A URL like
   `?from=$__from&label=$__from` now expands both references correctly.
-- **Column filters misaligned columns and typing didn't filter** (closes #278) — Enabling
-  "Filter by Column" no longer shifts column content, and typing in a filter input now
-  actually filters rows. Filtering matches the displayed (formatted) value, not the raw
-  number.
-- **Setting 0 decimal places was ignored** — A column style configured with 0 decimal
-  places now correctly shows integers instead of falling back to the field default.
-- **Panel crashed with split-by-pattern on null cell values** — Fixed a crash when a
-  cell contained a null value and a split-by-pattern clickthrough was configured.
-- **Time columns showed wrong time in non-UTC timezones** — Timestamps are now correctly
-  converted from UTC to the target timezone. Previously, UTC digits were displayed with
-  the target zone's offset applied to the label only, producing incorrect times.
-- **Clickthrough URLs lost the port number and rejected relative paths** (closes #276) —
-  URLs like `http://host:8080/path` now preserve the port. Relative paths like
-  `/d/uid/slug?var=x` and non-HTTP schemes are also handled correctly.
-- **First paint briefly showed unformatted data** — The table is now hidden until
-  DataTables has fully initialized, preventing a flash of raw, unstyled content.
-- **Threshold color was silently lost after editing thresholds** — Editing a threshold
-  no longer drops the color mode setting, restoring threshold cell coloring after any
-  threshold change.
-- **Column open/close state shifted after reordering or removing column styles** —
-  Expanded column style editors now stay expanded for the correct column after a
-  reorder or delete operation.
+- **Column filters misaligned columns and typing didn't filter** (closes #278) — Enabling "Filter by Column" no longer
+  shifts column content, and typing in a filter input now actually filters rows. Filtering matches the displayed
+  (formatted) value, not the raw number.
+- **Setting 0 decimal places was ignored** — A column style configured with 0 decimal places now correctly shows
+  integers instead of falling back to the field default.
+- **Panel crashed with split-by-pattern on null cell values** — Fixed a crash when a cell contained a null value and a
+  split-by-pattern clickthrough was configured.
+- **Time columns showed wrong time in non-UTC timezones** — Timestamps are now correctly converted from UTC to the
+  target timezone. Previously, UTC digits were displayed with the target zone's offset applied to the label only,
+  producing incorrect times.
+- **Clickthrough URLs lost the port number and rejected relative paths** (closes #276) — URLs like
+  `http://host:8080/path` now preserve the port. Relative paths like `/d/uid/slug?var=x` and non-HTTP schemes are also
+  handled correctly.
+- **First paint briefly showed unformatted data** — The table is now hidden until DataTables has fully initialized,
+  preventing a flash of raw, unstyled content.
+- **Threshold color was silently lost after editing thresholds** — Editing a threshold no longer drops the color mode
+  setting, restoring threshold cell coloring after any threshold change.
+- **Column open/close state shifted after reordering or removing column styles** — Expanded column style editors now
+  stay expanded for the correct column after a reorder or delete operation.
 
 ## [2.0.2] - 2025-05-29
 
@@ -103,8 +98,7 @@ Ported to React, not published.
 ### Added
 
 - Column filtering option
-- Template variables inside links can now reference other cell content of same row
-  number (Issue #87)
+- Template variables inside links can now reference other cell content of same row number (Issue #87)
 
 ### Fixed
 
@@ -184,8 +178,7 @@ Ported to React, not published.
 
 ### Added
 
-- Autoscroll horizontally if number of columns is wider than the rendered panel
-  (Issue #6)
+- Autoscroll horizontally if number of columns is wider than the rendered panel (Issue #6)
 
 ## [0.0.3]
 

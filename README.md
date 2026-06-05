@@ -10,24 +10,23 @@
 [![Follow on X](https://img.shields.io/badge/follow-%40jepetlefeu-black?logo=x)](https://x.com/jepetlefeu)
 [![All Contributors](https://img.shields.io/badge/all_contributors-10-orange.svg?style=flat-square)](#contributors)
 
-This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel
-for [Grafana](http://www.grafana.com) 12.3+.
+This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel for
+[Grafana](http://www.grafana.com) 12.3+.
 
-This table includes features for metric thresholds, value mapping, aggregations, and
-per-cell filtering.
+This table includes features for metric thresholds, value mapping, aggregations, and per-cell filtering.
 
 ## Features
 
-* Multiple options for row and cell thresholds
-* Scrolling and Paging options with horizontal scroll as needed
-* Search and highlight cell content
-* Filters per column
-* Click through urls based on cell data
-* URLs inside row text can be "clicked"
-* Rows can have a click-through URL
-* Multi-Column Sorting
-* Horizontal scrolling enabled when columns are wider than panel
-* Configurable text alignment (panel-level default plus per-column override)
+- Multiple options for row and cell thresholds
+- Scrolling and Paging options with horizontal scroll as needed
+- Search and highlight cell content
+- Filters per column
+- Click through urls based on cell data
+- URLs inside row text can be "clicked"
+- Rows can have a click-through URL
+- Multi-Column Sorting
+- Horizontal scrolling enabled when columns are wider than panel
+- Configurable text alignment (panel-level default plus per-column override)
 
 ## Screenshots
 
@@ -51,7 +50,8 @@ By default the panel enables scrolling for the data, use the `Enable Paging` opt
 
 ### Value Maps and Range Maps - Dark Theme
 
-Value and Range Maps can be applied to modify the cell visual text, and threshold applied to the metric value that was mapped.
+Value and Range Maps can be applied to modify the cell visual text, and threshold applied to the metric value that was
+mapped.
 
 ![Value Maps and Range Maps with thresholds - Dark Theme](https://raw.githubusercontent.com/briangann/grafana-datatable-panel/main/src/screenshots/datatable-dark-mapped-thresholds.png)
 
@@ -72,7 +72,8 @@ When scrolling is enabled, the table supports vertical and horizontal scrolling 
 
 ##### Paging Mode
 
-When scrolling is disabled, the panel switches to paging mode with controls that will skip through data at specific intervals.
+When scrolling is disabled, the panel switches to paging mode with controls that will skip through data at specific
+intervals.
 
 ###### Entries per page
 
@@ -100,16 +101,16 @@ Show rows per page selection
 
 ### Search Options
 
-| Option                       | Effect                                                      |
-| ---------------------------- | ----------------------------------------------------------- |
-| Allow Searching Within Table | Show the global search input above or below the table       |
-| Search Bar Position          | Where the search input renders: Top Left, Top Right,        |
-|                              | Bottom Left, or Bottom Right. Default: Top Right            |
-| Highlight Search Results     | Highlights the matching substring inside each cell          |
-| Show Column Filters          | Renders a per-column filter input row in the table header   |
+| Option                       | Effect                                                    |
+| ---------------------------- | --------------------------------------------------------- |
+| Allow Searching Within Table | Show the global search input above or below the table     |
+| Search Bar Position          | Where the search input renders: Top Left, Top Right,      |
+|                              | Bottom Left, or Bottom Right. Default: Top Right          |
+| Highlight Search Results     | Highlights the matching substring inside each cell        |
+| Show Column Filters          | Renders a per-column filter input row in the table header |
 
-When `Search Bar Position` is set to a bottom slot, the table's info text
-and pagination controls stack together in the opposite bottom cell.
+When `Search Bar Position` is set to a bottom slot, the table's info text and pagination controls stack together in the
+opposite bottom cell.
 
 ### Data Options
 
@@ -121,14 +122,14 @@ When there is no data available for a cell, a custom value can be substituted wi
 
 Selects how to convert the source data to a compatible panel format.
 
-| Transform Type          |                                                |
-|-------------------------|------------------------------------------------|
-| Timeseries to Columns   | This is the typical method                     |
-| Timeseries to Rows      | Converts to rows (wide data)                   |
-| Timeseries Aggregations | Provides selectable aggregations for metrics   |
-|                         | Last/Mean/Min/Max etc                          |
-| JSON Data               | Converts JSON to table format                  |
-| Table                   | Generic table format to datatable              |
+| Transform Type          |                                              |
+| ----------------------- | -------------------------------------------- |
+| Timeseries to Columns   | This is the typical method                   |
+| Timeseries to Rows      | Converts to rows (wide data)                 |
+| Timeseries Aggregations | Provides selectable aggregations for metrics |
+|                         | Last/Mean/Min/Max etc                        |
+| JSON Data               | Converts JSON to table format                |
+| Table                   | Generic table format to datatable            |
 
 ### Column Aliasing
 
@@ -136,13 +137,12 @@ Override the name displayed for a column. Each column can be selected and an ali
 
 ### Column Width Hints
 
-Provide a width "hint" in percentage or pixels ( 100px or 10% ). Note: The table will
-autosize as needed, but will use the hints provided.
+Provide a width "hint" in percentage or pixels ( 100px or 10% ). Note: The table will autosize as needed, but will use
+the hints provided.
 
 ### Column Sorting
 
-Sort table by specified column number in ascending/descending order.
-Multiple sorting options can be applied.
+Sort table by specified column number in ascending/descending order. Multiple sorting options can be applied.
 
 NOTE: When these sorting rules are in place, the table cannot be manually sorted.
 
@@ -156,8 +156,8 @@ Support for multiple styles is a future enhancement, where a string and a metric
 
 ### Common Column Style Properties
 
-Every column style — Date, String, Hidden, and Metric — shares the
-following properties in addition to its style-specific settings:
+Every column style — Date, String, Hidden, and Metric — shares the following properties in addition to its
+style-specific settings:
 
 | Property       | Meaning                                                      |
 | -------------- | ------------------------------------------------------------ |
@@ -182,43 +182,39 @@ Additional you can specify if the URL should be open in a new tab or new window,
 
 #### Supported URL Formats
 
-| Form | Example | Behavior |
-| --- | --- | --- |
-| Absolute with port | `http://host.example:8080/path?x=1` | Port preserved |
-| Absolute with fragment | `http://host.example/d/uid#panel-2` | Fragment preserved |
-| Absolute, no query | `http://host.example/path` | No trailing `?` appended |
-| Relative | `/d/uid/slug?var=Host=$__pattern_0` | Resolved against the current dashboard origin |
-| Non-HTTP scheme / protocol-relative | `mailto:...`, `ftp://...`, `//host/path` | Emitted verbatim |
+| Form                                | Example                                  | Behavior                                      |
+| ----------------------------------- | ---------------------------------------- | --------------------------------------------- |
+| Absolute with port                  | `http://host.example:8080/path?x=1`      | Port preserved                                |
+| Absolute with fragment              | `http://host.example/d/uid#panel-2`      | Fragment preserved                            |
+| Absolute, no query                  | `http://host.example/path`               | No trailing `?` appended                      |
+| Relative                            | `/d/uid/slug?var=Host=$__pattern_0`      | Resolved against the current dashboard origin |
+| Non-HTTP scheme / protocol-relative | `mailto:...`, `ftp://...`, `//host/path` | Emitted verbatim                              |
 
-Macros (`$__cell_N`, `$__pattern_N`, `$__from`, `$__to`, `$__keepTime`) are expanded before the
-href is constructed, so they work identically in absolute and relative URLs.
+Macros (`$__cell_N`, `$__pattern_N`, `$__from`, `$__to`, `$__keepTime`) are expanded before the href is constructed, so
+they work identically in absolute and relative URLs.
 
-Grafana dashboard template variables — `$var`, `${var}`, and `[[var]]` — are
-also supported in clickthrough URLs and resolve via the standard
-`replaceVariables` pipeline. Plugin macros run first; dashboard variables
-resolve on whatever remains, so a dashboard variable named identically to
-a plugin macro (e.g. `$__cell`) cannot intercept the plugin's
+Grafana dashboard template variables — `$var`, `${var}`, and `[[var]]` — are also supported in clickthrough URLs and
+resolve via the standard `replaceVariables` pipeline. Plugin macros run first; dashboard variables resolve on whatever
+remains, so a dashboard variable named identically to a plugin macro (e.g. `$__cell`) cannot intercept the plugin's
 substitution.
 
 #### Pattern Macros
 
 `Split By RegEx` - the cell content of the matching column is split by this regex which can then be used within the URL.
 
-For example, a column named `text` with a RegEx '/text/', and a split by as space
-`/\s/`.  The content of the cell split can be referenced by:
+For example, a column named `text` with a RegEx '/text/', and a split by as space `/\s/`. The content of the cell split
+can be referenced by:
 
 `$__pattern_N` - where N is the position of the split
 
 #### Cell Macros
 
-`$__cell_N` - the content of cell N within the same row
-`$__cell` - the content of the current cell
+`$__cell_N` - the content of cell N within the same row `$__cell` - the content of the current cell
 
 Time Macros
 
-`$__keepTime` - provides the `from=now-24h&to=now` time option of the dashboard
-`$__from` - provides the raw `from` time of the dashboard
-`$__to` - provides the raw `to` time of the dashboard
+`$__keepTime` - provides the `from=now-24h&to=now` time option of the dashboard `$__from` - provides the raw `from` time
+of the dashboard `$__to` - provides the raw `to` time of the dashboard
 
 #### Example URLs with Macros
 
@@ -264,9 +260,8 @@ Matching columns will be "hidden" from the table
 
 The metric style enables the ability to show thresholds on a per-row/per-cell basis.
 
-Metric/Regex: Specify the metric or RegEx pattern to match multiple metrics. This is populated with the available columns.
-Decimals: Set the number of decimals to be displayed
-Unit Format: Set the unit to be applied to the metric
+Metric/Regex: Specify the metric or RegEx pattern to match multiple metrics. This is populated with the available
+columns. Decimals: Set the number of decimals to be displayed Unit Format: Set the unit to be applied to the metric
 
 #### Thresholds
 
@@ -281,8 +276,7 @@ TN = highest decimal value, any state
 
 Initial state is set to "ok"
 
-A comparison is made using "greater than or equal to" against the value
-  `If value >= thresholdValue state = X`
+A comparison is made using "greater than or equal to" against the value `If value >= thresholdValue state = X`
 
 Comparisons are made in reverse order, using the range between the Nth (inclusive) threshold and N+1 (exclusive)
 
@@ -359,7 +353,8 @@ The "worst" state is returned after checking every threshold range
 
 This option sets the row color to the "highest" threshold found for all cells in row.
 
-It also sets the color for each cell according to the threshold (you can tell which columns actually exceeded the threshold).
+It also sets the color for each cell according to the threshold (you can tell which columns actually exceeded the
+threshold).
 
 This means - a row can have an overall color, with each cell indicating it's real threshold color.
 
@@ -402,6 +397,5 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
-This project follows the
-[all-contributors](https://github.com/all-contributors/all-contributors)
-specification. Contributions of any kind are welcome!
+This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification.
+Contributions of any kind are welcome!
