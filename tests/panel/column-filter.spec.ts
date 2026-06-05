@@ -1,3 +1,4 @@
+import type { Page } from '@playwright/test';
 import { expect, test } from '@grafana/plugin-e2e';
 
 // Regression coverage for issue #278 — column-filter alignment.
@@ -10,7 +11,7 @@ const BODY_TABLE = '.dt-scroll-body table';
 const BODY_ROWS = `${BODY_TABLE} tbody tr`;
 
 // Shared helper — checks that every filter-row <th> matches its body <td> width.
-async function assertFilterBodyAlignment(page: Parameters<typeof test>[1]['page']) {
+async function assertFilterBodyAlignment(page: Page) {
   const mismatches = await page.evaluate(() => {
     const headerTable = document.querySelector<HTMLTableElement>('.dt-scroll-head table');
     const bodyTable = document.querySelector<HTMLTableElement>('.dt-scroll-body table');
