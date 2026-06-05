@@ -146,7 +146,7 @@ The CI workflow (`ci.yml`) is an inline workflow (not a reusable workflow call) 
 1. **build** — pnpm install, typecheck, lint, unit tests, production build, plugin signing, packaging, and validation.
    Conditionally builds/tests Go backend if `Magefile.go` exists (this plugin has no backend).
 2. **resolve-versions** — uses `grafana/plugin-actions/e2e-version` to resolve the Grafana image matrix (skips
-   `grafana-dev`, includes React 19 preview).
+   `grafana-dev`; includes the React 19 preview image).
 3. **playwright-tests** — runs Playwright e2e tests against each resolved Grafana version in a Docker Compose
    environment. Uploads test reports as artifacts.
 
@@ -162,7 +162,7 @@ Before releasing, verify the built plugin is compatible with a target Grafana ve
 production build first.
 
 ```bash
-pnpm build
+pnpm run build
 npx @grafana/levitate@latest is-compatible \
   --target @grafana/data@<version>,@grafana/ui@<version>,@grafana/runtime@<version> \
   --path dist/module.js
@@ -238,7 +238,8 @@ Run `pnpm run server` to start it. Build `dist/` first.
 
 - **NEVER add a `Co-Authored-By` line to commit messages.** Applies to all agents, subagents, and automated commits.
   When dispatching subagents that will commit, explicitly instruct them: "Do NOT add a Co-Authored-By line."
-- **Never modify anything inside `.config/`** — managed by Grafana plugin tooling.
+- **Never modify anything inside `.config/`** except `.config/bundler/externals.ts` (intentionally extensible for
+  webpack externals). All other `.config/` files are managed by Grafana plugin tooling — do not edit them directly.
 - **Never change `id` or `type`** in `src/plugin.json`.
 - Changes to `plugin.json` require a **Grafana server restart**.
 - Use webpack from `.config/` for builds; do not add a custom bundler.
@@ -264,10 +265,16 @@ as part of the same commit or as a follow-up commit before pushing.
 
 ## Markdown Policy
 
-When `.markdownlint.yaml` and `markdownlint-cli2` are present, run the linter on markdown files before committing:
+Run the linter on all markdown files before committing:
 
 ```bash
-npx markdownlint-cli2 AGENTS.md README.md CHANGELOG.md
+pnpm run lint:md
+```
+
+To reflow paragraph text to 120 chars **and** fix lint issues in one step:
+
+```bash
+pnpm run lint:md:fix
 ```
 
 Target line length: 120. Fix issues before committing.
