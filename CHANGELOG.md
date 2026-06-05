@@ -96,6 +96,19 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   would produce garbled output — `$&-suffix` re-inserts the matched macro token instead of
   substituting it. Fixed by switching to a callback form `() => cellContent`, which bypasses
   all `$`-pattern interpretation.
+- **Fix `FormatColumnValue` ignoring `columnStyle.metricStyle.decimals` when set to numeric `0`**.
+  The guard `if (columnStyle && columnStyle.metricStyle.decimals)` is a falsy check. String
+  `'0'` (how the panel editor stores the value) is truthy and works correctly; numeric `0`
+  (produced by migrations or programmatic construction) is falsy and silently falls back to
+  `field.config.decimals`. Inconsistent with the adjacent field-config path which uses
+  `!== undefined && !== null`. Fixed to match that pattern.
+- **Fix `ReplaceCellSplitByPattern` crash when `cellContent.valueFormatted` is null**.
+  The guard `!cellContent || cellContent.valueFormatted.length === 0` only catches a
+  null `cellContent` object. If `cellContent` is a non-null object whose `valueFormatted`
+  field is null (possible when a string-type DataFrame column has a null cell value),
+  the `.length` access throws `TypeError`. Added `cellContent.valueFormatted == null`
+  to the guard to cover both `null` and `undefined`.
+- **Tighten `ProcessClickthrough` `rows` parameter from `any` to `FormattedColumnValue[]`**.
 
 ### Scaffolding & Configuration
 

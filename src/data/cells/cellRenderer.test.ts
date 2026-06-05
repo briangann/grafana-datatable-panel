@@ -114,6 +114,21 @@ describe('Cell Renderer', () => {
         // percentunit 0.5 at 1 decimal → "50.0%"
         expect(result.valueFormatted).toBe('50.0%');
       });
+      it('respects decimals: 0 — numeric zero must not be treated as falsy', () => {
+        // `if (columnStyle && columnStyle.metricStyle.decimals)` is a falsy check.
+        // String '0' is truthy so the panel editor path works, but numeric 0
+        // (set by migrations or programmatic construction) is falsy — the
+        // condition fails and maxDecimals falls back to field.config.decimals (3).
+        // The field-config path uses !== undefined/null; this path is inconsistent.
+        const zeroDecimals = {
+          activeStyle: ColumnStyles.METRIC,
+          metricStyle: { unitFormat: 'kwh', decimals: 0 }, // numeric 0, not string '0'
+        } as unknown as ColumnStyleItemType;
+        const result = FormatColumnValue('utc', zeroDecimals, aField, 123.456, 'number');
+        // With 0 decimals: '123 kwh'
+        // Bug (numeric 0 is falsy → falls back to field.config.decimals=3): '123.456 kwh'
+        expect(result.valueFormatted).toBe('123 kwh');
+      });
     });
 
     describe('with a numeric column', () => {
@@ -628,6 +643,17 @@ describe('Cell Renderer', () => {
           null as unknown as FormattedColumnValue,
           '/\\s/',
         ),
+      ).toBe('host=$__pattern_0');
+    });
+    it('returns input untouched when cellContent.valueFormatted is null', () => {
+      // If cellContent is a non-null object but valueFormatted is null
+      // (e.g. a string-type DataFrame column whose cell value is null),
+      // the guard `!cellContent || cellContent.valueFormatted.length === 0`
+      // crashes: !cellContent is false (object is truthy), then
+      // null.length throws TypeError.
+      const nullValueFormatted = { valueFormatted: null } as unknown as FormattedColumnValue;
+      expect(
+        ReplaceCellSplitByPattern('host=$__pattern_0', nullValueFormatted, '/\\s/'),
       ).toBe('host=$__pattern_0');
     });
 

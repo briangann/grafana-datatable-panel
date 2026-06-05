@@ -128,7 +128,7 @@ export const FormatColumnValue = (
   if (field.config.decimals !== undefined && field.config.decimals !== null) {
     maxDecimals = field.config.decimals;
   }
-  if (columnStyle && columnStyle.metricStyle.decimals) {
+  if (columnStyle && columnStyle.metricStyle.decimals !== undefined && columnStyle.metricStyle.decimals !== null) {
     maxDecimals = Number(columnStyle.metricStyle.decimals).valueOf();
   }
 
@@ -139,7 +139,7 @@ export const FormatColumnValue = (
 
 export const ProcessClickthrough = (
   columnStyle: ColumnStyleItemType | null,
-  rows: any,
+  rows: FormattedColumnValue[],
   processedItem: FormattedColumnValue,
   timeRange: TimeRange,
   replaceVariables: InterpolateFunction) => {
@@ -222,7 +222,7 @@ export const ReplaceCellSplitByPattern = (
   splitByPattern: string
 ) => {
   let formatted = clickThrough;
-  if (!cellContent || cellContent.valueFormatted.length === 0) {
+  if (!cellContent || cellContent.valueFormatted == null || cellContent.valueFormatted.length === 0) {
     return formatted;
   }
   // Replace patterns — use replaceAll so every occurrence of $__pattern_N in
