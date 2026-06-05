@@ -217,7 +217,7 @@ export const ReplaceCellSplitByPattern = (
   splitByPattern: string
 ) => {
   let formatted = clickThrough;
-  if (!cellContent || cellContent.valueFormatted == null || cellContent.valueFormatted.length === 0) {
+  if (!cellContent || !cellContent.valueFormatted) {
     return formatted;
   }
   // Replace patterns — use replaceAll so every occurrence of $__pattern_N in

@@ -493,6 +493,7 @@ describe('Cell Renderer', () => {
       // reference unresolved.
       expect(ReplaceCellMacros('name=$__cell&label=$__cell', 'srv', rows)).toBe('name=srv&label=srv');
     });
+
     it('treats cell content containing $& literally, not as a regex replacement pattern', () => {
       // Bug: String.replace(regex, string) interprets $& in the replacement as
       // "insert the matched text". A cell value like "$&-suffix" causes the
@@ -645,6 +646,7 @@ describe('Cell Renderer', () => {
         ),
       ).toBe('host=$__pattern_0');
     });
+
     it('returns input untouched when cellContent.valueFormatted is null', () => {
       // If cellContent is a non-null object but valueFormatted is null
       // (e.g. a string-type DataFrame column whose cell value is null),
