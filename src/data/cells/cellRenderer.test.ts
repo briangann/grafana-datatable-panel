@@ -321,7 +321,7 @@ describe('Cell Renderer', () => {
       //                          ['goldenkpis', 'ipmplscore', 'ipmplscore']
       //   rows[0] = '2026-06-02', rows[4] = 'GC8801-LER03', rows[5] = 'goldenkpis_ipmplscore_ipmplscore'
       //
-      // Broken behaviour (pre-fix): only the first $__cell_N match was substituted
+      // Broken behavior (pre-fix): only the first $__cell_N match was substituted
       // (non-global regex), leaving $__cell_4 and $__cell_0 as literals that
       // new URL() then percent-encoded to %24__cell_4 / %24__cell_0.
       const rows6 = [
@@ -353,13 +353,13 @@ describe('Cell Renderer', () => {
       );
     });
 
-    it('cell value containing = is percent-encoded in HTTP query params; & is treated as a param separator (documents current behaviour)', () => {
+    it('cell value containing = is percent-encoded in HTTP query params; & is treated as a param separator (documents current behavior)', () => {
       // Macro expansion runs before the new URL() round-trip. This means:
       //   - '=' inside a cell value gets encoded to '%3D' by searchParams
       //   - '&' inside a cell value is treated as a query-parameter separator
       //     by the URL parser, silently splitting it into a new parameter
       //     instead of being preserved as a literal value.
-      // This test pins the current (partially-broken) behaviour so any future
+      // This test pins the current (partially-broken) behavior so any future
       // fix to pre-encode cell values before injection is an explicit, tested change.
       // TODO: pre-encode cell values before URL injection so & is preserved as %26.
       const rows1 = [
@@ -557,11 +557,11 @@ describe('Cell Renderer', () => {
       expect(ReplaceCellMacros('row=$__cell_99', 'current', rows)).toBe('row=$__cell_99');
     });
 
-    it('treats a null valueFormatted as the string "null" (documents current coercion behaviour)', () => {
+    it('treats a null valueFormatted as the string "null" (documents current coercion behavior)', () => {
       // rows[idx].valueFormatted could be null at runtime if a frame field
       // produced no value. JS string coercion turns null → "null" and
       // undefined → "undefined", silently putting those strings in the href.
-      // This test pins the current behaviour so any future guard is explicit.
+      // This test pins the current behavior so any future guard is explicit.
       const nullRows = [{ valueFormatted: null }] as unknown as Array<FormattedColumnValue>;
       expect(ReplaceCellMacros('v=$__cell_0', 'X', nullRows)).toBe('v=null');
     });
