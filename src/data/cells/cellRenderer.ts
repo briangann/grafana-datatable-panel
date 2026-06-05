@@ -20,16 +20,15 @@ const DEFAULT_URL_BASE = typeof window !== 'undefined' ? window.location.origin 
 
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
 export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
-  let newContent = content;
-  if (content.match(/\$__from/g)) {
-    newContent = newContent.replace('$__from', timeRange.raw.from.toString());
-  }
-  if (content.match(/\$__to/g)) {
-    newContent = newContent.replace('$__to', timeRange.raw.to.toString());
-  }
-  if (content.match(/\$__keepTime/g)) {
-    newContent = newContent.replace(`$__keepTime`, `from=${timeRange.raw.from}&to=${timeRange.raw.to}`);
-  }
+  // Use global replacements so all occurrences in the URL are substituted,
+  // not just the first. A URL with $__from in both path and query would
+  // otherwise leave the second reference unreplaced.
+  const from = timeRange.raw.from.toString();
+  const to = timeRange.raw.to.toString();
+  let newContent = content
+    .replace(/\$__from/g, from)
+    .replace(/\$__to/g, to)
+    .replace(/\$__keepTime/g, `from=${from}&to=${to}`);
   return newContent;
 };
 
@@ -226,10 +225,12 @@ export const ReplaceCellSplitByPattern = (
   if (!cellContent || cellContent.valueFormatted.length === 0) {
     return formatted;
   }
-  // Replace patterns
+  // Replace patterns — use replaceAll so every occurrence of $__pattern_N in
+  // the URL is substituted, not just the first (replace() is non-global for
+  // plain-string patterns). Also forEach, not map, since we only want side effects.
   const splitByPatternRegex = stringToJsRegex(splitByPattern);
   const values = cellContent.valueFormatted.split(splitByPatternRegex);
-  values.map((val: any, i: any) => (formatted = formatted.replace(`$__pattern_${i}`, val)));
+  values.forEach((val: any, i: any) => (formatted = formatted.replaceAll(`$__pattern_${i}`, val)));
 
   return formatted;
 }
@@ -243,7 +244,7 @@ export const ReplaceCellMacros = (
   //
   // Replace $__cell with this cell's content $__cell word boundary
   //
-  formatted = formatted.replace(/\$__cell\b/, cellContent);
+  formatted = formatted.replace(/\$__cell\b/g, cellContent);
 
   //
   // process $__cell_N

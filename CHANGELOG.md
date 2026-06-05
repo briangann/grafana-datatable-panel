@@ -73,6 +73,23 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   The callback receives each match in one engine pass, so injected replacement values that
   happen to contain `$__cell_N` patterns are never re-expanded and the prior off-by-one in
   the bounds check (`> rows.length` → `>= rows.length`) is also corrected.
+- **Fix `$__cell`, `$__from`, `$__to`, `$__keepTime`, and `$__pattern_N` macros only
+  replacing the first occurrence in a clickthrough URL**.
+  All five macros used a non-global `String.replace()` with a plain-string pattern,
+  so a URL template referencing the same macro twice (e.g. `/$__from/data?from=$__from`)
+  left every occurrence after the first as a literal string.
+  Fixed by switching to global regex replacements (`/g` flag) in `ReplaceCellMacros`
+  (`$__cell`) and `ReplaceTimeMacros`, and `String.replaceAll()` in
+  `ReplaceCellSplitByPattern` (`$__pattern_N`). The redundant `content.match(/.../g)`
+  guards in `ReplaceTimeMacros` are also removed (a no-match global replace is a no-op).
+  `ReplaceCellSplitByPattern` also changes `values.map(...)` → `values.forEach(...)`
+  since the returned array was discarded.
+- **Document `&` in cell values breaking HTTP query parameters**: macro expansion
+  runs before the `new URL()` round-trip in `ProcessClickthrough`. A cell value
+  containing `&` is treated as a query-parameter separator by the URL parser,
+  silently creating a spurious extra parameter instead of a literal `%26` in the
+  value. Pinned with a test; fixing requires pre-encoding cell values before
+  injection and is tracked as a follow-up.
 
 ### Scaffolding & Configuration
 

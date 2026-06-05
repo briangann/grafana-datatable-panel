@@ -368,6 +368,59 @@ describe('Cell Renderer', () => {
         'href="https://mygrafana.grafana.net/d/goldenkpis_ipmplscore/?var-Job=goldenkpis_ipmplscore_ipmplscore&var-Host=GC8801-LER03&from=2026-06-02"',
       );
     });
+    it('cell value containing = is percent-encoded in HTTP query params; & is treated as a param separator (documents current behaviour)', () => {
+      // Macro expansion runs before the new URL() round-trip. This means:
+      //   - '=' inside a cell value gets encoded to '%3D' by searchParams
+      //   - '&' inside a cell value is treated as a query-parameter separator
+      //     by the URL parser, silently splitting it into a new parameter
+      //     instead of being preserved as a literal value.
+      // This test pins the current (partially-broken) behaviour so any future
+      // fix to pre-encode cell values before injection is an explicit, tested change.
+      const rows1 = [
+        { valueFormatted: 'a=1&b=2' } as FormattedColumnValue, // contains = and &
+      ];
+      const style = {
+        stringStyle: {
+          ...baseStringStyle,
+          clickThrough: 'http://example.com/d?filter=$__cell_0',
+          clickThroughSanitize: false,
+        },
+      } as unknown as ColumnStyleItemType;
+      const html = ProcessClickthrough(style, rows1, processedItem, fakeTimeRange, noopReplaceVariables);
+      // '=' is encoded → %3D; '&' splits the query so b=2 becomes a second param
+      expect(html).toContain('filter=a%3D1&b=2');
+    });
+
+    it('passes cell values with special characters through unencoded for verbatim (non-HTTP) paths', () => {
+      // Non-HTTP paths skip the new URL() round-trip, so special characters in
+      // cell values are emitted raw. This documents the intentional asymmetry:
+      // HTTP URLs are encoded, verbatim paths are not.
+      const rows1 = [
+        { valueFormatted: 'a&b' } as FormattedColumnValue,
+      ];
+      const style = {
+        stringStyle: {
+          ...baseStringStyle,
+          clickThrough: 'custom://host/d?v=$__cell_0',
+          clickThroughSanitize: false,
+        },
+      } as unknown as ColumnStyleItemType;
+      const html = ProcessClickthrough(style, rows1, processedItem, fakeTimeRange, noopReplaceVariables);
+      // verbatim path: no encoding applied
+      expect(html).toContain('href="custom://host/d?v=a&b"');
+    });
+
+    it('returns null when columnStyle is null', () => {
+      expect(ProcessClickthrough(null, [], processedItem, fakeTimeRange, noopReplaceVariables)).toBeNull();
+    });
+
+    it('returns null when clickThrough is an empty string', () => {
+      const style = {
+        stringStyle: { ...baseStringStyle, clickThrough: '' },
+      } as unknown as ColumnStyleItemType;
+      expect(ProcessClickthrough(style, [], processedItem, fakeTimeRange, noopReplaceVariables)).toBeNull();
+    });
+
   });
 
   describe('ReplaceTimeMacros', () => {
@@ -394,6 +447,15 @@ describe('Cell Renderer', () => {
     it('passes through content with no time macros unchanged', () => {
       expect(ReplaceTimeMacros(tr, 'http://x/plain')).toBe('http://x/plain');
     });
+    it('replaces ALL occurrences of $__from when it appears more than once', () => {
+      // Non-global replace() only substitutes the first occurrence.
+      // A URL with $__from in both path and query would leave the second as-is.
+      expect(ReplaceTimeMacros(tr, '/$__from/range?from=$__from')).toBe('/now-6h/range?from=now-6h');
+    });
+
+    it('replaces ALL occurrences of $__to when it appears more than once', () => {
+      expect(ReplaceTimeMacros(tr, 'a=$__to&b=$__to')).toBe('a=now&b=now');
+    });
   });
 
   describe('ReplaceCellMacros', () => {
@@ -405,6 +467,13 @@ describe('Cell Renderer', () => {
 
     it('replaces $__cell with the current cell content', () => {
       expect(ReplaceCellMacros('host-$__cell', 'web-01', rows)).toBe('host-web-01');
+    });
+
+    it('replaces ALL occurrences of $__cell when it appears more than once in the URL', () => {
+      // /\$__cell\b/ is non-global — only the first occurrence is replaced.
+      // A link template like 'name=$__cell&label=$__cell' leaves the second
+      // reference unresolved.
+      expect(ReplaceCellMacros('name=$__cell&label=$__cell', 'srv', rows)).toBe('name=srv&label=srv');
     });
 
     it('respects word boundary so $__cell does not clobber $__cell_N', () => {
@@ -420,6 +489,15 @@ describe('Cell Renderer', () => {
 
     it('skips out-of-bounds $__cell_N references', () => {
       expect(ReplaceCellMacros('row=$__cell_99', 'current', rows)).toBe('row=$__cell_99');
+    });
+
+    it('treats a null valueFormatted as the string "null" (documents current coercion behaviour)', () => {
+      // rows[idx].valueFormatted could be null at runtime if a frame field
+      // produced no value. JS string coercion turns null → "null" and
+      // undefined → "undefined", silently putting those strings in the href.
+      // This test pins the current behaviour so any future guard is explicit.
+      const nullRows = [{ valueFormatted: null }] as unknown as Array<FormattedColumnValue>;
+      expect(ReplaceCellMacros('v=$__cell_0', 'X', nullRows)).toBe('v=null');
     });
 
     it('returns the input untouched when no macros are present', () => {
@@ -541,6 +619,19 @@ describe('Cell Renderer', () => {
       );
       expect(out).toBe('a=web-01&b=$__pattern_9');
     });
+    it('replaces ALL occurrences of $__pattern_N when the same index appears more than once', () => {
+      // values.map() calls replace() once per segment, but replace() is non-global,
+      // so only the first occurrence of each $__pattern_N in the URL is replaced.
+      // e.g. path/$__pattern_0?label=$__pattern_0 leaves the query-string copy unresolved.
+      const cell = { valueFormatted: 'web-01 prod' } as FormattedColumnValue;
+      const out = ReplaceCellSplitByPattern(
+        '/$__pattern_0/d?label=$__pattern_0&env=$__pattern_1',
+        cell,
+        '/\\s/',
+      );
+      expect(out).toBe('/web-01/d?label=web-01&env=prod');
+    });
+
   });
 
   describe('resolveClickThroughTarget', () => {
