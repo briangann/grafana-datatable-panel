@@ -47,6 +47,10 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - **Column open/close state shifted after reordering or removing column styles** —
   Expanded column style editors now stay expanded for the correct column after a
   reorder or delete operation.
+- **Plugin bundle reduced from 1.13 MB to 445 KB (60% smaller)** — The `moment-timezone`
+  dependency (which bundled the full IANA timezone database) is replaced by
+  `dateTimeForTimeZone` from `@grafana/data`, which is already provided by Grafana at
+  runtime at zero bundle cost. Time column formatting is unchanged.
 
 ## [2.0.2] - 2025-05-29
 

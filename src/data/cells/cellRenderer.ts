@@ -1,5 +1,6 @@
 import {
   dateTime,
+  dateTimeForTimeZone,
   Field,
   getValueFormat,
   InterpolateFunction,
@@ -10,7 +11,6 @@ import {
 
 import _ from 'lodash';
 import { ColumnStyleItemType, ColumnStyles, DateFormats, FormattedColumnValue } from "types";
-import moment from 'moment-timezone';
 
 // Fallback base for `new URL(input, base)` when parsing path-relative
 // clickthrough inputs. Dashboards always run in a browser, so
@@ -62,12 +62,12 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
   // When timezone is 'browser', use the module-level cached IANA name —
   // Intl.DateTimeFormat() costs ~40 µs per call, the result never changes.
   const useTimezone = timeZone === 'browser' ? BROWSER_TIMEZONE : timeZone;
-  // `moment.tz(ms, tz)` takes a UTC milliseconds timestamp and returns a
-  // Moment expressed in the target zone — the correct conversion overload. The
-  // previous code used `moment.tz(iso, format, tz)`, which is the parsing
-  // overload that treats the string input as already-local-to-tz, so no
-  // UTC→tz conversion happened and non-UTC zones returned UTC digits.
-  const formattedWithTimezone = moment.tz(timestamp, useTimezone).format(timestampFormat);
+  // `dateTimeForTimeZone(tz, ms)` from @grafana/data takes a UTC milliseconds
+  // timestamp and returns a DateTime expressed in the target zone — same
+  // semantics as the previous moment.tz(ms, tz) call, but uses @grafana/data
+  // which is already external (zero bundle cost) instead of bundling the full
+  // moment-timezone IANA timezone database (~720 KB unminified).
+  const formattedWithTimezone = dateTimeForTimeZone(useTimezone, timestamp).format(timestampFormat);
   const formatted: FormattedColumnValue = {
     valueRaw: timestamp,
     valueFormatted: formattedWithTimezone,
