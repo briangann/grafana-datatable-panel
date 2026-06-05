@@ -9,6 +9,12 @@ on:
 
 permissions: read-all
 
+# One release at a time per ref. Tag pushes are rare but queuing two releases
+# of the same tag would double-publish artifacts and confuse the plugin catalog.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   release:
     runs-on: ubuntu-latest
