@@ -68,9 +68,11 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `ReplaceCellMacros` used a non-global regex with `match()`, which returns a single
   two-element array for the first match regardless of how many `$__cell_N` references appear
   in the URL template. All but the first reference were left as literal `$__cell_N` strings,
-  which `new URL()` then percent-encoded to `%24__cell_N`. Fixed by switching to a global
-  `/\$__cell_(\d+)/g` regex with `matchAll()` so every occurrence is substituted. Also
-  corrects an off-by-one in the bounds check (`> rows.length` → `>= rows.length`).
+  which `new URL()` then percent-encoded to `%24__cell_N`. Fixed by replacing the
+  `matchAll()` loop with a single-pass `String.replace(/\$__cell_(\d+)/g, callback)`.
+  The callback receives each match in one engine pass, so injected replacement values that
+  happen to contain `$__cell_N` patterns are never re-expanded and the prior off-by-one in
+  the bounds check (`> rows.length` → `>= rows.length`) is also corrected.
 
 ### Scaffolding & Configuration
 

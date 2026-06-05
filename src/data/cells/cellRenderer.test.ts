@@ -446,6 +446,61 @@ describe('Cell Renderer', () => {
       );
       expect(out).toBe('var-Job=job-name&var-Host=GC8801-LER03&from=2026-06-02');
     });
+    it('replaces the same $__cell_N index appearing multiple times in one URL', () => {
+      // A cell index can legitimately be referenced more than once, e.g.
+      // both in the path and in a query parameter.
+      const r = [
+        { valueFormatted: 'svc-a' } as FormattedColumnValue,
+        { valueFormatted: 'prod' } as FormattedColumnValue,
+      ];
+      const out = ReplaceCellMacros('/$__cell_0/detail?name=$__cell_0&env=$__cell_1', 'svc-a', r);
+      expect(out).toBe('/svc-a/detail?name=svc-a&env=prod');
+    });
+
+    it('does not corrupt a higher-index cell when a lower-index cell appears after it (e.g. $__cell_10 vs $__cell_1)', () => {
+      // The non-global string replace('$__cell_1', ...) would match the
+      // '$__cell_1' prefix inside '$__cell_10' if the two-digit reference
+      // appears first in the URL. The hardened single-pass replace avoids this.
+      const r = [
+        { valueFormatted: 'zero' } as FormattedColumnValue,
+        { valueFormatted: 'one' } as FormattedColumnValue,
+        { valueFormatted: 'two' } as FormattedColumnValue,
+        { valueFormatted: 'three' } as FormattedColumnValue,
+        { valueFormatted: 'four' } as FormattedColumnValue,
+        { valueFormatted: 'five' } as FormattedColumnValue,
+        { valueFormatted: 'six' } as FormattedColumnValue,
+        { valueFormatted: 'seven' } as FormattedColumnValue,
+        { valueFormatted: 'eight' } as FormattedColumnValue,
+        { valueFormatted: 'nine' } as FormattedColumnValue,
+        { valueFormatted: 'ten' } as FormattedColumnValue,
+      ];
+      // $__cell_10 appears before $__cell_1 in the URL.
+      // A string replace('$__cell_1', ...) on the mutated string would
+      // find the '$__cell_1' prefix inside '$__cell_10' before $__cell_10
+      // is processed, mangling the result.
+      const out = ReplaceCellMacros('a=$__cell_10&b=$__cell_1', 'X', r);
+      expect(out).toBe('a=ten&b=one');
+    });
+
+    it('does not re-substitute when a cell value itself contains a $__cell_N pattern', () => {
+      // Latent bug: rows[1].valueFormatted = '$__cell_0' (looks like a macro).
+      // URL has $__cell_1 BEFORE $__cell_0 so the loop processes cell_1 first,
+      // injecting the literal text '$__cell_0' into `formatted`. The next
+      // iteration then calls replace('$__cell_0', ...) on the mutated string
+      // and finds the *injected* text rather than the original $__cell_0
+      // reference — producing the wrong result.
+      //
+      // Expected:  b=$__cell_0&a=real-value
+      //   ($__cell_1 → its raw value '$__cell_0'; original $__cell_0 → 'real-value')
+      // Broken:    b=real-value&a=$__cell_0
+      //   (injected '$__cell_0' gets expanded; original reference left as-is)
+      const r = [
+        { valueFormatted: 'real-value' } as FormattedColumnValue,
+        { valueFormatted: '$__cell_0' } as FormattedColumnValue, // value contains a macro pattern
+      ];
+      const out = ReplaceCellMacros('b=$__cell_1&a=$__cell_0', 'X', r);
+      expect(out).toBe('b=$__cell_0&a=real-value');
+    });
   });
 
   describe('ReplaceCellSplitByPattern', () => {

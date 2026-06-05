@@ -248,20 +248,21 @@ export const ReplaceCellMacros = (
   //
   // process $__cell_N
   //
-  // Use a global regex so matchAll() finds every $__cell_N occurrence in the
-  // URL, not just the first one. The previous non-global match() returned a
-  // single two-element array ['$__cell_N', 'N'] regardless of how many
-  // references appeared in the URL, leaving all but the first unresolved
-  // (and subsequently percent-encoded by new URL()). (issue #324)
-  const cellNRegex = /\$__cell_(\d+)/g;
-  for (const match of formatted.matchAll(cellNRegex)) {
-    const matchedCellNumber = parseInt(match[1], 10);
-    if (matchedCellNumber >= rows.length) {
-      continue;
+  // Single-pass replacement via String.replace() with a callback: the regex
+  // engine walks the string once, finds every $__cell_N, and calls the
+  // replacer for each match. Because replacement happens inside the engine —
+  // not by re-searching a mutated string — injected values that happen to
+  // look like $__cell_N are never re-expanded, and a lower-index reference
+  // can never accidentally clobber a higher-index one (e.g. $__cell_1 vs
+  // $__cell_10). Fixes the multi-reference bug from issue #324 and closes
+  // the latent re-substitution hazard in the previous loop-based approach.
+  formatted = formatted.replace(/\$__cell_(\d+)/g, (fullMatch, n) => {
+    const idx = parseInt(n, 10);
+    if (idx >= rows.length) {
+      return fullMatch;
     }
-    const matchedCellContent = rows[matchedCellNumber].valueFormatted;
-    formatted = formatted.replace(`$__cell_${matchedCellNumber}`, matchedCellContent);
-  }
+    return rows[idx].valueFormatted;
+  });
   return formatted;
 }
 
