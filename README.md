@@ -2,6 +2,8 @@
 
 ![Version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fbriangann-datatable-panel&query=version&prefix=v&logo=grafana&label=Version&color=orange)
 ![Downloads](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fgrafana.com%2Fapi%2Fplugins%2Fbriangann-datatable-panel&query=downloads&logo=grafana&label=Downloads&color=orange)
+![Grafana 12.3+](https://img.shields.io/badge/Grafana-%3E%3D12.3-orange?logo=grafana)
+![Node 24+](https://img.shields.io/badge/node-%3E%3D24-brightgreen?logo=nodedotjs)
 [![License](https://img.shields.io/github/license/briangann/grafana-datatable-panel)](LICENSE)
 ![CI (main)](https://github.com/briangann/grafana-datatable-panel/actions/workflows/ci.yml/badge.svg?branch=main)
 ![Release](https://github.com/briangann/grafana-datatable-panel/workflows/Release/badge.svg)
