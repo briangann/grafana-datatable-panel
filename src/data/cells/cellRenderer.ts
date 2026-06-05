@@ -230,14 +230,14 @@ export const ReplaceCellSplitByPattern = (
   // plain-string patterns). Also forEach, not map, since we only want side effects.
   const splitByPatternRegex = stringToJsRegex(splitByPattern);
   const values = cellContent.valueFormatted.split(splitByPatternRegex);
-  values.forEach((val: any, i: any) => (formatted = formatted.replaceAll(`$__pattern_${i}`, val)));
+  values.forEach((val: string, i: number) => (formatted = formatted.replaceAll(`$__pattern_${i}`, val)));
 
   return formatted;
 }
 export const ReplaceCellMacros = (
   clickThrough: string,
   cellContent: string,
-  rows: any,
+  rows: FormattedColumnValue[],
 ): string => {
 
   let formatted = clickThrough;

@@ -368,6 +368,7 @@ describe('Cell Renderer', () => {
         'href="https://mygrafana.grafana.net/d/goldenkpis_ipmplscore/?var-Job=goldenkpis_ipmplscore_ipmplscore&var-Host=GC8801-LER03&from=2026-06-02"',
       );
     });
+
     it('cell value containing = is percent-encoded in HTTP query params; & is treated as a param separator (documents current behaviour)', () => {
       // Macro expansion runs before the new URL() round-trip. This means:
       //   - '=' inside a cell value gets encoded to '%3D' by searchParams
@@ -376,6 +377,7 @@ describe('Cell Renderer', () => {
       //     instead of being preserved as a literal value.
       // This test pins the current (partially-broken) behaviour so any future
       // fix to pre-encode cell values before injection is an explicit, tested change.
+      // TODO: pre-encode cell values before URL injection so & is preserved as %26.
       const rows1 = [
         { valueFormatted: 'a=1&b=2' } as FormattedColumnValue, // contains = and &
       ];
@@ -447,6 +449,7 @@ describe('Cell Renderer', () => {
     it('passes through content with no time macros unchanged', () => {
       expect(ReplaceTimeMacros(tr, 'http://x/plain')).toBe('http://x/plain');
     });
+
     it('replaces ALL occurrences of $__from when it appears more than once', () => {
       // Non-global replace() only substitutes the first occurrence.
       // A URL with $__from in both path and query would leave the second as-is.
@@ -524,6 +527,7 @@ describe('Cell Renderer', () => {
       );
       expect(out).toBe('var-Job=job-name&var-Host=GC8801-LER03&from=2026-06-02');
     });
+
     it('replaces the same $__cell_N index appearing multiple times in one URL', () => {
       // A cell index can legitimately be referenced more than once, e.g.
       // both in the path and in a query parameter.
@@ -539,19 +543,13 @@ describe('Cell Renderer', () => {
       // The non-global string replace('$__cell_1', ...) would match the
       // '$__cell_1' prefix inside '$__cell_10' if the two-digit reference
       // appears first in the URL. The hardened single-pass replace avoids this.
-      const r = [
-        { valueFormatted: 'zero' } as FormattedColumnValue,
-        { valueFormatted: 'one' } as FormattedColumnValue,
-        { valueFormatted: 'two' } as FormattedColumnValue,
-        { valueFormatted: 'three' } as FormattedColumnValue,
-        { valueFormatted: 'four' } as FormattedColumnValue,
-        { valueFormatted: 'five' } as FormattedColumnValue,
-        { valueFormatted: 'six' } as FormattedColumnValue,
-        { valueFormatted: 'seven' } as FormattedColumnValue,
-        { valueFormatted: 'eight' } as FormattedColumnValue,
-        { valueFormatted: 'nine' } as FormattedColumnValue,
-        { valueFormatted: 'ten' } as FormattedColumnValue,
-      ];
+      // Only indices 1 and 10 are referenced — populate exactly those two.
+      // Indices 0-9 use placeholder values; the test cares about [1] and [10].
+      const r: FormattedColumnValue[] = Array.from({ length: 11 }, (_, i) =>
+        ({ valueFormatted: `cell-${i}` } as FormattedColumnValue)
+      );
+      r[1] = { valueFormatted: 'one' } as FormattedColumnValue;
+      r[10] = { valueFormatted: 'ten' } as FormattedColumnValue;
       // $__cell_10 appears before $__cell_1 in the URL.
       // A string replace('$__cell_1', ...) on the mutated string would
       // find the '$__cell_1' prefix inside '$__cell_10' before $__cell_10
@@ -619,6 +617,7 @@ describe('Cell Renderer', () => {
       );
       expect(out).toBe('a=web-01&b=$__pattern_9');
     });
+
     it('replaces ALL occurrences of $__pattern_N when the same index appears more than once', () => {
       // values.map() calls replace() once per segment, but replace() is non-global,
       // so only the first occurrence of each $__pattern_N in the URL is replaced.
