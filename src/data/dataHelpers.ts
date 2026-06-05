@@ -135,15 +135,16 @@ export const ConvertDataFrameToDataTableFormat = (
       // @ts-ignore
       rows[i].rowNumber = i+1;
     }
-    // hide columns
-    for (let index = 0; index < columns.length; index++) {
-      const aCell = columns[index];
-      if (aCell.columnStyles && aCell.columnStyles.length > 0) {
-        const aStyle = aCell.columnStyles[0];
-        if (aStyle.activeStyle === ColumnStyles.HIDDEN) {
-          aCell.visible = false;
-        }
-    }
+  }
+  // Mark hidden columns — runs unconditionally so hidden styles work
+  // regardless of whether row numbers are enabled.
+  for (let index = 0; index < columns.length; index++) {
+    const aCell = columns[index];
+    if (aCell.columnStyles && aCell.columnStyles.length > 0) {
+      const aStyle = aCell.columnStyles[0];
+      if (aStyle.activeStyle === ColumnStyles.HIDDEN) {
+        aCell.visible = false;
+      }
     }
   }
 

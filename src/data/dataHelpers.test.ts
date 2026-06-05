@@ -104,10 +104,7 @@ describe('ConvertDataFrameToDataTableFormat', () => {
     expect(rows.map((r) => r.rowNumber)).toEqual([1, 2, 3]);
   });
 
-  it('hides a column when its matched style is HIDDEN (only via rowNumbers branch)', () => {
-    // The visibility toggle lives in the `if (rowNumbersEnabled)` block —
-    // matches the current implementation even though the location is
-    // arguably a bug. Pin observed behavior rather than pretend.
+  it('hides a column when its matched style is HIDDEN, regardless of rowNumbersEnabled', () => {
     const hiddenStyle = {
       activeStyle: ColumnStyles.HIDDEN,
       enabled: true,
@@ -120,14 +117,24 @@ describe('ConvertDataFrameToDataTableFormat', () => {
       stringStyle: {},
     } as unknown as ColumnStyleItemType;
 
-    const { columns } = ConvertDataFrameToDataTableFormat({
+    // Works without rowNumbersEnabled (the bug was that visible=false was only
+    // set inside the rowNumbersEnabled block).
+    const { columns: colsNoRows } = ConvertDataFrameToDataTableFormat({
+      ...baseOpts,
+      dataFrames: [twoFieldFrame()],
+      rowNumbersEnabled: false,
+      columnStyles: [hiddenStyle],
+    });
+    expect(colsNoRows.find((c) => c.title === 'value')?.visible).toBe(false);
+
+    // Also works with rowNumbersEnabled for completeness.
+    const { columns: colsWithRows } = ConvertDataFrameToDataTableFormat({
       ...baseOpts,
       dataFrames: [twoFieldFrame()],
       rowNumbersEnabled: true,
       columnStyles: [hiddenStyle],
     });
-    const valueCol = columns.find((c) => c.title === 'value');
-    expect(valueCol?.visible).toBe(false);
+    expect(colsWithRows.find((c) => c.title === 'value')?.visible).toBe(false);
   });
 });
 

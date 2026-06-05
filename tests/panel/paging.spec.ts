@@ -50,8 +50,8 @@ test.describe('paging mode', () => {
     const firstCellPage1 = await table.locator('tbody tr').first().locator('td').first().textContent();
 
     await test.step('click next page', async () => {
-      // DataTables 2.x next button: .dt-paging .dt-paging-button.dt-next
-      await page.locator('.dt-paging .dt-paging-button.dt-next').click();
+      // DataTables 2.x next button carries class 'next' on the <button> element
+      await page.locator('.dt-paging button.next').click();
     });
 
     await test.step('first cell changes after pagination', async () => {

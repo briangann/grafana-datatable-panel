@@ -345,8 +345,19 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             //select: selectSettings,
             stateSave: false,
             initComplete: function () {
+              const api = this.api();
+              // Apply hidden column styles via the DataTables API.
+              // columnDefs visible:false is not reliably honoured at init time in
+              // DataTables 2.x; calling column(i).visible(false) after initComplete
+              // is the guaranteed path.
+              const rowNumberOffset = props.options.rowNumbersEnabled ? 1 : 0;
+              for (let i = 0; i < cachedProcessedData!.Columns.length; i++) {
+                if (!cachedProcessedData!.Columns[i].visible) {
+                  api.column(i + rowNumberOffset).visible(false);
+                }
+              }
               if (props.options.columnFiltersEnabled) {
-                enableColumnFilters(this.api());
+                enableColumnFilters(api);
               }
               if (mountedRef.current) {
                 setDataTableReady(true);
