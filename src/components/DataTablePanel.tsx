@@ -397,9 +397,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       id={dataTableWrapperId}
       className={divStyles}
       style={{ width: '100%', height: '100%', position: 'relative' }}
+      data-testid="datatable-panel-container"
     >
       {!dataTableReady && (
         <div
+          data-testid="datatable-panel-loading"
           style={{
             position: 'absolute',
             inset: 0,
@@ -416,6 +418,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       )}
       {hasData && props.data && (
         <table
+          data-testid="datatable-panel-table"
           style={{ width: '100%', visibility: dataTableReady ? 'visible' : 'hidden' }}
           id={dataTableId}
           ref={dataTableDOMRef}
