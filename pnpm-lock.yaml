@@ -232,11 +232,11 @@ importers:
         specifier: ^1.0.6
         version: 1.0.6
       sass:
-        specifier: 1.99.0
-        version: 1.99.0
+        specifier: 1.100.0
+        version: 1.100.0
       sass-loader:
         specifier: 13.3.1
-        version: 13.3.1(sass@1.99.0)(webpack@5.107.2)
+        version: 13.3.1(sass@1.100.0)(webpack@5.107.2)
       semver:
         specifier: ^7.8.1
         version: 7.8.1
@@ -2236,9 +2236,9 @@ packages:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
 
-  chokidar@4.0.3:
-    resolution: {integrity: sha512-Qgzu8kfBvo+cA4962jnP1KkS6Dop5NS6g7R5LFYJr4b8Ub94PPQXUksCw9PvXoeXPRRddRNC5C1JQUR2SMGtnA==}
-    engines: {node: '>= 14.16.0'}
+  chokidar@5.0.0:
+    resolution: {integrity: sha512-TQMmc3w+5AxjpL8iIiwebF73dRDF4fBIieAqGn9RGCWaEVwQ6Fb2cGe31Yns0RRIzii5goJ1Y7xbMwo1TxMplw==}
+    engines: {node: '>= 20.19.0'}
 
   chrome-trace-event@1.0.4:
     resolution: {integrity: sha512-rNjApaLzuwaOTjCiT8lSDdGN1APCiqkChLMJxJPWLunPAt5fy8xgU9/jNOchV84wfIxrA0lRQB7oCT8jrn/wrQ==}
@@ -4776,9 +4776,9 @@ packages:
     resolution: {integrity: sha512-hOS089on8RduqdbhvQ5Z37A0ESjsqz6qnRcffsMU3495FuTdqSm+7bhJ29JvIOsBDEEnan5DPu9t3To9VRlMzA==}
     engines: {node: '>=8.10.0'}
 
-  readdirp@4.1.2:
-    resolution: {integrity: sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg==}
-    engines: {node: '>= 14.18.0'}
+  readdirp@5.0.0:
+    resolution: {integrity: sha512-9u/XQ1pvrQtYyMpZe7DXKv2p5CNvyVwzUB6uhLAnQwHMSgKMBR62lc7AHljaeteeHXn11XTAaLLUVZYVZyuRBQ==}
+    engines: {node: '>= 20.19.0'}
 
   rechoir@0.8.0:
     resolution: {integrity: sha512-/vxpCXddiX8NGfGO/mTafwjq4aFa/71pvamip0++IQk3zG8cbCj0fifNPrjjF1XMXUne91jL9OoxmdykoEtifQ==}
@@ -4932,9 +4932,9 @@ packages:
       sass-embedded:
         optional: true
 
-  sass@1.99.0:
-    resolution: {integrity: sha512-kgW13M54DUB7IsIRM5LvJkNlpH+WhMpooUcaWGFARkF1Tc82v9mIWkCbCYf+MBvpIUBSeSOTilpZjEPr2VYE6Q==}
-    engines: {node: '>=14.0.0'}
+  sass@1.100.0:
+    resolution: {integrity: sha512-B5j0rYMlinhhOo9tjQebMVVn0TfyXAF+wB3b2ggZUuJ/is/Y+7+JGjirAMxHZ9Z3hIP98NPfamlAkBHa1lAaXQ==}
+    engines: {node: '>=20.19.0'}
     hasBin: true
 
   sax@1.6.0:
@@ -6561,8 +6561,8 @@ snapshots:
       react-window: 1.8.11(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rxjs: 7.8.2
       slate: 0.47.9(immutable@5.1.4)
-      slate-plain-serializer: 0.7.13(immutable@5.1.4)(slate@0.47.9(immutable@5.1.5))
-      slate-react: 0.22.10(immutable@5.1.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.5))
+      slate-plain-serializer: 0.7.13(immutable@5.1.4)(slate@0.47.9(immutable@5.1.4))
+      slate-react: 0.22.10(immutable@5.1.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.4))
       tinycolor2: 1.6.0
       tslib: 2.8.1
       uplot: 1.6.32
@@ -8320,9 +8320,9 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  chokidar@4.0.3:
+  chokidar@5.0.0:
     dependencies:
-      readdirp: 4.1.2
+      readdirp: 5.0.0
 
   chrome-trace-event@1.0.4: {}
 
@@ -11318,11 +11318,6 @@ snapshots:
       immutable: 5.1.4
       invariant: 2.2.4
 
-  react-immutable-proptypes@2.2.0(immutable@5.1.5):
-    dependencies:
-      immutable: 5.1.5
-      invariant: 2.2.4
-
   react-inlinesvg@4.2.0(react@18.3.1):
     dependencies:
       react: 18.3.1
@@ -11474,7 +11469,7 @@ snapshots:
     dependencies:
       picomatch: 2.3.1
 
-  readdirp@4.1.2: {}
+  readdirp@5.0.0: {}
 
   rechoir@0.8.0:
     dependencies:
@@ -11612,17 +11607,17 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sass-loader@13.3.1(sass@1.99.0)(webpack@5.107.2):
+  sass-loader@13.3.1(sass@1.100.0)(webpack@5.107.2):
     dependencies:
       klona: 2.0.6
       neo-async: 2.6.2
       webpack: 5.107.2(@swc/core@1.15.40(@swc/helpers@0.5.23))(postcss@8.5.3)(webpack-cli@5.1.4)
     optionalDependencies:
-      sass: 1.99.0
+      sass: 1.100.0
 
-  sass@1.99.0:
+  sass@1.100.0:
     dependencies:
-      chokidar: 4.0.3
+      chokidar: 5.0.0
       immutable: 5.1.5
       source-map-js: 1.2.1
     optionalDependencies:
@@ -11746,10 +11741,10 @@ snapshots:
 
   slash@5.1.0: {}
 
-  slate-base64-serializer@0.2.115(slate@0.47.9(immutable@5.1.5)):
+  slate-base64-serializer@0.2.115(slate@0.47.9(immutable@5.1.4)):
     dependencies:
       isomorphic-base64: 1.0.2
-      slate: 0.47.9(immutable@5.1.5)
+      slate: 0.47.9(immutable@5.1.4)
 
   slate-dev-environment@0.2.5:
     dependencies:
@@ -11760,33 +11755,23 @@ snapshots:
       is-hotkey: 0.1.4
       slate-dev-environment: 0.2.5
 
-  slate-plain-serializer@0.7.13(immutable@5.1.4)(slate@0.47.9(immutable@5.1.5)):
+  slate-plain-serializer@0.7.13(immutable@5.1.4)(slate@0.47.9(immutable@5.1.4)):
     dependencies:
       immutable: 5.1.4
-      slate: 0.47.9(immutable@5.1.5)
+      slate: 0.47.9(immutable@5.1.4)
 
-  slate-plain-serializer@0.7.13(immutable@5.1.5)(slate@0.47.9(immutable@5.1.5)):
-    dependencies:
-      immutable: 5.1.5
-      slate: 0.47.9(immutable@5.1.5)
-
-  slate-prop-types@0.5.44(immutable@5.1.4)(slate@0.47.9(immutable@5.1.5)):
+  slate-prop-types@0.5.44(immutable@5.1.4)(slate@0.47.9(immutable@5.1.4)):
     dependencies:
       immutable: 5.1.4
-      slate: 0.47.9(immutable@5.1.5)
+      slate: 0.47.9(immutable@5.1.4)
 
-  slate-prop-types@0.5.44(immutable@5.1.5)(slate@0.47.9(immutable@5.1.5)):
-    dependencies:
-      immutable: 5.1.5
-      slate: 0.47.9(immutable@5.1.5)
-
-  slate-react-placeholder@0.2.9(react@18.3.1)(slate-react@0.22.10(immutable@5.1.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.5)))(slate@0.47.9(immutable@5.1.5)):
+  slate-react-placeholder@0.2.9(react@18.3.1)(slate-react@0.22.10(immutable@5.1.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.4)))(slate@0.47.9(immutable@5.1.4)):
     dependencies:
       react: 18.3.1
-      slate: 0.47.9(immutable@5.1.5)
-      slate-react: 0.22.10(immutable@5.1.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.5))
+      slate: 0.47.9(immutable@5.1.4)
+      slate-react: 0.22.10(immutable@5.1.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.4))
 
-  slate-react@0.22.10(immutable@5.1.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.5)):
+  slate-react@0.22.10(immutable@5.1.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.4)):
     dependencies:
       debug: 3.2.7
       get-window: 1.1.2
@@ -11799,38 +11784,13 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-immutable-proptypes: 2.2.0(immutable@5.1.4)
       selection-is-backward: 1.0.0
-      slate: 0.47.9(immutable@5.1.5)
-      slate-base64-serializer: 0.2.115(slate@0.47.9(immutable@5.1.5))
+      slate: 0.47.9(immutable@5.1.4)
+      slate-base64-serializer: 0.2.115(slate@0.47.9(immutable@5.1.4))
       slate-dev-environment: 0.2.5
       slate-hotkeys: 0.2.11
-      slate-plain-serializer: 0.7.13(immutable@5.1.4)(slate@0.47.9(immutable@5.1.5))
-      slate-prop-types: 0.5.44(immutable@5.1.4)(slate@0.47.9(immutable@5.1.5))
-      slate-react-placeholder: 0.2.9(react@18.3.1)(slate-react@0.22.10(immutable@5.1.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.5)))(slate@0.47.9(immutable@5.1.5))
-      tiny-invariant: 1.3.3
-      tiny-warning: 0.0.3
-    transitivePeerDependencies:
-      - supports-color
-
-  slate-react@0.22.10(immutable@5.1.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.5)):
-    dependencies:
-      debug: 3.2.7
-      get-window: 1.1.2
-      immutable: 5.1.5
-      is-window: 1.0.2
-      lodash: 4.18.1
-      memoize-one: 4.0.3
-      prop-types: 15.8.1
-      react: 18.3.1
-      react-dom: 18.3.1(react@18.3.1)
-      react-immutable-proptypes: 2.2.0(immutable@5.1.5)
-      selection-is-backward: 1.0.0
-      slate: 0.47.9(immutable@5.1.5)
-      slate-base64-serializer: 0.2.115(slate@0.47.9(immutable@5.1.5))
-      slate-dev-environment: 0.2.5
-      slate-hotkeys: 0.2.11
-      slate-plain-serializer: 0.7.13(immutable@5.1.5)(slate@0.47.9(immutable@5.1.5))
-      slate-prop-types: 0.5.44(immutable@5.1.5)(slate@0.47.9(immutable@5.1.5))
-      slate-react-placeholder: 0.2.9(react@18.3.1)(slate-react@0.22.10(immutable@5.1.5)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.5)))(slate@0.47.9(immutable@5.1.5))
+      slate-plain-serializer: 0.7.13(immutable@5.1.4)(slate@0.47.9(immutable@5.1.4))
+      slate-prop-types: 0.5.44(immutable@5.1.4)(slate@0.47.9(immutable@5.1.4))
+      slate-react-placeholder: 0.2.9(react@18.3.1)(slate-react@0.22.10(immutable@5.1.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(slate@0.47.9(immutable@5.1.4)))(slate@0.47.9(immutable@5.1.4))
       tiny-invariant: 1.3.3
       tiny-warning: 0.0.3
     transitivePeerDependencies:
@@ -11842,20 +11802,6 @@ snapshots:
       direction: 0.1.5
       esrever: 0.2.0
       immutable: 5.1.4
-      is-plain-object: 2.0.4
-      lodash: 4.18.1
-      tiny-invariant: 1.3.3
-      tiny-warning: 0.0.3
-      type-of: 2.0.1
-    transitivePeerDependencies:
-      - supports-color
-
-  slate@0.47.9(immutable@5.1.5):
-    dependencies:
-      debug: 3.2.7
-      direction: 0.1.5
-      esrever: 0.2.0
-      immutable: 5.1.5
       is-plain-object: 2.0.4
       lodash: 4.18.1
       tiny-invariant: 1.3.3
