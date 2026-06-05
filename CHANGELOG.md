@@ -132,9 +132,12 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
 - Update `AGENTS.md` Node requirement to `>= 24`
 
 ### Plugin metadata
-
-- Bump `plugin.json` `grafanaDependency` to `>=11.6.0 <13.0.0` (upper-bound excludes Grafana 13
-  until `@grafana/ui@13.x` stable is published and we can upgrade the `@grafana/*` deps)
+- Bump `plugin.json` `grafanaDependency` to `>=12.3.0` and externalize
+  `react/jsx-runtime` via `.config/bundler/externals.ts` to prepare for Grafana 13
+  (React 19). Grafana >= 12.3.0 provides `react/jsx-runtime` via SystemJS; older
+  versions would 404 the external and break the plugin.
+- Add `skip-grafana-react-19-preview-image: false` to `ci.yml` `e2e-version` step
+  so the E2E matrix includes the React 19 Grafana preview image.
 
 ### GitHub Workflows
 

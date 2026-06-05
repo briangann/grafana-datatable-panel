@@ -1,7 +1,7 @@
 /**
  * Tests for Rendering a Cell
  */
-import { ColumnStyleItemType, ColumnStyles, DateFormats, FormattedColumnValue } from 'types';
+import { ColumnStyleItemType, ColumnStyles, FormattedColumnValue } from 'types';
 import {
   applyFormat,
   FormatColumnValue,
@@ -760,12 +760,3 @@ describe('Cell Renderer', () => {
   });
 });
 
-function getDefaultTimeRange(): TimeRange {
-  const fromDateTime = dateTime().subtract(15, 'minutes');
-  const toDateTime = dateTime();
-  return {
-    from: fromDateTime,
-    to: toDateTime,
-    raw: { from: 'now-15m', to: 'now' },
-  };
-}
