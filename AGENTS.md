@@ -176,8 +176,10 @@ The CI workflow (`ci.yml`) is an inline workflow (not a reusable workflow call) 
 
 ### Action Pinning
 
-Pin all GitHub Actions to **version tags** (e.g., `@v6`, `@v4.0.0`), not commit
-SHAs. Keeps workflows readable and consistent.
+Pin all GitHub Actions to **commit SHAs** with a `# vX.Y.Z` comment identifying
+the version (e.g., `actions/checkout@abc123...  # v6.0.3`). SHAs are immutable —
+a tag can be force-pushed to a different commit, a SHA cannot. The comment keeps
+the pinned version human-readable. Update the SHA when bumping the version.
 
 ## Grafana Compatibility Check
 

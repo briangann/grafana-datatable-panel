@@ -119,6 +119,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   `persist-credentials: false` — the nested `gh-pages` checkout inside
   `deploy-report-pages` was stacking a second Authorization header and failing
   with `Duplicate header: Authorization` / HTTP 400.
+- Convert all standard GitHub Actions from tag pinning to SHA pinning with
+  `# vX.Y.Z` version comments (`actions/*`, `pnpm/action-setup`,
+  `magefile/mage-action`, `davelosert/*`, `raven-actions/*`, `zizmorcore/*`);
+  correct AGENTS.md "Action Pinning" policy accordingly
+- Bump `actions/checkout` v6.0.2 → v6.0.3
+- Bump `actions/cache` v4.3.0 → v5.0.5
+- Bump `actions/setup-node` v6.2.0 → v6.4.0
+- Bump `davelosert/vitest-coverage-report-action` v2.9.3 → v2.12.0
+- Bump `grafana/plugin-actions/wait-for-grafana` v1.0.3 → v1.0.4
+- Bump `magefile/mage-action` v3.1.0 → v4.0.0
+- Bump `pnpm/action-setup` v4.2.0 → v6.0.8
+- Bump `zizmorcore/zizmor-action` v0.5.3 → v0.5.6
 
 ### Dependencies
 
@@ -164,6 +176,18 @@ This project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.htm
   v7 enables `react-hooks/immutability` and `react-hooks/set-state-in-effect`, which are
   now clean after the `useTracker` refactor. `@grafana/eslint-config@9` consumes the v7
   plugin's flat-config export.
+- Bump `@babel/core` 7.29.0 → 7.29.7
+- Bump `@grafana/plugin-e2e` 3.8.0 → 3.9.0
+- Bump `@grafana/tsconfig` 2.1.0 → 2.2.0
+- Bump `@swc/core` 1.15.33 → 1.15.40
+- Bump `@swc/helpers` 0.5.21 → 0.5.23
+- Bump `@types/pdfmake` 0.3.2 → 0.3.3
+- Bump `@typescript-eslint/eslint-plugin` 8.59.3 → 8.60.1
+- Bump `@typescript-eslint/parser` 8.59.3 → 8.60.1
+- Bump `pdfmake` 0.3.8 → 0.3.9
+- Bump `semver` 7.8.0 → 7.8.1
+- Bump `terser-webpack-plugin` 5.6.0 → 5.6.1
+- Bump `webpack` 5.106.2 → 5.107.2
 
 ### Refactoring
 
