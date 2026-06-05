@@ -19,7 +19,7 @@ import { Field, FieldConfig, FieldType, TimeRange, dateTime} from '@grafana/data
 const EPOCH_2025_04_12T19_27_35Z = 1744486055000;
 
 describe('Cell Renderer', () => {
-  describe('Test FormatColumnValue', () => {
+  describe('FormatColumnValue', () => {
     describe('with time column', () => {
       const aField: Field = {
         name: '',
@@ -27,7 +27,7 @@ describe('Cell Renderer', () => {
         config: [] as FieldConfig,
         values: [0]
       };
-      it('returns valid formatted time', () => {
+      it('formats a UTC timestamp in ISO 8601 format with timezone offset', () => {
         const result = FormatColumnValue(
           'utc',
           null,
@@ -49,7 +49,7 @@ describe('Cell Renderer', () => {
         } as FieldConfig,
         values: []
       };
-      it('returns formatted value', () => {
+      it('JSON-stringifies non-numeric values', () => {
         const result = FormatColumnValue(
           'utc',
           null,
@@ -141,7 +141,7 @@ describe('Cell Renderer', () => {
         } as FieldConfig,
         values: []
       };
-      it('returns formatted value', () => {
+      it('applies unit and decimal formatting to numeric values', () => {
         const result = FormatColumnValue(
           'utc',
           null,
@@ -154,51 +154,8 @@ describe('Cell Renderer', () => {
     });
   });
 
-  describe('Test TimeFormatter', () => {
-    describe('Test numeric to UTC formatting', () => {
-      const result = TimeFormatter('utc', EPOCH_2025_04_12T19_27_35Z, DateFormats[5].value);
-      expect(result.valueFormatted).toEqual('2025-04-12T19:27:35+00:00');
-    });
-    describe('Test numeric to America/Denver formatting', () => {
-      const result = TimeFormatter('America/Denver', EPOCH_2025_04_12T19_27_35Z, 'YYYY-MM-DDTHH:mm:ssZ');
-      expect(result.valueFormatted).toEqual('2025-04-12T13:27:35-06:00');
-    });
-  });
-
-  describe('Test ReplaceTimeMacros', () => {
-    describe('Test replace $__from', () => {
-      let content = 'content with $__from';
-      const timeRange = getDefaultTimeRange();
-      const result = ReplaceTimeMacros(timeRange, content);
-      expect(result).toEqual('content with now-15m');
-    });
-    describe('Test replace $__to', () => {
-      let content = 'content with $__to';
-      const timeRange = getDefaultTimeRange();
-      const result = ReplaceTimeMacros(timeRange, content);
-      expect(result).toEqual('content with now');
-    });
-    describe('Test replace $__keepTime', () => {
-      let content = 'content with $__keepTime';
-      const timeRange = getDefaultTimeRange();
-      const result = ReplaceTimeMacros(timeRange, content);
-      expect(result).toEqual('content with from=now-15m&to=now');
-    });
-  });
-
-  describe('Test ProcessMacroForClickthrough', () => {
-    describe('Test replace $__cell_N', () => {
-    });
-  });
-
-  describe('Test ApplyUnitsAndDecimals', () => {
-    describe('Test replace $__cell_N', () => {
-    });
-  });
-
-
-  describe('Test applyFormat', () => {
-    describe('Test with kwh units', () => {
+  describe('applyFormat', () => {
+    it('rounds and formats value with unit suffix', () => {
       const result = applyFormat(123.456, 2, 'kwh');
       expect(result.valueFormatted).toEqual('123.46 kwh');
       expect(result.valueRounded).toEqual(123.46);
@@ -785,6 +742,13 @@ describe('Cell Renderer', () => {
       expect(result.valueRaw).toBe(epoch);
       expect(result.valueFormatted).toBe('2025-04-12 15:27:35');
       expect(result.valueRoundedAndFormatted).toBe(result.valueFormatted);
+    });
+    it('converts the timestamp to Mountain Time (UTC-6 MDT in April)', () => {
+      // America/Denver is MDT (UTC-6) in April — verifies a different offset
+      // from the New_York test above (UTC-4 EDT).
+      const result = TimeFormatter('America/Denver', epoch, 'YYYY-MM-DDTHH:mm:ssZ');
+      expect(result.valueRaw).toBe(epoch);
+      expect(result.valueFormatted).toBe('2025-04-12T13:27:35-06:00');
     });
 
     it('resolves "browser" to the host system zone', () => {
