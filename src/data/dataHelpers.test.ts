@@ -190,4 +190,42 @@ describe('BuildColumnDefs', () => {
     expect(sentinel).toBeDefined();
     expect(asRecord(sentinel).defaultContent).toBe('-');
   });
+  it('emits visible:false on the column def when DTColumnType.visible is false', () => {
+    // Bug: ConvertDataFrameToDataTableFormat correctly sets column.visible=false
+    // when a HIDDEN style matches, but BuildColumnDefs never reads that flag —
+    // so the DataTables column def lacks visible:false and the column stays visible.
+    //
+    // This test proves the gap: given a dtData with the second column marked
+    // visible:false, the emitted columnDef for that column must include visible:false.
+    const dtDataWithHidden = {
+      ...dtData,
+      Columns: [
+        { ...dtData.Columns[0] },
+        { ...dtData.Columns[1], visible: false }, // marked hidden by ConvertDataFrameToDataTableFormat
+      ],
+    };
+
+    const defs = BuildColumnDefs({
+      rowNumbersEnabled: false,
+      fontSizePercent: '100%',
+      alignment: { numbers: true, strings: false },
+      timeRange: {
+        from: dateTime(0),
+        to: dateTime(0),
+        raw: { from: 'now-1h', to: 'now' },
+      } as unknown as TimeRange,
+      replaceVariables: (s: string) => s,
+      dtData: dtDataWithHidden,
+    });
+
+    const realDefs = defs.filter((d) => asRecord(d).targets !== '_all');
+    // The second column def (targets: 1) must carry visible:false
+    const hiddenDef = realDefs.find((d) => asRecord(d).targets === 1);
+    expect(hiddenDef).toBeDefined();
+    expect(asRecord(hiddenDef).visible).toBe(false);
+
+    // The first column def must NOT carry visible:false
+    const visibleDef = realDefs.find((d) => asRecord(d).targets === 0);
+    expect(asRecord(visibleDef).visible).not.toBe(false);
+  });
 });

@@ -42,6 +42,9 @@ All notable changes to this project will be documented in this file. This projec
   setting, restoring threshold cell coloring after any threshold change.
 - **Column open/close state shifted after reordering or removing column styles** — Expanded column style editors now
   stay expanded for the correct column after a reorder or delete operation.
+- **Hidden column style had no effect** — Configuring a column style with `activeStyle: hidden` now correctly
+  removes the column from the rendered table. The `visible: false` flag was being set internally but never
+  propagated to the DataTables column definition.
 
 ## [2.0.2] - 2025-05-29
 
