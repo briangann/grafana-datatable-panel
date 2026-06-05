@@ -111,8 +111,6 @@ export const FormatColumnValue = (
       valueRounded: null,
       valueRoundedAndFormatted: null,
     }
-    // might be useful to do the mappings here vs on conversion from dataframes
-    //formatted = ApplyMappings(formatted, null);
     return formatted;
   }
   // numbers are formatted here
@@ -136,7 +134,6 @@ export const FormatColumnValue = (
   return formatted;
 };
 
-
 export const ProcessClickthrough = (
   columnStyle: ColumnStyleItemType | null,
   rows: FormattedColumnValue[],
@@ -157,7 +154,6 @@ export const ProcessClickthrough = (
     if (/[$\[]/.test(clickThrough)) {
       clickThrough = replaceVariables(clickThrough);
     }
-    //
     const target = resolveClickThroughTarget(
       columnStyle.stringStyle.clickThroughOpenNewTab,
       columnStyle.stringStyle.clickThroughCustomTargetEnabled,
@@ -192,7 +188,7 @@ export const ProcessClickthrough = (
       // no protocol-relative auto-promotion to the current origin.
       href = clickThrough;
     }
-    const newCell = '<a href="' + href + `" target="${target}">` + processedItem.valueFormatted + '</a>';
+    const newCell = `<a href="${href}" target="${target}">${processedItem.valueFormatted}</a>`;
 
     return newCell;
   }
@@ -204,16 +200,15 @@ export const resolveClickThroughTarget = (
   clickThroughCustomTargetEnabled: boolean,
   clickThroughCustomTarget: string,
 ): string => {
-    let clickThroughTarget = '_self';
-    if (clickThroughOpenNewTab) {
-      clickThroughTarget = '_blank';
-    }
-    if (clickThroughCustomTargetEnabled) {
-      clickThroughTarget = clickThroughCustomTarget;
-    }
-    return clickThroughTarget;
-  };
-
+  let clickThroughTarget = '_self';
+  if (clickThroughOpenNewTab) {
+    clickThroughTarget = '_blank';
+  }
+  if (clickThroughCustomTargetEnabled) {
+    clickThroughTarget = clickThroughCustomTarget;
+  }
+  return clickThroughTarget;
+};
 
 // check for $__pattern_N using split-by
 export const ReplaceCellSplitByPattern = (
@@ -234,6 +229,7 @@ export const ReplaceCellSplitByPattern = (
 
   return formatted;
 }
+
 export const ReplaceCellMacros = (
   clickThrough: string,
   cellContent: string,
@@ -273,12 +269,10 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
   let valueRoundedAndFormatted = '';
   const formatFunc = getValueFormat(unitFormat);
   if (formatFunc) {
-    const decimals: number = maxDecimals;
-    const formatted = formatFunc(value, decimals);
-
+    const formatted = formatFunc(value, maxDecimals);
     valueFormatted = formatted.text;
-    valueRoundedAndFormatted = roundValue(value, decimals) || value;
-    valueRounded = roundValue(value, decimals) || value;
+    valueRoundedAndFormatted = roundValue(value, maxDecimals) || value;
+    valueRounded = roundValue(value, maxDecimals) || value;
     // spaces are included with the formatFunc
     if (formatted.suffix) {
       valueFormatted += formatted.suffix;
