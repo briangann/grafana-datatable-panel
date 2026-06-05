@@ -11,7 +11,7 @@
 [![All Contributors](https://img.shields.io/badge/all_contributors-10-orange.svg?style=flat-square)](#contributors)
 
 This panel plugin provides a [Datatables.net](http://www.datatables.net) table panel
-for [Grafana](http://www.grafana.com) 10.x/11.x/12.x.
+for [Grafana](http://www.grafana.com) 12.3+.
 
 This table includes features for metric thresholds, value mapping, aggregations, and
 per-cell filtering.
