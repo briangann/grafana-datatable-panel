@@ -486,6 +486,37 @@ describe('Cell Renderer', () => {
     it('replaces ALL occurrences of $__to when it appears more than once', () => {
       expect(ReplaceTimeMacros(tr, 'a=$__to&b=$__to')).toBe('a=now&b=now');
     });
+    it('treats $& in a raw.from value literally, not as "insert matched text"', () => {
+      // Bug: .replace(/\$__from/g, '$&') re-inserts the matched token ($__from)
+      // instead of substituting it — the macro appears to not have been replaced.
+      // e.g. 'f=$__from'.replace(/\$__from/g, '$&-path')
+      //   → 'f=$__from-path'   ← $__from still present
+      // Fix: callback form () => from bypasses all $-pattern interpretation.
+      const pathological = {
+        raw: { from: '$&-path', to: 'now' },
+      } as unknown as TimeRange;
+      expect(ReplaceTimeMacros(pathological, 'f=$__from')).toBe('f=$&-path');
+    });
+
+    it('treats $$ in a raw.from value literally, not as an escaped $', () => {
+      // Bug: .replace(regex, '$$10') collapses $$ to a single $ in the output.
+      const pathological = {
+        raw: { from: '$$10', to: 'now' },
+      } as unknown as TimeRange;
+      expect(ReplaceTimeMacros(pathological, 'v=$__from')).toBe('v=$$10');
+    });
+
+    it("treats $' in a raw.to value literally, not as 'text after match'", () => {
+      // Bug: .replace(regex, "$'") injects the portion of the string after
+      // the match position rather than the literal two-character string "$'".
+      // e.g. 'a=$__to/extra'.replace(/\$__to/g, "$'")
+      //   → 'a=/extra/extra'   ← content after $__to injected twice
+      const pathological = {
+        raw: { from: 'now', to: "$'" },
+      } as unknown as TimeRange;
+      expect(ReplaceTimeMacros(pathological, 'a=$__to/extra')).toBe("a=$'/extra");
+    });
+
   });
 
   describe('ReplaceCellMacros', () => {
