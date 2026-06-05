@@ -562,7 +562,7 @@ describe('Cell Renderer', () => {
       // produced no value. JS string coercion turns null → "null" and
       // undefined → "undefined", silently putting those strings in the href.
       // This test pins the current behavior so any future guard is explicit.
-      const nullRows = [{ valueFormatted: null }] as unknown as Array<FormattedColumnValue>;
+      const nullRows = [{ valueFormatted: null }] as unknown as FormattedColumnValue[];
       expect(ReplaceCellMacros('v=$__cell_0', 'X', nullRows)).toBe('v=null');
     });
 

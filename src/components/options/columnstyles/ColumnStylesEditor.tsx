@@ -137,7 +137,6 @@ export const ColumnStylesEditor: React.FC<StandardEditorProps<ColumnStyleItemTyp
           label={t.style.label}
           isOpen={!!isOpen[t.ID]}
           onToggle={() => toggleOpener(t.ID)}
-          collapsible
         >
           <ColumnStyleItem
             key={`style-item-index-${t.ID}`}
