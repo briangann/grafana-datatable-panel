@@ -6,11 +6,11 @@ import {
   InterpolateFunction,
   TimeRange
 } from '@grafana/data';
-import { getCellColors } from './cells/cellColors';
+import { computeCellAlignment, computeMetricCellColors } from './cells/cellStyleComputer';
 import { FormatColumnValue } from './cells/cellRenderer';
 import { ApplyGrafanaOverrides } from './mappings/overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
-import { ColumnAlignment, ColumnAlignmentOptions, ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FormattedColumnValue } from 'types';
+import { ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FormattedColumnValue } from 'types';
 import { ApplyColumnStyles } from './columns/columnStyles';
 import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './cells/createdCellHelpers';
 import { ApplyMappings, GetMappings } from './mappings/mappingProcessor';
@@ -110,7 +110,7 @@ type AlignmentFlags = {
 
 type ConvertDataFrameOptions = {
   dataFrames: DataFrame[];
-  fieldConfig: FieldConfigSource<any>;
+  fieldConfig: FieldConfigSource;
   userTimeZone: string;
   alignment: AlignmentFlags;
   rowNumbersEnabled: boolean;
@@ -210,7 +210,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
     dtData.Columns[i].className = columnClassName;
     // NOTE: the width below is a "hint" and will be overridden as needed;
     // this lets most tables show timestamps at full width.
-    const columnDefDict: any = {
+    const columnDefDict: Record<string, unknown> = {
       width: dtData.Columns[i].widthHint,
       targets: i,
       defaultContent: '-',
@@ -218,7 +218,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
       // Time columns are coerced to 'number' above so DataTables sorts by epoch
       // value rather than its own date parser, which conflicts with our formatting.
       ...(columnType && { type: columnType }),
-      render: function (_data: any, type: any, val: any[], meta: CellMetaSettings) {
+      render: function (_data: unknown, type: string | undefined, val: Array<FormattedColumnValue | number>, meta: CellMetaSettings) {
         if (type === undefined) {
           return null;
         }
@@ -251,21 +251,19 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         // the Row column is using just numerics, no formatting
         return returnValue;
       },
-      createdCell: function (cell: any, columnsInCellData: DTColumnType[], rowData: any, rowIndex: number, colIndex: number) {
-        // always center the row number column
+      createdCell: function (cell: Node, columnsInCellData: DTColumnType[], rowData: unknown, rowIndex: number, colIndex: number) {
+        // Always-applied before any guards: row-number centering and font size.
         if (rowNumbersEnabled && colIndex === 0) {
           $(cell).css('text-align', 'center');
         }
-        // set the fontsize for the cell
         $(cell).css('font-size', fontSizePercent);
 
-        // cellData is populated with Columns, which we can use for content thresholds
         if (columnsInCellData === null) {
           return;
         }
         const aColumn = columnsInCellData[colIndex];
-        // no formatting needed without a style
-        if (!aColumn || aColumn?.columnStyles.length === 0) {
+        // No formatting needed without a style.
+        if (!aColumn || aColumn.columnStyles.length === 0) {
           return;
         }
         // orthogonal sort requires getting cell data differently
@@ -274,91 +272,54 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         if (cellContent === null || rowData === null) {
           return;
         }
-        // instead of using cellContent, use the formatted data from dtData.Rows
+        // Use dtData.Rows (not the DOM content) as the source of truth for cell values.
         const aRow = dtData.Rows[rowIndex];
-        // updating data in the editor can cause the rows to change before we are done processing, return if a row cannot be found
+        // Rows can change during editor interaction; bail if the row is gone.
         if (!aRow) {
           return;
         }
         const cellEntry = aRow[colIndex];
         // Guard against non-object cell values (e.g. the rowNumber column stores a plain number).
-        // The columnStyles.length === 0 check above normally catches rowNumber first, but this
-        // is an explicit safety net so a future style on the rowNumber column doesn't crash here.
         if (typeof cellEntry !== 'object' || cellEntry === null) {
           return;
         }
         const cellValueFormatted = cellEntry as FormattedColumnValue;
-
-        //
-        // There are 4 style types
-        // Metric
-        //    this has thresholds with 4 color modes
-        // String (url etc)
-        // Date (processed elsewhere)
-        // Hidden (processed elsewhere)
-        //
         const aStyle = aColumn.columnStyles[0];
+
         if (aStyle.activeStyle === ColumnStyles.STRING) {
-          const newCell = ProcessStringValueStyle(
-            aStyle,
-            rowData,
-            cellValueFormatted,
-            timeRange,
-            replaceVariables,
-          );
-          if (newCell !== null) {
-            $(cell).html(newCell);
+          const newHtml = ProcessStringValueStyle(aStyle, rowData, cellValueFormatted, timeRange, replaceVariables);
+          if (newHtml !== null) {
+            $(cell).html(newHtml);
           }
         }
-        /*
-         * this mode will produce the "worst" threshold for all of the metrics in the row
-         * that have thresholds set
-        */
+
         if (aStyle.activeStyle === ColumnStyles.METRIC) {
           const colorMode = aStyle.metricStyle.colorMode;
-          // Produces the "worst" threshold color across all metrics in the row.
+          // Row/RowColumn modes walk sibling DOM nodes — must stay in the callback.
           if (colorMode === ColumnStyleColoring.Row) {
             processRowStyle(cell, rowData, dtData, 0);
           }
-          // Highlights the entire row AND applies the threshold color to each cell individually.
           if (colorMode === ColumnStyleColoring.RowColumn) {
             processRowColumnStyle(cell, rowData, columnsInCellData, 0);
           }
-          // Process cell coloring
-          // Two scenarios:
-          //    1) Cell coloring is enabled, the above row color is skipped
-          //    2) RowColumn is enabled, the above row color is process, but we also
-          //    set the cell colors individually
-          //
-          let colorData: any;
-          colorData = getCellColors(aStyle, cellValueFormatted);
-          if (!colorData) {
+          const metricColors = computeMetricCellColors(aStyle, cellValueFormatted);
+          if (!metricColors) {
+            // No color data (no thresholds). Preserves existing early-exit: alignment
+            // override is intentionally not applied in this case.
             return;
           }
-          if (colorMode === ColumnStyleColoring.Cell || colorMode === ColumnStyleColoring.RowColumn) {
-            if (colorData && colorData.color !== null) {
-              $(cell).css('color', colorData.color);
-            }
-            if (colorData && colorData.bgColor !== null) {
-              $(cell).css('background-color', colorData.bgColor);
-            }
-          } else if (colorData.color) {
-            if (colorData && colorData.color !== null) {
-              $(cell).css('color', colorData.color);
-            }
+          if (metricColors.color !== undefined) {
+            $(cell).css('color', metricColors.color);
+          }
+          if (metricColors.bgColor !== undefined) {
+            $(cell).css('background-color', metricColors.bgColor);
           }
         }
 
-        // Per-column alignment override — wins over the DataTables class set via getColumnClassName.
-        // Whitelist against the known enum so hand-crafted panel JSON can't feed arbitrary strings
-        // into jQuery's .css(). Not a present-day exploit (browsers reject invalid text-align) but
-        // cheap defense-in-depth at a boundary that reads user-controlled data.
-        if (
-          aStyle.align &&
-          aStyle.align !== ColumnAlignment.DEFAULT &&
-          ColumnAlignmentOptions.some((o) => o.value === aStyle.align)
-        ) {
-          $(cell).css('text-align', aStyle.align);
+        // Per-column alignment override — computeCellAlignment guards the whitelist.
+        const alignment = computeCellAlignment(aStyle);
+        if (alignment !== null) {
+          $(cell).css('text-align', alignment);
         }
       },
     };
@@ -368,7 +329,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
     if (!dtData.Columns[i].visible) {
       columnDefDict.visible = false;
     }
-    columnDefs.push(columnDefDict);
+    columnDefs.push(columnDefDict as unknown as ConfigColumnDefs);
   }
   // this prevents the dialog popup when toggling row numbers in the editor
   columnDefs.push(
