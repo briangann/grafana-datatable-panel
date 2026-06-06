@@ -28,9 +28,9 @@ export function normalizeFieldName(field: string) {
  * that time fields honour Grafana field overrides instead of the plugin's own
  * date format string.
  */
-export function wrapRawValue(rawValue: any): FormattedColumnValue {
+export function wrapRawValue(rawValue: unknown): FormattedColumnValue {
   return {
-    valueRaw: rawValue,
+    valueRaw: rawValue as FormattedColumnValue['valueRaw'],
     valueFormatted: rawValue != null && typeof rawValue !== 'object' ? String(rawValue) : '',
     valueRounded: null,
     valueRoundedAndFormatted: null,
@@ -47,7 +47,7 @@ export function resolveColumnValue(
   userTimeZone: string,
   aColumn: DTColumnType,
   frameField: Field,
-  rawValue: any,
+  rawValue: unknown,
   valueType: string,
   mappings: ReturnType<typeof GetMappings>,
 ): FormattedColumnValue {
@@ -303,11 +303,6 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
             processRowColumnStyle(cell, rowData, columnsInCellData, 0);
           }
           const metricColors = computeMetricCellColors(aStyle, cellValueFormatted);
-          if (!metricColors) {
-            // No color data (no thresholds). Preserves existing early-exit: alignment
-            // override is intentionally not applied in this case.
-            return;
-          }
           if (metricColors.color !== undefined) {
             $(cell).css('color', metricColors.color);
           }

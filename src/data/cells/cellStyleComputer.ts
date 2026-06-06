@@ -13,9 +13,10 @@ export interface MetricColors {
 /**
  * Resolves the CSS colors to apply to a METRIC-style cell.
  *
- * Returns null when getCellColors has no data (no thresholds configured, or
- * the style/value arguments are invalid). Callers should treat null as an
- * early-exit: do not apply colors and do not apply the alignment override.
+ * Must only be called when aStyle.activeStyle === ColumnStyles.METRIC.
+ * getCellColors returns a non-null object for any valid METRIC style,
+ * so this function always returns a MetricColors descriptor. When no
+ * thresholds are configured, the descriptor will be empty ({}).
  *
  * Color modes:
  * - Cell / RowColumn → both text color and background color on the cell.
@@ -24,10 +25,11 @@ export interface MetricColors {
 export function computeMetricCellColors(
   aStyle: ColumnStyleItemType,
   cellValue: FormattedColumnValue,
-): MetricColors | null {
+): MetricColors {
   const colorData = getCellColors(aStyle, cellValue);
   if (!colorData) {
-    return null;
+    // Defensive only: unreachable when called from the METRIC branch of createdCell.
+    return {};
   }
   const colorMode = aStyle.metricStyle.colorMode;
   const result: MetricColors = {};

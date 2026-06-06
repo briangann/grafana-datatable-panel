@@ -69,16 +69,14 @@ describe('computeMetricCellColors', () => {
 
   it('Row mode — text color only; bgColor absent (row bg handled by processRowStyle)', () => {
     const result = computeMetricCellColors(makeMetricStyle(ColumnStyleColoring.Row, ONE_THRESHOLD), cell);
-    expect(result).not.toBeNull();
-    expect(result!.color).toBe('white');
-    expect(result!.bgColor).toBeUndefined();
+    expect(result.color).toBe('white');
+    expect(result.bgColor).toBeUndefined();
   });
 
   it('Value mode — threshold color used as text color; no bgColor', () => {
     const result = computeMetricCellColors(makeMetricStyle(ColumnStyleColoring.Value, ONE_THRESHOLD), cell);
-    expect(result).not.toBeNull();
-    expect(result!.color).toBe('red');
-    expect(result!.bgColor).toBeUndefined();
+    expect(result.color).toBe('red');
+    expect(result.bgColor).toBeUndefined();
   });
 
   it('No thresholds — returns empty MetricColors (getCellColors returns object with all nulls)', () => {

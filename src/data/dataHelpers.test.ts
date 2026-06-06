@@ -152,7 +152,7 @@ describe('ConvertDataFrameToDataTableFormat', () => {
 });
 
 // Shared test fixtures — used across multiple describe blocks below.
-const asAny = (d: unknown) => d as Record<string, any>;
+const asAny = (d: unknown) => d as Record<string, unknown>;
 const buildTimeRange = () =>
   ({ from: dateTime(0), to: dateTime(0), raw: { from: 'now-1h', to: 'now' } } as unknown as TimeRange);
 
@@ -444,8 +444,8 @@ describe('BuildColumnDefs render callback', () => {
   });
 
   // Pull render from the first real column def (not the _all sentinel).
-  const renderCol0 = asAny(defs.find((d) => asAny(d).targets === 0)).render as Function;
-  const renderCol1 = asAny(defs.find((d) => asAny(d).targets === 1)).render as Function;
+  const renderCol0 = asAny(defs.find((d) => asAny(d).targets === 0)).render as unknown as Function;
+  const renderCol1 = asAny(defs.find((d) => asAny(d).targets === 1)).render as unknown as Function;
 
   it('returns null when type is undefined (DataTables type-detection probe)', () => {
     expect(renderCol0(null, undefined, flatRow, { col: 0 })).toBeNull();
