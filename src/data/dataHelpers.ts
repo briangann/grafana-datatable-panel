@@ -1,9 +1,6 @@
-// FieldType across runtimes are not working
 import {
   DataFrame,
-  Field,
   FieldConfigSource,
-  FieldType,
   GrafanaTheme2,
   InterpolateFunction,
   TimeRange
@@ -17,41 +14,12 @@ import { ApplyColumnStyles } from './columns/columnStyles';
 import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './cells/createdCellHelpers';
 import { ApplyMappings, GetMappings } from './mappings/mappingProcessor';
 
-function normalizeFieldName(field: string) {
+export function normalizeFieldName(field: string) {
   return field
     .replace(/ /g, '_')
     .replace(/[^a-zA-Z0-9_]/g, '')
     .toLowerCase();
 }
-
-export const DataFrameToDisplay = (frames: DataFrame[]) => {
-  const frame = frames[0];
-  const valueFields: Field[] = [];
-  let newestTimestamp = 0;
-  for (const aField of frame.fields) {
-    if (aField.type === FieldType.number) {
-      valueFields.push(aField);
-    }
-    else if (aField.type === FieldType.time) {
-      // get the "newest" timestamp from data
-      // check if timestamp is 0
-      let timestampIndex = aField.values.length - 1;
-      let aTimestamp = aField.values[timestampIndex];
-      if (newestTimestamp === 0) {
-        newestTimestamp = aTimestamp;
-      }
-      // check if data timestamp is newer
-      if (aTimestamp > newestTimestamp) {
-        newestTimestamp = aTimestamp;
-      }
-    }
-  }
-  if (newestTimestamp === 0) {
-    // use current time if none is found
-    newestTimestamp = new Date().getTime()
-  }
-};
-
 
 type AlignmentFlags = {
   numbers: boolean;
@@ -71,13 +39,12 @@ type ConvertDataFrameOptions = {
 
 export const ConvertDataFrameToDataTableFormat = (
   opts: ConvertDataFrameOptions,
-): { columns: DTColumnType[]; rows: any[] } => {
+): { columns: DTColumnType[]; rows: Array<Record<string, FormattedColumnValue | number>> } => {
   const { fieldConfig, userTimeZone, alignment, rowNumbersEnabled, columnStyles, theme, replaceVariables } = opts;
-  DataFrameToDisplay(opts.dataFrames);
   const dataFrames = ApplyGrafanaOverrides(opts.dataFrames, theme, replaceVariables);
   const dataFrame = dataFrames[0];
   let columns: DTColumnType[] = dataFrame.fields.map((field) => {
-    const columnClassName = getColumnClassName(alignment, field.type as string)
+    const columnClassName = getColumnClassName(alignment, field.type as string);
     return {
       title: field.name,
       data: normalizeFieldName(field.name),
@@ -91,34 +58,38 @@ export const ConvertDataFrameToDataTableFormat = (
   });
   ApplyColumnStyles(columns, columnStyles);
 
-  const rows = [] as any[];
+  const rows: Array<Record<string, FormattedColumnValue | number>> = [];
 
   for (let i = 0; i < dataFrame.length; i++) {
-    const row = {};
+    const row: Record<string, FormattedColumnValue | number> = {};
     for (let j = 0; j < columns.length; j++) {
       const aColumn = columns[j];
       const frameFields = dataFrame.fields[j];
-      let value = frameFields.values[i];
+      const rawValue = frameFields.values[i];
       const valueType = frameFields.type;
+      let value: FormattedColumnValue;
       if (aColumn.columnStyles && aColumn.columnStyles.length > 0) {
-        const aStyle = aColumn.columnStyles[0];
-        value = FormatColumnValue(userTimeZone, aStyle, frameFields, value, valueType);
+        // A column style is configured — delegate all formatting to FormatColumnValue.
+        value = FormatColumnValue(userTimeZone, aColumn.columnStyles[0], frameFields, rawValue, valueType);
+      } else {
+        // No column style. Wrap the raw value in a minimal FormattedColumnValue so that
+        // ApplyMappings (which requires .valueRaw) can run. Do NOT call FormatColumnValue
+        // here: for time fields that would apply the plugin's default date format string,
+        // overriding whatever the user has already configured via Grafana field overrides.
+        value = { valueRaw: rawValue, valueFormatted: rawValue, valueRounded: null, valueRoundedAndFormatted: null };
       }
       // run through mappings
       const mappings = GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings);
-      // get the mapped value
       if (mappings && mappings.length > 0) {
         const mappedValue = ApplyMappings(value, mappings);
-        //console.log(`original value ${value.valueFormatted} to mapped value ${mappedValue}`);
         if (mappedValue !== null) {
           value = mappedValue;
         }
       }
       const colName = columns[j].data;
-      // @ts-ignore
       row[colName] = value;
     }
-    rows.push(row as any);
+    rows.push(row);
   }
   if (rowNumbersEnabled) {
     columns.unshift({
@@ -132,8 +103,7 @@ export const ConvertDataFrameToDataTableFormat = (
       visible: true,
     });
     for (let i = 0; i < dataFrame.length; i++) {
-      // @ts-ignore
-      rows[i].rowNumber = i+1;
+      rows[i].rowNumber = i + 1;
     }
   }
   // Mark hidden columns — runs unconditionally so hidden styles work
@@ -171,32 +141,31 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
   } = opts;
 
   const columnDefs: ConfigColumnDefs[] = [];
-  let rowNumberOffset = 0;
   for (let i = 0; i < dtData.Columns.length; i++) {
     let columnType = dtData.Columns[i].type!;
-    let columnClassName = getColumnClassName(alignment, columnType)
-    // column type "date" is very limited, and overrides our formatting
-    // best to use our format, then the "raw" epoch time as the sort ordering field
+    let columnClassName = getColumnClassName(alignment, columnType);
+    // DataTables' built-in "date" type overrides our formatting; coerce to "number"
+    // so DataTables sorts by the raw epoch value while we control display.
     // https://datatables.net/reference/option/columns.type
     if (columnType === 'time') {
       columnType = 'number';
     }
     if (columnType === 'number' && alignment.numbers) {
-      columnClassName = 'dt-right'; // any reason not to align numbers right?
+      columnClassName = 'dt-right';
     }
-    // if we did not get a type prop from grafana at all,
-    // check at least if it's a number to have DT sort properly
+    // If Grafana did not supply a type, detect numbers by inspecting the first row
+    // so DataTables sorts numeric columns correctly.
     if (columnType !== undefined && dtData.Rows[0] && (typeof dtData.Rows[0][i]) === 'number') {
       columnType = 'number';
     }
 
     dtData.Columns[i].className = columnClassName;
-    // NOTE: the width below is a "hint" and will be overridden as needed,
-    // this lets most tables show timestamps with full width
+    // NOTE: the width below is a "hint" and will be overridden as needed;
+    // this lets most tables show timestamps at full width.
     const columnDefDict: any = {
       width: dtData.Columns[i].widthHint,
-      targets: i + rowNumberOffset,
-      defaultContent: dtData.Columns,
+      targets: i,
+      defaultContent: '-',
       data: function (row: any, type: any, _set: any, meta: any) {
         if (type === undefined) {
           return null;
@@ -222,7 +191,6 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
           return returnValue;
         }
         if (returnValue && returnValue?.valueFormatted) {
-          //console.log(`returnvalue valueFormatted: ` + JSON.stringify(returnValue));
           if (type === 'sort') {
             return returnValue.valueRaw;
           }
@@ -296,14 +264,13 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         */
         if (aStyle.activeStyle === ColumnStyles.METRIC) {
           const colorMode = aStyle.metricStyle.colorMode;
+          // Produces the "worst" threshold color across all metrics in the row.
           if (colorMode === ColumnStyleColoring.Row) {
-            processRowStyle(cell, rowData, dtData, rowNumberOffset);
+            processRowStyle(cell, rowData, dtData, 0);
           }
-          /**
-           * This mode highlights the entire row and applies the threshold color to each cell
-           */
+          // Highlights the entire row AND applies the threshold color to each cell individually.
           if (colorMode === ColumnStyleColoring.RowColumn) {
-            processRowColumnStyle(cell, rowData, columnsInCellData, rowNumberOffset);
+            processRowColumnStyle(cell, rowData, columnsInCellData, 0);
           }
           // Process cell coloring
           // Two scenarios:
@@ -343,10 +310,6 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         }
       },
     };
-    //let ignoreNullValues = this.getColumnIgnoreNullValue(i);
-    //if (ignoreNullValues) {
-    //  columnDefDict.defaultContent = '-';
-    //}
     // Apply visibility: ConvertDataFrameToDataTableFormat sets column.visible=false
     // for HIDDEN column styles. Propagate that flag to the DataTables column def so
     // the column is actually hidden in the rendered table.

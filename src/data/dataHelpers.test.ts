@@ -2,6 +2,7 @@ import {
   BuildColumnDefs,
   ConvertDataFrameToDataTableFormat,
   getColumnClassName,
+  normalizeFieldName,
 } from './dataHelpers';
 import { ColumnStyleItemType, ColumnStyles, DTColumnType } from 'types';
 import {
@@ -78,7 +79,11 @@ describe('ConvertDataFrameToDataTableFormat', () => {
     expect(columns.every((c) => c.visible === true)).toBe(true);
   });
 
-  it('emits one row object per frame row, keyed by normalized field names', () => {
+  it('wraps every cell in FormattedColumnValue so render/mappings work uniformly, keyed by normalized field name', () => {
+    // BUG FIXED: previously FormatColumnValue was only called when a column style was present.
+    // Raw values were passed to ApplyMappings, which checks value.valueRaw — always undefined on
+    // a plain number/string — so mappings silently never applied without a style. Fix: always
+    // call FormatColumnValue (with null style) so every cell is a FormattedColumnValue.
     const { rows } = ConvertDataFrameToDataTableFormat({
       ...baseOpts,
       dataFrames: [twoFieldFrame()],
@@ -86,8 +91,11 @@ describe('ConvertDataFrameToDataTableFormat', () => {
       columnStyles: [],
     });
     expect(rows).toHaveLength(3);
-    expect(rows[0]).toEqual(expect.objectContaining({ time: 1000, value: 10 }));
-    expect(rows[2]).toEqual(expect.objectContaining({ time: 3000, value: 30 }));
+    // Every cell is a FormattedColumnValue, not a raw primitive
+    expect(rows[0].time).toMatchObject({ valueRaw: 1000 });
+    expect(rows[0].value).toMatchObject({ valueRaw: 10 });
+    expect(rows[2].time).toMatchObject({ valueRaw: 3000 });
+    expect(rows[2].value).toMatchObject({ valueRaw: 30 });
   });
 
   it('prepends a rowNumber column and stamps row indices when rowNumbersEnabled', () => {
@@ -322,5 +330,417 @@ describe('ConvertDataFrameToDataTableFormat + rowNumbers column index contract',
     expect(hiddenIdx).toBe(2);  // time=0, host=1, value=2
     expect(columns[hiddenIdx].visible).toBe(false);
     // No offset: api.column(2) is correct
+  });
+});
+
+// ---------------------------------------------------------------------------
+// normalizeFieldName
+// ---------------------------------------------------------------------------
+describe('normalizeFieldName', () => {
+  it('replaces spaces with underscores', () => {
+    expect(normalizeFieldName('hello world')).toBe('hello_world');
+  });
+
+  it('collapses multiple spaces to multiple underscores', () => {
+    expect(normalizeFieldName('a  b')).toBe('a__b');
+  });
+
+  it('removes special characters', () => {
+    expect(normalizeFieldName('cpu%usage')).toBe('cpuusage');
+  });
+
+  it('removes dots and hyphens', () => {
+    expect(normalizeFieldName('my.field-name')).toBe('myfieldname');
+  });
+
+  it('lowercases the result', () => {
+    expect(normalizeFieldName('CPU_Usage')).toBe('cpu_usage');
+  });
+
+  it('preserves leading and embedded numbers', () => {
+    expect(normalizeFieldName('123abc')).toBe('123abc');
+    expect(normalizeFieldName('mem_used_2')).toBe('mem_used_2');
+  });
+
+  it('returns empty string for empty input', () => {
+    expect(normalizeFieldName('')).toBe('');
+  });
+
+  it('already-normalized name passes through unchanged', () => {
+    expect(normalizeFieldName('cpu_usage')).toBe('cpu_usage');
+  });
+
+  it('strips parentheses and brackets', () => {
+    expect(normalizeFieldName('bytes(total)')).toBe('bytestotal');
+    expect(normalizeFieldName('bytes[0]')).toBe('bytes0');
+  });
+
+  it('strips unicode characters outside the allowed set', () => {
+    expect(normalizeFieldName('tëst')).toBe('tst');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// BuildColumnDefs — render callback
+// ---------------------------------------------------------------------------
+// The render callback is a closure produced by BuildColumnDefs. Extract it
+// from the emitted def and call it directly to cover every orthogonal-data
+// branch (sort/filter/display/type/undefined) and the null-guard paths.
+describe('BuildColumnDefs render callback', () => {
+  const baseTimeRange = {
+    from: dateTime(0),
+    to: dateTime(0),
+    raw: { from: 'now-1h', to: 'now' },
+  } as unknown as TimeRange;
+
+  // A flattened row: two FormattedColumnValue objects, matching two columns.
+  const formattedString: import('types').FormattedColumnValue = {
+    valueRaw: 'alpha',
+    valueFormatted: 'alpha',
+    valueRounded: null,
+    valueRoundedAndFormatted: null,
+  };
+  const formattedNumber: import('types').FormattedColumnValue = {
+    valueRaw: 42,
+    valueFormatted: '42.00',
+    valueRounded: 42,
+    valueRoundedAndFormatted: '42',
+  };
+  const flatRow = [formattedString, formattedNumber];
+
+  const dtData = {
+    Columns: [
+      {
+        title: 'name',
+        data: 'name',
+        type: 'string',
+        className: '',
+        columnStyles: [],
+        widthHint: '',
+        visible: true,
+      } as DTColumnType,
+      {
+        title: 'value',
+        data: 'value',
+        type: 'number',
+        className: '',
+        columnStyles: [],
+        widthHint: '',
+        visible: true,
+      } as DTColumnType,
+    ],
+    Rows: [flatRow],
+  };
+
+  const defs = BuildColumnDefs({
+    rowNumbersEnabled: false,
+    fontSizePercent: '100%',
+    alignment: { numbers: true, strings: false },
+    timeRange: baseTimeRange,
+    replaceVariables: (s: string) => s,
+    dtData,
+  });
+
+  // Pull render from the first real column def (not the _all sentinel).
+  const asAny = (d: unknown) => d as Record<string, any>;
+  const renderCol0 = asAny(defs.find((d) => asAny(d).targets === 0)).render as Function;
+  const renderCol1 = asAny(defs.find((d) => asAny(d).targets === 1)).render as Function;
+
+  it('returns null when type is undefined (DataTables type-detection probe)', () => {
+    expect(renderCol0(null, undefined, flatRow, { col: 0 })).toBeNull();
+  });
+
+  it('returns null when the column index is out of bounds', () => {
+    expect(renderCol0(null, 'display', flatRow, { col: 99 })).toBeNull();
+  });
+
+  it('returns valueRaw for type=sort (DataTables sorts on the raw numeric value)', () => {
+    expect(renderCol1(null, 'sort', flatRow, { col: 1 })).toBe(42);
+  });
+
+  it('returns valueFormatted for type=filter (WYSIWYG: filter against what the user sees)', () => {
+    expect(renderCol1(null, 'filter', flatRow, { col: 1 })).toBe('42.00');
+  });
+
+  it('returns valueFormatted for type=display', () => {
+    expect(renderCol1(null, 'display', flatRow, { col: 1 })).toBe('42.00');
+  });
+
+  it('returns the whole FormattedColumnValue object for type=type', () => {
+    expect(renderCol1(null, 'type', flatRow, { col: 1 })).toBe(formattedNumber);
+  });
+
+  it('returns the raw cell value directly when there is no valueFormatted (e.g. plain rowNumber)', () => {
+    // Simulate a raw number in the row as produced for the row-number column
+    const rowWithPlainNumber = [7, formattedNumber];
+    expect(renderCol0(null, 'display', rowWithPlainNumber, { col: 0 })).toBe(7);
+  });
+
+  it('returns valueFormatted for type=undefined-string type (falls through to formatted)', () => {
+    expect(renderCol0(null, 'display', flatRow, { col: 0 })).toBe('alpha');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// BuildColumnDefs — data callback
+// ---------------------------------------------------------------------------
+describe('BuildColumnDefs data callback', () => {
+  const baseTimeRange = {
+    from: dateTime(0),
+    to: dateTime(0),
+    raw: { from: 'now-1h', to: 'now' },
+  } as unknown as TimeRange;
+
+  const dtData = {
+    Columns: [
+      {
+        title: 'value',
+        data: 'value',
+        type: 'number',
+        className: '',
+        columnStyles: [],
+        widthHint: '',
+        visible: true,
+      } as DTColumnType,
+    ],
+    Rows: [[{ valueRaw: 1, valueFormatted: '1', valueRounded: 1, valueRoundedAndFormatted: '1' }]],
+  };
+
+  const defs = BuildColumnDefs({
+    rowNumbersEnabled: false,
+    fontSizePercent: '100%',
+    alignment: { numbers: true, strings: false },
+    timeRange: baseTimeRange,
+    replaceVariables: (s: string) => s,
+    dtData,
+  });
+
+  const asAny = (d: unknown) => d as Record<string, any>;
+  const dataFn = asAny(defs.find((d) => asAny(d).targets === 0)).data as Function;
+
+  it('returns null when type is undefined', () => {
+    expect(dataFn({}, undefined, null, { col: 0 })).toBeNull();
+  });
+
+  it('returns null when row[idx] has no display property (FormattedColumnValue has none)', () => {
+    const row = [{ valueRaw: 1, valueFormatted: '1', valueRounded: 1, valueRoundedAndFormatted: '1' }];
+    expect(dataFn(row, 'display', null, { col: 0 })).toBeNull();
+  });
+
+  it('returns row[idx].display when explicitly present', () => {
+    const row = [{ display: 'explicit-display', valueRaw: 1, valueFormatted: '1' }];
+    expect(dataFn(row, 'display', null, { col: 0 })).toBe('explicit-display');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// ConvertDataFrameToDataTableFormat — edge cases
+// ---------------------------------------------------------------------------
+describe('ConvertDataFrameToDataTableFormat — edge cases', () => {
+  const theme = createTheme();
+  const noopReplaceVariables = (s: string) => s;
+  const emptyFieldConfig = { defaults: {}, overrides: [] } as unknown as FieldConfigSource;
+  const alignment = { numbers: false, strings: false };
+
+  it('handles a frame with zero rows — emits columns but no rows', () => {
+    const emptyFrame = toDataFrame({
+      fields: [
+        { name: 'time', type: FieldType.time, values: [] },
+        { name: 'value', type: FieldType.number, values: [] },
+      ],
+    });
+    const { columns, rows } = ConvertDataFrameToDataTableFormat({
+      dataFrames: [emptyFrame],
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      rowNumbersEnabled: false,
+      columnStyles: [],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    expect(columns).toHaveLength(2);
+    expect(rows).toHaveLength(0);
+  });
+
+  it('uses only the first DataFrame when multiple are provided', () => {
+    const frame1 = toDataFrame({
+      fields: [{ name: 'a', type: FieldType.number, values: [1] }],
+    });
+    const frame2 = toDataFrame({
+      fields: [
+        { name: 'b', type: FieldType.number, values: [2] },
+        { name: 'c', type: FieldType.number, values: [3] },
+      ],
+    });
+    const { columns } = ConvertDataFrameToDataTableFormat({
+      dataFrames: [frame1, frame2],
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      rowNumbersEnabled: false,
+      columnStyles: [],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    // Only frame1's columns should be present
+    expect(columns.map((c) => c.title)).toEqual(['a']);
+  });
+
+  it('normalizes field names with spaces and special chars as row keys', () => {
+    const frame = toDataFrame({
+      fields: [{ name: 'my field!', type: FieldType.string, values: ['x'] }],
+    });
+    const { columns, rows } = ConvertDataFrameToDataTableFormat({
+      dataFrames: [frame],
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      rowNumbersEnabled: false,
+      columnStyles: [],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    expect(columns[0].data).toBe('my_field');
+    // The row is keyed by the normalized name
+    expect(Object.keys(rows[0])).toContain('my_field');
+  });
+
+  it('applies field-level value mappings when present', () => {
+    const fieldConfig = {
+      defaults: {
+        mappings: [
+          {
+            type: 'value',
+            options: { '42': { text: 'forty-two', index: 0 } },
+          },
+        ],
+      },
+      overrides: [],
+    } as unknown as FieldConfigSource;
+
+    const frame = toDataFrame({
+      fields: [{ name: 'v', type: FieldType.number, values: [42] }],
+    });
+    const { rows } = ConvertDataFrameToDataTableFormat({
+      dataFrames: [frame],
+      fieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      rowNumbersEnabled: false,
+      columnStyles: [],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    // The mapping should replace the formatted value with 'forty-two'
+    expect((rows[0].v as import('types').FormattedColumnValue).valueFormatted).toBe('forty-two');
+  });
+
+  it('formats string fields as FormattedColumnValue with valueFormatted === valueRaw', () => {
+    const frame = toDataFrame({
+      fields: [{ name: 'host', type: FieldType.string, values: ['server-1', 'server-2'] }],
+    });
+    const { rows } = ConvertDataFrameToDataTableFormat({
+      dataFrames: [frame],
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      rowNumbersEnabled: false,
+      columnStyles: [],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    const host0 = rows[0].host as import('types').FormattedColumnValue;
+    const host1 = rows[1].host as import('types').FormattedColumnValue;
+    expect(host0.valueRaw).toBe('server-1');
+    expect(host0.valueFormatted).toBe('server-1');
+    expect(host1.valueFormatted).toBe('server-2');
+  });
+
+  it('rowNumber values start at 1, not 0', () => {
+    const frame = toDataFrame({
+      fields: [{ name: 'v', type: FieldType.number, values: [10, 20, 30] }],
+    });
+    const { rows } = ConvertDataFrameToDataTableFormat({
+      dataFrames: [frame],
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      rowNumbersEnabled: true,
+      columnStyles: [],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    expect(rows.map((r) => r.rowNumber)).toEqual([1, 2, 3]);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// BuildColumnDefs — column type coercion
+// ---------------------------------------------------------------------------
+describe('BuildColumnDefs — column type coercion', () => {
+  const baseTimeRange = {
+    from: dateTime(0),
+    to: dateTime(0),
+    raw: { from: 'now-1h', to: 'now' },
+  } as unknown as TimeRange;
+  const asAny = (d: unknown) => d as Record<string, any>;
+
+  it('coerces time column type to number in the emitted def (DataTables "date" type limits formatting)', () => {
+    // DataTables' built-in "date" type overrides formatting; we coerce time→number
+    // so that DataTables sorts by the raw epoch value but we control display.
+    const dtData = {
+      Columns: [
+        {
+          title: 'ts',
+          data: 'ts',
+          type: 'time',
+          className: '',
+          columnStyles: [],
+          widthHint: '',
+          visible: true,
+        } as DTColumnType,
+      ],
+      Rows: [[{ valueRaw: 1000, valueFormatted: '2020-01-01', valueRounded: null, valueRoundedAndFormatted: null }]],
+    };
+    const defs = BuildColumnDefs({
+      rowNumbersEnabled: false,
+      fontSizePercent: '100%',
+      alignment: { numbers: false, strings: false },
+      timeRange: baseTimeRange,
+      replaceVariables: (s: string) => s,
+      dtData,
+    });
+    const colDef = defs.find((d) => asAny(d).targets === 0);
+    // The DataTables column type must not be 'time'; it is coerced to 'number'
+    // so the epoch value sorts correctly without DataTables' date formatter interfering.
+    expect(asAny(colDef).type).not.toBe('time');
+  });
+
+  it('the _all sentinel always has defaultContent "-" (not the columns array)', () => {
+    const dtData = {
+      Columns: [
+        {
+          title: 'v',
+          data: 'v',
+          type: 'number',
+          className: '',
+          columnStyles: [],
+          widthHint: '',
+          visible: true,
+        } as DTColumnType,
+      ],
+      Rows: [[1]],
+    };
+    const defs = BuildColumnDefs({
+      rowNumbersEnabled: false,
+      fontSizePercent: '100%',
+      alignment: { numbers: false, strings: false },
+      timeRange: baseTimeRange,
+      replaceVariables: (s: string) => s,
+      dtData,
+    });
+    const sentinel = defs.find((d) => asAny(d).targets === '_all');
+    expect(asAny(sentinel).defaultContent).toBe('-');
   });
 });
