@@ -101,8 +101,7 @@ describe('computeMetricCellColors', () => {
       makeMetricStyle(ColumnStyleColoring.Cell, thresholds),
       makeCellValue(90),
     );
-    expect(result).not.toBeNull();
-    expect(result!.bgColor).toBe('red');
+    expect(result.bgColor).toBe('red');
   });
 });
 
