@@ -1,5 +1,6 @@
 import {
   DataFrame,
+  Field,
   FieldConfigSource,
   GrafanaTheme2,
   InterpolateFunction,
@@ -19,6 +20,87 @@ export function normalizeFieldName(field: string) {
     .replace(/ /g, '_')
     .replace(/[^a-zA-Z0-9_]/g, '')
     .toLowerCase();
+}
+
+/** Wraps a raw cell value in a minimal FormattedColumnValue.
+ *
+ * Used when no column style is configured. Does NOT call FormatColumnValue so
+ * that time fields honour Grafana field overrides instead of the plugin's own
+ * date format string.
+ */
+export function wrapRawValue(rawValue: any): FormattedColumnValue {
+  return {
+    valueRaw: rawValue,
+    valueFormatted: rawValue != null && typeof rawValue !== 'object' ? String(rawValue) : '',
+    valueRounded: null,
+    valueRoundedAndFormatted: null,
+  };
+}
+
+/** Resolves the final FormattedColumnValue for one cell.
+ *
+ * When a column style is present, delegates to FormatColumnValue.
+ * Otherwise wraps the raw value via wrapRawValue.
+ * Pre-computed mappings (stable per column) are applied after either path.
+ */
+export function resolveColumnValue(
+  userTimeZone: string,
+  aColumn: DTColumnType,
+  frameField: Field,
+  rawValue: any,
+  valueType: string,
+  mappings: ReturnType<typeof GetMappings>,
+): FormattedColumnValue {
+  let value: FormattedColumnValue;
+  if (aColumn.columnStyles && aColumn.columnStyles.length > 0) {
+    value = FormatColumnValue(userTimeZone, aColumn.columnStyles[0], frameField, rawValue, valueType);
+  } else {
+    value = wrapRawValue(rawValue);
+  }
+  if (mappings && mappings.length > 0) {
+    const mappedValue = ApplyMappings(value, mappings);
+    if (mappedValue !== null) {
+      value = mappedValue;
+    }
+  }
+  return value;
+}
+
+/** Marks columns as not visible when their first style is HIDDEN.
+ *
+ * Runs unconditionally so hidden styles work regardless of whether row
+ * numbers are enabled.
+ */
+export function markHiddenColumns(columns: DTColumnType[]): void {
+  for (let index = 0; index < columns.length; index++) {
+    const aCell = columns[index];
+    if (aCell.columnStyles && aCell.columnStyles.length > 0) {
+      if (aCell.columnStyles[0].activeStyle === ColumnStyles.HIDDEN) {
+        aCell.visible = false;
+      }
+    }
+  }
+}
+
+/** Prepends a row-number column and stamps 1-based indices on every row. */
+export function prependRowNumbers(
+  columns: DTColumnType[],
+  rows: Array<Record<string, FormattedColumnValue | number>>,
+  length: number,
+): void {
+  columns.unshift({
+    title: 'row',
+    data: 'rowNumber',
+    type: 'number',
+    className: '',
+    fieldConfig: {},
+    columnStyles: [],
+    widthHint: '1%',
+    visible: true,
+  });
+  for (let i = 0; i < length; i++) {
+    rows[i].rowNumber = i + 1;
+  }
 }
 
 type AlignmentFlags = {
@@ -69,64 +151,25 @@ export const ConvertDataFrameToDataTableFormat = (
   for (let i = 0; i < dataFrame.length; i++) {
     const row: Record<string, FormattedColumnValue | number> = {};
     for (let j = 0; j < columns.length; j++) {
+      const frameField = dataFrame.fields[j];
       const aColumn = columns[j];
-      const frameFields = dataFrame.fields[j];
-      const rawValue = frameFields.values[i];
-      const valueType = frameFields.type;
-      let value: FormattedColumnValue;
-      if (aColumn.columnStyles && aColumn.columnStyles.length > 0) {
-        // A column style is configured — delegate all formatting to FormatColumnValue.
-        value = FormatColumnValue(userTimeZone, aColumn.columnStyles[0], frameFields, rawValue, valueType);
-      } else {
-        // No column style. Wrap the raw value in a minimal FormattedColumnValue so that
-        // ApplyMappings (which requires .valueRaw) can run. Do NOT call FormatColumnValue
-        // here: for time fields that would apply the plugin's default date format string,
-        // overriding whatever the user has already configured via Grafana field overrides.
-        value = {
-          valueRaw: rawValue,
-          valueFormatted: rawValue != null && typeof rawValue !== 'object' ? String(rawValue) : '',
-          valueRounded: null,
-          valueRoundedAndFormatted: null,
-        };
-      }
-      const mappings = columnMappings[j];
-      if (mappings && mappings.length > 0) {
-        const mappedValue = ApplyMappings(value, mappings);
-        if (mappedValue !== null) {
-          value = mappedValue;
-        }
-      }
-      const colName = columns[j].data;
-      row[colName] = value;
+      row[aColumn.data] = resolveColumnValue(
+        userTimeZone,
+        aColumn,
+        frameField,
+        frameField.values[i],
+        frameField.type,
+        columnMappings[j],
+      );
     }
     rows.push(row);
   }
   if (rowNumbersEnabled) {
-    columns.unshift({
-      title: 'row',
-      data: 'rowNumber',
-      type: 'number',
-      className: '',
-      fieldConfig: {},
-      columnStyles: [],
-      widthHint: '1%',
-      visible: true,
-    });
-    for (let i = 0; i < dataFrame.length; i++) {
-      rows[i].rowNumber = i + 1;
-    }
+    prependRowNumbers(columns, rows, dataFrame.length);
   }
   // Mark hidden columns — runs unconditionally so hidden styles work
   // regardless of whether row numbers are enabled.
-  for (let index = 0; index < columns.length; index++) {
-    const aCell = columns[index];
-    if (aCell.columnStyles && aCell.columnStyles.length > 0) {
-      const aStyle = aCell.columnStyles[0];
-      if (aStyle.activeStyle === ColumnStyles.HIDDEN) {
-        aCell.visible = false;
-      }
-    }
-  }
+  markHiddenColumns(columns);
 
   return { columns, rows };
 }

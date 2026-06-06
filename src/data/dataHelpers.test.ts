@@ -2,9 +2,13 @@ import {
   BuildColumnDefs,
   ConvertDataFrameToDataTableFormat,
   getColumnClassName,
+  markHiddenColumns,
   normalizeFieldName,
+  prependRowNumbers,
+  resolveColumnValue,
+  wrapRawValue,
 } from './dataHelpers';
-import { ColumnStyleItemType, ColumnStyles, DTColumnType } from 'types';
+import { ColumnStyleItemType, ColumnStyles, DTColumnType, FormattedColumnValue } from 'types';
 import {
   createTheme,
   dateTime,
@@ -769,5 +773,225 @@ describe('BuildColumnDefs — column type coercion', () => {
     });
     const sentinel = defs.find((d) => asAny(d).targets === '_all');
     expect(asAny(sentinel).defaultContent).toBe('-');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// wrapRawValue
+// ---------------------------------------------------------------------------
+describe('wrapRawValue', () => {
+  it('wraps a number: valueFormatted is the string form of the number', () => {
+    const result = wrapRawValue(42);
+    expect(result).toEqual({ valueRaw: 42, valueFormatted: '42', valueRounded: null, valueRoundedAndFormatted: null });
+  });
+
+  it('wraps a string: valueFormatted equals the original string', () => {
+    const result = wrapRawValue('hello');
+    expect(result).toEqual({ valueRaw: 'hello', valueFormatted: 'hello', valueRounded: null, valueRoundedAndFormatted: null });
+  });
+
+  it('wraps null: valueFormatted is "" (null == null guard)', () => {
+    const result = wrapRawValue(null);
+    expect(result).toEqual({ valueRaw: null, valueFormatted: '', valueRounded: null, valueRoundedAndFormatted: null });
+  });
+
+  it('wraps undefined: valueFormatted is "" (undefined == null)', () => {
+    // undefined != null uses loose equality, which is false for undefined vs null → false → ''
+    const result = wrapRawValue(undefined);
+    expect(result.valueFormatted).toBe('');
+    expect(result.valueRaw).toBeUndefined();
+  });
+
+  it('wraps 0: valueFormatted is "0" (0 is not null and not object)', () => {
+    const result = wrapRawValue(0);
+    expect(result).toEqual({ valueRaw: 0, valueFormatted: '0', valueRounded: null, valueRoundedAndFormatted: null });
+  });
+
+  it('wraps false: valueFormatted is "false"', () => {
+    const result = wrapRawValue(false);
+    expect(result).toEqual({ valueRaw: false, valueFormatted: 'false', valueRounded: null, valueRoundedAndFormatted: null });
+  });
+
+  it('wraps an object: valueFormatted is "" (never "[object Object]")', () => {
+    const obj = { a: 1 };
+    const result = wrapRawValue(obj);
+    expect(result.valueFormatted).toBe('');
+    expect(result.valueRaw).toBe(obj);
+  });
+
+  it('wraps an array: valueFormatted is "" (arrays are objects)', () => {
+    const arr = [1, 2, 3];
+    const result = wrapRawValue(arr);
+    expect(result.valueFormatted).toBe('');
+    expect(result.valueRaw).toBe(arr);
+  });
+});
+
+// ---------------------------------------------------------------------------
+// resolveColumnValue
+// ---------------------------------------------------------------------------
+describe('resolveColumnValue', () => {
+  // A minimal DTColumnType with no column styles — exercises the wrapRawValue path.
+  const noStyleColumn: DTColumnType = {
+    title: 'v',
+    data: 'v',
+    type: 'number',
+    className: '',
+    fieldConfig: {},
+    columnStyles: [],
+    widthHint: '',
+    visible: true,
+  };
+
+  // frameField is only used by FormatColumnValue (column-style path).
+  // In the no-style path it is never read, so a dummy is safe.
+  const dummyField = {} as any;
+
+  it('no style + no mappings → wraps the raw value', () => {
+    const result = resolveColumnValue('utc', noStyleColumn, dummyField, 99, 'number', undefined);
+    expect(result).toEqual<FormattedColumnValue>({
+      valueRaw: 99,
+      valueFormatted: '99',
+      valueRounded: null,
+      valueRoundedAndFormatted: null,
+    });
+  });
+
+  it('no style + no mappings + null rawValue → valueFormatted is ""', () => {
+    const result = resolveColumnValue('utc', noStyleColumn, dummyField, null, 'number', undefined);
+    expect(result.valueRaw).toBeNull();
+    expect(result.valueFormatted).toBe('');
+  });
+
+  it('no style + matching mapping → valueFormatted is the mapped text', () => {
+    // ApplyMappings requires valueRaw to be truthy; use a non-zero number.
+    const mappings = [{ type: 'value', options: { '42': { text: 'forty-two', index: 0 } } }] as any;
+    const result = resolveColumnValue('utc', noStyleColumn, dummyField, 42, 'number', mappings);
+    expect(result.valueFormatted).toBe('forty-two');
+    expect(result.valueRaw).toBe(42);
+  });
+
+  it('no style + non-matching mapping → returns the plain wrapped value unchanged', () => {
+    const mappings = [{ type: 'value', options: { '99': { text: 'ninety-nine', index: 0 } } }] as any;
+    // rawValue 7 does not match key '99', so mapping returns null → value unchanged.
+    const result = resolveColumnValue('utc', noStyleColumn, dummyField, 7, 'number', mappings);
+    expect(result.valueFormatted).toBe('7');
+  });
+
+  it('no style + mapping with falsy rawValue → mapping skipped (ApplyMappings guards on !valueRaw)', () => {
+    // This is existing ApplyMappings behavior: valueRaw=0 is falsy, so no mapping fires.
+    const mappings = [{ type: 'value', options: { '0': { text: 'zero', index: 0 } } }] as any;
+    const result = resolveColumnValue('utc', noStyleColumn, dummyField, 0, 'number', mappings);
+    expect(result.valueFormatted).toBe('0');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// markHiddenColumns
+// ---------------------------------------------------------------------------
+describe('markHiddenColumns', () => {
+  const makeColumn = (activeStyle: ColumnStyles | null, visible = true): DTColumnType => ({
+    title: 'x',
+    data: 'x',
+    type: 'string',
+    className: '',
+    fieldConfig: {},
+    widthHint: '',
+    visible,
+    columnStyles: activeStyle !== null
+      ? [{ activeStyle } as unknown as ColumnStyleItemType]
+      : [],
+  });
+
+  it('sets visible=false on a column whose first style is HIDDEN', () => {
+    const cols = [makeColumn(ColumnStyles.HIDDEN)];
+    markHiddenColumns(cols);
+    expect(cols[0].visible).toBe(false);
+  });
+
+  it('leaves visible=true on a column with a non-HIDDEN style (METRIC)', () => {
+    const cols = [makeColumn(ColumnStyles.METRIC)];
+    markHiddenColumns(cols);
+    expect(cols[0].visible).toBe(true);
+  });
+
+  it('leaves visible=true on a column with no styles', () => {
+    const cols = [makeColumn(null)];
+    markHiddenColumns(cols);
+    expect(cols[0].visible).toBe(true);
+  });
+
+  it('processes each column independently in a mixed array', () => {
+    const cols = [
+      makeColumn(ColumnStyles.HIDDEN),
+      makeColumn(ColumnStyles.METRIC),
+      makeColumn(null),
+    ];
+    markHiddenColumns(cols);
+    expect(cols[0].visible).toBe(false);
+    expect(cols[1].visible).toBe(true);
+    expect(cols[2].visible).toBe(true);
+  });
+
+  it('is a no-op on an empty array', () => {
+    expect(() => markHiddenColumns([])).not.toThrow();
+  });
+});
+
+// ---------------------------------------------------------------------------
+// prependRowNumbers
+// ---------------------------------------------------------------------------
+describe('prependRowNumbers', () => {
+  const makeCol = (data: string): DTColumnType => ({
+    title: data,
+    data,
+    type: 'number',
+    className: '',
+    fieldConfig: {},
+    columnStyles: [],
+    widthHint: '',
+    visible: true,
+  });
+
+  it('prepends a rowNumber column as the first element', () => {
+    const cols = [makeCol('v')];
+    const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 10 }];
+    prependRowNumbers(cols, rows, 1);
+    expect(cols).toHaveLength(2);
+    expect(cols[0].data).toBe('rowNumber');
+    expect(cols[1].data).toBe('v');
+  });
+
+  it('stamps 1-based rowNumber on each row', () => {
+    const cols = [makeCol('v')];
+    const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 10 }, { v: 20 }, { v: 30 }];
+    prependRowNumbers(cols, rows, 3);
+    expect(rows[0].rowNumber).toBe(1);
+    expect(rows[1].rowNumber).toBe(2);
+    expect(rows[2].rowNumber).toBe(3);
+  });
+
+  it('rowNumber column has widthHint "1%" and type "number"', () => {
+    const cols = [makeCol('v')];
+    const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 1 }];
+    prependRowNumbers(cols, rows, 1);
+    expect(cols[0].widthHint).toBe('1%');
+    expect(cols[0].type).toBe('number');
+  });
+
+  it('stamps only `length` rows even if the rows array is longer', () => {
+    const cols = [makeCol('v')];
+    const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 1 }, { v: 2 }];
+    prependRowNumbers(cols, rows, 1);
+    expect(rows[0].rowNumber).toBe(1);
+    expect(rows[1].rowNumber).toBeUndefined();
+  });
+
+  it('is a no-op on rows when length is 0', () => {
+    const cols = [makeCol('v')];
+    const rows: Array<Record<string, FormattedColumnValue | number>> = [];
+    prependRowNumbers(cols, rows, 0);
+    expect(cols[0].data).toBe('rowNumber');
+    expect(rows).toHaveLength(0);
   });
 });
