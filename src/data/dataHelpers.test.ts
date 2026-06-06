@@ -333,6 +333,11 @@ describe('ConvertDataFrameToDataTableFormat + rowNumbers column index contract',
   });
 });
 
+// Shared test fixtures
+const asAny = (d: unknown) => d as Record<string, any>;
+const buildTimeRange = () =>
+  ({ from: dateTime(0), to: dateTime(0), raw: { from: 'now-1h', to: 'now' } } as unknown as TimeRange);
+
 // ---------------------------------------------------------------------------
 // normalizeFieldName
 // ---------------------------------------------------------------------------
@@ -387,11 +392,7 @@ describe('normalizeFieldName', () => {
 // from the emitted def and call it directly to cover every orthogonal-data
 // branch (sort/filter/display/type/undefined) and the null-guard paths.
 describe('BuildColumnDefs render callback', () => {
-  const baseTimeRange = {
-    from: dateTime(0),
-    to: dateTime(0),
-    raw: { from: 'now-1h', to: 'now' },
-  } as unknown as TimeRange;
+
 
   // A flattened row: two FormattedColumnValue objects, matching two columns.
   const formattedString: import('types').FormattedColumnValue = {
@@ -436,13 +437,12 @@ describe('BuildColumnDefs render callback', () => {
     rowNumbersEnabled: false,
     fontSizePercent: '100%',
     alignment: { numbers: true, strings: false },
-    timeRange: baseTimeRange,
+    timeRange: buildTimeRange(),
     replaceVariables: (s: string) => s,
     dtData,
   });
 
   // Pull render from the first real column def (not the _all sentinel).
-  const asAny = (d: unknown) => d as Record<string, any>;
   const renderCol0 = asAny(defs.find((d) => asAny(d).targets === 0)).render as Function;
   const renderCol1 = asAny(defs.find((d) => asAny(d).targets === 1)).render as Function;
 
@@ -482,54 +482,20 @@ describe('BuildColumnDefs render callback', () => {
 });
 
 // ---------------------------------------------------------------------------
-// BuildColumnDefs — data callback
+// BuildColumnDefs — no data callback (removed: always returned null,
+// render() ignores _data and accesses val[idx] directly)
 // ---------------------------------------------------------------------------
-describe('BuildColumnDefs data callback', () => {
-  const baseTimeRange = {
-    from: dateTime(0),
-    to: dateTime(0),
-    raw: { from: 'now-1h', to: 'now' },
-  } as unknown as TimeRange;
-
-  const dtData = {
-    Columns: [
-      {
-        title: 'value',
-        data: 'value',
-        type: 'number',
-        className: '',
-        columnStyles: [],
-        widthHint: '',
-        visible: true,
-      } as DTColumnType,
-    ],
-    Rows: [[{ valueRaw: 1, valueFormatted: '1', valueRounded: 1, valueRoundedAndFormatted: '1' }]],
-  };
-
-  const defs = BuildColumnDefs({
-    rowNumbersEnabled: false,
-    fontSizePercent: '100%',
-    alignment: { numbers: true, strings: false },
-    timeRange: baseTimeRange,
-    replaceVariables: (s: string) => s,
-    dtData,
-  });
-
-  const asAny = (d: unknown) => d as Record<string, any>;
-  const dataFn = asAny(defs.find((d) => asAny(d).targets === 0)).data as Function;
-
-  it('returns null when type is undefined', () => {
-    expect(dataFn({}, undefined, null, { col: 0 })).toBeNull();
-  });
-
-  it('returns null when row[idx] has no display property (FormattedColumnValue has none)', () => {
-    const row = [{ valueRaw: 1, valueFormatted: '1', valueRounded: 1, valueRoundedAndFormatted: '1' }];
-    expect(dataFn(row, 'display', null, { col: 0 })).toBeNull();
-  });
-
-  it('returns row[idx].display when explicitly present', () => {
-    const row = [{ display: 'explicit-display', valueRaw: 1, valueFormatted: '1' }];
-    expect(dataFn(row, 'display', null, { col: 0 })).toBe('explicit-display');
+describe('BuildColumnDefs — no data callback', () => {
+  it('emitted def has no data property — DataTables falls back to raw row element', () => {
+    const dtData = {
+      Columns: [{ title: 'v', data: 'v', type: 'number', className: '', columnStyles: [], widthHint: '', visible: true } as DTColumnType],
+      Rows: [[{ valueRaw: 1, valueFormatted: '1', valueRounded: 1, valueRoundedAndFormatted: '1' }]],
+    };
+    const defs = BuildColumnDefs({
+      rowNumbersEnabled: false, fontSizePercent: '100%', alignment: { numbers: true, strings: false },
+      timeRange: buildTimeRange(), replaceVariables: (s: string) => s, dtData,
+    });
+    expect(asAny(defs.find((d) => asAny(d).targets === 0)).data).toBeUndefined();
   });
 });
 
@@ -673,72 +639,57 @@ describe('ConvertDataFrameToDataTableFormat — edge cases', () => {
     });
     expect(rows.map((r) => r.rowNumber)).toEqual([1, 2, 3]);
   });
+
+  it('valueFormatted is always a string, even for numeric raw values (no-style path)', () => {
+    const frame = toDataFrame({
+      fields: [{ name: 'count', type: FieldType.number, values: [42, 0, 100] }],
+    });
+    const { rows } = ConvertDataFrameToDataTableFormat({
+      dataFrames: [frame],
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      rowNumbersEnabled: false,
+      columnStyles: [],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    for (const row of rows) {
+      const cell = row.count as import('types').FormattedColumnValue;
+      expect(typeof cell.valueFormatted).toBe('string');
+    }
+  });
 });
 
 // ---------------------------------------------------------------------------
 // BuildColumnDefs — column type coercion
 // ---------------------------------------------------------------------------
 describe('BuildColumnDefs — column type coercion', () => {
-  const baseTimeRange = {
-    from: dateTime(0),
-    to: dateTime(0),
-    raw: { from: 'now-1h', to: 'now' },
-  } as unknown as TimeRange;
-  const asAny = (d: unknown) => d as Record<string, any>;
-
-  it('coerces time column type to number in the emitted def (DataTables "date" type limits formatting)', () => {
-    // DataTables' built-in "date" type overrides formatting; we coerce time→number
-    // so that DataTables sorts by the raw epoch value but we control display.
+  it('coerces time column type to number (DataTables "date" type limits formatting)', () => {
     const dtData = {
       Columns: [
-        {
-          title: 'ts',
-          data: 'ts',
-          type: 'time',
-          className: '',
-          columnStyles: [],
-          widthHint: '',
-          visible: true,
-        } as DTColumnType,
+        { title: 'ts', data: 'ts', type: 'time', className: '', columnStyles: [], widthHint: '', visible: true } as DTColumnType,
       ],
       Rows: [[{ valueRaw: 1000, valueFormatted: '2020-01-01', valueRounded: null, valueRoundedAndFormatted: null }]],
     };
     const defs = BuildColumnDefs({
-      rowNumbersEnabled: false,
-      fontSizePercent: '100%',
-      alignment: { numbers: false, strings: false },
-      timeRange: baseTimeRange,
-      replaceVariables: (s: string) => s,
-      dtData,
+      rowNumbersEnabled: false, fontSizePercent: '100%', alignment: { numbers: false, strings: false },
+      timeRange: buildTimeRange(), replaceVariables: (s: string) => s, dtData,
     });
     const colDef = defs.find((d) => asAny(d).targets === 0);
-    // The DataTables column type must not be 'time'; it is coerced to 'number'
-    // so the epoch value sorts correctly without DataTables' date formatter interfering.
-    expect(asAny(colDef).type).not.toBe('time');
+    expect(asAny(colDef).type).toBe('number');
   });
 
-  it('the _all sentinel always has defaultContent "-" (not the columns array)', () => {
+  it('the _all sentinel always has defaultContent "-"', () => {
     const dtData = {
       Columns: [
-        {
-          title: 'v',
-          data: 'v',
-          type: 'number',
-          className: '',
-          columnStyles: [],
-          widthHint: '',
-          visible: true,
-        } as DTColumnType,
+        { title: 'v', data: 'v', type: 'number', className: '', columnStyles: [], widthHint: '', visible: true } as DTColumnType,
       ],
       Rows: [[1]],
     };
     const defs = BuildColumnDefs({
-      rowNumbersEnabled: false,
-      fontSizePercent: '100%',
-      alignment: { numbers: false, strings: false },
-      timeRange: baseTimeRange,
-      replaceVariables: (s: string) => s,
-      dtData,
+      rowNumbersEnabled: false, fontSizePercent: '100%', alignment: { numbers: false, strings: false },
+      timeRange: buildTimeRange(), replaceVariables: (s: string) => s, dtData,
     });
     const sentinel = defs.find((d) => asAny(d).targets === '_all');
     expect(asAny(sentinel).defaultContent).toBe('-');

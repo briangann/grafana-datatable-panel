@@ -58,6 +58,12 @@ export const ConvertDataFrameToDataTableFormat = (
   });
   ApplyColumnStyles(columns, columnStyles);
 
+  // Pre-compute per-column mappings once — they are stable across rows.
+  // Moving this outside the row loop reduces calls from O(rows × cols) to O(cols).
+  const columnMappings = columns.map((aColumn) =>
+    GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings)
+  );
+
   const rows: Array<Record<string, FormattedColumnValue | number>> = [];
 
   for (let i = 0; i < dataFrame.length; i++) {
@@ -76,10 +82,9 @@ export const ConvertDataFrameToDataTableFormat = (
         // ApplyMappings (which requires .valueRaw) can run. Do NOT call FormatColumnValue
         // here: for time fields that would apply the plugin's default date format string,
         // overriding whatever the user has already configured via Grafana field overrides.
-        value = { valueRaw: rawValue, valueFormatted: rawValue, valueRounded: null, valueRoundedAndFormatted: null };
+        value = { valueRaw: rawValue, valueFormatted: String(rawValue ?? ''), valueRounded: null, valueRoundedAndFormatted: null };
       }
-      // run through mappings
-      const mappings = GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings);
+      const mappings = columnMappings[j];
       if (mappings && mappings.length > 0) {
         const mappedValue = ApplyMappings(value, mappings);
         if (mappedValue !== null) {
@@ -153,11 +158,6 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
     if (columnType === 'number' && alignment.numbers) {
       columnClassName = 'dt-right';
     }
-    // If Grafana did not supply a type, detect numbers by inspecting the first row
-    // so DataTables sorts numeric columns correctly.
-    if (columnType !== undefined && dtData.Rows[0] && (typeof dtData.Rows[0][i]) === 'number') {
-      columnType = 'number';
-    }
 
     dtData.Columns[i].className = columnClassName;
     // NOTE: the width below is a "hint" and will be overridden as needed;
@@ -166,16 +166,10 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
       width: dtData.Columns[i].widthHint,
       targets: i,
       defaultContent: '-',
-      data: function (row: any, type: any, _set: any, meta: any) {
-        if (type === undefined) {
-          return null;
-        }
-        const idx = meta.col;
-        if (row[idx]?.display !== undefined) {
-          return row[idx].display;
-        }
-        return null;
-      },
+      // Emit the coerced type so DataTables uses our intended sort algorithm.
+      // Time columns are coerced to 'number' above so DataTables sorts by epoch
+      // value rather than its own date parser, which conflicts with our formatting.
+      ...(columnType && { type: columnType }),
       render: function (_data: any, type: any, val: any[], meta: CellMetaSettings) {
         if (type === undefined) {
           return null;
