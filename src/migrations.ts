@@ -67,8 +67,7 @@ interface AngularDatatableOptions {
  */
 export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOptions>): Partial<DatatableOptions> => {
   // an angular panel will have the property 'datatableTheme` defined, trigger migration if it exists
-  // @ts-ignore
-  if (!panel.datatableTheme) {
+  if (!(panel as any).datatableTheme) {
     // not angular, just return the options if currently set
     if (!panel.options) {
       // This happens on the first load or when migrating from angular
@@ -84,15 +83,14 @@ export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOption
   // and only styles of type "string" should be migrated
   const newMappings = migrateValueAndRangeMaps(panel);
   panel.fieldConfig.defaults.mappings = newMappings;
-  // @ts-ignore
-  const newDefaults = migrateDefaults(panel);
+  const newDefaults = migrateDefaults(panel as unknown as AngularDatatableOptions);
   let options = newDefaults;
   //
   // clean up undefined
-  // @ts-ignore
-  Object.keys(panel).forEach((key) => (panel[key] === undefined ? delete panel[key] : {}));
-  // @ts-ignore
-  Object.keys(options).forEach((key) => (options[key] === undefined ? delete options[key] : {}));
+  const panelRecord = panel as unknown as Record<string, unknown>;
+  Object.keys(panelRecord).forEach((key) => (panelRecord[key] === undefined ? delete panelRecord[key] : {}));
+  const optionsRecord = options as unknown as Record<string, unknown>;
+  Object.keys(optionsRecord).forEach((key) => (optionsRecord[key] === undefined ? delete optionsRecord[key] : {}));
 
   return options;
 };

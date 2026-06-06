@@ -146,6 +146,11 @@ describe('ConvertDataFrameToDataTableFormat', () => {
   });
 });
 
+// Shared test fixtures — used across multiple describe blocks below.
+const asAny = (d: unknown) => d as Record<string, any>;
+const buildTimeRange = () =>
+  ({ from: dateTime(0), to: dateTime(0), raw: { from: 'now-1h', to: 'now' } } as unknown as TimeRange);
+
 describe('BuildColumnDefs', () => {
   // Minimal DTData fixture — two columns, one data row.
   const dtData = {
@@ -169,7 +174,10 @@ describe('BuildColumnDefs', () => {
         visible: true,
       } as DTColumnType,
     ],
-    Rows: [{ name: 'A', value: 1 }],
+    Rows: [[
+      { valueRaw: 'A', valueFormatted: 'A', valueRounded: null, valueRoundedAndFormatted: null },
+      { valueRaw: 1,   valueFormatted: '1', valueRounded: 1,    valueRoundedAndFormatted: '1'  },
+    ]],
   };
 
   // `ConfigColumnDefs` from datatables.net is a narrow union that doesn't
@@ -186,11 +194,7 @@ describe('BuildColumnDefs', () => {
       rowNumbersEnabled: false,
       fontSizePercent: '100%',
       alignment: { numbers: true, strings: false },
-      timeRange: {
-        from: dateTime(0),
-        to: dateTime(0),
-        raw: { from: 'now-1h', to: 'now' },
-      } as unknown as TimeRange,
+      timeRange: buildTimeRange(),
       replaceVariables: (s: string) => s,
       dtData,
     });
@@ -224,11 +228,7 @@ describe('BuildColumnDefs', () => {
       rowNumbersEnabled: false,
       fontSizePercent: '100%',
       alignment: { numbers: true, strings: false },
-      timeRange: {
-        from: dateTime(0),
-        to: dateTime(0),
-        raw: { from: 'now-1h', to: 'now' },
-      } as unknown as TimeRange,
+      timeRange: buildTimeRange(),
       replaceVariables: (s: string) => s,
       dtData: dtDataWithHidden,
     });
@@ -333,10 +333,6 @@ describe('ConvertDataFrameToDataTableFormat + rowNumbers column index contract',
   });
 });
 
-// Shared test fixtures
-const asAny = (d: unknown) => d as Record<string, any>;
-const buildTimeRange = () =>
-  ({ from: dateTime(0), to: dateTime(0), raw: { from: 'now-1h', to: 'now' } } as unknown as TimeRange);
 
 // ---------------------------------------------------------------------------
 // normalizeFieldName
@@ -658,6 +654,46 @@ describe('ConvertDataFrameToDataTableFormat — edge cases', () => {
       const cell = row.count as import('types').FormattedColumnValue;
       expect(typeof cell.valueFormatted).toBe('string');
     }
+  });
+
+  it('null rawValue produces valueFormatted="" (no-style path)', () => {
+    const frame = toDataFrame({
+      fields: [{ name: 'v', type: FieldType.number, values: [null] }],
+    });
+    const { rows } = ConvertDataFrameToDataTableFormat({
+      dataFrames: [frame],
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      rowNumbersEnabled: false,
+      columnStyles: [],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    const cell = rows[0].v as import('types').FormattedColumnValue;
+    expect(cell.valueFormatted).toBe('');
+    expect(cell.valueRaw).toBeNull();
+  });
+
+  it('object rawValue produces valueFormatted="" rather than "[object Object]" (no-style path)', () => {
+    // Some Grafana transformations can produce object-valued fields (e.g. nested data).
+    // Passing an object to String() gives '[object Object]' which is useless as display text.
+    const frame = toDataFrame({
+      fields: [{ name: 'nested', type: FieldType.other, values: [{ a: 1 }] }],
+    });
+    const { rows } = ConvertDataFrameToDataTableFormat({
+      dataFrames: [frame],
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      rowNumbersEnabled: false,
+      columnStyles: [],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    const cell = rows[0].nested as import('types').FormattedColumnValue;
+    expect(cell.valueFormatted).toBe('');
+    expect(cell.valueRaw).toEqual({ a: 1 });
   });
 });
 

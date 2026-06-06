@@ -23,7 +23,7 @@ import { LoadingState, PanelProps, textUtil } from '@grafana/data';
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { DatatableOptions, DTColumnType, DTData } from 'types';
+import { DatatableOptions, DTColumnType, DTData, FormattedColumnValue } from 'types';
 import { BuildColumnDefs, ConvertDataFrameToDataTableFormat } from 'data/dataHelpers';
 import { ApplyColumnWidthHints } from 'data/columns/columnWidthHints';
 import { buildSearchBarLayout } from 'data/layout/buildSearchBarLayout';
@@ -211,7 +211,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         //const useTimeZone = getTimeZone();
 
         let dtColumns: DTColumnType[] = [];
-        let flattenedRows: any[] = [];
+        let flattenedRows: Array<Array<FormattedColumnValue | number>> = [];
         const result = ConvertDataFrameToDataTableFormat({
           dataFrames,
           fieldConfig: props.fieldConfig,
@@ -445,19 +445,19 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
   );
 };
 
-const GetFlattenRows = (rows: any, columns: DTColumnType[]) => {
-  let flattenedRows = [];
+const GetFlattenRows = (
+  rows: Array<Record<string, FormattedColumnValue | number>>,
+  columns: DTColumnType[],
+): Array<Array<FormattedColumnValue | number>> => {
+  const flattenedRows: Array<Array<FormattedColumnValue | number>> = [];
   for (let i = 0; i < rows.length; i++) {
     const aRow = rows[i];
-    // flatten
-    // iterate the columns in order
-    let flattenedRow = [];
+    const flattenedRow: Array<FormattedColumnValue | number> = [];
     for (let colIndex = 0; colIndex < columns.length; colIndex++) {
       const name = columns[colIndex].data as string;
-      // @ts-ignore
-      flattenedRow.push(aRow[name])
+      flattenedRow.push(aRow[name]);
     }
     flattenedRows.push(flattenedRow);
   }
   return flattenedRows;
-}
+};

@@ -249,7 +249,7 @@ export interface FormattedColumnValue {
 
 export interface DTData {
   Columns: DTColumnType[];
-  Rows: any[];
+  Rows: Array<Array<FormattedColumnValue | number>>;
 };
 
 export type ColumnStyling = {

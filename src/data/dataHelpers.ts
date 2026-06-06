@@ -82,7 +82,7 @@ export const ConvertDataFrameToDataTableFormat = (
         // ApplyMappings (which requires .valueRaw) can run. Do NOT call FormatColumnValue
         // here: for time fields that would apply the plugin's default date format string,
         // overriding whatever the user has already configured via Grafana field overrides.
-        value = { valueRaw: rawValue, valueFormatted: String(rawValue ?? ''), valueRounded: null, valueRoundedAndFormatted: null };
+        value = { valueRaw: rawValue, valueFormatted: rawValue != null && typeof rawValue !== 'object' ? String(rawValue) : '', valueRounded: null, valueRoundedAndFormatted: null };
       }
       const mappings = columnMappings[j];
       if (mappings && mappings.length > 0) {
@@ -229,7 +229,14 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         if (!aRow) {
           return;
         }
-        const cellValueFormatted = aRow[colIndex] as FormattedColumnValue;
+        const cellEntry = aRow[colIndex];
+        // Guard against non-object cell values (e.g. the rowNumber column stores a plain number).
+        // The columnStyles.length === 0 check above normally catches rowNumber first, but this
+        // is an explicit safety net so a future style on the rowNumber column doesn't crash here.
+        if (typeof cellEntry !== 'object' || cellEntry === null) {
+          return;
+        }
+        const cellValueFormatted = cellEntry as FormattedColumnValue;
 
         //
         // There are 4 style types
