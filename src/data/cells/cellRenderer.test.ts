@@ -1,7 +1,7 @@
 /**
  * Tests for Rendering a Cell
  */
-import { ColumnStyleItemType, ColumnStyles, DateFormats, FormattedColumnValue } from 'types';
+import { ColumnStyleItemType, ColumnStyles, FormattedColumnValue } from 'types';
 import {
   applyFormat,
   FormatColumnValue,
@@ -19,7 +19,7 @@ import { Field, FieldConfig, FieldType, TimeRange, dateTime} from '@grafana/data
 const EPOCH_2025_04_12T19_27_35Z = 1744486055000;
 
 describe('Cell Renderer', () => {
-  describe('Test FormatColumnValue', () => {
+  describe('FormatColumnValue', () => {
     describe('with time column', () => {
       const aField: Field = {
         name: '',
@@ -27,7 +27,7 @@ describe('Cell Renderer', () => {
         config: [] as FieldConfig,
         values: [0]
       };
-      it('returns valid formatted time', () => {
+      it('formats a UTC timestamp in ISO 8601 format with timezone offset', () => {
         const result = FormatColumnValue(
           'utc',
           null,
@@ -49,7 +49,7 @@ describe('Cell Renderer', () => {
         } as FieldConfig,
         values: []
       };
-      it('returns formatted value', () => {
+      it('JSON-stringifies non-numeric values', () => {
         const result = FormatColumnValue(
           'utc',
           null,
@@ -114,6 +114,21 @@ describe('Cell Renderer', () => {
         // percentunit 0.5 at 1 decimal → "50.0%"
         expect(result.valueFormatted).toBe('50.0%');
       });
+      it('respects decimals: 0 — numeric zero must not be treated as falsy', () => {
+        // `if (columnStyle && columnStyle.metricStyle.decimals)` is a falsy check.
+        // String '0' is truthy so the panel editor path works, but numeric 0
+        // (set by migrations or programmatic construction) is falsy — the
+        // condition fails and maxDecimals falls back to field.config.decimals (3).
+        // The field-config path uses !== undefined/null; this path is inconsistent.
+        const zeroDecimals = {
+          activeStyle: ColumnStyles.METRIC,
+          metricStyle: { unitFormat: 'kwh', decimals: 0 }, // numeric 0, not string '0'
+        } as unknown as ColumnStyleItemType;
+        const result = FormatColumnValue('utc', zeroDecimals, aField, 123.456, 'number');
+        // With 0 decimals: '123 kwh'
+        // Bug (numeric 0 is falsy → falls back to field.config.decimals=3): '123.456 kwh'
+        expect(result.valueFormatted).toBe('123 kwh');
+      });
     });
 
     describe('with a numeric column', () => {
@@ -126,7 +141,7 @@ describe('Cell Renderer', () => {
         } as FieldConfig,
         values: []
       };
-      it('returns formatted value', () => {
+      it('applies unit and decimal formatting to numeric values', () => {
         const result = FormatColumnValue(
           'utc',
           null,
@@ -139,51 +154,8 @@ describe('Cell Renderer', () => {
     });
   });
 
-  describe('Test TimeFormatter', () => {
-    describe('Test numeric to UTC formatting', () => {
-      const result = TimeFormatter('utc', EPOCH_2025_04_12T19_27_35Z, DateFormats[5].value);
-      expect(result.valueFormatted).toEqual('2025-04-12T19:27:35+00:00');
-    });
-    describe('Test numeric to America/Denver formatting', () => {
-      const result = TimeFormatter('America/Denver', EPOCH_2025_04_12T19_27_35Z, 'YYYY-MM-DDTHH:mm:ssZ');
-      expect(result.valueFormatted).toEqual('2025-04-12T13:27:35-06:00');
-    });
-  });
-
-  describe('Test ReplaceTimeMacros', () => {
-    describe('Test replace $__from', () => {
-      let content = 'content with $__from';
-      const timeRange = getDefaultTimeRange();
-      const result = ReplaceTimeMacros(timeRange, content);
-      expect(result).toEqual('content with now-15m');
-    });
-    describe('Test replace $__to', () => {
-      let content = 'content with $__to';
-      const timeRange = getDefaultTimeRange();
-      const result = ReplaceTimeMacros(timeRange, content);
-      expect(result).toEqual('content with now');
-    });
-    describe('Test replace $__keepTime', () => {
-      let content = 'content with $__keepTime';
-      const timeRange = getDefaultTimeRange();
-      const result = ReplaceTimeMacros(timeRange, content);
-      expect(result).toEqual('content with from=now-15m&to=now');
-    });
-  });
-
-  describe('Test ProcessMacroForClickthrough', () => {
-    describe('Test replace $__cell_N', () => {
-    });
-  });
-
-  describe('Test ApplyUnitsAndDecimals', () => {
-    describe('Test replace $__cell_N', () => {
-    });
-  });
-
-
-  describe('Test applyFormat', () => {
-    describe('Test with kwh units', () => {
+  describe('applyFormat', () => {
+    it('rounds and formats value with unit suffix', () => {
       const result = applyFormat(123.456, 2, 'kwh');
       expect(result.valueFormatted).toEqual('123.46 kwh');
       expect(result.valueRounded).toEqual(123.46);
@@ -197,6 +169,18 @@ describe('Cell Renderer', () => {
       expect(result.valueFormatted.startsWith('$')).toBe(true);
       expect(result.valueFormatted).toContain('12.34');
     });
+    it('valueRounded is 0 when the value rounds to zero — not the original (fixes || vs ?? bug)', () => {
+      // Before fix: roundValue(0.001, 0) returns 0, then `0 || value` = 0.001 (original).
+      // A rounded-to-zero result was indistinguishable from null, so the original
+      // value leaked into valueRounded/valueRoundedAndFormatted. ?? fixes this.
+      // Use 'none' (no suffix) so valueRoundedAndFormatted stays numeric — 'short'
+      // could add a suffix on a Grafana version bump, turning 0 into '0' and
+      // breaking the type-strict toBe(0) assertion.
+      const result = applyFormat(0.001, 0, 'none');
+      expect(result.valueRounded).toBe(0);
+      expect(result.valueRoundedAndFormatted).toBe(0);
+    });
+
   });
 
   describe('ProcessClickthrough — URL reconstruction (issue #276)', () => {
@@ -329,6 +313,100 @@ describe('Cell Renderer', () => {
       );
       expect(html).toContain('href="http://example.com/x"');
     });
+
+    it('resolves $__pattern_N and multiple $__cell_N in a single URL without URL-encoding them (issue #324)', () => {
+      // Reproduces the exact scenario from issue #324:
+      //   URL template:  https://host/d/$__pattern_0_$__pattern_1/?var-Job=$__cell_5&var-Host=$__cell_4&from=$__cell_0
+      //   splitByPattern: /_/  →  cell 'goldenkpis_ipmplscore_ipmplscore' splits to
+      //                          ['goldenkpis', 'ipmplscore', 'ipmplscore']
+      //   rows[0] = '2026-06-02', rows[4] = 'GC8801-LER03', rows[5] = 'goldenkpis_ipmplscore_ipmplscore'
+      //
+      // Broken behavior (pre-fix): only the first $__cell_N match was substituted
+      // (non-global regex), leaving $__cell_4 and $__cell_0 as literals that
+      // new URL() then percent-encoded to %24__cell_4 / %24__cell_0.
+      const rows6 = [
+        { valueFormatted: '2026-06-02' } as FormattedColumnValue,
+        { valueFormatted: 'r1' } as FormattedColumnValue,
+        { valueFormatted: 'r2' } as FormattedColumnValue,
+        { valueFormatted: 'r3' } as FormattedColumnValue,
+        { valueFormatted: 'GC8801-LER03' } as FormattedColumnValue,
+        { valueFormatted: 'goldenkpis_ipmplscore_ipmplscore' } as FormattedColumnValue,
+      ];
+      const style = {
+        stringStyle: {
+          ...baseStringStyle,
+          clickThrough:
+            'https://mygrafana.grafana.net/d/$__pattern_0_$__pattern_1/?var-Job=$__cell_5&var-Host=$__cell_4&from=$__cell_0',
+          clickThroughSanitize: false,
+          splitByPattern: '/_/',
+        },
+      } as unknown as ColumnStyleItemType;
+      const html = ProcessClickthrough(
+        style,
+        rows6,
+        { valueFormatted: 'goldenkpis_ipmplscore_ipmplscore' } as FormattedColumnValue,
+        fakeTimeRange,
+        noopReplaceVariables,
+      );
+      expect(html).toContain(
+        'href="https://mygrafana.grafana.net/d/goldenkpis_ipmplscore/?var-Job=goldenkpis_ipmplscore_ipmplscore&var-Host=GC8801-LER03&from=2026-06-02"',
+      );
+    });
+
+    it('cell value containing = is percent-encoded in HTTP query params; & is treated as a param separator (documents current behavior)', () => {
+      // Macro expansion runs before the new URL() round-trip. This means:
+      //   - '=' inside a cell value gets encoded to '%3D' by searchParams
+      //   - '&' inside a cell value is treated as a query-parameter separator
+      //     by the URL parser, silently splitting it into a new parameter
+      //     instead of being preserved as a literal value.
+      // This test pins the current (partially-broken) behavior so any future
+      // fix to pre-encode cell values before injection is an explicit, tested change.
+      // TODO: pre-encode cell values before URL injection so & is preserved as %26.
+      const rows1 = [
+        { valueFormatted: 'a=1&b=2' } as FormattedColumnValue, // contains = and &
+      ];
+      const style = {
+        stringStyle: {
+          ...baseStringStyle,
+          clickThrough: 'http://example.com/d?filter=$__cell_0',
+          clickThroughSanitize: false,
+        },
+      } as unknown as ColumnStyleItemType;
+      const html = ProcessClickthrough(style, rows1, processedItem, fakeTimeRange, noopReplaceVariables);
+      // '=' is encoded → %3D; '&' splits the query so b=2 becomes a second param
+      expect(html).toContain('filter=a%3D1&b=2');
+    });
+
+    it('passes cell values with special characters through unencoded for verbatim (non-HTTP) paths', () => {
+      // Non-HTTP paths skip the new URL() round-trip, so special characters in
+      // cell values are emitted raw. This documents the intentional asymmetry:
+      // HTTP URLs are encoded, verbatim paths are not.
+      const rows1 = [
+        { valueFormatted: 'a&b' } as FormattedColumnValue,
+      ];
+      const style = {
+        stringStyle: {
+          ...baseStringStyle,
+          clickThrough: 'custom://host/d?v=$__cell_0',
+          clickThroughSanitize: false,
+        },
+      } as unknown as ColumnStyleItemType;
+      const html = ProcessClickthrough(style, rows1, processedItem, fakeTimeRange, noopReplaceVariables);
+      // verbatim path: no encoding applied
+      expect(html).toContain('href="custom://host/d?v=a&b"');
+    });
+
+    it('returns null when columnStyle is null', () => {
+      expect(ProcessClickthrough(null, [], processedItem, fakeTimeRange, noopReplaceVariables)).toBeNull();
+    });
+
+    it('returns null when clickThrough is an empty string', () => {
+      const style = {
+        stringStyle: { ...baseStringStyle, clickThrough: '' },
+      } as unknown as ColumnStyleItemType;
+      expect(ProcessClickthrough(style, [], processedItem, fakeTimeRange, noopReplaceVariables)).toBeNull();
+    });
+
   });
 
   describe('ReplaceTimeMacros', () => {
@@ -355,6 +433,61 @@ describe('Cell Renderer', () => {
     it('passes through content with no time macros unchanged', () => {
       expect(ReplaceTimeMacros(tr, 'http://x/plain')).toBe('http://x/plain');
     });
+
+    it('replaces ALL occurrences of $__from when it appears more than once', () => {
+      // Non-global replace() only substitutes the first occurrence.
+      // A URL with $__from in both path and query would leave the second as-is.
+      expect(ReplaceTimeMacros(tr, '/$__from/range?from=$__from')).toBe('/now-6h/range?from=now-6h');
+    });
+
+    it('replaces ALL occurrences of $__to when it appears more than once', () => {
+      expect(ReplaceTimeMacros(tr, 'a=$__to&b=$__to')).toBe('a=now&b=now');
+    });
+    it('treats $& in a raw.from value literally, not as "insert matched text"', () => {
+      // $& in a replacement string re-inserts the entire matched token.
+      // With a realistic URL containing both macros, the broken output has
+      // $__from literally still present in the href — unmistakably wrong:
+      //
+      //   Broken:  ?from=$__from-path&to=now   ← macro not substituted
+      //   Correct: ?from=$&-path&to=now
+      //
+      // Fix: callback () => from bypasses all $-pattern interpretation.
+      const tr2 = {
+        raw: { from: '$&-path', to: 'now' },
+      } as unknown as TimeRange;
+      expect(ReplaceTimeMacros(tr2, 'https://grafana.example.com/d/uid?from=$__from&to=$__to')).toBe(
+        'https://grafana.example.com/d/uid?from=$&-path&to=now',
+      );
+    });
+
+    it('treats $$ in a raw.from value literally, not as an escaped $', () => {
+      // $$ in a replacement string collapses to a single $:
+      //
+      //   Broken:  ?from=$10&to=now   ← $$ → $, token number appended
+      //   Correct: ?from=$$10&to=now
+      const tr2 = {
+        raw: { from: '$$10', to: 'now' },
+      } as unknown as TimeRange;
+      expect(ReplaceTimeMacros(tr2, 'https://grafana.example.com/d/uid?from=$__from&to=$__to')).toBe(
+        'https://grafana.example.com/d/uid?from=$$10&to=now',
+      );
+    });
+
+    it("treats $' in a raw.to value literally, not as 'text after match'", () => {
+      // $' injects the portion of the string AFTER the match position.
+      // With a URL that has content after $__to, the broken output
+      // duplicates that trailing content:
+      //
+      //   Broken:  ?to=&extra=data&extra=data   ← "&extra=data" injected twice
+      //   Correct: ?to=$'&extra=data
+      const tr2 = {
+        raw: { from: 'now', to: "$'" },
+      } as unknown as TimeRange;
+      expect(ReplaceTimeMacros(tr2, 'https://grafana.example.com/d/uid?to=$__to&extra=data')).toBe(
+        "https://grafana.example.com/d/uid?to=$'&extra=data",
+      );
+    });
+
   });
 
   describe('ReplaceCellMacros', () => {
@@ -366,6 +499,47 @@ describe('Cell Renderer', () => {
 
     it('replaces $__cell with the current cell content', () => {
       expect(ReplaceCellMacros('host-$__cell', 'web-01', rows)).toBe('host-web-01');
+    });
+
+    it('replaces ALL occurrences of $__cell when it appears more than once in the URL', () => {
+      // /\$__cell\b/ is non-global — only the first occurrence is replaced.
+      // A link template like 'name=$__cell&label=$__cell' leaves the second
+      // reference unresolved.
+      expect(ReplaceCellMacros('name=$__cell&label=$__cell', 'srv', rows)).toBe('name=srv&label=srv');
+    });
+
+    it('treats cell content containing $& literally, not as a regex replacement pattern', () => {
+      // $& re-inserts the entire matched token. With a realistic URL, the
+      // broken output has $__cell literally still in the href:
+      //
+      //   Broken:  ?host=$__cell-suffix&env=prod   ← macro not substituted
+      //   Correct: ?host=$&-suffix&env=prod
+      //
+      // Fix: use a callback () => cellContent so $ is never interpreted.
+      expect(
+        ReplaceCellMacros('https://grafana.example.com/d?host=$__cell&env=prod', '$&-suffix', rows),
+      ).toBe('https://grafana.example.com/d?host=$&-suffix&env=prod');
+    });
+
+    it('treats cell content containing $$ literally, not as a regex replacement pattern', () => {
+      // $$ collapses to a single $ in the output:
+      //
+      //   Broken:  ?host=$10&env=prod   ← $$ → $, token number appended
+      //   Correct: ?host=$$10&env=prod
+      expect(
+        ReplaceCellMacros('https://grafana.example.com/d?host=$__cell&env=prod', '$$10', rows),
+      ).toBe('https://grafana.example.com/d?host=$$10&env=prod');
+    });
+
+    it("treats cell content containing $' literally, not as a regex replacement pattern", () => {
+      // $' injects the text AFTER the match. With a URL that has a param after
+      // $__cell, the broken output duplicates that trailing content:
+      //
+      //   Broken:  ?host=&env=prod&env=prod   ← "&env=prod" injected twice
+      //   Correct: ?host=$'&env=prod
+      expect(
+        ReplaceCellMacros("https://grafana.example.com/d?host=$__cell&env=prod", "$'", rows),
+      ).toBe("https://grafana.example.com/d?host=$'&env=prod");
     });
 
     it('respects word boundary so $__cell does not clobber $__cell_N', () => {
@@ -383,8 +557,88 @@ describe('Cell Renderer', () => {
       expect(ReplaceCellMacros('row=$__cell_99', 'current', rows)).toBe('row=$__cell_99');
     });
 
+    it('treats a null valueFormatted as the string "null" (documents current coercion behavior)', () => {
+      // rows[idx].valueFormatted could be null at runtime if a frame field
+      // produced no value. JS string coercion turns null → "null" and
+      // undefined → "undefined", silently putting those strings in the href.
+      // This test pins the current behavior so any future guard is explicit.
+      const nullRows = [{ valueFormatted: null }] as unknown as FormattedColumnValue[];
+      expect(ReplaceCellMacros('v=$__cell_0', 'X', nullRows)).toBe('v=null');
+    });
+
     it('returns the input untouched when no macros are present', () => {
       expect(ReplaceCellMacros('http://x/plain', 'X', rows)).toBe('http://x/plain');
+    });
+
+    it('replaces ALL $__cell_N occurrences when the URL contains multiple references (issue #324)', () => {
+      // Bug: the non-global regex + match() only finds the first $__cell_N.
+      // With three distinct $__cell_N references in one URL, only the first
+      // was replaced; the rest were left as literals and then URL-encoded by
+      // the browser (%24__cell_N).
+      const r = [
+        { valueFormatted: '2026-06-02' } as FormattedColumnValue, // $__cell_0 — from
+        { valueFormatted: 'r1' } as FormattedColumnValue,
+        { valueFormatted: 'r2' } as FormattedColumnValue,
+        { valueFormatted: 'r3' } as FormattedColumnValue,
+        { valueFormatted: 'GC8801-LER03' } as FormattedColumnValue,  // $__cell_4 — host
+        { valueFormatted: 'job-name' } as FormattedColumnValue,       // $__cell_5 — job
+      ];
+      const out = ReplaceCellMacros(
+        'var-Job=$__cell_5&var-Host=$__cell_4&from=$__cell_0',
+        'active',
+        r,
+      );
+      expect(out).toBe('var-Job=job-name&var-Host=GC8801-LER03&from=2026-06-02');
+    });
+
+    it('replaces the same $__cell_N index appearing multiple times in one URL', () => {
+      // A cell index can legitimately be referenced more than once, e.g.
+      // both in the path and in a query parameter.
+      const r = [
+        { valueFormatted: 'svc-a' } as FormattedColumnValue,
+        { valueFormatted: 'prod' } as FormattedColumnValue,
+      ];
+      const out = ReplaceCellMacros('/$__cell_0/detail?name=$__cell_0&env=$__cell_1', 'svc-a', r);
+      expect(out).toBe('/svc-a/detail?name=svc-a&env=prod');
+    });
+
+    it('does not corrupt a higher-index cell when a lower-index cell appears after it (e.g. $__cell_10 vs $__cell_1)', () => {
+      // The non-global string replace('$__cell_1', ...) would match the
+      // '$__cell_1' prefix inside '$__cell_10' if the two-digit reference
+      // appears first in the URL. The hardened single-pass replace avoids this.
+      // Only indices 1 and 10 are referenced — populate exactly those two.
+      // Indices 0-9 use placeholder values; the test cares about [1] and [10].
+      const r: FormattedColumnValue[] = Array.from({ length: 11 }, (_, i) =>
+        ({ valueFormatted: `cell-${i}` } as FormattedColumnValue)
+      );
+      r[1] = { valueFormatted: 'one' } as FormattedColumnValue;
+      r[10] = { valueFormatted: 'ten' } as FormattedColumnValue;
+      // $__cell_10 appears before $__cell_1 in the URL.
+      // A string replace('$__cell_1', ...) on the mutated string would
+      // find the '$__cell_1' prefix inside '$__cell_10' before $__cell_10
+      // is processed, mangling the result.
+      const out = ReplaceCellMacros('a=$__cell_10&b=$__cell_1', 'X', r);
+      expect(out).toBe('a=ten&b=one');
+    });
+
+    it('does not re-substitute when a cell value itself contains a $__cell_N pattern', () => {
+      // Latent bug: rows[1].valueFormatted = '$__cell_0' (looks like a macro).
+      // URL has $__cell_1 BEFORE $__cell_0 so the loop processes cell_1 first,
+      // injecting the literal text '$__cell_0' into `formatted`. The next
+      // iteration then calls replace('$__cell_0', ...) on the mutated string
+      // and finds the *injected* text rather than the original $__cell_0
+      // reference — producing the wrong result.
+      //
+      // Expected:  b=$__cell_0&a=real-value
+      //   ($__cell_1 → its raw value '$__cell_0'; original $__cell_0 → 'real-value')
+      // Broken:    b=real-value&a=$__cell_0
+      //   (injected '$__cell_0' gets expanded; original reference left as-is)
+      const r = [
+        { valueFormatted: 'real-value' } as FormattedColumnValue,
+        { valueFormatted: '$__cell_0' } as FormattedColumnValue, // value contains a macro pattern
+      ];
+      const out = ReplaceCellMacros('b=$__cell_1&a=$__cell_0', 'X', r);
+      expect(out).toBe('b=$__cell_0&a=real-value');
     });
   });
 
@@ -418,6 +672,18 @@ describe('Cell Renderer', () => {
       ).toBe('host=$__pattern_0');
     });
 
+    it('returns input untouched when cellContent.valueFormatted is null', () => {
+      // If cellContent is a non-null object but valueFormatted is null
+      // (e.g. a string-type DataFrame column whose cell value is null),
+      // the guard `!cellContent || cellContent.valueFormatted.length === 0`
+      // crashes: !cellContent is false (object is truthy), then
+      // null.length throws TypeError.
+      const nullValueFormatted = { valueFormatted: null } as unknown as FormattedColumnValue;
+      expect(
+        ReplaceCellSplitByPattern('host=$__pattern_0', nullValueFormatted, '/\\s/'),
+      ).toBe('host=$__pattern_0');
+    });
+
     it('leaves $__pattern_N untouched when N exceeds the split count', () => {
       const out = ReplaceCellSplitByPattern(
         'a=$__pattern_0&b=$__pattern_9',
@@ -426,6 +692,20 @@ describe('Cell Renderer', () => {
       );
       expect(out).toBe('a=web-01&b=$__pattern_9');
     });
+
+    it('replaces ALL occurrences of $__pattern_N when the same index appears more than once', () => {
+      // values.map() calls replace() once per segment, but replace() is non-global,
+      // so only the first occurrence of each $__pattern_N in the URL is replaced.
+      // e.g. path/$__pattern_0?label=$__pattern_0 leaves the query-string copy unresolved.
+      const cell = { valueFormatted: 'web-01 prod' } as FormattedColumnValue;
+      const out = ReplaceCellSplitByPattern(
+        '/$__pattern_0/d?label=$__pattern_0&env=$__pattern_1',
+        cell,
+        '/\\s/',
+      );
+      expect(out).toBe('/web-01/d?label=web-01&env=prod');
+    });
+
   });
 
   describe('resolveClickThroughTarget', () => {
@@ -463,6 +743,13 @@ describe('Cell Renderer', () => {
       expect(result.valueFormatted).toBe('2025-04-12 15:27:35');
       expect(result.valueRoundedAndFormatted).toBe(result.valueFormatted);
     });
+    it('converts the timestamp to Mountain Time (UTC-6 MDT in April)', () => {
+      // America/Denver is MDT (UTC-6) in April — verifies a different offset
+      // from the New_York test above (UTC-4 EDT).
+      const result = TimeFormatter('America/Denver', epoch, 'YYYY-MM-DDTHH:mm:ssZ');
+      expect(result.valueRaw).toBe(epoch);
+      expect(result.valueFormatted).toBe('2025-04-12T13:27:35-06:00');
+    });
 
     it('resolves "browser" to the host system zone', () => {
       // Can only assert shape here — the CI runner's zone is not pinned.
@@ -473,12 +760,3 @@ describe('Cell Renderer', () => {
   });
 });
 
-function getDefaultTimeRange(): TimeRange {
-  const fromDateTime = dateTime().subtract(15, 'minutes');
-  const toDateTime = dateTime();
-  return {
-    from: fromDateTime,
-    to: toDateTime,
-    raw: { from: 'now-15m', to: 'now' },
-  };
-}

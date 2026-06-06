@@ -12,6 +12,12 @@ on:
 
 permissions: {}
 
+# Prevent duplicate runs — if a scheduled run is already in progress when
+# workflow_dispatch fires (or the schedule fires twice), cancel the older one.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
 jobs:
   release:
     runs-on: ubuntu-latest

@@ -22,7 +22,8 @@
       {
         "name": "Apache-2.0 License",
         "url": "https://github.com/briangann/grafana-datatable-panel/blob/main/LICENSE"
-      }],
+      }
+    ],
     "screenshots": [
       {
         "name": "Showcase Paging",
@@ -69,7 +70,7 @@
     "updated": "%TODAY%"
   },
   "dependencies": {
-    "grafanaDependency": ">=11.6.0 <13.0.0",
+    "grafanaDependency": ">=12.3.0",
     "plugins": []
   }
 }

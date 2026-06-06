@@ -42,14 +42,27 @@ export default defineConfig<PluginOptions>({
       testDir: pluginE2eAuth,
       testMatch: [/.*\.js/],
     },
-    // 2. Run tests in Google Chrome. Every test will start authenticated as admin user.
+    // 2. Navigate to the empty dashboard to absorb the Grafana 13 portal overlay.
+    //    Saves the post-dismissal localStorage back into admin.json so every
+    //    subsequent test context starts with the portal already gone.
+    {
+      name: 'setup',
+      testDir: './tests/setup',
+      testMatch: ['ui-setup.spec.ts'],
+      use: {
+        ...devices['Desktop Chrome'],
+        storageState: 'playwright/.auth/admin.json',
+      },
+      dependencies: ['auth'],
+    },
+    // 3. Run tests in Google Chrome. Every test will start authenticated as admin user.
     {
       name: 'chromium',
       use: {
         ...devices['Desktop Chrome'],
         storageState: 'playwright/.auth/admin.json',
       },
-      dependencies: ['auth'],
+      dependencies: ['auth', 'setup'],
     },
   ],
 });

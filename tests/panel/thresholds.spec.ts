@@ -21,7 +21,7 @@ test('A-series cells render inline threshold colors (colorMode=value)', async ({
   });
 
   await test.step('wait for datatable to render', async () => {
-    await expect(page.locator('table tbody tr').first()).toBeVisible({ timeout: 15000 });
+    await expect(page.getByTestId('datatable-panel-table').locator('tbody tr').first()).toBeVisible({ timeout: 15000 });
   });
 
   await test.step('at least one cell carries an inline color style', async () => {
@@ -38,7 +38,7 @@ test('A-series cells render inline threshold colors (colorMode=value)', async ({
   // unit formatter ran on the colored cells as well.
   await test.step('cells render with the configured unit (m²)', async () => {
     await expect(
-      page.locator('table tbody td', { hasText: 'm²' }).first(),
+      page.getByTestId('datatable-panel-table').locator('tbody td', { hasText: 'm²' }).first(),
     ).toBeVisible({ timeout: 5000 });
   });
 });

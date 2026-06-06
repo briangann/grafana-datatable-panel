@@ -1,5 +1,6 @@
 import {
   dateTime,
+  dateTimeForTimeZone,
   Field,
   getValueFormat,
   InterpolateFunction,
@@ -10,7 +11,6 @@ import {
 
 import _ from 'lodash';
 import { ColumnStyleItemType, ColumnStyles, DateFormats, FormattedColumnValue } from "types";
-import moment from 'moment-timezone';
 
 // Fallback base for `new URL(input, base)` when parsing path-relative
 // clickthrough inputs. Dashboards always run in a browser, so
@@ -18,18 +18,22 @@ import moment from 'moment-timezone';
 // sentinel for non-browser execution (SSR, jest without jsdom).
 const DEFAULT_URL_BASE = typeof window !== 'undefined' ? window.location.origin : 'http://localhost';
 
+// The browser's timezone is resolved once at module load — it never changes
+// within a session and Intl.DateTimeFormat() costs ~40 µs per call.
+const BROWSER_TIMEZONE =
+  typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
+
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
 export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
-  let newContent = content;
-  if (content.match(/\$__from/g)) {
-    newContent = newContent.replace('$__from', timeRange.raw.from.toString());
-  }
-  if (content.match(/\$__to/g)) {
-    newContent = newContent.replace('$__to', timeRange.raw.to.toString());
-  }
-  if (content.match(/\$__keepTime/g)) {
-    newContent = newContent.replace(`$__keepTime`, `from=${timeRange.raw.from}&to=${timeRange.raw.to}`);
-  }
+  // Use global replacements so all occurrences in the URL are substituted,
+  // not just the first. A URL with $__from in both path and query would
+  // otherwise leave the second reference unreplaced.
+  const from = timeRange.raw.from.toString();
+  const to = timeRange.raw.to.toString();
+  let newContent = content
+    .replace(/\$__from/g, () => from)
+    .replace(/\$__to/g, () => to)
+    .replace(/\$__keepTime/g, () => `from=${from}&to=${to}`);
   return newContent;
 };
 
@@ -55,17 +59,15 @@ export const TimeFormatter = (timeZone: string, timestamp: number, timestampForm
     }
     return formatted;
   }
-  // When timezone is 'browser', resolve to the concrete IANA zone name so
-  // moment-timezone can look it up.
-  const useTimezone = timeZone === 'browser'
-    ? Intl.DateTimeFormat().resolvedOptions().timeZone
-    : timeZone;
-  // `moment.tz(ms, tz)` takes a UTC milliseconds timestamp and returns a
-  // Moment expressed in the target zone — the correct conversion overload. The
-  // previous code used `moment.tz(iso, format, tz)`, which is the parsing
-  // overload that treats the string input as already-local-to-tz, so no
-  // UTC→tz conversion happened and non-UTC zones returned UTC digits.
-  const formattedWithTimezone = moment.tz(timestamp, useTimezone).format(timestampFormat);
+  // When timezone is 'browser', use the module-level cached IANA name —
+  // Intl.DateTimeFormat() costs ~40 µs per call, the result never changes.
+  const useTimezone = timeZone === 'browser' ? BROWSER_TIMEZONE : timeZone;
+  // `dateTimeForTimeZone(tz, ms)` from @grafana/data takes a UTC milliseconds
+  // timestamp and returns a DateTime expressed in the target zone — same
+  // semantics as the previous moment.tz(ms, tz) call, but uses @grafana/data
+  // which is already external (zero bundle cost) instead of bundling the full
+  // moment-timezone IANA timezone database (~720 KB unminified).
+  const formattedWithTimezone = dateTimeForTimeZone(useTimezone, timestamp).format(timestampFormat);
   const formatted: FormattedColumnValue = {
     valueRaw: timestamp,
     valueFormatted: formattedWithTimezone,
@@ -112,8 +114,6 @@ export const FormatColumnValue = (
       valueRounded: null,
       valueRoundedAndFormatted: null,
     }
-    // might be useful to do the mappings here vs on conversion from dataframes
-    //formatted = ApplyMappings(formatted, null);
     return formatted;
   }
   // numbers are formatted here
@@ -129,7 +129,7 @@ export const FormatColumnValue = (
   if (field.config.decimals !== undefined && field.config.decimals !== null) {
     maxDecimals = field.config.decimals;
   }
-  if (columnStyle && columnStyle.metricStyle.decimals) {
+  if (columnStyle && columnStyle.metricStyle.decimals !== undefined && columnStyle.metricStyle.decimals !== null) {
     maxDecimals = Number(columnStyle.metricStyle.decimals).valueOf();
   }
 
@@ -137,10 +137,9 @@ export const FormatColumnValue = (
   return formatted;
 };
 
-
 export const ProcessClickthrough = (
   columnStyle: ColumnStyleItemType | null,
-  rows: any,
+  rows: FormattedColumnValue[],
   processedItem: FormattedColumnValue,
   timeRange: TimeRange,
   replaceVariables: InterpolateFunction) => {
@@ -158,7 +157,6 @@ export const ProcessClickthrough = (
     if (/[$\[]/.test(clickThrough)) {
       clickThrough = replaceVariables(clickThrough);
     }
-    //
     const target = resolveClickThroughTarget(
       columnStyle.stringStyle.clickThroughOpenNewTab,
       columnStyle.stringStyle.clickThroughCustomTargetEnabled,
@@ -193,7 +191,7 @@ export const ProcessClickthrough = (
       // no protocol-relative auto-promotion to the current origin.
       href = clickThrough;
     }
-    const newCell = '<a href="' + href + `" target="${target}">` + processedItem.valueFormatted + '</a>';
+    const newCell = `<a href="${href}" target="${target}">${processedItem.valueFormatted}</a>`;
 
     return newCell;
   }
@@ -205,16 +203,15 @@ export const resolveClickThroughTarget = (
   clickThroughCustomTargetEnabled: boolean,
   clickThroughCustomTarget: string,
 ): string => {
-    let clickThroughTarget = '_self';
-    if (clickThroughOpenNewTab) {
-      clickThroughTarget = '_blank';
-    }
-    if (clickThroughCustomTargetEnabled) {
-      clickThroughTarget = clickThroughCustomTarget;
-    }
-    return clickThroughTarget;
-  };
-
+  let clickThroughTarget = '_self';
+  if (clickThroughOpenNewTab) {
+    clickThroughTarget = '_blank';
+  }
+  if (clickThroughCustomTargetEnabled) {
+    clickThroughTarget = clickThroughCustomTarget;
+  }
+  return clickThroughTarget;
+};
 
 // check for $__pattern_N using split-by
 export const ReplaceCellSplitByPattern = (
@@ -223,45 +220,49 @@ export const ReplaceCellSplitByPattern = (
   splitByPattern: string
 ) => {
   let formatted = clickThrough;
-  if (!cellContent || cellContent.valueFormatted.length === 0) {
+  if (!cellContent || !cellContent.valueFormatted) {
     return formatted;
   }
-  // Replace patterns
+  // Replace patterns — use replaceAll so every occurrence of $__pattern_N in
+  // the URL is substituted, not just the first (replace() is non-global for
+  // plain-string patterns). Also forEach, not map, since we only want side effects.
   const splitByPatternRegex = stringToJsRegex(splitByPattern);
   const values = cellContent.valueFormatted.split(splitByPatternRegex);
-  values.map((val: any, i: any) => (formatted = formatted.replace(`$__pattern_${i}`, val)));
+  values.forEach((val: string, i: number) => (formatted = formatted.replaceAll(`$__pattern_${i}`, val)));
 
   return formatted;
 }
+
 export const ReplaceCellMacros = (
   clickThrough: string,
   cellContent: string,
-  rows: any,
+  rows: FormattedColumnValue[],
 ): string => {
 
   let formatted = clickThrough;
   //
   // Replace $__cell with this cell's content $__cell word boundary
   //
-  formatted = formatted.replace(/\$__cell\b/, cellContent);
+  formatted = formatted.replace(/\$__cell\b/g, () => cellContent);
 
   //
   // process $__cell_N
   //
-  const cellNRegex = RegExp(/\$__cell_(\d+)/);
-  const matches = clickThrough.match(cellNRegex);
-  if (matches) {
-    for (let matchIndex = 1; matchIndex < matches.length; matchIndex++) {
-      const matchedCellNumber = parseInt(matches[matchIndex], 10);
-      if (matchedCellNumber > rows.length) {
-        //console.log(`ReplaceCellMacros: referenced cell ${matchedCellNumber} out of bounds`);
-        continue;
-      }
-      const aRow = rows[matchedCellNumber];
-      const matchedCellContent = aRow.valueFormatted;
-      formatted = formatted.replace(`$__cell_${matchedCellNumber}`, matchedCellContent);
+  // Single-pass replacement via String.replace() with a callback: the regex
+  // engine walks the string once, finds every $__cell_N, and calls the
+  // replacer for each match. Because replacement happens inside the engine —
+  // not by re-searching a mutated string — injected values that happen to
+  // look like $__cell_N are never re-expanded, and a lower-index reference
+  // can never accidentally clobber a higher-index one (e.g. $__cell_1 vs
+  // $__cell_10). Fixes the multi-reference bug from issue #324 and closes
+  // the latent re-substitution hazard in the previous loop-based approach.
+  formatted = formatted.replace(/\$__cell_(\d+)/g, (fullMatch, n) => {
+    const idx = parseInt(n, 10);
+    if (idx >= rows.length) {
+      return fullMatch;
     }
-  }
+    return rows[idx].valueFormatted;
+  });
   return formatted;
 }
 
@@ -271,12 +272,14 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
   let valueRoundedAndFormatted = '';
   const formatFunc = getValueFormat(unitFormat);
   if (formatFunc) {
-    const decimals: number = maxDecimals;
-    const formatted = formatFunc(value, decimals);
-
+    const formatted = formatFunc(value, maxDecimals);
     valueFormatted = formatted.text;
-    valueRoundedAndFormatted = roundValue(value, decimals) || value;
-    valueRounded = roundValue(value, decimals) || value;
+    // Call roundValue once and share the result — calling it twice per cell
+    // was the dominant cost in applyFormat. Also fixes a latent bug: || treats
+    // a legitimate rounded-to-zero result as falsy; ?? does not.
+    const rounded = roundValue(value, maxDecimals);
+    valueRoundedAndFormatted = rounded ?? value;
+    valueRounded = rounded ?? value;
     // spaces are included with the formatFunc
     if (formatted.suffix) {
       valueFormatted += formatted.suffix;

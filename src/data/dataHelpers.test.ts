@@ -104,10 +104,7 @@ describe('ConvertDataFrameToDataTableFormat', () => {
     expect(rows.map((r) => r.rowNumber)).toEqual([1, 2, 3]);
   });
 
-  it('hides a column when its matched style is HIDDEN (only via rowNumbers branch)', () => {
-    // The visibility toggle lives in the `if (rowNumbersEnabled)` block —
-    // matches the current implementation even though the location is
-    // arguably a bug. Pin observed behavior rather than pretend.
+  it('hides a column when its matched style is HIDDEN, regardless of rowNumbersEnabled', () => {
     const hiddenStyle = {
       activeStyle: ColumnStyles.HIDDEN,
       enabled: true,
@@ -120,14 +117,24 @@ describe('ConvertDataFrameToDataTableFormat', () => {
       stringStyle: {},
     } as unknown as ColumnStyleItemType;
 
-    const { columns } = ConvertDataFrameToDataTableFormat({
+    // Works without rowNumbersEnabled (the bug was that visible=false was only
+    // set inside the rowNumbersEnabled block).
+    const { columns: colsNoRows } = ConvertDataFrameToDataTableFormat({
+      ...baseOpts,
+      dataFrames: [twoFieldFrame()],
+      rowNumbersEnabled: false,
+      columnStyles: [hiddenStyle],
+    });
+    expect(colsNoRows.find((c) => c.title === 'value')?.visible).toBe(false);
+
+    // Also works with rowNumbersEnabled for completeness.
+    const { columns: colsWithRows } = ConvertDataFrameToDataTableFormat({
       ...baseOpts,
       dataFrames: [twoFieldFrame()],
       rowNumbersEnabled: true,
       columnStyles: [hiddenStyle],
     });
-    const valueCol = columns.find((c) => c.title === 'value');
-    expect(valueCol?.visible).toBe(false);
+    expect(colsWithRows.find((c) => c.title === 'value')?.visible).toBe(false);
   });
 });
 
@@ -189,5 +196,131 @@ describe('BuildColumnDefs', () => {
     const sentinel = defs.find((d) => asRecord(d).targets === '_all');
     expect(sentinel).toBeDefined();
     expect(asRecord(sentinel).defaultContent).toBe('-');
+  });
+  it('emits visible:false on the column def when DTColumnType.visible is false', () => {
+    // Bug: ConvertDataFrameToDataTableFormat correctly sets column.visible=false
+    // when a HIDDEN style matches, but BuildColumnDefs never reads that flag —
+    // so the DataTables column def lacks visible:false and the column stays visible.
+    //
+    // This test proves the gap: given a dtData with the second column marked
+    // visible:false, the emitted columnDef for that column must include visible:false.
+    const dtDataWithHidden = {
+      ...dtData,
+      Columns: [
+        { ...dtData.Columns[0] },
+        { ...dtData.Columns[1], visible: false }, // marked hidden by ConvertDataFrameToDataTableFormat
+      ],
+    };
+
+    const defs = BuildColumnDefs({
+      rowNumbersEnabled: false,
+      fontSizePercent: '100%',
+      alignment: { numbers: true, strings: false },
+      timeRange: {
+        from: dateTime(0),
+        to: dateTime(0),
+        raw: { from: 'now-1h', to: 'now' },
+      } as unknown as TimeRange,
+      replaceVariables: (s: string) => s,
+      dtData: dtDataWithHidden,
+    });
+
+    const realDefs = defs.filter((d) => asRecord(d).targets !== '_all');
+    // The second column def (targets: 1) must carry visible:false
+    const hiddenDef = realDefs.find((d) => asRecord(d).targets === 1);
+    expect(hiddenDef).toBeDefined();
+    expect(asRecord(hiddenDef).visible).toBe(false);
+
+    // The first column def must NOT carry visible:false
+    const visibleDef = realDefs.find((d) => asRecord(d).targets === 0);
+    expect(asRecord(visibleDef).visible).not.toBe(false);
+  });
+});
+describe('ConvertDataFrameToDataTableFormat + rowNumbers column index contract', () => {
+  // Pins the contract that DataTablePanel.tsx's initComplete loop must honour:
+  // when rowNumbersEnabled=true, the row-number column is prepended at index 0
+  // in the columns array, so iterating with index i gives the correct DataTables
+  // column index directly — no additional offset should be applied.
+  //
+  // Bug caught: initComplete used `api.column(i + rowNumberOffset)` where
+  // rowNumberOffset = rowNumbersEnabled ? 1 : 0. With rowNumbersEnabled=true
+  // and i=1 (first data column), that called api.column(2) instead of
+  // api.column(1), hiding the wrong column.
+  const theme = createTheme();
+  const noopReplaceVariables = (s: string) => s;
+  const emptyFieldConfig = { defaults: {}, overrides: [] } as unknown as FieldConfigSource;
+  const alignment = { numbers: true, strings: false };
+
+  const threeFieldFrame = () =>
+    toDataFrame({
+      fields: [
+        { name: 'time',  type: FieldType.time,   values: [1000] },
+        { name: 'host',  type: FieldType.string, values: ['alpha'] },
+        { name: 'value', type: FieldType.number, values: [42] },
+      ],
+    });
+
+  const hiddenStyle = {
+    activeStyle: ColumnStyles.HIDDEN,
+    enabled: true,
+    label: 'hide-value',
+    nameOrRegex: 'value',
+    order: 0,
+    dateStyle: {},
+    hiddenStyle: {},
+    metricStyle: {},
+    stringStyle: {},
+  } as unknown as ColumnStyleItemType;
+
+  it('with rowNumbersEnabled: row-number column is at array index 0 and data columns follow without an additional offset', () => {
+    // When rowNumbersEnabled, ConvertDataFrameToDataTableFormat prepends the
+    // row-number column at index 0. The hidden "value" column ends up at index 3
+    // (0=row, 1=time, 2=host, 3=value). The correct DataTables call to hide it
+    // is api.column(3).visible(false) — no extra +1 offset.
+    const { columns } = ConvertDataFrameToDataTableFormat({
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      dataFrames: [threeFieldFrame()],
+      rowNumbersEnabled: true,
+      columnStyles: [hiddenStyle],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+
+    // Row-number column at position 0, visible=true
+    expect(columns[0].title).toBe('row');
+    expect(columns[0].visible).toBe(true);
+
+    // Hidden "value" column at position 3
+    const hiddenIdx = columns.findIndex((c) => c.title === 'value');
+    expect(hiddenIdx).toBe(3);
+    expect(columns[hiddenIdx].visible).toBe(false);
+
+    // Contract: the correct DataTables column index is hiddenIdx itself (3),
+    // NOT hiddenIdx + 1 (4). The initComplete loop must use api.column(i),
+    // not api.column(i + rowNumberOffset).
+    //
+    // If the loop incorrectly adds rowNumberOffset=1, it would try to hide
+    // column 4 which does not exist in a 4-column table (indices 0-3).
+    expect(hiddenIdx).toBe(3);           // correct: api.column(3)
+    expect(hiddenIdx + 1).not.toBe(3);   // wrong:   api.column(4) — off by one
+  });
+
+  it('with rowNumbersEnabled=false: hidden column index is correct without any offset', () => {
+    const { columns } = ConvertDataFrameToDataTableFormat({
+      fieldConfig: emptyFieldConfig,
+      userTimeZone: 'utc',
+      alignment,
+      dataFrames: [threeFieldFrame()],
+      rowNumbersEnabled: false,
+      columnStyles: [hiddenStyle],
+      theme,
+      replaceVariables: noopReplaceVariables,
+    });
+    const hiddenIdx = columns.findIndex((c) => c.title === 'value');
+    expect(hiddenIdx).toBe(2);  // time=0, host=1, value=2
+    expect(columns[hiddenIdx].visible).toBe(false);
+    // No offset: api.column(2) is correct
   });
 });

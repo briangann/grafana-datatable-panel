@@ -345,8 +345,23 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             //select: selectSettings,
             stateSave: false,
             initComplete: function () {
+              const api = this.api();
+              // Apply hidden column styles via the DataTables API.
+              // columnDefs visible:false is not reliably honoured at init time in
+              // DataTables 2.x; calling column(i).visible(false) after initComplete
+              // is the guaranteed path.
+              //
+              // No rowNumberOffset: when rowNumbersEnabled, ConvertDataFrameToDataTableFormat
+              // prepends the row-number column at index 0 of cachedProcessedData.Columns,
+              // so i already equals the correct DataTables column index directly.
+              // Adding +1 would hide the wrong column (off-by-one).
+              for (let i = 0; i < cachedProcessedData!.Columns.length; i++) {
+                if (!cachedProcessedData!.Columns[i].visible) {
+                  api.column(i).visible(false);
+                }
+              }
               if (props.options.columnFiltersEnabled) {
-                enableColumnFilters(this.api());
+                enableColumnFilters(api);
               }
               if (mountedRef.current) {
                 setDataTableReady(true);
@@ -397,9 +412,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       id={dataTableWrapperId}
       className={divStyles}
       style={{ width: '100%', height: '100%', position: 'relative' }}
+      data-testid="datatable-panel-container"
     >
       {!dataTableReady && (
         <div
+          data-testid="datatable-panel-loading"
           style={{
             position: 'absolute',
             inset: 0,
@@ -416,6 +433,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       )}
       {hasData && props.data && (
         <table
+          data-testid="datatable-panel-table"
           style={{ width: '100%', visibility: dataTableReady ? 'visible' : 'hidden' }}
           id={dataTableId}
           ref={dataTableDOMRef}

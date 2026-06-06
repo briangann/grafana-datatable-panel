@@ -135,15 +135,16 @@ export const ConvertDataFrameToDataTableFormat = (
       // @ts-ignore
       rows[i].rowNumber = i+1;
     }
-    // hide columns
-    for (let index = 0; index < columns.length; index++) {
-      const aCell = columns[index];
-      if (aCell.columnStyles && aCell.columnStyles.length > 0) {
-        const aStyle = aCell.columnStyles[0];
-        if (aStyle.activeStyle === ColumnStyles.HIDDEN) {
-          aCell.visible = false;
-        }
-    }
+  }
+  // Mark hidden columns — runs unconditionally so hidden styles work
+  // regardless of whether row numbers are enabled.
+  for (let index = 0; index < columns.length; index++) {
+    const aCell = columns[index];
+    if (aCell.columnStyles && aCell.columnStyles.length > 0) {
+      const aStyle = aCell.columnStyles[0];
+      if (aStyle.activeStyle === ColumnStyles.HIDDEN) {
+        aCell.visible = false;
+      }
     }
   }
 
@@ -346,17 +347,12 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
     //if (ignoreNullValues) {
     //  columnDefDict.defaultContent = '-';
     //}
-    // hide columns that are marked hidden
-    // for (let i = 0; i < aColumn.Columns.length; i++) {
-    //   if (cachedProcessedData.Columns[i].hidden) {
-    //     newDT.column(i + rowNumberOffset).visible(false);
-    //   }
-    // }
-    //let ignoreNullValues = this.getColumnIgnoreNullValue(i);
-    //if (ignoreNullValues) {
-    //  columnDefDict.defaultContent = '-';
-    //}
-
+    // Apply visibility: ConvertDataFrameToDataTableFormat sets column.visible=false
+    // for HIDDEN column styles. Propagate that flag to the DataTables column def so
+    // the column is actually hidden in the rendered table.
+    if (!dtData.Columns[i].visible) {
+      columnDefDict.visible = false;
+    }
     columnDefs.push(columnDefDict);
   }
   // this prevents the dialog popup when toggling row numbers in the editor
