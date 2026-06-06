@@ -472,8 +472,43 @@ describe('BuildColumnDefs render callback', () => {
     expect(renderCol0(null, 'display', rowWithPlainNumber, { col: 0 })).toBe(7);
   });
 
-  it('returns valueFormatted for type=undefined-string type (falls through to formatted)', () => {
+  it('returns valueFormatted for type=display on a string column', () => {
     expect(renderCol0(null, 'display', flatRow, { col: 0 })).toBe('alpha');
+  });
+
+  it('returns "" for type=display when valueFormatted is empty (null rawValue)', () => {
+    // This was the regression path: valueFormatted='' is falsy, so a truthiness guard
+    // would fall through and return the raw FormattedColumnValue object → '[object Object]'.
+    const nullCell: import('types').FormattedColumnValue = {
+      valueRaw: null,
+      valueFormatted: '',
+      valueRounded: null,
+      valueRoundedAndFormatted: null,
+    };
+    const rowWithNull = [nullCell, formattedNumber];
+    expect(renderCol0(null, 'display', rowWithNull, { col: 0 })).toBe('');
+  });
+
+  it('returns null valueRaw for type=sort when valueFormatted is empty (null rawValue)', () => {
+    const nullCell: import('types').FormattedColumnValue = {
+      valueRaw: null,
+      valueFormatted: '',
+      valueRounded: null,
+      valueRoundedAndFormatted: null,
+    };
+    const rowWithNull = [nullCell, formattedNumber];
+    expect(renderCol0(null, 'sort', rowWithNull, { col: 0 })).toBeNull();
+  });
+
+  it('returns "" for type=filter when valueFormatted is empty (null rawValue)', () => {
+    const nullCell: import('types').FormattedColumnValue = {
+      valueRaw: null,
+      valueFormatted: '',
+      valueRounded: null,
+      valueRoundedAndFormatted: null,
+    };
+    const rowWithNull = [nullCell, formattedNumber];
+    expect(renderCol0(null, 'filter', rowWithNull, { col: 0 })).toBe('');
   });
 });
 
@@ -491,7 +526,11 @@ describe('BuildColumnDefs — no data callback', () => {
       rowNumbersEnabled: false, fontSizePercent: '100%', alignment: { numbers: true, strings: false },
       timeRange: buildTimeRange(), replaceVariables: (s: string) => s, dtData,
     });
-    expect(asAny(defs.find((d) => asAny(d).targets === 0)).data).toBeUndefined();
+    const colDef = defs.find((d) => asAny(d).targets === 0);
+    // Positive contract: the def was found and has a render function.
+    expect(typeof asAny(colDef).render).toBe('function');
+    // data accessor must be absent — DataTables falls back to the raw row array element.
+    expect(Object.prototype.hasOwnProperty.call(colDef, 'data')).toBe(false);
   });
 });
 

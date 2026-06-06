@@ -184,7 +184,10 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
           // returns the whole object
           return returnValue;
         }
-        if (returnValue && returnValue?.valueFormatted) {
+        // Use shape detection rather than truthiness: valueFormatted may be '' (for null/object
+        // raw values), which is falsy. A truthiness check would fall through and return the raw
+        // FormattedColumnValue object, causing DataTables to render '[object Object]'.
+        if (returnValue !== null && typeof returnValue === 'object' && 'valueFormatted' in returnValue) {
           if (type === 'sort') {
             return returnValue.valueRaw;
           }
@@ -194,7 +197,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
             // rather than the underlying numeric value.
             return returnValue.valueFormatted;
           }
-          // all others get the formatted value
+          // display and all other types get the formatted value (may be '')
           return returnValue.valueFormatted;
         }
         // the Row column is using just numerics, no formatting
