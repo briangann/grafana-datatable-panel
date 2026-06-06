@@ -80,10 +80,11 @@ describe('ConvertDataFrameToDataTableFormat', () => {
   });
 
   it('wraps every cell in FormattedColumnValue so render/mappings work uniformly, keyed by normalized field name', () => {
-    // BUG FIXED: previously FormatColumnValue was only called when a column style was present.
-    // Raw values were passed to ApplyMappings, which checks value.valueRaw — always undefined on
-    // a plain number/string — so mappings silently never applied without a style. Fix: always
-    // call FormatColumnValue (with null style) so every cell is a FormattedColumnValue.
+    // BUG FIXED: previously cells without a column style were stored as raw primitives.
+    // ApplyMappings checks value.valueRaw — always undefined on a plain number/string —
+    // so mappings silently never applied without a style. Fix: manually wrap every cell in
+    // a minimal FormattedColumnValue (without calling FormatColumnValue, to avoid applying
+    // the plugin's default date format and overriding Grafana field overrides for time fields).
     const { rows } = ConvertDataFrameToDataTableFormat({
       ...baseOpts,
       dataFrames: [twoFieldFrame()],

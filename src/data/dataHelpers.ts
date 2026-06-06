@@ -82,7 +82,12 @@ export const ConvertDataFrameToDataTableFormat = (
         // ApplyMappings (which requires .valueRaw) can run. Do NOT call FormatColumnValue
         // here: for time fields that would apply the plugin's default date format string,
         // overriding whatever the user has already configured via Grafana field overrides.
-        value = { valueRaw: rawValue, valueFormatted: rawValue != null && typeof rawValue !== 'object' ? String(rawValue) : '', valueRounded: null, valueRoundedAndFormatted: null };
+        value = {
+          valueRaw: rawValue,
+          valueFormatted: rawValue != null && typeof rawValue !== 'object' ? String(rawValue) : '',
+          valueRounded: null,
+          valueRoundedAndFormatted: null,
+        };
       }
       const mappings = columnMappings[j];
       if (mappings && mappings.length > 0) {

@@ -67,7 +67,7 @@ interface AngularDatatableOptions {
  */
 export const DatatablePanelMigrationHandler = (panel: PanelModel<DatatableOptions>): Partial<DatatableOptions> => {
   // an angular panel will have the property 'datatableTheme` defined, trigger migration if it exists
-  if (!(panel as any).datatableTheme) {
+  if (!(panel as unknown as AngularDatatableOptions).datatableTheme) {
     // not angular, just return the options if currently set
     if (!panel.options) {
       // This happens on the first load or when migrating from angular
