@@ -246,7 +246,7 @@
         "lengthChangeEnabled": false,
         "orderColumnEnabled": false,
         "rowNumbersEnabled": true,
-        "rowsPerPage": 20,
+        "rowsPerPage": 25,
         "scroll": false,
         "searchEnabled": true,
         "searchHighlightingEnabled": false,
