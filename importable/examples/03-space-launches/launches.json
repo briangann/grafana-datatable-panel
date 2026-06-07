@@ -97,8 +97,8 @@
               "ignoreNullValues": true,
               "unitFormat": "short",
               "thresholds": [
-                { "color": "#299c46", "state": 0, "value": 0 },
-                { "color": "#f53636", "state": 2, "value": 0.5 },
+                { "color": "#f53636", "state": 2, "value": 0 },
+                { "color": "#299c46", "state": 0, "value": 0.5 },
                 { "color": "#ed8128", "state": 1, "value": 1.5 }
               ]
             },
