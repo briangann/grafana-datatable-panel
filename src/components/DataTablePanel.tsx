@@ -23,7 +23,7 @@ import { LoadingState, PanelProps, textUtil } from '@grafana/data';
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { DatatableOptions, DTColumnType, DTData, FormattedColumnValue } from 'types';
+import { DatatableOptions, DTColumnType, DTData, FlatRow, FormattedColumnValue } from 'types';
 import { BuildColumnDefs, ConvertDataFrameToDataTableFormat } from 'data/dataHelpers';
 import { ApplyColumnWidthHints } from 'data/columns/columnWidthHints';
 import { buildSearchBarLayout } from 'data/layout/buildSearchBarLayout';
@@ -211,7 +211,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         //const useTimeZone = getTimeZone();
 
         let dtColumns: DTColumnType[] = [];
-        let flattenedRows: Array<Array<FormattedColumnValue | number>> = [];
+        let flattenedRows: FlatRow[] = [];
         const result = ConvertDataFrameToDataTableFormat({
           dataFrames,
           fieldConfig: props.fieldConfig,
@@ -448,11 +448,11 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 const GetFlattenRows = (
   rows: Array<Record<string, FormattedColumnValue | number>>,
   columns: DTColumnType[],
-): Array<Array<FormattedColumnValue | number>> => {
-  const flattenedRows: Array<Array<FormattedColumnValue | number>> = [];
+): FlatRow[] => {
+  const flattenedRows: FlatRow[] = [];
   for (let i = 0; i < rows.length; i++) {
     const aRow = rows[i];
-    const flattenedRow: Array<FormattedColumnValue | number> = [];
+    const flattenedRow: FlatRow = [];
     for (let colIndex = 0; colIndex < columns.length; colIndex++) {
       const name = columns[colIndex].data as string;
       flattenedRow.push(aRow[name]);

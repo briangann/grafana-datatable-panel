@@ -7,6 +7,7 @@ import {
   ColumnStyles,
   DTColumnType,
   DTData,
+  FlatRow,
   FormattedColumnValue,
   Threshold,
 } from 'types';
@@ -53,7 +54,7 @@ const dtData: DTData = {
   Rows: [[formattedString, formattedNumber]],
 };
 
-const flatRow: Array<FormattedColumnValue | number> = [formattedString, formattedNumber];
+const flatRow: FlatRow = [formattedString, formattedNumber];
 
 const meta = (col: number) => ({ col } as CellMetaSettings);
 

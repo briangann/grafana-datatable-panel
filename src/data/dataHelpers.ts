@@ -10,7 +10,7 @@ import { applyCreatedCell, CreatedCellContext, renderCell } from './cells/column
 import { FormatColumnValue } from './cells/cellRenderer';
 import { ApplyGrafanaOverrides } from './mappings/overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
-import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FormattedColumnValue } from 'types';
+import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FlatRow, FormattedColumnValue } from 'types';
 import { ApplyColumnStyles } from './columns/columnStyles';
 import { ApplyMappings, GetMappings } from './mappings/mappingProcessor';
 
@@ -224,7 +224,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
       render: (
         _data: unknown,
         type: string | undefined,
-        val: Array<FormattedColumnValue | number>,
+        val: FlatRow,
         meta: CellMetaSettings,
       ) => renderCell(dtData, _data, type, val, meta),
       createdCell: (cell: Node, _cellData: unknown, rowData: unknown, rowIndex: number, colIndex: number) =>

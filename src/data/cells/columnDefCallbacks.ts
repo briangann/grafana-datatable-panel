@@ -4,6 +4,7 @@ import {
   ColumnStyleColoring,
   ColumnStyles,
   DTData,
+  FlatRow,
   FormattedColumnValue,
 } from 'types';
 import { computeCellAlignment, computeMetricCellColors } from './cellStyleComputer';
@@ -25,7 +26,7 @@ export function renderCell(
   dtData: DTData,
   _data: unknown,
   type: string | undefined,
-  val: Array<FormattedColumnValue | number>,
+  val: FlatRow,
   meta: CellMetaSettings,
 ): unknown {
   if (type === undefined) {
