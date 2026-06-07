@@ -1,0 +1,172 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_TESTDATA",
+      "label": "TestData DB",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "grafana-testdata-datasource",
+      "pluginName": "TestData DB"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "briangann-datatable-panel",
+      "name": "Datatable Panel",
+      "version": "2.0.0"
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.6.0"
+    },
+    {
+      "type": "datasource",
+      "id": "grafana-testdata-datasource",
+      "name": "TestData DB",
+      "version": "1.0.0"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0,211,255,1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Hosts",
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
+      "id": 3,
+      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+      "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } }, "overrides": [] },
+      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "host\nweb-01\nweb-02\ndb-01\ndb-02\ncache-01\ncache-02\nkubernetes-01\nkubernetes-02\nmonitoring\nbastion" }]
+    },
+    {
+      "type": "stat",
+      "title": "Healthy (All metrics OK)",
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 0 },
+      "id": 4,
+      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+      "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }, "overrides": [] },
+      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "host\nweb-01\ncache-01\ncache-02\nmonitoring\nbastion\nkubernetes-02" }]
+    },
+    {
+      "type": "stat",
+      "title": "Needs Attention",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
+      "id": 5,
+      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+      "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "orange" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] } }, "overrides": [] },
+      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "host\nweb-02\ndb-01\ndb-02\nkubernetes-01" }]
+    },
+    {
+      "type": "text",
+      "title": "About This Example Set",
+      "gridPos": { "h": 12, "w": 10, "x": 0, "y": 4 },
+      "id": 1,
+      "options": {
+        "mode": "markdown",
+        "content": "## Server / Host Metrics\n\nMonitor infrastructure across your fleet with per-column threshold coloring — each metric is evaluated independently.\n\n### Features demonstrated\n\n- 🔢 **Row numbers** — sequentially numbered rows\n- 📊 **Per-column cell coloring** — CPU, Memory, and Disk each fire their own thresholds independently. A server with high CPU but low memory shows one red cell and green cells for the rest.\n- 🔗 **Clickthrough** — click any hostname to drill into that host\n- 📄 **Pagination** — 10 rows per page for large fleets\n- 📐 **Column width hints** — the Last Updated column has an explicit width\n\n[Open Overview →](/d/dt-server-metrics-overview)",
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false }
+      }
+    },
+    {
+      "type": "briangann-datatable-panel",
+      "title": "Server Metrics Preview",
+      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+      "fieldConfig": { "defaults": { "mappings": [] }, "overrides": [] },
+      "gridPos": { "h": 12, "w": 14, "x": 10, "y": 4 },
+      "id": 2,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "cpu",
+            "label": "CPU %",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "cell",
+              "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"],
+              "decimals": "1",
+              "ignoreNullValues": true,
+              "unitFormat": "percent",
+              "thresholds": [
+                { "color": "#299c46", "state": 0, "value": 0 },
+                { "color": "#ed8128", "state": 1, "value": 70 },
+                { "color": "#f53636", "state": 2, "value": 90 }
+              ]
+            },
+            "stringStyle": { "clickThrough": "", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": true, "clickThroughSanitize": true, "splitByPattern": "" }
+          }
+        ],
+        "columnWidthHints": [],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "-",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": false,
+        "lengthChangeEnabled": false,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": true,
+        "rowsPerPage": 6,
+        "scroll": false,
+        "searchEnabled": false,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": true,
+        "transformation": "timeseries-to-columns",
+        "transformationAggregations": ["last"],
+        "wrapToFitEnabled": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+          "refId": "A",
+          "scenarioId": "csv_metric_values",
+          "csvContent": "host,cpu\nweb-01,45.2\nweb-02,78.9\ndb-01,91.4\ndb-02,61.0\ncache-01,34.1\ncache-02,22.5\nkubernetes-01,95.2\nkubernetes-02,68.3\nmonitoring,28.7\nbastion,5.1"
+        }
+      ],
+      "pluginVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["datatable-examples"],
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Server Metrics — Landing",
+  "uid": "dt-server-metrics-landing",
+  "version": 1
+}
