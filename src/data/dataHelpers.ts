@@ -6,13 +6,12 @@ import {
   InterpolateFunction,
   TimeRange
 } from '@grafana/data';
-import { computeCellAlignment, computeMetricCellColors } from './cells/cellStyleComputer';
+import { applyCreatedCell, CreatedCellContext, renderCell } from './cells/columnDefCallbacks';
 import { FormatColumnValue } from './cells/cellRenderer';
 import { ApplyGrafanaOverrides } from './mappings/overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
-import { ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FormattedColumnValue } from 'types';
+import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FormattedColumnValue } from 'types';
 import { ApplyColumnStyles } from './columns/columnStyles';
-import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './cells/createdCellHelpers';
 import { ApplyMappings, GetMappings } from './mappings/mappingProcessor';
 
 export function normalizeFieldName(field: string) {
@@ -189,6 +188,14 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
     dtData,
   } = opts;
 
+  const ctx: CreatedCellContext = {
+    dtData,
+    rowNumbersEnabled,
+    fontSizePercent,
+    timeRange,
+    replaceVariables,
+  };
+
   const columnDefs: ConfigColumnDefs[] = [];
   for (let i = 0; i < dtData.Columns.length; i++) {
     let columnType = dtData.Columns[i].type!;
@@ -214,103 +221,14 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
       // Time columns are coerced to 'number' above so DataTables sorts by epoch
       // value rather than its own date parser, which conflicts with our formatting.
       ...(columnType && { type: columnType }),
-      render: function (_data: unknown, type: string | undefined, val: Array<FormattedColumnValue | number>, meta: CellMetaSettings) {
-        if (type === undefined) {
-          return null;
-        }
-        const aColumn = dtData.Columns[meta.col];
-        if (aColumn === undefined) {
-          return null;
-        }
-        const idx = meta.col;
-        let returnValue = val[idx];
-        if (type === 'type') {
-          // returns the whole object
-          return returnValue;
-        }
-        // Use shape detection rather than truthiness: valueFormatted may be '' (for null/object
-        // raw values), which is falsy. A truthiness check would fall through and return the raw
-        // FormattedColumnValue object, causing DataTables to render '[object Object]'.
-        if (returnValue !== null && typeof returnValue === 'object' && 'valueFormatted' in returnValue) {
-          if (type === 'sort') {
-            return returnValue.valueRaw;
-          }
-          if (type === 'filter') {
-            // WYSIWYG: filter against the displayed value so users match
-            // what they see in the cell (e.g. "5.00" with decimals/units)
-            // rather than the underlying numeric value.
-            return returnValue.valueFormatted;
-          }
-          // display and all other types get the formatted value (may be '')
-          return returnValue.valueFormatted;
-        }
-        // the Row column is using just numerics, no formatting
-        return returnValue;
-      },
-      createdCell: function (cell: Node, _cellData: unknown, rowData: unknown, rowIndex: number, colIndex: number) {
-        const $cell = $(cell);
-        // Always-applied before any guards: row-number centering and font size.
-        if (rowNumbersEnabled && colIndex === 0) {
-          $cell.css('text-align', 'center');
-        }
-        $cell.css('font-size', fontSizePercent);
-
-        const aColumn = dtData.Columns[colIndex];
-        // No formatting needed without a style.
-        if (!aColumn || aColumn.columnStyles.length === 0) {
-          return;
-        }
-        // orthogonal sort requires getting cell data differently
-        const cellContent = $(cell).html();
-        // hidden columns have null data
-        if (cellContent === null || rowData === null) {
-          return;
-        }
-        // Use dtData.Rows (not the DOM content) as the source of truth for cell values.
-        const aRow = dtData.Rows[rowIndex];
-        // Rows can change during editor interaction; bail if the row is gone.
-        if (!aRow) {
-          return;
-        }
-        const cellEntry = aRow[colIndex];
-        // Guard against non-object cell values (e.g. the rowNumber column stores a plain number).
-        if (typeof cellEntry !== 'object' || cellEntry === null) {
-          return;
-        }
-        const cellValueFormatted = cellEntry as FormattedColumnValue;
-        const aStyle = aColumn.columnStyles[0];
-
-        if (aStyle.activeStyle === ColumnStyles.STRING) {
-          const newHtml = ProcessStringValueStyle(aStyle, rowData, cellValueFormatted, timeRange, replaceVariables);
-          if (newHtml !== null) {
-            $cell.html(newHtml);
-          }
-        }
-
-        if (aStyle.activeStyle === ColumnStyles.METRIC) {
-          const colorMode = aStyle.metricStyle.colorMode;
-          // Row/RowColumn modes walk sibling DOM nodes — must stay in the callback.
-          if (colorMode === ColumnStyleColoring.Row) {
-            processRowStyle(cell, rowData, dtData);
-          }
-          if (colorMode === ColumnStyleColoring.RowColumn) {
-            processRowColumnStyle(cell, rowData, dtData.Columns);
-          }
-          const metricColors = computeMetricCellColors(aStyle, cellValueFormatted);
-          if (metricColors.color !== undefined) {
-            $cell.css('color', metricColors.color);
-          }
-          if (metricColors.bgColor !== undefined) {
-            $cell.css('background-color', metricColors.bgColor);
-          }
-        }
-
-        // Per-column alignment override — computeCellAlignment guards the whitelist.
-        const alignment = computeCellAlignment(aStyle);
-        if (alignment !== null) {
-          $cell.css('text-align', alignment);
-        }
-      },
+      render: (
+        _data: unknown,
+        type: string | undefined,
+        val: Array<FormattedColumnValue | number>,
+        meta: CellMetaSettings,
+      ) => renderCell(dtData, _data, type, val, meta),
+      createdCell: (cell: Node, _cellData: unknown, rowData: unknown, rowIndex: number, colIndex: number) =>
+        applyCreatedCell(ctx, cell, _cellData, rowData, rowIndex, colIndex),
     };
     // Apply visibility: ConvertDataFrameToDataTableFormat sets column.visible=false
     // for HIDDEN column styles. Propagate that flag to the DataTables column def so
