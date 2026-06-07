@@ -6,9 +6,11 @@ import {
   DTData,
   FlatRow,
   FormattedColumnValue,
+  RowColorEntry,
 } from 'types';
+import { getCellColors } from './cellColors';
 import { computeCellAlignment, computeMetricCellColors } from './cellStyleComputer';
-import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './createdCellHelpers';
+import { processRowColumnStyle, ProcessStringValueStyle } from './createdCellHelpers';
 
 export type CreatedCellContext = {
   dtData: DTData;
@@ -16,6 +18,11 @@ export type CreatedCellContext = {
   fontSizePercent: string;
   timeRange: TimeRange;
   replaceVariables: InterpolateFunction;
+  // Keyed by rowIndex (integer, same for all cells in a row).
+  // Populated by processRowStyle when a METRIC/Row column fires createdCell;
+  // read by every subsequent cell in the same row regardless of column style.
+  // Map<number> avoids WeakMap identity issues when DataTables copies rowData.
+  rowColorCache: Map<number, RowColorEntry>;
 };
 
 /**
@@ -71,12 +78,34 @@ export function applyCreatedCell(
   }
   $cell.css('font-size', ctx.fontSizePercent);
 
-  // Apply row color stored by processRowStyle for cells created after the METRIC
-  // column's createdCell fired (e.g. columns to the right of the status column).
-  const rowColorData = $(cell.parentNode as HTMLElement).data('dt-row-color') as { bg: string; fg: string } | undefined;
-  if (rowColorData) {
-    $cell.css('color', rowColorData.fg + ' !important');
-    $cell.css('background-color', rowColorData.bg + ' !important');
+  // Apply row coloring: scan all columns for the METRIC/Row column with the
+  // worst threshold and apply it to THIS cell now. Using ctx.dtData.Rows[rowIndex]
+  // (our FlatRow) avoids DataTables' internal rowData representation which may
+  // be a NamedRow (object) where numeric indexing returns undefined.
+  const flatRowForColor = ctx.dtData.Rows[rowIndex];
+  if (flatRowForColor) {
+    let worstColorIndex = -1;
+    let worstBg: string | null = null;
+    for (let k = 0; k < ctx.dtData.Columns.length; k++) {
+      const col = ctx.dtData.Columns[k];
+      if (!col.columnStyles?.length) { continue; }
+      const s = col.columnStyles[0];
+      if (s.activeStyle !== ColumnStyles.METRIC) { continue; }
+      if (!s.metricStyle) { continue; }
+      const cm = s.metricStyle.colorMode;
+      if (cm !== ColumnStyleColoring.Row && cm !== ColumnStyleColoring.RowColumn) { continue; }
+      const cellEntry = flatRowForColor[k];
+      if (typeof cellEntry !== 'object' || cellEntry === null) { continue; }
+      const colorData = getCellColors(s, cellEntry as FormattedColumnValue);
+      if (colorData?.bgColorIndex !== null && colorData?.bgColorIndex !== undefined && colorData.bgColorIndex > worstColorIndex) {
+        worstColorIndex = colorData.bgColorIndex;
+        worstBg = colorData.bgColor;
+      }
+    }
+    if (worstBg) {
+      cell.style.setProperty('color', 'white', 'important');
+      cell.style.setProperty('background-color', worstBg, 'important');
+    }
   }
 
   const aColumn = ctx.dtData.Columns[colIndex];
@@ -107,9 +136,7 @@ export function applyCreatedCell(
 
   if (aStyle.activeStyle === ColumnStyles.METRIC) {
     const colorMode = aStyle.metricStyle.colorMode;
-    if (colorMode === ColumnStyleColoring.Row) {
-      processRowStyle(cell, rowData, ctx.dtData);
-    }
+    // Row coloring is handled above (the FlatRow scan before guards) for all cells.
     if (colorMode === ColumnStyleColoring.RowColumn) {
       processRowColumnStyle(cell, rowData, ctx.dtData.Columns);
     }

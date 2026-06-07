@@ -194,6 +194,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
     fontSizePercent,
     timeRange,
     replaceVariables,
+    rowColorCache: new Map(),
   };
 
   const columnDefs: ConfigColumnDefs[] = [];

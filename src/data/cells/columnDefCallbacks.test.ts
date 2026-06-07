@@ -131,6 +131,7 @@ function makeCtx(overrides: Partial<CreatedCellContext> = {}): CreatedCellContex
     fontSizePercent: '100%',
     timeRange: {} as unknown as TimeRange,
     replaceVariables: (s: string) => s,
+    rowColorCache: new Map(),
     ...overrides,
   };
 }
@@ -328,10 +329,10 @@ describe('applyCreatedCell — jQuery CSS paths', () => {
   });
 
   it('row color is applied to unstyled cells created after the METRIC column fires (last-column gap fix)', () => {
-    // Regression: processRowStyle colors existing siblings via .children() but
-    // DataTables creates cells in column order — cells to the RIGHT of the METRIC
-    // column don't exist yet when createdCell fires. Fix: store color on the tr
-    // via jQuery .data() and read it at the start of every applyCreatedCell.
+    // Regression: DataTables passes its own internal rowData representation to
+    // createdCell (may be a NamedRow object), so numeric indexing into it fails.
+    // Fix: applyCreatedCell scans ctx.dtData.Rows[rowIndex] (our FlatRow) for
+    // METRIC/Row columns and applies the color to every cell, including unstyled ones.
     const metricCol = makeMetricColumn(ColumnStyleColoring.Row, threshold);
     const yearCol = makeStylelessColumn();   // no styles — simulates the "year" column
     const yearValue: FormattedColumnValue = { valueRaw: 2024, valueFormatted: '2024', valueRounded: 2024, valueRoundedAndFormatted: '2024' };
@@ -341,7 +342,6 @@ describe('applyCreatedCell — jQuery CSS paths', () => {
       dtData: { Columns: [metricCol, yearCol], Rows: [flatRow] },
     });
 
-    // Both cells share the same tr — required for the .data() propagation.
     const tr = document.createElement('tr');
     const metricCell = document.createElement('td');
     const yearCell = document.createElement('td');
@@ -350,19 +350,12 @@ describe('applyCreatedCell — jQuery CSS paths', () => {
     tr.appendChild(metricCell);
     tr.appendChild(yearCell);
 
-    // Fire createdCell for the METRIC column (colIndex=0).
-    // processRowStyle stores the row color on the tr.
+    // Both cells independently scan ctx.dtData.Rows[rowIndex] for METRIC/Row columns.
     applyCreatedCell(ctx, metricCell, null, flatRow, 0, 0);
-
-    // Fire createdCell for the unstyled year column (colIndex=1).
-    // It has no columnStyles so would normally return early — but the stored
-    // row color must still be applied to yearCell.
     applyCreatedCell(ctx, yearCell, null, flatRow, 0, 1);
 
-    // The metric cell gets colored directly by processRowStyle.
+    // Both cells must receive the same row color regardless of their own style.
     expect(metricCell.style.backgroundColor).not.toBe('');
-    // The year cell (unstyled, would normally return early) picks up the stored
-    // row color from the tr via the dt-row-color data attribute.
     expect(yearCell.style.backgroundColor).toBe(metricCell.style.backgroundColor);
   });
 });

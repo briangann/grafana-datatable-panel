@@ -1,5 +1,5 @@
 import { getCellColors } from "./cellColors";
-import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FlatRow, FormattedColumnValue } from "types";
+import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FlatRow, FormattedColumnValue, RowColorEntry } from "types";
 import { ProcessClickthrough } from "./cellRenderer";
 import { InterpolateFunction, TimeRange } from "@grafana/data";
 
@@ -7,7 +7,9 @@ import { InterpolateFunction, TimeRange } from "@grafana/data";
 export const processRowStyle = (
   cell: HTMLElement,
   rowData: FlatRow,
-  dtData: DTData) => {
+  dtData: DTData,
+  rowColorCache: Map<number, RowColorEntry>,
+  rowIndex: number) => {
 
   let rowColorIndex = -1;
   let rowColorData = null;
@@ -45,13 +47,15 @@ export const processRowStyle = (
   const fmtColors = 'color: ' + color + ' !important;' +
     'background-color: ' + rowColor + ' !important;';
 
-  const $tr = $(cell.parentNode as HTMLElement);
-  $tr.children().attr('style', (_i: number, s: string) => s + fmtColors);
+  // Color all existing siblings (cells already in the DOM at createdCell time).
+  $(cell.parentNode as HTMLElement)
+    .children()
+    .attr('style', (_i: number, s: string) => s + fmtColors);
 
-  // Store the row color on the tr so cells created AFTER this createdCell fires
-  // (i.e. columns to the right of the METRIC column) can apply it too.
+  // Store in the WeakMap so cells created AFTER this createdCell fires
+  // (columns to the right) can pick up the color when their own createdCell runs.
   if (rowColor) {
-    $tr.data('dt-row-color', { bg: rowColor, fg: color });
+    rowColorCache.set(rowIndex, { bg: rowColor, fg: color });
   }
 }
 
