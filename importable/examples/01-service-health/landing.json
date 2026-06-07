@@ -57,7 +57,7 @@
       "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
       "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } }, "overrides": [] },
-      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "service\nauthentication\napi-gateway\npayment\nnotifications\nsearch\ndatabase" }]
+      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "service\nauthentication\napi-gateway\npayment\nnotifications\nsearch\ndatabase\nauth-service\ncache" }]
     },
     {
       "type": "stat",
@@ -67,7 +67,7 @@
       "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
       "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
       "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }, "overrides": [] },
-      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "service\nauthentication\npayment\ndatabase" }]
+      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "service\nauthentication\npayment\ndatabase\ncache" }]
     },
     {
       "type": "stat",
@@ -155,7 +155,7 @@
           "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
           "refId": "A",
           "scenarioId": "csv_metric_values",
-          "csvContent": "service,error_rate\nauthentication,0.8\napi-gateway,2.1\npayment,0.2\nnotifications,7.3\nsearch,1.5\ndatabase,0.1"
+          "csvContent": "service,error_rate\nauthentication,0.8\napi-gateway,2.1\npayment,0.2\nnotifications,7.3\nsearch,1.5\ndatabase,0.1\nauth-service,3.8\ncache,0.0"
         }
       ],
       "pluginVersion": "2.0.0"

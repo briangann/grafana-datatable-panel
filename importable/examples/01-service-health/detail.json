@@ -123,7 +123,7 @@
           "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
           "refId": "A",
           "scenarioId": "csv_metric_values",
-          "csvContent": "metric,current_value,warning_threshold,critical_threshold,status\nLatency (ms),142,200,500,0\nError Rate (%),0.8,1,5,0\nUptime (%),99.95,99.9,99,0\nCPU (%),68,70,90,1\nMemory (%),54,75,90,0"
+          "csvContent": "metric,current_value,warning_threshold,critical_threshold,status\nCPU (%),68,70,90,1\nMemory (%),54,75,90,0\nDisk (%),38,80,95,0\nQueue Fill (%),91,70,90,2\nThread Pool (%),42,70,90,0"
         }
       ],
       "pluginVersion": "2.0.0"
