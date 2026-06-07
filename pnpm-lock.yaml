@@ -219,6 +219,9 @@ importers:
       jest-environment-jsdom:
         specifier: ^29.5.0
         version: 29.7.0
+      jquery:
+        specifier: ^3.7.1
+        version: 3.7.1
       markdownlint-cli2:
         specifier: ^0.22.1
         version: 0.22.1
@@ -8664,7 +8667,7 @@ snapshots:
   datatables.mark.js@2.1.0:
     dependencies:
       datatables.net: 2.3.8
-      jquery: 3.7.1
+      jquery: 4.0.0
       mark.js: 8.11.1
 
   datatables.net-buttons-dt@3.2.6:
@@ -8742,18 +8745,18 @@ snapshots:
     dependencies:
       datatables.net-dt: 2.3.8
       datatables.net-scroller: 2.4.3
-      jquery: 3.7.1
+      jquery: 4.0.0
 
   datatables.net-scroller-jqui@2.4.3:
     dependencies:
       datatables.net-jqui: 2.3.8
       datatables.net-scroller: 2.4.3
-      jquery: 3.7.1
+      jquery: 4.0.0
 
   datatables.net-scroller@2.4.3:
     dependencies:
       datatables.net: 2.3.8
-      jquery: 3.7.1
+      jquery: 4.0.0
 
   datatables.net-searchpanes-dt@2.3.5:
     dependencies:

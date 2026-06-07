@@ -1,14 +1,13 @@
 import { getCellColors } from "./cellColors";
-import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FormattedColumnValue } from "types";
+import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FlatRow, FormattedColumnValue } from "types";
 import { ProcessClickthrough } from "./cellRenderer";
 import { InterpolateFunction, TimeRange } from "@grafana/data";
 
 
 export const processRowStyle = (
-  cell: any,
-  rowData: any,
-  dtData: DTData,
-  rowNumberOffset: number) => {
+  cell: HTMLElement,
+  rowData: FlatRow,
+  dtData: DTData) => {
 
   let rowColorIndex = -1;
   let rowColorData = null;
@@ -29,7 +28,7 @@ export const processRowStyle = (
     }
     rowColorData = getCellColors(
       aColumnStyle,
-      rowData[columnNumber + rowNumberOffset]
+      rowData[columnNumber] as FormattedColumnValue
     );
     if (!rowColorData) {
       continue;
@@ -46,17 +45,16 @@ export const processRowStyle = (
   const fmtColors = 'color: ' + color + ' !important;' +
     'background-color: ' + rowColor + ' !important;';
 
-  $(cell.parentNode)
+  $(cell.parentNode as HTMLElement)
     .children()
-    .attr('style', function (_i, s) { return s + fmtColors });
+    .attr('style', (_i: number, s: string) => s + fmtColors);
 
 }
 
 export const processRowColumnStyle = (
-  cell: any,
-  rowData: any,
-  columnsInCellData: DTColumnType[],
-  rowNumberOffset: number) => {
+  cell: HTMLElement,
+  rowData: FlatRow,
+  columnsInCellData: DTColumnType[]) => {
 
   let rowColorIndex = -1;
   let rowColorData = null;
@@ -77,7 +75,7 @@ export const processRowColumnStyle = (
         }
         rowColorData = getCellColors(
           aColumnStyle,
-          rowData[columnNumber + rowNumberOffset]
+          rowData[columnNumber] as FormattedColumnValue
         );
       }
       if (!rowColorData) {
@@ -95,22 +93,22 @@ export const processRowColumnStyle = (
   for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
     // when there are no styles for a cell, apply this "worst" color value
     if (!columnsInCellData[columnNumber].columnStyles) {
-      const children = $(cell.parentNode).children();
-      let aChild = children[columnNumber];
+      const children = $(cell.parentNode as HTMLElement).children();
+      const aChild = children[columnNumber];
       $(aChild).css('color', color);
       if (rowColor) {
         const fmtColors = 'background-color: ' + rowColor + ' !important;';
-        $(aChild).children().attr('style', function (_i, s) { return s + fmtColors });
+        $(aChild).children().attr('style', (_i: number, s: string) => s + fmtColors);
       }
     }
     // a metric style will already be applied and will indicate whatever threshold is met
     // for that cell, otherwise the cell needs to worst color.
     if (columnsInCellData[columnNumber]?.columnStyles[0]?.activeStyle !== ColumnStyles.METRIC) {
-      const children = $(cell.parentNode).children();
-      let aChild = children[columnNumber];
+      const children = $(cell.parentNode as HTMLElement).children();
+      const aChild = children[columnNumber];
       if (rowColor) {
         const fmtColors = 'background-color: ' + rowColor + ' !important;';
-        $(aChild).attr('style', function (_i, s) { return s + fmtColors });
+        $(aChild).attr('style', (_i: number, s: string) => s + fmtColors);
       }
     }
 
@@ -119,14 +117,14 @@ export const processRowColumnStyle = (
 
 export const ProcessStringValueStyle = (
   columnStyle: ColumnStyleItemType | null,
-  rowData: any,
+  rowData: FlatRow,
   valueFormatted: FormattedColumnValue,
   timeRange: TimeRange,
   replaceVariables: InterpolateFunction): string | null => {
 
   const processedURL = ProcessClickthrough(
     columnStyle,
-    rowData,
+    rowData as unknown as FormattedColumnValue[],
     valueFormatted,
     timeRange,
     replaceVariables);

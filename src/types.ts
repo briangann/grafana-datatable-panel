@@ -247,9 +247,12 @@ export interface FormattedColumnValue {
   valueRoundedAndFormatted: string | null,
 };
 
+export type NamedRow = Record<string, FormattedColumnValue | number>;
+export type FlatRow = Array<FormattedColumnValue | number>;
+
 export interface DTData {
   Columns: DTColumnType[];
-  Rows: any[];
+  Rows: FlatRow[];
 };
 
 export type ColumnStyling = {

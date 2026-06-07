@@ -11,7 +11,6 @@ export const plugin = new PanelPlugin<DatatableOptions>(DataTablePanel)
       FieldConfigProperty.Color,
       FieldConfigProperty.Decimals,
       FieldConfigProperty.DisplayName,
-      // @ts-ignore (workaround for runtime in v10.3 not having this)
       FieldConfigProperty.FieldMinMax,
       FieldConfigProperty.Filterable,
       FieldConfigProperty.Max,

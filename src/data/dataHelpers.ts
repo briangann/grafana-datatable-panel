@@ -1,57 +1,102 @@
-// FieldType across runtimes are not working
 import {
   DataFrame,
   Field,
   FieldConfigSource,
-  FieldType,
   GrafanaTheme2,
   InterpolateFunction,
   TimeRange
 } from '@grafana/data';
-import { getCellColors } from './cells/cellColors';
+import { applyCreatedCell, CreatedCellContext, renderCell } from './cells/columnDefCallbacks';
 import { FormatColumnValue } from './cells/cellRenderer';
 import { ApplyGrafanaOverrides } from './mappings/overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
-import { ColumnAlignment, ColumnAlignmentOptions, ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FormattedColumnValue } from 'types';
+import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FlatRow, FormattedColumnValue, NamedRow } from 'types';
 import { ApplyColumnStyles } from './columns/columnStyles';
-import { processRowColumnStyle, processRowStyle, ProcessStringValueStyle } from './cells/createdCellHelpers';
 import { ApplyMappings, GetMappings } from './mappings/mappingProcessor';
 
-function normalizeFieldName(field: string) {
+export function normalizeFieldName(field: string) {
   return field
     .replace(/ /g, '_')
     .replace(/[^a-zA-Z0-9_]/g, '')
     .toLowerCase();
 }
 
-export const DataFrameToDisplay = (frames: DataFrame[]) => {
-  const frame = frames[0];
-  const valueFields: Field[] = [];
-  let newestTimestamp = 0;
-  for (const aField of frame.fields) {
-    if (aField.type === FieldType.number) {
-      valueFields.push(aField);
-    }
-    else if (aField.type === FieldType.time) {
-      // get the "newest" timestamp from data
-      // check if timestamp is 0
-      let timestampIndex = aField.values.length - 1;
-      let aTimestamp = aField.values[timestampIndex];
-      if (newestTimestamp === 0) {
-        newestTimestamp = aTimestamp;
-      }
-      // check if data timestamp is newer
-      if (aTimestamp > newestTimestamp) {
-        newestTimestamp = aTimestamp;
-      }
-    }
-  }
-  if (newestTimestamp === 0) {
-    // use current time if none is found
-    newestTimestamp = new Date().getTime()
-  }
-};
+/** Wraps a raw cell value in a minimal FormattedColumnValue.
+ *
+ * Used when no column style is configured. Does NOT call FormatColumnValue so
+ * that time fields honor Grafana field overrides instead of the plugin's own
+ * date format string.
+ */
+export function wrapRawValue(rawValue: unknown): FormattedColumnValue {
+  return {
+    valueRaw: rawValue as FormattedColumnValue['valueRaw'],
+    valueFormatted: rawValue != null && typeof rawValue !== 'object' ? String(rawValue) : '',
+    valueRounded: null,
+    valueRoundedAndFormatted: null,
+  };
+}
 
+/** Resolves the final FormattedColumnValue for one cell.
+ *
+ * When a column style is present, delegates to FormatColumnValue.
+ * Otherwise wraps the raw value via wrapRawValue.
+ * Pre-computed mappings (stable per column) are applied after either path.
+ */
+export function resolveColumnValue(
+  userTimeZone: string,
+  aColumn: DTColumnType,
+  frameField: Field,
+  rawValue: unknown,
+  valueType: string,
+  mappings: ReturnType<typeof GetMappings>,
+): FormattedColumnValue {
+  let value: FormattedColumnValue;
+  if (aColumn.columnStyles && aColumn.columnStyles.length > 0) {
+    value = FormatColumnValue(userTimeZone, aColumn.columnStyles[0], frameField, rawValue, valueType);
+  } else {
+    value = wrapRawValue(rawValue);
+  }
+  if (mappings && mappings.length > 0) {
+    const mappedValue = ApplyMappings(value, mappings);
+    if (mappedValue !== null) {
+      value = mappedValue;
+    }
+  }
+  return value;
+}
+
+/** Marks columns as not visible when their first style is HIDDEN.
+ *
+ * Runs unconditionally so hidden styles work regardless of whether row
+ * numbers are enabled.
+ */
+export function markHiddenColumns(columns: DTColumnType[]): void {
+  for (const aCell of columns) {
+    if (aCell.columnStyles?.length > 0 && aCell.columnStyles[0].activeStyle === ColumnStyles.HIDDEN) {
+      aCell.visible = false;
+    }
+  }
+}
+
+/** Prepends a row-number column and stamps 1-based indices on every row. */
+export function prependRowNumbers(
+  columns: DTColumnType[],
+  rows: NamedRow[],
+): void {
+  columns.unshift({
+    title: 'row',
+    data: 'rowNumber',
+    type: 'number',
+    className: '',
+    fieldConfig: {},
+    columnStyles: [],
+    widthHint: '1%',
+    visible: true,
+  });
+  for (let i = 0; i < rows.length; i++) {
+    rows[i].rowNumber = i + 1;
+  }
+}
 
 type AlignmentFlags = {
   numbers: boolean;
@@ -60,7 +105,7 @@ type AlignmentFlags = {
 
 type ConvertDataFrameOptions = {
   dataFrames: DataFrame[];
-  fieldConfig: FieldConfigSource<any>;
+  fieldConfig: FieldConfigSource;
   userTimeZone: string;
   alignment: AlignmentFlags;
   rowNumbersEnabled: boolean;
@@ -71,13 +116,12 @@ type ConvertDataFrameOptions = {
 
 export const ConvertDataFrameToDataTableFormat = (
   opts: ConvertDataFrameOptions,
-): { columns: DTColumnType[]; rows: any[] } => {
+): { columns: DTColumnType[]; rows: NamedRow[] } => {
   const { fieldConfig, userTimeZone, alignment, rowNumbersEnabled, columnStyles, theme, replaceVariables } = opts;
-  DataFrameToDisplay(opts.dataFrames);
   const dataFrames = ApplyGrafanaOverrides(opts.dataFrames, theme, replaceVariables);
   const dataFrame = dataFrames[0];
   let columns: DTColumnType[] = dataFrame.fields.map((field) => {
-    const columnClassName = getColumnClassName(alignment, field.type as string)
+    const columnClassName = getColumnClassName(alignment, field.type as string);
     return {
       title: field.name,
       data: normalizeFieldName(field.name),
@@ -91,62 +135,36 @@ export const ConvertDataFrameToDataTableFormat = (
   });
   ApplyColumnStyles(columns, columnStyles);
 
-  const rows = [] as any[];
+  // Pre-compute per-column mappings once — they are stable across rows.
+  // Moving this outside the row loop reduces calls from O(rows × cols) to O(cols).
+  const columnMappings = columns.map((aColumn) =>
+    GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings)
+  );
+
+  const rows: NamedRow[] = [];
 
   for (let i = 0; i < dataFrame.length; i++) {
-    const row = {};
+    const row: Record<string, FormattedColumnValue | number> = {};
     for (let j = 0; j < columns.length; j++) {
+      const frameField = dataFrame.fields[j];
       const aColumn = columns[j];
-      const frameFields = dataFrame.fields[j];
-      let value = frameFields.values[i];
-      const valueType = frameFields.type;
-      if (aColumn.columnStyles && aColumn.columnStyles.length > 0) {
-        const aStyle = aColumn.columnStyles[0];
-        value = FormatColumnValue(userTimeZone, aStyle, frameFields, value, valueType);
-      }
-      // run through mappings
-      const mappings = GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings);
-      // get the mapped value
-      if (mappings && mappings.length > 0) {
-        const mappedValue = ApplyMappings(value, mappings);
-        //console.log(`original value ${value.valueFormatted} to mapped value ${mappedValue}`);
-        if (mappedValue !== null) {
-          value = mappedValue;
-        }
-      }
-      const colName = columns[j].data;
-      // @ts-ignore
-      row[colName] = value;
+      row[aColumn.data] = resolveColumnValue(
+        userTimeZone,
+        aColumn,
+        frameField,
+        frameField.values[i],
+        frameField.type,
+        columnMappings[j],
+      );
     }
-    rows.push(row as any);
+    rows.push(row);
   }
   if (rowNumbersEnabled) {
-    columns.unshift({
-      title: 'row',
-      data: 'rowNumber',
-      type: 'number',
-      className: '',
-      fieldConfig: {},
-      columnStyles: [],
-      widthHint: '1%',
-      visible: true,
-    });
-    for (let i = 0; i < dataFrame.length; i++) {
-      // @ts-ignore
-      rows[i].rowNumber = i+1;
-    }
+    prependRowNumbers(columns, rows);
   }
   // Mark hidden columns — runs unconditionally so hidden styles work
   // regardless of whether row numbers are enabled.
-  for (let index = 0; index < columns.length; index++) {
-    const aCell = columns[index];
-    if (aCell.columnStyles && aCell.columnStyles.length > 0) {
-      const aStyle = aCell.columnStyles[0];
-      if (aStyle.activeStyle === ColumnStyles.HIDDEN) {
-        aCell.visible = false;
-      }
-    }
-  }
+  markHiddenColumns(columns);
 
   return { columns, rows };
 }
@@ -170,190 +188,55 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
     dtData,
   } = opts;
 
+  const ctx: CreatedCellContext = {
+    dtData,
+    rowNumbersEnabled,
+    fontSizePercent,
+    timeRange,
+    replaceVariables,
+  };
+
   const columnDefs: ConfigColumnDefs[] = [];
-  let rowNumberOffset = 0;
   for (let i = 0; i < dtData.Columns.length; i++) {
     let columnType = dtData.Columns[i].type!;
-    let columnClassName = getColumnClassName(alignment, columnType)
-    // column type "date" is very limited, and overrides our formatting
-    // best to use our format, then the "raw" epoch time as the sort ordering field
+    let columnClassName = getColumnClassName(alignment, columnType);
+    // DataTables' built-in "date" type overrides our formatting; coerce to "number"
+    // so DataTables sorts by the raw epoch value while we control display.
     // https://datatables.net/reference/option/columns.type
     if (columnType === 'time') {
       columnType = 'number';
     }
     if (columnType === 'number' && alignment.numbers) {
-      columnClassName = 'dt-right'; // any reason not to align numbers right?
-    }
-    // if we did not get a type prop from grafana at all,
-    // check at least if it's a number to have DT sort properly
-    if (columnType !== undefined && dtData.Rows[0] && (typeof dtData.Rows[0][i]) === 'number') {
-      columnType = 'number';
+      columnClassName = 'dt-right';
     }
 
     dtData.Columns[i].className = columnClassName;
-    // NOTE: the width below is a "hint" and will be overridden as needed,
-    // this lets most tables show timestamps with full width
-    const columnDefDict: any = {
+    // NOTE: the width below is a "hint" and will be overridden as needed;
+    // this lets most tables show timestamps at full width.
+    const columnDefDict: Record<string, unknown> = {
       width: dtData.Columns[i].widthHint,
-      targets: i + rowNumberOffset,
-      defaultContent: dtData.Columns,
-      data: function (row: any, type: any, _set: any, meta: any) {
-        if (type === undefined) {
-          return null;
-        }
-        const idx = meta.col;
-        if (row[idx]?.display !== undefined) {
-          return row[idx].display;
-        }
-        return null;
-      },
-      render: function (_data: any, type: any, val: any[], meta: CellMetaSettings) {
-        if (type === undefined) {
-          return null;
-        }
-        const aColumn = dtData.Columns[meta.col];
-        if (aColumn === undefined) {
-          return null;
-        }
-        const idx = meta.col;
-        let returnValue = val[idx];
-        if (type === 'type') {
-          // returns the whole object
-          return returnValue;
-        }
-        if (returnValue && returnValue?.valueFormatted) {
-          //console.log(`returnvalue valueFormatted: ` + JSON.stringify(returnValue));
-          if (type === 'sort') {
-            return returnValue.valueRaw;
-          }
-          if (type === 'filter') {
-            // WYSIWYG: filter against the displayed value so users match
-            // what they see in the cell (e.g. "5.00" with decimals/units)
-            // rather than the underlying numeric value.
-            return returnValue.valueFormatted;
-          }
-          // all others get the formatted value
-          return returnValue.valueFormatted;
-        }
-        // the Row column is using just numerics, no formatting
-        return returnValue;
-      },
-      createdCell: function (cell: any, columnsInCellData: DTColumnType[], rowData: any, rowIndex: number, colIndex: number) {
-        // always center the row number column
-        if (rowNumbersEnabled && colIndex === 0) {
-          $(cell).css('text-align', 'center');
-        }
-        // set the fontsize for the cell
-        $(cell).css('font-size', fontSizePercent);
-
-        // cellData is populated with Columns, which we can use for content thresholds
-        if (columnsInCellData === null) {
-          return;
-        }
-        const aColumn = columnsInCellData[colIndex];
-        // no formatting needed without a style
-        if (!aColumn || aColumn?.columnStyles.length === 0) {
-          return;
-        }
-        // orthogonal sort requires getting cell data differently
-        const cellContent = $(cell).html();
-        // hidden columns have null data
-        if (cellContent === null || rowData === null) {
-          return;
-        }
-        // instead of using cellContent, use the formatted data from dtData.Rows
-        const aRow = dtData.Rows[rowIndex];
-        // updating data in the editor can cause the rows to change before we are done processing, return if a row cannot be found
-        if (!aRow) {
-          return;
-        }
-        const cellValueFormatted = aRow[colIndex] as FormattedColumnValue;
-
-        //
-        // There are 4 style types
-        // Metric
-        //    this has thresholds with 4 color modes
-        // String (url etc)
-        // Date (processed elsewhere)
-        // Hidden (processed elsewhere)
-        //
-        const aStyle = aColumn.columnStyles[0];
-        if (aStyle.activeStyle === ColumnStyles.STRING) {
-          const newCell = ProcessStringValueStyle(
-            aStyle,
-            rowData,
-            cellValueFormatted,
-            timeRange,
-            replaceVariables,
-          );
-          if (newCell !== null) {
-            $(cell).html(newCell);
-          }
-        }
-        /*
-         * this mode will produce the "worst" threshold for all of the metrics in the row
-         * that have thresholds set
-        */
-        if (aStyle.activeStyle === ColumnStyles.METRIC) {
-          const colorMode = aStyle.metricStyle.colorMode;
-          if (colorMode === ColumnStyleColoring.Row) {
-            processRowStyle(cell, rowData, dtData, rowNumberOffset);
-          }
-          /**
-           * This mode highlights the entire row and applies the threshold color to each cell
-           */
-          if (colorMode === ColumnStyleColoring.RowColumn) {
-            processRowColumnStyle(cell, rowData, columnsInCellData, rowNumberOffset);
-          }
-          // Process cell coloring
-          // Two scenarios:
-          //    1) Cell coloring is enabled, the above row color is skipped
-          //    2) RowColumn is enabled, the above row color is process, but we also
-          //    set the cell colors individually
-          //
-          let colorData: any;
-          colorData = getCellColors(aStyle, cellValueFormatted);
-          if (!colorData) {
-            return;
-          }
-          if (colorMode === ColumnStyleColoring.Cell || colorMode === ColumnStyleColoring.RowColumn) {
-            if (colorData && colorData.color !== null) {
-              $(cell).css('color', colorData.color);
-            }
-            if (colorData && colorData.bgColor !== null) {
-              $(cell).css('background-color', colorData.bgColor);
-            }
-          } else if (colorData.color) {
-            if (colorData && colorData.color !== null) {
-              $(cell).css('color', colorData.color);
-            }
-          }
-        }
-
-        // Per-column alignment override — wins over the DataTables class set via getColumnClassName.
-        // Whitelist against the known enum so hand-crafted panel JSON can't feed arbitrary strings
-        // into jQuery's .css(). Not a present-day exploit (browsers reject invalid text-align) but
-        // cheap defense-in-depth at a boundary that reads user-controlled data.
-        if (
-          aStyle.align &&
-          aStyle.align !== ColumnAlignment.DEFAULT &&
-          ColumnAlignmentOptions.some((o) => o.value === aStyle.align)
-        ) {
-          $(cell).css('text-align', aStyle.align);
-        }
-      },
+      targets: i,
+      defaultContent: '-',
+      // Emit the coerced type so DataTables uses our intended sort algorithm.
+      // Time columns are coerced to 'number' above so DataTables sorts by epoch
+      // value rather than its own date parser, which conflicts with our formatting.
+      ...(columnType && { type: columnType }),
+      render: (
+        _data: unknown,
+        type: string | undefined,
+        val: FlatRow,
+        meta: CellMetaSettings,
+      ) => renderCell(dtData, _data, type, val, meta),
+      createdCell: (cell: HTMLElement, _cellData: unknown, rowData: unknown, rowIndex: number, colIndex: number) =>
+        applyCreatedCell(ctx, cell, _cellData, rowData as FlatRow, rowIndex, colIndex),
     };
-    //let ignoreNullValues = this.getColumnIgnoreNullValue(i);
-    //if (ignoreNullValues) {
-    //  columnDefDict.defaultContent = '-';
-    //}
     // Apply visibility: ConvertDataFrameToDataTableFormat sets column.visible=false
     // for HIDDEN column styles. Propagate that flag to the DataTables column def so
     // the column is actually hidden in the rendered table.
     if (!dtData.Columns[i].visible) {
       columnDefDict.visible = false;
     }
-    columnDefs.push(columnDefDict);
+    columnDefs.push(columnDefDict as unknown as ConfigColumnDefs);
   }
   // this prevents the dialog popup when toggling row numbers in the editor
   columnDefs.push(
