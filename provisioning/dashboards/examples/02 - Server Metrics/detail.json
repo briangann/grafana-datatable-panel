@@ -53,27 +53,27 @@
       },
       "id": 2,
       "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "P53465F745837BCFD"
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "dt-examples-infinity"
       },
       "options": {
+        "graphMode": "none",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
+          "fields": "value",
           "values": false
         },
         "orientation": "auto",
         "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "graphMode": "area"
+        "showThresholdMarkers": true
       },
       "fieldConfig": {
         "defaults": {
+          "unit": "percent",
           "min": 0,
           "max": 100,
-          "unit": "percent",
           "color": {
             "mode": "thresholds"
           },
@@ -100,14 +100,15 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "P53465F745837BCFD"
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
           },
           "refId": "A",
-          "scenarioId": "random_walk",
-          "min": 0,
-          "max": 100,
-          "alias": "CPU"
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 45.2}]"
         }
       ]
     },
@@ -122,27 +123,27 @@
       },
       "id": 3,
       "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "P53465F745837BCFD"
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "dt-examples-infinity"
       },
       "options": {
+        "graphMode": "none",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
+          "fields": "value",
           "values": false
         },
         "orientation": "auto",
         "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "graphMode": "area"
+        "showThresholdMarkers": true
       },
       "fieldConfig": {
         "defaults": {
+          "unit": "percent",
           "min": 0,
           "max": 100,
-          "unit": "percent",
           "color": {
             "mode": "thresholds"
           },
@@ -169,14 +170,15 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "P53465F745837BCFD"
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
           },
-          "refId": "B",
-          "scenarioId": "random_walk",
-          "min": 0,
-          "max": 100,
-          "alias": "Memory"
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 62.1}]"
         }
       ]
     },
@@ -191,27 +193,27 @@
       },
       "id": 4,
       "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "P53465F745837BCFD"
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "dt-examples-infinity"
       },
       "options": {
+        "graphMode": "none",
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
           ],
-          "fields": "",
+          "fields": "value",
           "values": false
         },
         "orientation": "auto",
         "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "graphMode": "area"
+        "showThresholdMarkers": true
       },
       "fieldConfig": {
         "defaults": {
+          "unit": "percent",
           "min": 0,
           "max": 100,
-          "unit": "percent",
           "color": {
             "mode": "thresholds"
           },
@@ -238,14 +240,15 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "P53465F745837BCFD"
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
           },
-          "refId": "C",
-          "scenarioId": "random_walk",
-          "min": 0,
-          "max": 100,
-          "alias": "Disk"
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 38.4}]"
         }
       ]
     },
