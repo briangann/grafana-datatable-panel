@@ -1,0 +1,170 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_TESTDATA",
+      "label": "TestData DB",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "grafana-testdata-datasource",
+      "pluginName": "TestData DB"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "briangann-datatable-panel",
+      "name": "Datatable Panel",
+      "version": "2.0.0"
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.6.0"
+    },
+    {
+      "type": "datasource",
+      "id": "grafana-testdata-datasource",
+      "name": "TestData DB",
+      "version": "1.0.0"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0,211,255,1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "briangann-datatable-panel",
+      "title": "Service Health Overview",
+      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+      "fieldConfig": { "defaults": { "mappings": [] }, "overrides": [] },
+      "gridPos": { "h": 20, "w": 24, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "string",
+            "nameOrRegex": "service",
+            "label": "Service (clickthrough)",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "hiddenStyle": {},
+            "metricStyle": { "alias": "", "colorMode": "disabled", "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"], "decimals": "2", "ignoreNullValues": true, "unitFormat": "short", "thresholds": [] },
+            "stringStyle": { "clickThrough": "/d/dt-service-health-detail?var-service=$__cell&var-service_id=$__cell_6", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": false, "clickThroughSanitize": false, "splitByPattern": "" }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "latency",
+            "label": "Latency (cell color)",
+            "enabled": true,
+            "order": 1,
+            "align": "default",
+            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "hiddenStyle": {},
+            "metricStyle": { "alias": "", "colorMode": "cell", "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"], "decimals": "0", "ignoreNullValues": true, "unitFormat": "ms",
+              "thresholds": [ { "color": "#299c46", "state": 0, "value": 0 }, { "color": "#ed8128", "state": 1, "value": 200 }, { "color": "#f53636", "state": 2, "value": 500 } ] },
+            "stringStyle": { "clickThrough": "", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": true, "clickThroughSanitize": true, "splitByPattern": "" }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "error_rate",
+            "label": "Error Rate (row+column color)",
+            "enabled": true,
+            "order": 2,
+            "align": "default",
+            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "hiddenStyle": {},
+            "metricStyle": { "alias": "", "colorMode": "rowcolumn", "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"], "decimals": "1", "ignoreNullValues": true, "unitFormat": "percent",
+              "thresholds": [ { "color": "#299c46", "state": 0, "value": 0 }, { "color": "#ed8128", "state": 1, "value": 1 }, { "color": "#f53636", "state": 2, "value": 5 } ] },
+            "stringStyle": { "clickThrough": "", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": true, "clickThroughSanitize": true, "splitByPattern": "" }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "uptime",
+            "label": "Uptime (cell color)",
+            "enabled": true,
+            "order": 3,
+            "align": "default",
+            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "hiddenStyle": {},
+            "metricStyle": { "alias": "", "colorMode": "cell", "colors": ["#f53636", "#ed8128", "#299c46", "#0a55a1"], "decimals": "2", "ignoreNullValues": true, "unitFormat": "percent",
+              "thresholds": [ { "color": "#f53636", "state": 2, "value": 0 }, { "color": "#ed8128", "state": 1, "value": 99 }, { "color": "#299c46", "state": 0, "value": 99.9 } ] },
+            "stringStyle": { "clickThrough": "", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": true, "clickThroughSanitize": true, "splitByPattern": "" }
+          },
+          {
+            "activeStyle": "hidden",
+            "nameOrRegex": "service_id",
+            "label": "service_id (hidden)",
+            "enabled": true,
+            "order": 99,
+            "align": "default",
+            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "hiddenStyle": {},
+            "metricStyle": { "alias": "", "colorMode": "disabled", "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"], "decimals": "2", "ignoreNullValues": true, "unitFormat": "short", "thresholds": [] },
+            "stringStyle": { "clickThrough": "", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": true, "clickThroughSanitize": true, "splitByPattern": "" }
+          }
+        ],
+        "columnWidthHints": [],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "-",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": true,
+        "lengthChangeEnabled": true,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": false,
+        "rowsPerPage": 15,
+        "scroll": false,
+        "searchEnabled": true,
+        "searchHighlightingEnabled": true,
+        "stripedRowsEnabled": true,
+        "transformation": "timeseries-to-columns",
+        "transformationAggregations": ["last"],
+        "wrapToFitEnabled": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+          "refId": "A",
+          "scenarioId": "csv_metric_values",
+          "csvContent": "service,region,latency,error_rate,uptime,last_incident,service_id\nauthentication,us-east,142,0.8,99.95,2024-03-01,svc-001\napi-gateway,us-east,380,2.1,99.72,2024-03-10,svc-002\npayment,eu-west,95,0.2,99.99,2024-01-15,svc-003\nnotifications,us-west,620,7.3,98.41,2024-03-14,svc-004\nsearch,ap-south,210,1.5,99.81,2024-02-28,svc-005\ndatabase,us-east,45,0.1,100.0,2023-12-01,svc-006\nauth-service,eu-west,530,3.8,99.12,2024-03-12,svc-007\ncache,us-east,12,0.0,100.0,2023-11-01,svc-008"
+        }
+      ],
+      "pluginVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["datatable-examples"],
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Service Health — Overview",
+  "uid": "dt-service-health-overview",
+  "version": 1
+}
