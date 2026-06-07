@@ -71,6 +71,14 @@ export function applyCreatedCell(
   }
   $cell.css('font-size', ctx.fontSizePercent);
 
+  // Apply row color stored by processRowStyle for cells created after the METRIC
+  // column's createdCell fired (e.g. columns to the right of the status column).
+  const rowColorData = $(cell.parentNode as HTMLElement).data('dt-row-color') as { bg: string; fg: string } | undefined;
+  if (rowColorData) {
+    $cell.css('color', rowColorData.fg + ' !important');
+    $cell.css('background-color', rowColorData.bg + ' !important');
+  }
+
   const aColumn = ctx.dtData.Columns[colIndex];
   if (!aColumn || aColumn.columnStyles.length === 0) {
     return;

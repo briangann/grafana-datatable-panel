@@ -45,10 +45,14 @@ export const processRowStyle = (
   const fmtColors = 'color: ' + color + ' !important;' +
     'background-color: ' + rowColor + ' !important;';
 
-  $(cell.parentNode as HTMLElement)
-    .children()
-    .attr('style', (_i: number, s: string) => s + fmtColors);
+  const $tr = $(cell.parentNode as HTMLElement);
+  $tr.children().attr('style', (_i: number, s: string) => s + fmtColors);
 
+  // Store the row color on the tr so cells created AFTER this createdCell fires
+  // (i.e. columns to the right of the METRIC column) can apply it too.
+  if (rowColor) {
+    $tr.data('dt-row-color', { bg: rowColor, fg: color });
+  }
 }
 
 export const processRowColumnStyle = (
