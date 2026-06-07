@@ -8,7 +8,7 @@ import {
   resolveColumnValue,
   wrapRawValue,
 } from './dataHelpers';
-import { ColumnStyleItemType, ColumnStyles, DTColumnType, FormattedColumnValue } from 'types';
+import { ColumnStyleItemType, ColumnStyles, DTColumnType, FormattedColumnValue, NamedRow } from 'types';
 import {
   createTheme,
   dateTime,
@@ -830,7 +830,7 @@ describe('prependRowNumbers', () => {
 
   it('prepends a rowNumber column as the first element', () => {
     const cols = [makeCol('v')];
-    const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 10 }];
+    const rows: NamedRow[] = [{ v: 10 }];
     prependRowNumbers(cols, rows);
     expect(cols).toHaveLength(2);
     expect(cols[0].data).toBe('rowNumber');
@@ -839,7 +839,7 @@ describe('prependRowNumbers', () => {
 
   it('stamps 1-based rowNumber on each row', () => {
     const cols = [makeCol('v')];
-    const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 10 }, { v: 20 }, { v: 30 }];
+    const rows: NamedRow[] = [{ v: 10 }, { v: 20 }, { v: 30 }];
     prependRowNumbers(cols, rows);
     expect(rows[0].rowNumber).toBe(1);
     expect(rows[1].rowNumber).toBe(2);
@@ -848,7 +848,7 @@ describe('prependRowNumbers', () => {
 
   it('rowNumber column has widthHint "1%" and type "number"', () => {
     const cols = [makeCol('v')];
-    const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 1 }];
+    const rows: NamedRow[] = [{ v: 1 }];
     prependRowNumbers(cols, rows);
     expect(cols[0].widthHint).toBe('1%');
     expect(cols[0].type).toBe('number');
@@ -856,7 +856,7 @@ describe('prependRowNumbers', () => {
 
   it('stamps all rows (every row gets a 1-based rowNumber)', () => {
     const cols = [makeCol('v')];
-    const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 1 }, { v: 2 }];
+    const rows: NamedRow[] = [{ v: 1 }, { v: 2 }];
     prependRowNumbers(cols, rows);
     expect(rows[0].rowNumber).toBe(1);
     expect(rows[1].rowNumber).toBe(2);
@@ -864,7 +864,7 @@ describe('prependRowNumbers', () => {
 
   it('is a no-op on rows when rows array is empty', () => {
     const cols = [makeCol('v')];
-    const rows: Array<Record<string, FormattedColumnValue | number>> = [];
+    const rows: NamedRow[] = [];
     prependRowNumbers(cols, rows);
     expect(cols[0].data).toBe('rowNumber');
     expect(rows).toHaveLength(0);

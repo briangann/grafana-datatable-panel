@@ -10,7 +10,7 @@ import { applyCreatedCell, CreatedCellContext, renderCell } from './cells/column
 import { FormatColumnValue } from './cells/cellRenderer';
 import { ApplyGrafanaOverrides } from './mappings/overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
-import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FlatRow, FormattedColumnValue } from 'types';
+import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FlatRow, FormattedColumnValue, NamedRow } from 'types';
 import { ApplyColumnStyles } from './columns/columnStyles';
 import { ApplyMappings, GetMappings } from './mappings/mappingProcessor';
 
@@ -81,7 +81,7 @@ export function markHiddenColumns(columns: DTColumnType[]): void {
 /** Prepends a row-number column and stamps 1-based indices on every row. */
 export function prependRowNumbers(
   columns: DTColumnType[],
-  rows: Array<Record<string, FormattedColumnValue | number>>,
+  rows: NamedRow[],
 ): void {
   columns.unshift({
     title: 'row',
@@ -116,7 +116,7 @@ type ConvertDataFrameOptions = {
 
 export const ConvertDataFrameToDataTableFormat = (
   opts: ConvertDataFrameOptions,
-): { columns: DTColumnType[]; rows: Array<Record<string, FormattedColumnValue | number>> } => {
+): { columns: DTColumnType[]; rows: NamedRow[] } => {
   const { fieldConfig, userTimeZone, alignment, rowNumbersEnabled, columnStyles, theme, replaceVariables } = opts;
   const dataFrames = ApplyGrafanaOverrides(opts.dataFrames, theme, replaceVariables);
   const dataFrame = dataFrames[0];
@@ -141,7 +141,7 @@ export const ConvertDataFrameToDataTableFormat = (
     GetMappings(fieldConfig.defaults.mappings, aColumn.fieldConfig?.mappings)
   );
 
-  const rows: Array<Record<string, FormattedColumnValue | number>> = [];
+  const rows: NamedRow[] = [];
 
   for (let i = 0; i < dataFrame.length; i++) {
     const row: Record<string, FormattedColumnValue | number> = {};

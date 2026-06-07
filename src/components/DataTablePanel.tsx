@@ -23,7 +23,7 @@ import { LoadingState, PanelProps, textUtil } from '@grafana/data';
 import { useStyles2, useTheme2 } from '@grafana/ui';
 import { useApplyTransformation } from 'hooks/useApplyTransformation';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { DatatableOptions, DTColumnType, DTData, FlatRow, FormattedColumnValue } from 'types';
+import { DatatableOptions, DTColumnType, DTData, FlatRow, NamedRow } from 'types';
 import { BuildColumnDefs, ConvertDataFrameToDataTableFormat } from 'data/dataHelpers';
 import { ApplyColumnWidthHints } from 'data/columns/columnWidthHints';
 import { buildSearchBarLayout } from 'data/layout/buildSearchBarLayout';
@@ -446,7 +446,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 };
 
 const GetFlattenRows = (
-  rows: Array<Record<string, FormattedColumnValue | number>>,
+  rows: NamedRow[],
   columns: DTColumnType[],
 ): FlatRow[] => {
   const flattenedRows: FlatRow[] = [];
