@@ -247,7 +247,7 @@
         "orderColumnEnabled": false,
         "rowNumbersEnabled": true,
         "rowsPerPage": 25,
-        "scroll": false,
+        "scroll": true,
         "searchEnabled": true,
         "searchHighlightingEnabled": false,
         "stripedRowsEnabled": true,
