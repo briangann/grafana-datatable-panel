@@ -557,13 +557,11 @@ describe('Cell Renderer', () => {
       expect(ReplaceCellMacros('row=$__cell_99', 'current', rows)).toBe('row=$__cell_99');
     });
 
-    it('treats a null valueFormatted as the string "null" (documents current coercion behavior)', () => {
-      // rows[idx].valueFormatted could be null at runtime if a frame field
-      // produced no value. JS string coercion turns null → "null" and
-      // undefined → "undefined", silently putting those strings in the href.
-      // This test pins the current behavior so any future guard is explicit.
+    it('null valueFormatted substitutes as empty string, not the literal "null"', () => {
+      // valueFormatted can be null for frame fields with no value. Previously JS
+      // coercion silently inserted "null" into the href. Fixed: ?? '' guard returns ''.
       const nullRows = [{ valueFormatted: null }] as unknown as FormattedColumnValue[];
-      expect(ReplaceCellMacros('v=$__cell_0', 'X', nullRows)).toBe('v=null');
+      expect(ReplaceCellMacros('v=$__cell_0', 'X', nullRows)).toBe('v=');
     });
 
     it('returns the input untouched when no macros are present', () => {
