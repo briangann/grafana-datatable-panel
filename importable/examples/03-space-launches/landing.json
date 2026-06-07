@@ -247,7 +247,7 @@
       "id": 1,
       "options": {
         "mode": "markdown",
-        "content": "## Rocket Launch Tracker\n\nA fun showcase using publicly-inspired space launch data to demonstrate Infinity's inline JSON mode and DataTable's value mapping + external clickthrough features.\n\n### Features demonstrated\n\n- \ud83d\ude80 **Infinity datasource** \u2014 data embedded inline, no API calls\n- \ud83d\uddfa\ufe0f **Value mappings** \u2014 1 \u2192 \u2713 Success, 0 \u2192 \u2717 Failure, 2 \u2192 \u26a0 Partial\n- \ud83d\udd17 **External clickthrough** \u2014 click an org name to visit their site (hidden URL column)\n- \ud83d\udd0d **Search** \u2014 type to find any rocket, org, or payload\n\n[Open Full Launches Table \u2192](/d/dt-space-launches)",
+        "content": "## Rocket Launch Tracker\n\nA fun showcase using publicly-inspired space launch data to demonstrate Infinity's inline JSON mode and DataTable's value mapping + external clickthrough features.\n\n### Features demonstrated\n\n- \ud83d\ude80 **Infinity datasource** \u2014 data embedded inline, no API calls\n- \ud83d\uddfa\ufe0f **Value mappings** \u2014 1 \u2192 \u2713 Success, 0 \u2192 \u2717 Failure, 2 \u2192 \u26a0 Partial\n- \ud83d\udd17 **Clickthrough** \u2014 click an org name in the preview to open the full table; on the full table, org names link to their external website\n- \ud83d\udd0d **Search** \u2014 type to find any rocket, org, or payload\n\n[Open Full Launches Table \u2192](/d/dt-space-launches)",
         "code": {
           "language": "plaintext",
           "showLineNumbers": false,
@@ -304,6 +304,18 @@
         "columnFiltersEnabled": false,
         "columnSorting": [],
         "columnStylesConfig": [
+          {
+            "activeStyle": "string",
+            "nameOrRegex": "org",
+            "label": "Organization (navigate to full table)",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "hiddenStyle": {},
+            "metricStyle": { "alias": "", "colorMode": "disabled", "colors": ["#299c46","#ed8128","#f53636","#0a55a1"], "decimals": "2", "ignoreNullValues": true, "unitFormat": "short", "thresholds": [] },
+            "stringStyle": { "clickThrough": "/d/dt-space-launches", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": false, "clickThroughSanitize": false, "splitByPattern": "" }
+          },
           {
             "activeStyle": "metric",
             "nameOrRegex": "status",
