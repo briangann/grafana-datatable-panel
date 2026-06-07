@@ -753,11 +753,12 @@ describe('resolveColumnValue', () => {
     expect(result.valueFormatted).toBe('7');
   });
 
-  it('no style + mapping with falsy rawValue → mapping skipped (ApplyMappings guards on !valueRaw)', () => {
-    // This is existing ApplyMappings behavior: valueRaw=0 is falsy, so no mapping fires.
+  it('no style + rawValue=0 → mapping fires (0 is a valid value, not treated as absent)', () => {
+    // Fixed: valueRaw=0 is falsy but is a valid data value. ApplyMappings now uses
+    // `=== null || === undefined` instead of a truthiness check so 0 maps correctly.
     const mappings = [{ type: 'value', options: { '0': { text: 'zero', index: 0 } } }] as any;
     const result = resolveColumnValue('utc', noStyleColumn, dummyField, 0, 'number', mappings);
-    expect(result.valueFormatted).toBe('0');
+    expect(result.valueFormatted).toBe('zero');
   });
 });
 
