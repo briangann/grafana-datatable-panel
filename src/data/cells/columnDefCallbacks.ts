@@ -59,7 +59,7 @@ export function renderCell(
  */
 export function applyCreatedCell(
   ctx: CreatedCellContext,
-  cell: Node,
+  cell: HTMLElement,
   _cellData: unknown,
   rowData: FlatRow,
   rowIndex: number,

@@ -12,6 +12,7 @@ import {
   Threshold,
 } from 'types';
 import { CellMetaSettings } from 'datatables.net';
+import { TimeRange } from '@grafana/data';
 
 // ---------------------------------------------------------------------------
 // Fixtures
@@ -128,7 +129,7 @@ function makeCtx(overrides: Partial<CreatedCellContext> = {}): CreatedCellContex
     dtData: { Columns: [], Rows: [] },
     rowNumbersEnabled: false,
     fontSizePercent: '100%',
-    timeRange: { from: null, to: null, raw: { from: 'now-1h', to: 'now' } } as any,
+    timeRange: {} as unknown as TimeRange,
     replaceVariables: (s: string) => s,
     ...overrides,
   };
@@ -179,7 +180,7 @@ describe('applyCreatedCell — early-return paths', () => {
     // Column has a style so we get past the first guard, but Rows is empty.
     const colWithStyle = {
       ...col,
-      columnStyles: [{ activeStyle: 'metric' } as any],
+      columnStyles: [{ activeStyle: ColumnStyles.METRIC } as unknown as ColumnStyleItemType],
     };
     const ctx = makeCtx({ dtData: { Columns: [colWithStyle], Rows: [] } });
     const cell = document.createElement('td');
@@ -191,7 +192,7 @@ describe('applyCreatedCell — early-return paths', () => {
     const col = makeStylelessColumn();
     const colWithStyle = {
       ...col,
-      columnStyles: [{ activeStyle: 'metric' } as any],
+      columnStyles: [{ activeStyle: ColumnStyles.METRIC } as unknown as ColumnStyleItemType],
     };
     const ctx = makeCtx({
       dtData: { Columns: [colWithStyle], Rows: [[42]] },

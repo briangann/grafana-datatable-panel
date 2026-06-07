@@ -227,7 +227,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         val: FlatRow,
         meta: CellMetaSettings,
       ) => renderCell(dtData, _data, type, val, meta),
-      createdCell: (cell: Node, _cellData: unknown, rowData: unknown, rowIndex: number, colIndex: number) =>
+      createdCell: (cell: HTMLElement, _cellData: unknown, rowData: unknown, rowIndex: number, colIndex: number) =>
         applyCreatedCell(ctx, cell, _cellData, rowData as FlatRow, rowIndex, colIndex),
     };
     // Apply visibility: ConvertDataFrameToDataTableFormat sets column.visible=false
