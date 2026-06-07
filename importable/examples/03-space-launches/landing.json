@@ -1,0 +1,189 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_TESTDATA",
+      "label": "TestData DB",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "grafana-testdata-datasource",
+      "pluginName": "TestData DB"
+    },
+    {
+      "name": "DS_INFINITY",
+      "label": "Infinity",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "yesoreyeram-infinity-datasource",
+      "pluginName": "Infinity"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "briangann-datatable-panel",
+      "name": "Datatable Panel",
+      "version": "2.0.0"
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.6.0"
+    },
+    {
+      "type": "datasource",
+      "id": "grafana-testdata-datasource",
+      "name": "TestData DB",
+      "version": "1.0.0"
+    },
+    {
+      "type": "datasource",
+      "id": "yesoreyeram-infinity-datasource",
+      "name": "Infinity",
+      "version": "1.0.0"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0,211,255,1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Launches",
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
+      "id": 3,
+      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+      "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } }, "overrides": [] },
+      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "launch\nL01\nL02\nL03\nL04\nL05\nL06\nL07\nL08\nL09\nL10\nL11\nL12\nL13\nL14\nL15\nL16\nL17\nL18\nL19\nL20" }]
+    },
+    {
+      "type": "stat",
+      "title": "Successful",
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 0 },
+      "id": 4,
+      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+      "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "green" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } }, "overrides": [] },
+      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "launch\nL01\nL02\nL03\nL04\nL05\nL06\nL07\nL08\nL09\nL10\nL11\nL12\nL13\nL14" }]
+    },
+    {
+      "type": "stat",
+      "title": "Failed / Partial",
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
+      "id": 5,
+      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+      "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
+      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "orange" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] } }, "overrides": [] },
+      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "launch\nL01\nL02\nL03\nL04\nL05\nL06" }]
+    },
+    {
+      "type": "text",
+      "title": "About This Example Set",
+      "gridPos": { "h": 12, "w": 10, "x": 0, "y": 4 },
+      "id": 1,
+      "options": {
+        "mode": "markdown",
+        "content": "## Rocket Launch Tracker\n\nA fun showcase using publicly-inspired space launch data to demonstrate Infinity's inline JSON mode and DataTable's value mapping + external clickthrough features.\n\n### Features demonstrated\n\n- 🚀 **Infinity datasource** — data embedded inline, no API calls\n- 🗺️ **Value mappings** — 1 → ✓ Success, 0 → ✗ Failure, 2 → ⚠ Partial\n- 🔗 **External clickthrough** — click an org name to visit their site (hidden URL column)\n- 🔍 **Search** — type to find any rocket, org, or payload\n\n[Open Full Launches Table →](/d/dt-space-launches)",
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false }
+      }
+    },
+    {
+      "type": "briangann-datatable-panel",
+      "title": "Recent Launches Preview",
+      "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "${DS_INFINITY}" },
+      "fieldConfig": { "defaults": { "mappings": [{ "type": "value", "options": { "1": { "text": "✓ Success", "color": "green", "index": 0 }, "0": { "text": "✗ Failure", "color": "red", "index": 1 }, "2": { "text": "⚠ Partial", "color": "orange", "index": 2 } } }], "overrides": [] }, "overrides": [] },
+      "gridPos": { "h": 12, "w": 14, "x": 10, "y": 4 },
+      "id": 2,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "status",
+            "label": "Status (row color)",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": [
+                { "color": "#299c46", "state": 0, "value": 0 },
+                { "color": "#f53636", "state": 2, "value": 0.5 },
+                { "color": "#ed8128", "state": 1, "value": 1.5 }
+              ]
+            },
+            "stringStyle": { "clickThrough": "", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": true, "clickThroughSanitize": true, "splitByPattern": "" }
+          }
+        ],
+        "columnWidthHints": [],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "-",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": false,
+        "lengthChangeEnabled": false,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": false,
+        "rowsPerPage": 5,
+        "scroll": false,
+        "searchEnabled": false,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": true,
+        "transformation": "table",
+        "transformationAggregations": ["last"],
+        "wrapToFitEnabled": true
+      },
+      "targets": [
+        {
+          "datasource": { "type": "yesoreyeram-infinity-datasource", "uid": "${DS_INFINITY}" },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"org\":\"SpaceX\",\"rocket\":\"Falcon 9\",\"status\":1},{\"org\":\"Blue Origin\",\"rocket\":\"New Shepard\",\"status\":1},{\"org\":\"Rocket Lab\",\"rocket\":\"Electron\",\"status\":0},{\"org\":\"ULA\",\"rocket\":\"Atlas V\",\"status\":1},{\"org\":\"Arianespace\",\"rocket\":\"Ariane 5\",\"status\":2}]"
+        }
+      ],
+      "pluginVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["datatable-examples"],
+  "time": { "from": "now-1h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Space Launches — Landing",
+  "uid": "dt-space-launches-landing",
+  "version": 1
+}
