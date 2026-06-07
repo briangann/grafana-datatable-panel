@@ -1,4 +1,5 @@
-import { renderCell } from './columnDefCallbacks';
+import $ from 'jquery';
+import { renderCell, applyCreatedCell, CreatedCellContext } from './columnDefCallbacks';
 import { DTColumnType, DTData, FormattedColumnValue } from 'types';
 import { CellMetaSettings } from 'datatables.net';
 
@@ -97,5 +98,98 @@ describe('renderCell', () => {
 
   it('returns "" for type=filter when valueFormatted is empty (null rawValue)', () => {
     expect(renderCell(dtData, null, 'filter', rowWithNull, meta(0))).toBe('');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// applyCreatedCell — shared setup
+// ---------------------------------------------------------------------------
+
+// Assign jQuery as global $ for all applyCreatedCell tests.
+// applyCreatedCell calls $(cell).css(...) unconditionally on entry;
+// without this assignment the function throws "$ is not defined".
+beforeAll(() => {
+  // @ts-expect-error — global $ set for DataTables callbacks
+  global.$ = $;
+});
+
+function makeCtx(overrides: Partial<CreatedCellContext> = {}): CreatedCellContext {
+  return {
+    dtData: { Columns: [], Rows: [] },
+    rowNumbersEnabled: false,
+    fontSizePercent: '100%',
+    timeRange: { from: null, to: null, raw: { from: 'now-1h', to: 'now' } } as any,
+    replaceVariables: (s: string) => s,
+    ...overrides,
+  };
+}
+
+function makeStylelessColumn(): DTColumnType {
+  return {
+    title: 'v',
+    data: 'v',
+    type: 'number',
+    className: '',
+    columnStyles: [],
+    widthHint: '',
+    visible: true,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// applyCreatedCell — pure-logic early-return paths
+// ---------------------------------------------------------------------------
+describe('applyCreatedCell — early-return paths', () => {
+  it('applies font-size even when column has no styles', () => {
+    const col = makeStylelessColumn();
+    const ctx = makeCtx({ dtData: { Columns: [col], Rows: [[]] } });
+    const cell = document.createElement('td');
+    applyCreatedCell(ctx, cell, null, [], 0, 0);
+    expect(cell.style.fontSize).toBe('100%');
+  });
+
+  it('does not set color/bgColor when column has no styles', () => {
+    const col = makeStylelessColumn();
+    const ctx = makeCtx({ dtData: { Columns: [col], Rows: [[]] } });
+    const cell = document.createElement('td');
+    applyCreatedCell(ctx, cell, null, [], 0, 0);
+    expect(cell.style.color).toBe('');
+    expect(cell.style.backgroundColor).toBe('');
+  });
+
+  it('returns early when colIndex is out of bounds', () => {
+    const ctx = makeCtx({ dtData: { Columns: [], Rows: [] } });
+    const cell = document.createElement('td');
+    // No throw and no crash — dtData.Columns[99] is undefined → early return
+    expect(() => applyCreatedCell(ctx, cell, null, [], 0, 99)).not.toThrow();
+  });
+
+  it('returns early when dtData.Rows[rowIndex] is missing', () => {
+    const col = makeStylelessColumn();
+    // Column has a style so we get past the first guard, but Rows is empty.
+    const colWithStyle = {
+      ...col,
+      columnStyles: [{ activeStyle: 'metric' } as any],
+    };
+    const ctx = makeCtx({ dtData: { Columns: [colWithStyle], Rows: [] } });
+    const cell = document.createElement('td');
+    // rowIndex=0 but Rows=[] → !aRow → return
+    expect(() => applyCreatedCell(ctx, cell, null, [], 0, 0)).not.toThrow();
+  });
+
+  it('returns early when cellEntry is a plain number (rowNumber column)', () => {
+    const col = makeStylelessColumn();
+    const colWithStyle = {
+      ...col,
+      columnStyles: [{ activeStyle: 'metric' } as any],
+    };
+    const ctx = makeCtx({
+      dtData: { Columns: [colWithStyle], Rows: [[42]] },
+    });
+    const cell = document.createElement('td');
+    cell.innerHTML = '42';
+    // cellEntry is number → typeof !== 'object' → return before styling
+    expect(() => applyCreatedCell(ctx, cell, null, [], 0, 0)).not.toThrow();
+    expect(cell.style.color).toBe('');
   });
 });
