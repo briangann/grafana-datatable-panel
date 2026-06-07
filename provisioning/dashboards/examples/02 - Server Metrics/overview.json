@@ -1,0 +1,291 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0,211,255,1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "briangann-datatable-panel",
+      "title": "Server / Host Metrics",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "dt-examples-infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 24,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 1,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "string",
+            "nameOrRegex": "host",
+            "label": "Host (clickthrough)",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "/d/dt-server-metrics-detail?var-host=$__cell",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": false,
+              "clickThroughSanitize": false,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "cpu",
+            "label": "CPU % (cell)",
+            "enabled": true,
+            "order": 1,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "cell",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "ignoreNullValues": true,
+              "unitFormat": "percent",
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 70
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 90
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "memory",
+            "label": "Memory % (cell)",
+            "enabled": true,
+            "order": 2,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "cell",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "ignoreNullValues": true,
+              "unitFormat": "percent",
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 75
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 90
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "disk",
+            "label": "Disk % (cell)",
+            "enabled": true,
+            "order": 3,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "cell",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "ignoreNullValues": true,
+              "unitFormat": "percent",
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 80
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 95
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [
+          {
+            "name": "last_updated",
+            "width": "180px"
+          }
+        ],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "-",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": true,
+        "lengthChangeEnabled": true,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": true,
+        "rowsPerPage": 10,
+        "scroll": false,
+        "searchEnabled": true,
+        "searchHighlightingEnabled": true,
+        "stripedRowsEnabled": true,
+        "transformation": "table",
+        "wrapToFitEnabled": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"host\": \"web-01\", \"region\": \"us-east\", \"cpu\": 45.2, \"memory\": 62.1, \"disk\": 38.4, \"net_in\": 120, \"net_out\": 95, \"last_updated\": \"2024-03-15 09:10:00\"}, {\"host\": \"web-02\", \"region\": \"us-east\", \"cpu\": 78.9, \"memory\": 71.3, \"disk\": 42.1, \"net_in\": 310, \"net_out\": 280, \"last_updated\": \"2024-03-15 09:10:00\"}, {\"host\": \"db-01\", \"region\": \"us-east\", \"cpu\": 91.4, \"memory\": 88.2, \"disk\": 76.3, \"net_in\": 45, \"net_out\": 30, \"last_updated\": \"2024-03-15 09:10:00\"}, {\"host\": \"db-02\", \"region\": \"eu-west\", \"cpu\": 61.0, \"memory\": 65.4, \"disk\": 81.2, \"net_in\": 38, \"net_out\": 22, \"last_updated\": \"2024-03-15 09:10:00\"}, {\"host\": \"cache-01\", \"region\": \"us-west\", \"cpu\": 34.1, \"memory\": 41.0, \"disk\": 15.2, \"net_in\": 890, \"net_out\": 750, \"last_updated\": \"2024-03-15 09:10:00\"}, {\"host\": \"cache-02\", \"region\": \"us-west\", \"cpu\": 22.5, \"memory\": 39.8, \"disk\": 14.1, \"net_in\": 670, \"net_out\": 580, \"last_updated\": \"2024-03-15 09:10:00\"}, {\"host\": \"kubernetes-01\", \"region\": \"ap-south\", \"cpu\": 95.2, \"memory\": 92.1, \"disk\": 55.3, \"net_in\": 220, \"net_out\": 180, \"last_updated\": \"2024-03-15 09:10:00\"}, {\"host\": \"kubernetes-02\", \"region\": \"ap-south\", \"cpu\": 68.3, \"memory\": 74.5, \"disk\": 48.9, \"net_in\": 195, \"net_out\": 165, \"last_updated\": \"2024-03-15 09:10:00\"}, {\"host\": \"monitoring\", \"region\": \"us-east\", \"cpu\": 28.7, \"memory\": 55.2, \"disk\": 62.1, \"net_in\": 15, \"net_out\": 10, \"last_updated\": \"2024-03-15 09:10:00\"}, {\"host\": \"bastion\", \"region\": \"us-east\", \"cpu\": 5.1, \"memory\": 18.3, \"disk\": 22.4, \"net_in\": 2, \"net_out\": 1, \"last_updated\": \"2024-03-15 09:10:00\"}]"
+        }
+      ],
+      "pluginVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "datatable-examples"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Server Metrics \u2014 Overview",
+  "uid": "dt-server-metrics-overview",
+  "version": 1
+}

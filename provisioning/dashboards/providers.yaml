@@ -21,3 +21,75 @@ providers:
       path: /etc/grafana/provisioning/dashboards/dashboards
       # <bool> use folder names from filesystem to create folders in Grafana
       foldersFromFilesStructure: false
+
+  - name: dt-service-health
+    orgId: 1
+    folder: "01 - Service Health"
+    folderUid: dt-ex-01
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/examples/01 - Service Health
+      foldersFromFilesStructure: false
+
+  - name: dt-server-metrics
+    orgId: 1
+    folder: "02 - Server Metrics"
+    folderUid: dt-ex-02
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/examples/02 - Server Metrics
+      foldersFromFilesStructure: false
+
+  - name: dt-space-launches
+    orgId: 1
+    folder: "03 - Space Launches"
+    folderUid: dt-ex-03
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/examples/03 - Space Launches
+      foldersFromFilesStructure: false
+
+  - name: dt-logs
+    orgId: 1
+    folder: "04 - Logs"
+    folderUid: dt-ex-04
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/examples/04 - Logs
+      foldersFromFilesStructure: false
+
+  - name: dt-network-topology
+    orgId: 1
+    folder: "05 - Network Topology"
+    folderUid: dt-ex-05
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/examples/05 - Network Topology
+      foldersFromFilesStructure: false
+
+  - name: dt-rack-inventory
+    orgId: 1
+    folder: "06 - Rack Inventory"
+    folderUid: dt-ex-06
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 10
+    allowUiUpdates: true
+    options:
+      path: /etc/grafana/provisioning/dashboards/examples/06 - Rack Inventory
+      foldersFromFilesStructure: false

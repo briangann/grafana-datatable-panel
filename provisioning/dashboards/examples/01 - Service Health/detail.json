@@ -1,0 +1,246 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0,211,255,1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "text",
+      "title": "Selected Service",
+      "id": 1,
+      "gridPos": {
+        "h": 4,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "options": {
+        "mode": "markdown",
+        "content": "## Service: `$service`\n\nClick **Back to Overview** to return. \u2192 [Overview](/d/dt-service-health-overview)"
+      },
+      "targets": []
+    },
+    {
+      "type": "briangann-datatable-panel",
+      "title": "Service Metrics",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "dt-examples-infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 4
+      },
+      "id": 2,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "current_value",
+            "label": "Current Value (cell color)",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "cell",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 70
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 90
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "status",
+            "label": "Status (row color)",
+            "enabled": true,
+            "order": 1,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 1
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 2
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "-",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": true,
+        "lengthChangeEnabled": true,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": false,
+        "rowsPerPage": 15,
+        "scroll": false,
+        "searchEnabled": false,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": true,
+        "transformation": "table",
+        "wrapToFitEnabled": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"metric\": \"CPU (%)\", \"current_value\": 68, \"warning_threshold\": 70, \"critical_threshold\": 90, \"status\": 1}, {\"metric\": \"Memory (%)\", \"current_value\": 54, \"warning_threshold\": 75, \"critical_threshold\": 90, \"status\": 0}, {\"metric\": \"Disk (%)\", \"current_value\": 38, \"warning_threshold\": 80, \"critical_threshold\": 95, \"status\": 0}, {\"metric\": \"Queue Fill (%)\", \"current_value\": 91, \"warning_threshold\": 70, \"critical_threshold\": 90, \"status\": 2}, {\"metric\": \"Thread Pool (%)\", \"current_value\": 42, \"warning_threshold\": 70, \"critical_threshold\": 90, \"status\": 0}]"
+        }
+      ],
+      "pluginVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "datatable-examples"
+  ],
+  "templating": {
+    "list": [
+      {
+        "name": "service",
+        "label": "Service",
+        "type": "textbox",
+        "current": {
+          "text": "authentication",
+          "value": "authentication"
+        },
+        "query": "authentication",
+        "hide": 0,
+        "skipUrlSync": false
+      },
+      {
+        "name": "service_id",
+        "label": "Service ID",
+        "type": "textbox",
+        "current": {
+          "text": "svc-001",
+          "value": "svc-001"
+        },
+        "query": "svc-001",
+        "hide": 2,
+        "skipUrlSync": false
+      }
+    ]
+  },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Service Health \u2014 Detail",
+  "uid": "dt-service-health-detail",
+  "version": 1
+}
