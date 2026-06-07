@@ -109,13 +109,13 @@
           "source": "inline",
           "parser": "backend",
           "columns": [],
-          "data": "[{\"value\": 20}]"
+          "data": "[{\"value\": 22}]"
         }
       ]
     },
     {
       "type": "stat",
-      "title": "Successful",
+      "title": "Nominal",
       "gridPos": {
         "h": 4,
         "w": 8,
@@ -176,7 +176,7 @@
     },
     {
       "type": "stat",
-      "title": "Failed / Partial",
+      "title": "Anomaly / Abort / Scrubbed",
       "gridPos": {
         "h": 4,
         "w": 8,
@@ -231,7 +231,7 @@
           "source": "inline",
           "parser": "backend",
           "columns": [],
-          "data": "[{\"value\": 6}]"
+          "data": "[{\"value\": 8}]"
         }
       ]
     },
@@ -247,7 +247,7 @@
       "id": 1,
       "options": {
         "mode": "markdown",
-        "content": "## Rocket Launch Tracker\n\nA fun showcase using publicly-inspired space launch data to demonstrate Infinity's inline JSON mode and DataTable's value mapping + external clickthrough features.\n\n### Features demonstrated\n\n- \ud83d\ude80 **Infinity datasource** \u2014 data embedded inline, no API calls\n- \ud83d\uddfa\ufe0f **Value mappings** \u2014 1 \u2192 \u2713 Success, 0 \u2192 \u2717 Failure, 2 \u2192 \u26a0 Partial\n- \ud83d\udd17 **Clickthrough** \u2014 click an org name in the preview to open the full table; on the full table, org names link to their external website\n- \ud83d\udd0d **Search** \u2014 type to find any rocket, org, or payload\n\n[Open Full Launches Table \u2192](/d/dt-space-launches)",
+        "content": "## Rocket Launch Tracker\n\nA fun showcase using publicly-inspired space launch data to demonstrate Infinity's inline JSON mode and DataTable's value mapping + external clickthrough features.\n\n### Features demonstrated\n\n- \ud83d\ude80 **Infinity datasource** \u2014 data embedded inline, no API calls\n- \ud83d\uddfa\ufe0f **Value mappings** \u2014 1 \u2192 Nominal, 2 \u2192 Anomaly, 0 \u2192 Abort, 3 \u2192 Scrubbed\n- \ud83d\udd17 **Clickthrough** \u2014 click an org name in the preview to open the full table; on the full table, org names link to their external website\n- \ud83d\udd0d **Search** \u2014 type to find any rocket, org, or payload\n\n[Open Full Launches Table \u2192](/d/dt-space-launches)",
         "code": {
           "language": "plaintext",
           "showLineNumbers": false,
@@ -269,19 +269,24 @@
               "type": "value",
               "options": {
                 "1": {
-                  "text": "\u2713 Success",
+                  "text": "Nominal",
                   "color": "green",
                   "index": 0
                 },
-                "0": {
-                  "text": "\u2717 Failure",
-                  "color": "red",
+                "2": {
+                  "text": "Anomaly",
+                  "color": "orange",
                   "index": 1
                 },
-                "2": {
-                  "text": "\u26a0 Partial",
-                  "color": "orange",
+                "0": {
+                  "text": "Abort",
+                  "color": "red",
                   "index": 2
+                },
+                "3": {
+                  "text": "Scrubbed",
+                  "color": "gray",
+                  "index": 3
                 }
               }
             }
@@ -311,10 +316,32 @@
             "enabled": true,
             "order": 0,
             "align": "default",
-            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
             "hiddenStyle": {},
-            "metricStyle": { "alias": "", "colorMode": "disabled", "colors": ["#299c46","#ed8128","#f53636","#0a55a1"], "decimals": "2", "ignoreNullValues": true, "unitFormat": "short", "thresholds": [] },
-            "stringStyle": { "clickThrough": "/d/dt-space-launches", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": false, "clickThroughSanitize": false, "splitByPattern": "" }
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "/d/dt-space-launches",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": false,
+              "clickThroughSanitize": false,
+              "splitByPattern": ""
+            }
           },
           {
             "activeStyle": "metric",
@@ -354,6 +381,11 @@
                   "color": "#ed8128",
                   "state": 1,
                   "value": 1.5
+                },
+                {
+                  "color": "#8a8a8a",
+                  "state": 0,
+                  "value": 2.5
                 }
               ]
             },
