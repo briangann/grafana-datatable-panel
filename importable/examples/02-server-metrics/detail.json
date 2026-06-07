@@ -91,13 +91,15 @@
       "id": 2,
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "${DS_INFINITY}"
+        "uid": "dt-examples-infinity"
       },
       "options": {
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
-          ]
+          ],
+          "fields": "value",
+          "values": false
         },
         "orientation": "auto",
         "showThresholdLabels": false,
@@ -134,13 +136,15 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "${DS_TESTDATA}"
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
           },
           "refId": "A",
-          "scenarioId": "random_walk",
-          "min": 0,
-          "max": 100
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 45.2}]"
         }
       ]
     },
@@ -156,13 +160,15 @@
       "id": 3,
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "${DS_INFINITY}"
+        "uid": "dt-examples-infinity"
       },
       "options": {
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
-          ]
+          ],
+          "fields": "value",
+          "values": false
         },
         "orientation": "auto",
         "showThresholdLabels": false,
@@ -199,13 +205,15 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "${DS_TESTDATA}"
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
           },
-          "refId": "B",
-          "scenarioId": "random_walk",
-          "min": 0,
-          "max": 100
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 62.1}]"
         }
       ]
     },
@@ -221,13 +229,15 @@
       "id": 4,
       "datasource": {
         "type": "yesoreyeram-infinity-datasource",
-        "uid": "${DS_INFINITY}"
+        "uid": "dt-examples-infinity"
       },
       "options": {
         "reduceOptions": {
           "calcs": [
             "lastNotNull"
-          ]
+          ],
+          "fields": "value",
+          "values": false
         },
         "orientation": "auto",
         "showThresholdLabels": false,
@@ -264,13 +274,15 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "${DS_TESTDATA}"
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
           },
-          "refId": "C",
-          "scenarioId": "random_walk",
-          "min": 0,
-          "max": 100
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 38.4}]"
         }
       ]
     },
