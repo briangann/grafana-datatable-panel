@@ -322,7 +322,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             scroll: props.options.scroll,
             scrollY: `${calculatedHeight}px`,
             ordering: true,
-            orderFixed: orderColumn,
+            order: orderColumn,
             orderMulti: true,
             paging: !props.options.scroll,
             pagingType: props.options.datatablePagingType,
