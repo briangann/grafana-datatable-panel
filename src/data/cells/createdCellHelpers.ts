@@ -7,8 +7,7 @@ import { InterpolateFunction, TimeRange } from "@grafana/data";
 export const processRowStyle = (
   cell: any,
   rowData: any,
-  dtData: DTData,
-  rowNumberOffset: number) => {
+  dtData: DTData) => {
 
   let rowColorIndex = -1;
   let rowColorData = null;
@@ -29,7 +28,7 @@ export const processRowStyle = (
     }
     rowColorData = getCellColors(
       aColumnStyle,
-      rowData[columnNumber + rowNumberOffset]
+      rowData[columnNumber]
     );
     if (!rowColorData) {
       continue;
@@ -55,8 +54,7 @@ export const processRowStyle = (
 export const processRowColumnStyle = (
   cell: any,
   rowData: any,
-  columnsInCellData: DTColumnType[],
-  rowNumberOffset: number) => {
+  columnsInCellData: DTColumnType[]) => {
 
   let rowColorIndex = -1;
   let rowColorData = null;
@@ -77,7 +75,7 @@ export const processRowColumnStyle = (
         }
         rowColorData = getCellColors(
           aColumnStyle,
-          rowData[columnNumber + rowNumberOffset]
+          rowData[columnNumber]
         );
       }
       if (!rowColorData) {

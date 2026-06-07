@@ -72,12 +72,9 @@ export function resolveColumnValue(
  * numbers are enabled.
  */
 export function markHiddenColumns(columns: DTColumnType[]): void {
-  for (let index = 0; index < columns.length; index++) {
-    const aCell = columns[index];
-    if (aCell.columnStyles && aCell.columnStyles.length > 0) {
-      if (aCell.columnStyles[0].activeStyle === ColumnStyles.HIDDEN) {
-        aCell.visible = false;
-      }
+  for (const aCell of columns) {
+    if (aCell.columnStyles?.length > 0 && aCell.columnStyles[0].activeStyle === ColumnStyles.HIDDEN) {
+      aCell.visible = false;
     }
   }
 }
@@ -252,11 +249,12 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         return returnValue;
       },
       createdCell: function (cell: Node, columnsInCellData: DTColumnType[], rowData: unknown, rowIndex: number, colIndex: number) {
+        const $cell = $(cell);
         // Always-applied before any guards: row-number centering and font size.
         if (rowNumbersEnabled && colIndex === 0) {
-          $(cell).css('text-align', 'center');
+          $cell.css('text-align', 'center');
         }
-        $(cell).css('font-size', fontSizePercent);
+        $cell.css('font-size', fontSizePercent);
 
         if (columnsInCellData === null) {
           return;
@@ -289,7 +287,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         if (aStyle.activeStyle === ColumnStyles.STRING) {
           const newHtml = ProcessStringValueStyle(aStyle, rowData, cellValueFormatted, timeRange, replaceVariables);
           if (newHtml !== null) {
-            $(cell).html(newHtml);
+            $cell.html(newHtml);
           }
         }
 
@@ -297,24 +295,24 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
           const colorMode = aStyle.metricStyle.colorMode;
           // Row/RowColumn modes walk sibling DOM nodes — must stay in the callback.
           if (colorMode === ColumnStyleColoring.Row) {
-            processRowStyle(cell, rowData, dtData, 0);
+            processRowStyle(cell, rowData, dtData);
           }
           if (colorMode === ColumnStyleColoring.RowColumn) {
-            processRowColumnStyle(cell, rowData, columnsInCellData, 0);
+            processRowColumnStyle(cell, rowData, columnsInCellData);
           }
           const metricColors = computeMetricCellColors(aStyle, cellValueFormatted);
           if (metricColors.color !== undefined) {
-            $(cell).css('color', metricColors.color);
+            $cell.css('color', metricColors.color);
           }
           if (metricColors.bgColor !== undefined) {
-            $(cell).css('background-color', metricColors.bgColor);
+            $cell.css('background-color', metricColors.bgColor);
           }
         }
 
         // Per-column alignment override — computeCellAlignment guards the whitelist.
         const alignment = computeCellAlignment(aStyle);
         if (alignment !== null) {
-          $(cell).css('text-align', alignment);
+          $cell.css('text-align', alignment);
         }
       },
     };

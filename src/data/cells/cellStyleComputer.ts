@@ -40,7 +40,7 @@ export function computeMetricCellColors(
     if (colorData.bgColor !== null) {
       result.bgColor = colorData.bgColor;
     }
-  } else if (colorData.color) {
+  } else if (colorData.color !== null) {
     // Row and Value modes: text color only.
     result.color = colorData.color;
   }

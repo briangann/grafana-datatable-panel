@@ -481,38 +481,25 @@ describe('BuildColumnDefs render callback', () => {
     expect(renderCol0(null, 'display', flatRow, { col: 0 })).toBe('alpha');
   });
 
+  // Shared fixture: a null-raw-value cell — valueFormatted='' is falsy, so a truthiness guard
+  // would fall through and return the raw FormattedColumnValue object → '[object Object]'.
+  const nullCell: import('types').FormattedColumnValue = {
+    valueRaw: null,
+    valueFormatted: '',
+    valueRounded: null,
+    valueRoundedAndFormatted: null,
+  };
+  const rowWithNull = [nullCell, formattedNumber];
+
   it('returns "" for type=display when valueFormatted is empty (null rawValue)', () => {
-    // This was the regression path: valueFormatted='' is falsy, so a truthiness guard
-    // would fall through and return the raw FormattedColumnValue object → '[object Object]'.
-    const nullCell: import('types').FormattedColumnValue = {
-      valueRaw: null,
-      valueFormatted: '',
-      valueRounded: null,
-      valueRoundedAndFormatted: null,
-    };
-    const rowWithNull = [nullCell, formattedNumber];
     expect(renderCol0(null, 'display', rowWithNull, { col: 0 })).toBe('');
   });
 
   it('returns null valueRaw for type=sort when valueFormatted is empty (null rawValue)', () => {
-    const nullCell: import('types').FormattedColumnValue = {
-      valueRaw: null,
-      valueFormatted: '',
-      valueRounded: null,
-      valueRoundedAndFormatted: null,
-    };
-    const rowWithNull = [nullCell, formattedNumber];
     expect(renderCol0(null, 'sort', rowWithNull, { col: 0 })).toBeNull();
   });
 
   it('returns "" for type=filter when valueFormatted is empty (null rawValue)', () => {
-    const nullCell: import('types').FormattedColumnValue = {
-      valueRaw: null,
-      valueFormatted: '',
-      valueRounded: null,
-      valueRoundedAndFormatted: null,
-    };
-    const rowWithNull = [nullCell, formattedNumber];
     expect(renderCol0(null, 'filter', rowWithNull, { col: 0 })).toBe('');
   });
 });
