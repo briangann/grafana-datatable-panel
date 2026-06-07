@@ -304,10 +304,18 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             data: cachedProcessedData.Rows,
             info: props.options.infoEnabled,
             lengthChange: props.options.lengthChangeEnabled,
-            lengthMenu: [
-              [5, 10, 25, 50, 75, 100, -1],
-              [5, 10, 25, 50, 75, 100, 'All'],
-            ],
+            lengthMenu: (() => {
+              const lengths: number[] = [5, 10, 25, 50, 75, 100, -1];
+              const labels: (string | number)[] = [5, 10, 25, 50, 75, 100, 'All'];
+              const rpp = props.options.rowsPerPage || 10;
+              if (rpp > 0 && !lengths.includes(rpp)) {
+                const idx = lengths.findIndex(l => l === -1 || l > rpp);
+                lengths.splice(idx, 0, rpp);
+                labels.splice(idx, 0, rpp);
+              }
+              return [lengths, labels];
+            })(),
+            pageLength: props.options.rowsPerPage || 10,
             // @ts-expect-error
             mark: props.options.searchHighlightingEnabled || false,
             select: { style: 'os' },
@@ -368,9 +376,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               }
             },
           };
-          if (props.options.rowsPerPage) {
-            dtOptions.pageLength = props.options.rowsPerPage;
-          }
           jQuery(dataTableDOMRef.current).DataTable(dtOptions as Config);
         }
       }
