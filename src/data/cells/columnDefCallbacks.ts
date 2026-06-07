@@ -28,7 +28,7 @@ export function renderCell(
   type: string | undefined,
   val: FlatRow,
   meta: CellMetaSettings,
-): unknown {
+): FormattedColumnValue | string | number | null {
   if (type === undefined) {
     return null;
   }
@@ -61,7 +61,7 @@ export function applyCreatedCell(
   ctx: CreatedCellContext,
   cell: Node,
   _cellData: unknown,
-  rowData: unknown,
+  rowData: FlatRow,
   rowIndex: number,
   colIndex: number,
 ): void {

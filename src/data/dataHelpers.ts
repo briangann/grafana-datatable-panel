@@ -228,7 +228,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         meta: CellMetaSettings,
       ) => renderCell(dtData, _data, type, val, meta),
       createdCell: (cell: Node, _cellData: unknown, rowData: unknown, rowIndex: number, colIndex: number) =>
-        applyCreatedCell(ctx, cell, _cellData, rowData, rowIndex, colIndex),
+        applyCreatedCell(ctx, cell, _cellData, rowData as FlatRow, rowIndex, colIndex),
     };
     // Apply visibility: ConvertDataFrameToDataTableFormat sets column.visible=false
     // for HIDDEN column styles. Propagate that flag to the DataTables column def so
