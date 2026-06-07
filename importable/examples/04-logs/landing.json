@@ -1,12 +1,12 @@
 {
   "__inputs": [
     {
-      "name": "DS_TESTDATA",
-      "label": "TestData DB",
+      "name": "DS_INFINITY",
+      "label": "Infinity",
       "description": "",
       "type": "datasource",
-      "pluginId": "grafana-testdata-datasource",
-      "pluginName": "TestData DB"
+      "pluginId": "yesoreyeram-infinity-datasource",
+      "pluginName": "Infinity"
     }
   ],
   "__elements": {},
@@ -25,8 +25,8 @@
     },
     {
       "type": "datasource",
-      "id": "grafana-testdata-datasource",
-      "name": "TestData DB",
+      "id": "yesoreyeram-infinity-datasource",
+      "name": "Infinity",
       "version": "1.0.0"
     }
   ],
@@ -34,7 +34,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0,211,255,1)",
@@ -52,55 +55,248 @@
     {
       "type": "stat",
       "title": "Total Log Entries",
-      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
       "id": 3,
-      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
-      "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "blue" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } }, "overrides": [] },
-      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "entry\nL01\nL02\nL03\nL04\nL05\nL06\nL07\nL08\nL09\nL10\nL11\nL12\nL13\nL14\nL15\nL16\nL17\nL18\nL19\nL20\nL21\nL22\nL23\nL24\nL25\nL26\nL27\nL28\nL29\nL30" }]
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "value",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "displayName": "${__field.labels.value}"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 30}]"
+        }
+      ]
     },
     {
       "type": "stat",
       "title": "Errors",
-      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
       "id": 4,
-      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
-      "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "red" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }] } }, "overrides": [] },
-      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "entry\nE01\nE02\nE03\nE04\nE05\nE06\nE07" }]
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "value",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "displayName": "${__field.labels.value}"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 7}]"
+        }
+      ]
     },
     {
       "type": "stat",
       "title": "Warnings",
-      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
       "id": 5,
-      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
-      "options": { "reduceOptions": { "calcs": ["count"] }, "orientation": "auto", "textMode": "auto", "colorMode": "background", "graphMode": "none" },
-      "fieldConfig": { "defaults": { "color": { "mode": "fixed", "fixedColor": "orange" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "orange", "value": null }] } }, "overrides": [] },
-      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "csv_metric_values", "csvContent": "entry\nW01\nW02\nW03\nW04\nW05\nW06\nW07" }]
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "value",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "orange"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "orange",
+                "value": null
+              }
+            ]
+          },
+          "displayName": "${__field.labels.value}"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 7}]"
+        }
+      ]
     },
     {
       "type": "text",
       "title": "About This Example Set",
-      "gridPos": { "h": 12, "w": 10, "x": 0, "y": 4 },
+      "gridPos": {
+        "h": 12,
+        "w": 10,
+        "x": 0,
+        "y": 4
+      },
       "id": 1,
       "options": {
         "mode": "markdown",
-        "content": "## Log Search\n\nA realistic log viewer demonstrating how DataTable handles timestamped, level-tagged log data.\n\n### Features demonstrated\n\n- 📅 **Timestamp formatting** — DATE style formats raw timestamps\n- 🎨 **Level coloring** — ERROR=red, WARN=orange, INFO=blue, DEBUG=gray\n- 🔢 **Value mappings** — 0/1/2/3 → DEBUG/INFO/WARN/ERROR\n- 🔍 **Search with highlighting** — search matches are highlighted in yellow\n- 🔽 **Column filters** — filter dropdowns on each column\n- 📏 **Wide message column** — 50% width hint\n\n[Open Log Search →](/d/dt-logs)",
-        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false }
-      }
+        "content": "## Log Search\n\nA realistic log viewer demonstrating how DataTable handles timestamped, level-tagged log data.\n\n### Features demonstrated\n\n- \ud83d\udcc5 **Timestamp formatting** \u2014 DATE style formats raw timestamps\n- \ud83c\udfa8 **Level coloring** \u2014 ERROR=red, WARN=orange, INFO=blue, DEBUG=gray\n- \ud83d\udd22 **Value mappings** \u2014 0/1/2/3 \u2192 DEBUG/INFO/WARN/ERROR\n- \ud83d\udd0d **Search with highlighting** \u2014 search matches are highlighted in yellow\n- \ud83d\udd3d **Column filters** \u2014 filter dropdowns on each column\n- \ud83d\udccf **Wide message column** \u2014 50% width hint\n\n[Open Log Search \u2192](/d/dt-logs)",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        }
+      },
+      "targets": []
     },
     {
       "type": "briangann-datatable-panel",
       "title": "Recent Logs Preview",
-      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
       "fieldConfig": {
         "defaults": {
-          "mappings": [{ "type": "value", "options": { "0": { "text": "DEBUG", "index": 0 }, "1": { "text": "INFO", "index": 1 }, "2": { "text": "WARN", "index": 2 }, "3": { "text": "ERROR", "index": 3 } } }]
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "DEBUG",
+                  "index": 0
+                },
+                "1": {
+                  "text": "INFO",
+                  "index": 1
+                },
+                "2": {
+                  "text": "WARN",
+                  "index": 2
+                },
+                "3": {
+                  "text": "ERROR",
+                  "index": 3
+                }
+              }
+            }
+          ]
         },
         "overrides": []
       },
-      "gridPos": { "h": 12, "w": 14, "x": 10, "y": 4 },
+      "gridPos": {
+        "h": 12,
+        "w": 14,
+        "x": 10,
+        "y": 4
+      },
       "id": 2,
       "options": {
         "alignNumbersToRightEnabled": true,
@@ -116,10 +312,32 @@
             "enabled": true,
             "order": 0,
             "align": "default",
-            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
             "hiddenStyle": {},
-            "metricStyle": { "alias": "", "colorMode": "disabled", "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"], "decimals": "2", "ignoreNullValues": true, "unitFormat": "short", "thresholds": [] },
-            "stringStyle": { "clickThrough": "", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": true, "clickThroughSanitize": true, "splitByPattern": "" }
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
           },
           {
             "activeStyle": "metric",
@@ -128,23 +346,53 @@
             "enabled": true,
             "order": 1,
             "align": "default",
-            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
             "hiddenStyle": {},
             "metricStyle": {
               "alias": "",
               "colorMode": "cell",
-              "colors": ["#8a8a8a", "#0a55a1", "#ed8128", "#f53636"],
+              "colors": [
+                "#8a8a8a",
+                "#0a55a1",
+                "#ed8128",
+                "#f53636"
+              ],
               "decimals": "0",
               "ignoreNullValues": true,
               "unitFormat": "short",
               "thresholds": [
-                { "color": "#8a8a8a", "state": 0, "value": 0 },
-                { "color": "#0a55a1", "state": 0, "value": 1 },
-                { "color": "#ed8128", "state": 1, "value": 2 },
-                { "color": "#f53636", "state": 2, "value": 3 }
+                {
+                  "color": "#8a8a8a",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#0a55a1",
+                  "state": 0,
+                  "value": 1
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 2
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 3
+                }
               ]
             },
-            "stringStyle": { "clickThrough": "", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": true, "clickThroughSanitize": true, "splitByPattern": "" }
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
           }
         ],
         "columnWidthHints": [],
@@ -165,26 +413,36 @@
         "searchHighlightingEnabled": false,
         "stripedRowsEnabled": true,
         "transformation": "table",
-        "transformationAggregations": ["last"],
         "wrapToFitEnabled": true
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
+          },
           "refId": "A",
-          "scenarioId": "csv_metric_values",
-          "csvContent": "timestamp,level_num,level,service,message\n2024-03-15 09:00:01,3,ERROR,auth-service,Failed to connect to database: timeout after 30s\n2024-03-15 09:00:05,1,INFO,api-gateway,Request processed successfully in 142ms\n2024-03-15 09:00:09,2,WARN,payment,Retry attempt 2/3 for transaction tx-9921\n2024-03-15 09:00:12,0,DEBUG,cache,Cache miss for key user:session:8821\n2024-03-15 09:00:15,3,ERROR,notifications,SMTP connection refused: mail.example.com:587\n2024-03-15 09:00:18,1,INFO,search,Index refresh completed: 142891 documents"
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"timestamp\": \"2024-03-15 09:00:01\", \"level_num\": 3, \"level\": \"ERROR\", \"service\": \"auth-service\", \"message\": \"Failed to connect to database: timeout after 30s\"}, {\"timestamp\": \"2024-03-15 09:00:02\", \"level_num\": 1, \"level\": \"INFO\", \"service\": \"api-gateway\", \"message\": \"Request processed successfully in 142ms [GET /api/v1/users]\"}, {\"timestamp\": \"2024-03-15 09:00:03\", \"level_num\": 2, \"level\": \"WARN\", \"service\": \"payment\", \"message\": \"Retry attempt 2/3 for transaction tx-9921\"}, {\"timestamp\": \"2024-03-15 09:00:04\", \"level_num\": 0, \"level\": \"DEBUG\", \"service\": \"cache\", \"message\": \"Cache miss for key user:session:8821\"}, {\"timestamp\": \"2024-03-15 09:00:05\", \"level_num\": 3, \"level\": \"ERROR\", \"service\": \"notifications\", \"message\": \"SMTP connection refused: mail.example.com:587\"}, {\"timestamp\": \"2024-03-15 09:00:06\", \"level_num\": 1, \"level\": \"INFO\", \"service\": \"search\", \"message\": \"Index refresh completed: 142891 documents processed in 3.2s\"}]"
         }
       ],
       "pluginVersion": "2.0.0"
     }
   ],
   "schemaVersion": 39,
-  "tags": ["datatable-examples"],
-  "time": { "from": "now-1h", "to": "now" },
+  "tags": [
+    "datatable-examples"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Log Search — Landing",
+  "title": "Log Search \u2014 Landing",
   "uid": "dt-logs-landing",
   "version": 1
 }

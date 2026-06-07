@@ -1,12 +1,12 @@
 {
   "__inputs": [
     {
-      "name": "DS_TESTDATA",
-      "label": "TestData DB",
+      "name": "DS_INFINITY",
+      "label": "Infinity",
       "description": "",
       "type": "datasource",
-      "pluginId": "grafana-testdata-datasource",
-      "pluginName": "TestData DB"
+      "pluginId": "yesoreyeram-infinity-datasource",
+      "pluginName": "Infinity"
     }
   ],
   "__elements": {},
@@ -31,8 +31,8 @@
     },
     {
       "type": "datasource",
-      "id": "grafana-testdata-datasource",
-      "name": "TestData DB",
+      "id": "yesoreyeram-infinity-datasource",
+      "name": "Infinity",
       "version": "1.0.0"
     }
   ],
@@ -40,7 +40,10 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": { "type": "grafana", "uid": "-- Grafana --" },
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0,211,255,1)",
@@ -58,83 +61,238 @@
     {
       "type": "text",
       "title": "",
-      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 0 },
+      "gridPos": {
+        "h": 3,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
       "id": 1,
       "options": {
         "mode": "markdown",
-        "content": "## Host: $host\n\n← [Back to Overview](/d/dt-server-metrics-overview)",
-        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false }
-      }
+        "content": "## Host: $host\n\n\u2190 [Back to Overview](/d/dt-server-metrics-overview)",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        }
+      },
+      "targets": []
     },
     {
       "type": "gauge",
       "title": "CPU (%)",
-      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 3 },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 3
+      },
       "id": 2,
-      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto", "showThresholdLabels": false, "showThresholdMarkers": true },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
       "fieldConfig": {
         "defaults": {
-          "min": 0, "max": 100, "unit": "percent",
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [
-            { "color": "green", "value": null },
-            { "color": "yellow", "value": 70 },
-            { "color": "red", "value": 90 }
-          ]}
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "A", "scenarioId": "random_walk", "min": 0, "max": 100 }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "${DS_TESTDATA}"
+          },
+          "refId": "A",
+          "scenarioId": "random_walk",
+          "min": 0,
+          "max": 100
+        }
+      ]
     },
     {
       "type": "gauge",
       "title": "Memory (%)",
-      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 3 },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 8,
+        "y": 3
+      },
       "id": 3,
-      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto", "showThresholdLabels": false, "showThresholdMarkers": true },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
       "fieldConfig": {
         "defaults": {
-          "min": 0, "max": 100, "unit": "percent",
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [
-            { "color": "green", "value": null },
-            { "color": "yellow", "value": 75 },
-            { "color": "red", "value": 90 }
-          ]}
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 75
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "B", "scenarioId": "random_walk", "min": 0, "max": 100 }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "${DS_TESTDATA}"
+          },
+          "refId": "B",
+          "scenarioId": "random_walk",
+          "min": 0,
+          "max": 100
+        }
+      ]
     },
     {
       "type": "gauge",
       "title": "Disk (%)",
-      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 3 },
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 16,
+        "y": 3
+      },
       "id": 4,
-      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
-      "options": { "reduceOptions": { "calcs": ["lastNotNull"] }, "orientation": "auto", "showThresholdLabels": false, "showThresholdMarkers": true },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ]
+        },
+        "orientation": "auto",
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
+      },
       "fieldConfig": {
         "defaults": {
-          "min": 0, "max": 100, "unit": "percent",
-          "color": { "mode": "thresholds" },
-          "thresholds": { "mode": "absolute", "steps": [
-            { "color": "green", "value": null },
-            { "color": "yellow", "value": 80 },
-            { "color": "red", "value": 95 }
-          ]}
+          "min": 0,
+          "max": 100,
+          "unit": "percent",
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 80
+              },
+              {
+                "color": "red",
+                "value": 95
+              }
+            ]
+          }
         },
         "overrides": []
       },
-      "targets": [{ "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" }, "refId": "C", "scenarioId": "random_walk", "min": 0, "max": 100 }]
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "${DS_TESTDATA}"
+          },
+          "refId": "C",
+          "scenarioId": "random_walk",
+          "min": 0,
+          "max": 100
+        }
+      ]
     },
     {
       "type": "briangann-datatable-panel",
       "title": "Resource Breakdown",
-      "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
-      "fieldConfig": { "defaults": { "mappings": [] }, "overrides": [] },
-      "gridPos": { "h": 12, "w": 24, "x": 0, "y": 9 },
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 24,
+        "x": 0,
+        "y": 9
+      },
       "id": 5,
       "options": {
         "alignNumbersToRightEnabled": true,
@@ -150,11 +308,48 @@
             "enabled": true,
             "order": 0,
             "align": "default",
-            "dateStyle": { "dateFormat": "YYYY-MM-DD HH:mm:ss" },
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
             "hiddenStyle": {},
-            "metricStyle": { "alias": "", "colorMode": "cell", "colors": ["#299c46", "#ed8128", "#f53636", "#0a55a1"], "decimals": "1", "ignoreNullValues": true, "unitFormat": "percent",
-              "thresholds": [ { "color": "#299c46", "state": 0, "value": 0 }, { "color": "#ed8128", "state": 1, "value": 70 }, { "color": "#f53636", "state": 2, "value": 90 } ] },
-            "stringStyle": { "clickThrough": "", "clickThroughCustomTarget": "", "clickThroughCustomTargetEnabled": false, "clickThroughOpenNewTab": true, "clickThroughSanitize": true, "splitByPattern": "" }
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "cell",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "ignoreNullValues": true,
+              "unitFormat": "percent",
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 70
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 90
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
           }
         ],
         "columnWidthHints": [],
@@ -174,40 +369,53 @@
         "searchEnabled": false,
         "searchHighlightingEnabled": false,
         "stripedRowsEnabled": true,
-        "transformation": "timeseries-to-columns",
-        "transformationAggregations": ["last"],
+        "transformation": "table",
         "wrapToFitEnabled": true
       },
       "targets": [
         {
-          "datasource": { "type": "grafana-testdata-datasource", "uid": "${DS_TESTDATA}" },
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
+          },
           "refId": "A",
-          "scenarioId": "csv_metric_values",
-          "csvContent": "resource,value,warning,critical,unit\nCPU,45.2,70,90,%\nMemory,62.1,75,90,%\nDisk,38.4,80,95,%\nNetwork In,120,500,900,Mbps\nNetwork Out,95,500,900,Mbps"
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"resource\": \"CPU (%)\", \"value\": 45.2, \"warning\": 70, \"critical\": 90}, {\"resource\": \"Memory (%)\", \"value\": 62.1, \"warning\": 75, \"critical\": 90}, {\"resource\": \"Disk (%)\", \"value\": 38.4, \"warning\": 80, \"critical\": 95}, {\"resource\": \"Queue Fill (%)\", \"value\": 91.0, \"warning\": 70, \"critical\": 90}, {\"resource\": \"Thread Pool (%)\", \"value\": 42.0, \"warning\": 70, \"critical\": 90}]"
         }
       ],
       "pluginVersion": "2.0.0"
     }
   ],
   "schemaVersion": 39,
-  "tags": ["datatable-examples"],
+  "tags": [
+    "datatable-examples"
+  ],
   "templating": {
     "list": [
       {
         "name": "host",
         "label": "Host",
         "type": "textbox",
-        "current": { "text": "web-01", "value": "web-01" },
+        "current": {
+          "text": "web-01",
+          "value": "web-01"
+        },
         "query": "web-01",
         "hide": 0,
         "skipUrlSync": false
       }
     ]
   },
-  "time": { "from": "now-1h", "to": "now" },
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Server Metrics — Detail",
+  "title": "Server Metrics \u2014 Detail",
   "uid": "dt-server-metrics-detail",
   "version": 1
 }

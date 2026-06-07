@@ -1,14 +1,6 @@
 {
   "__inputs": [
     {
-      "name": "DS_TESTDATA",
-      "label": "TestData",
-      "description": "",
-      "type": "datasource",
-      "pluginId": "grafana-testdata-datasource",
-      "pluginName": "TestData"
-    },
-    {
       "name": "DS_INFINITY",
       "label": "Infinity",
       "description": "",
@@ -24,12 +16,6 @@
       "id": "briangann-datatable-panel",
       "name": "Datatable Panel",
       "version": "2.0.0"
-    },
-    {
-      "type": "datasource",
-      "id": "grafana-testdata-datasource",
-      "name": "TestData",
-      "version": "1.0.0"
     },
     {
       "type": "grafana",
@@ -77,14 +63,16 @@
       },
       "id": 3,
       "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "${DS_TESTDATA}"
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
       },
       "options": {
         "reduceOptions": {
           "calcs": [
-            "count"
-          ]
+            "lastNotNull"
+          ],
+          "fields": "value",
+          "values": false
         },
         "orientation": "auto",
         "textMode": "auto",
@@ -105,19 +93,23 @@
                 "value": null
               }
             ]
-          }
+          },
+          "displayName": "${__field.labels.value}"
         },
         "overrides": []
       },
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "${DS_TESTDATA}"
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
           },
           "refId": "A",
-          "scenarioId": "csv_metric_values",
-          "csvContent": "device\nd01\nd02\nd03\nd04\nd05\nd06\nd07\nd08\nd09\nd10\nd11\nd12\nd13\nd14\nd15\nd16\nd17\nd18\nd19\nd20"
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 20}]"
         }
       ]
     },
@@ -132,14 +124,16 @@
       },
       "id": 4,
       "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "${DS_TESTDATA}"
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
       },
       "options": {
         "reduceOptions": {
           "calcs": [
-            "count"
-          ]
+            "lastNotNull"
+          ],
+          "fields": "value",
+          "values": false
         },
         "orientation": "auto",
         "textMode": "auto",
@@ -160,19 +154,23 @@
                 "value": null
               }
             ]
-          }
+          },
+          "displayName": "${__field.labels.value}"
         },
         "overrides": []
       },
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "${DS_TESTDATA}"
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
           },
           "refId": "A",
-          "scenarioId": "csv_metric_values",
-          "csvContent": "device\nd01\nd02\nd03\nd04\nd05\nd06\nd07\nd08\nd09\nd10\nd11\nd12\nd13"
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 13}]"
         }
       ]
     },
@@ -187,14 +185,16 @@
       },
       "id": 5,
       "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "${DS_TESTDATA}"
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
       },
       "options": {
         "reduceOptions": {
           "calcs": [
-            "count"
-          ]
+            "lastNotNull"
+          ],
+          "fields": "value",
+          "values": false
         },
         "orientation": "auto",
         "textMode": "auto",
@@ -215,19 +215,23 @@
                 "value": null
               }
             ]
-          }
+          },
+          "displayName": "${__field.labels.value}"
         },
         "overrides": []
       },
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "${DS_TESTDATA}"
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
           },
           "refId": "A",
-          "scenarioId": "csv_metric_values",
-          "csvContent": "device\nd01\nd02\nd03\nd04\nd05\nd06\nd07"
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 7}]"
         }
       ]
     },
@@ -243,7 +247,7 @@
       "id": 1,
       "options": {
         "mode": "markdown",
-        "content": "## Rack Inventory\n\nTrack every device in your data center racks with device type icons, monitoring status coloring, and one-click access to management interfaces.\n\n### Features demonstrated\n\n- 🔀 **Device type icons** — type strings mapped to emojis via value mappings\n- 🟢 **Monitoring status** — Monitored=green, Unmonitored=orange, Offline=red\n- 🔗 **Clickthrough** — click a device name to open its management interface\n- 📏 **Column widths** — Rack (60px), U (40px), IP (120px), Notes (35% wide)\n- 🔢 **Physical order** — sorted by Rack then rack unit (U)\n- ∅ **Null handling** — devices without IPs show \"-\"\n\n[Open Full Inventory →](/d/dt-rack-inventory)",
+        "content": "## Rack Inventory\n\nTrack every device in your data center racks with device type icons, monitoring status coloring, and one-click access to management interfaces.\n\n### Features demonstrated\n\n- \ud83d\udd00 **Device type icons** \u2014 type strings mapped to emojis via value mappings\n- \ud83d\udfe2 **Monitoring status** \u2014 Monitored=green, Unmonitored=orange, Offline=red\n- \ud83d\udd17 **Clickthrough** \u2014 click a device name to open its management interface\n- \ud83d\udccf **Column widths** \u2014 Rack (60px), U (40px), IP (120px), Notes (35% wide)\n- \ud83d\udd22 **Physical order** \u2014 sorted by Rack then rack unit (U)\n- \u2205 **Null handling** \u2014 devices without IPs show \"-\"\n\n[Open Full Inventory \u2192](/d/dt-rack-inventory)",
         "code": {
           "language": "plaintext",
           "showLineNumbers": false,
@@ -265,31 +269,31 @@
               "type": "value",
               "options": {
                 "switch": {
-                  "text": "🔀 Switch",
+                  "text": "\ud83d\udd00 Switch",
                   "index": 0
                 },
                 "router": {
-                  "text": "🔁 Router",
+                  "text": "\ud83d\udd01 Router",
                   "index": 1
                 },
                 "patch_panel": {
-                  "text": "🔌 Patch Panel",
+                  "text": "\ud83d\udd0c Patch Panel",
                   "index": 2
                 },
                 "ups": {
-                  "text": "⚡ UPS",
+                  "text": "\u26a1 UPS",
                   "index": 3
                 },
                 "server": {
-                  "text": "🖥️ Server",
+                  "text": "\ud83d\udda5\ufe0f Server",
                   "index": 4
                 },
                 "pdu": {
-                  "text": "🔋 PDU",
+                  "text": "\ud83d\udd0b PDU",
                   "index": 5
                 },
                 "ap": {
-                  "text": "📡 Access Point",
+                  "text": "\ud83d\udce1 Access Point",
                   "index": 6
                 }
               }
@@ -430,7 +434,7 @@
   },
   "timepicker": {},
   "timezone": "browser",
-  "title": "Rack Inventory — Landing",
+  "title": "Rack Inventory \u2014 Landing",
   "uid": "dt-rack-inventory-landing",
   "version": 1
 }
