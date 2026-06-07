@@ -1,15 +1,5 @@
-import $ from 'jquery';
-import { applyCreatedCell, CreatedCellContext, renderCell } from './columnDefCallbacks';
-import {
-  ColumnAlignment,
-  ColumnStyleColoring,
-  ColumnStyleItemType,
-  ColumnStyles,
-  DTColumnType,
-  DTData,
-  FormattedColumnValue,
-  Threshold,
-} from 'types';
+import { renderCell } from './columnDefCallbacks';
+import { DTColumnType, DTData, FormattedColumnValue } from 'types';
 import { CellMetaSettings } from 'datatables.net';
 
 // ---------------------------------------------------------------------------
