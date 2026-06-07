@@ -104,8 +104,8 @@
       },
       "id": 2,
       "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "P53465F745837BCFD"
+        "type": "datasource",
+        "uid": "-- Dashboard --"
       },
       "options": {
         "graphMode": "area",
@@ -151,14 +151,27 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "P53465F745837BCFD"
+            "type": "datasource",
+            "uid": "-- Dashboard --"
           },
-          "refId": "A",
-          "scenarioId": "random_walk",
-          "min": 0,
-          "max": 100,
-          "alias": "CPU"
+          "panelId": 5,
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "CPU (%)"
+              ]
+            }
+          }
         }
       ]
     },
@@ -173,8 +186,8 @@
       },
       "id": 3,
       "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "P53465F745837BCFD"
+        "type": "datasource",
+        "uid": "-- Dashboard --"
       },
       "options": {
         "graphMode": "area",
@@ -220,14 +233,27 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "P53465F745837BCFD"
+            "type": "datasource",
+            "uid": "-- Dashboard --"
           },
-          "refId": "B",
-          "scenarioId": "random_walk",
-          "min": 0,
-          "max": 100,
-          "alias": "Memory"
+          "panelId": 5,
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "Memory (%)"
+              ]
+            }
+          }
         }
       ]
     },
@@ -242,8 +268,8 @@
       },
       "id": 4,
       "datasource": {
-        "type": "grafana-testdata-datasource",
-        "uid": "P53465F745837BCFD"
+        "type": "datasource",
+        "uid": "-- Dashboard --"
       },
       "options": {
         "graphMode": "area",
@@ -289,14 +315,27 @@
       "targets": [
         {
           "datasource": {
-            "type": "grafana-testdata-datasource",
-            "uid": "P53465F745837BCFD"
+            "type": "datasource",
+            "uid": "-- Dashboard --"
           },
-          "refId": "C",
-          "scenarioId": "random_walk",
-          "min": 0,
-          "max": 100,
-          "alias": "Disk"
+          "panelId": 5,
+          "refId": "A"
+        }
+      ],
+      "transformations": [
+        {
+          "id": "merge",
+          "options": {}
+        },
+        {
+          "id": "filterFieldsByName",
+          "options": {
+            "include": {
+              "names": [
+                "Disk (%)"
+              ]
+            }
+          }
         }
       ]
     },
@@ -304,8 +343,8 @@
       "type": "briangann-datatable-panel",
       "title": "Resource Breakdown",
       "datasource": {
-        "type": "yesoreyeram-infinity-datasource",
-        "uid": "${DS_INFINITY}"
+        "type": "grafana-testdata-datasource",
+        "uid": "P53465F745837BCFD"
       },
       "fieldConfig": {
         "defaults": {
@@ -390,26 +429,72 @@
         "lengthChangeEnabled": false,
         "orderColumnEnabled": false,
         "rowNumbersEnabled": false,
-        "rowsPerPage": 10,
+        "rowsPerPage": 15,
         "scroll": false,
         "searchEnabled": false,
         "searchHighlightingEnabled": false,
         "stripedRowsEnabled": true,
-        "transformation": "table",
-        "wrapToFitEnabled": true
+        "transformation": "timeseries-aggregations",
+        "wrapToFitEnabled": true,
+        "transformationAggregations": [
+          "lastNotNull"
+        ]
       },
       "targets": [
         {
           "datasource": {
-            "type": "yesoreyeram-infinity-datasource",
-            "uid": "${DS_INFINITY}"
+            "type": "grafana-testdata-datasource",
+            "uid": "P53465F745837BCFD"
           },
           "refId": "A",
-          "type": "json",
-          "source": "inline",
-          "parser": "backend",
-          "columns": [],
-          "data": "[{\"resource\": \"CPU (%)\", \"value\": 45.2, \"warning\": 70, \"critical\": 90}, {\"resource\": \"Memory (%)\", \"value\": 62.1, \"warning\": 75, \"critical\": 90}, {\"resource\": \"Disk (%)\", \"value\": 38.4, \"warning\": 80, \"critical\": 95}, {\"resource\": \"Queue Fill (%)\", \"value\": 91.0, \"warning\": 70, \"critical\": 90}, {\"resource\": \"Thread Pool (%)\", \"value\": 42.0, \"warning\": 70, \"critical\": 90}]"
+          "scenarioId": "random_walk",
+          "min": 0,
+          "max": 100,
+          "alias": "CPU (%)"
+        },
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "P53465F745837BCFD"
+          },
+          "refId": "B",
+          "scenarioId": "random_walk",
+          "min": 0,
+          "max": 100,
+          "alias": "Memory (%)"
+        },
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "P53465F745837BCFD"
+          },
+          "refId": "C",
+          "scenarioId": "random_walk",
+          "min": 0,
+          "max": 100,
+          "alias": "Disk (%)"
+        },
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "P53465F745837BCFD"
+          },
+          "refId": "D",
+          "scenarioId": "random_walk",
+          "min": 0,
+          "max": 100,
+          "alias": "Queue Fill (%)"
+        },
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "P53465F745837BCFD"
+          },
+          "refId": "E",
+          "scenarioId": "random_walk",
+          "min": 0,
+          "max": 100,
+          "alias": "Thread Pool (%)"
         }
       ],
       "pluginVersion": "2.0.0"
