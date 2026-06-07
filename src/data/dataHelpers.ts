@@ -25,7 +25,7 @@ export function normalizeFieldName(field: string) {
 /** Wraps a raw cell value in a minimal FormattedColumnValue.
  *
  * Used when no column style is configured. Does NOT call FormatColumnValue so
- * that time fields honour Grafana field overrides instead of the plugin's own
+ * that time fields honor Grafana field overrides instead of the plugin's own
  * date format string.
  */
 export function wrapRawValue(rawValue: unknown): FormattedColumnValue {
@@ -83,7 +83,6 @@ export function markHiddenColumns(columns: DTColumnType[]): void {
 export function prependRowNumbers(
   columns: DTColumnType[],
   rows: Array<Record<string, FormattedColumnValue | number>>,
-  length: number,
 ): void {
   columns.unshift({
     title: 'row',
@@ -95,7 +94,7 @@ export function prependRowNumbers(
     widthHint: '1%',
     visible: true,
   });
-  for (let i = 0; i < length; i++) {
+  for (let i = 0; i < rows.length; i++) {
     rows[i].rowNumber = i + 1;
   }
 }
@@ -162,7 +161,7 @@ export const ConvertDataFrameToDataTableFormat = (
     rows.push(row);
   }
   if (rowNumbersEnabled) {
-    prependRowNumbers(columns, rows, dataFrame.length);
+    prependRowNumbers(columns, rows);
   }
   // Mark hidden columns — runs unconditionally so hidden styles work
   // regardless of whether row numbers are enabled.
@@ -248,7 +247,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         // the Row column is using just numerics, no formatting
         return returnValue;
       },
-      createdCell: function (cell: Node, columnsInCellData: DTColumnType[], rowData: unknown, rowIndex: number, colIndex: number) {
+      createdCell: function (cell: Node, _cellData: unknown, rowData: unknown, rowIndex: number, colIndex: number) {
         const $cell = $(cell);
         // Always-applied before any guards: row-number centering and font size.
         if (rowNumbersEnabled && colIndex === 0) {
@@ -256,10 +255,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
         }
         $cell.css('font-size', fontSizePercent);
 
-        if (columnsInCellData === null) {
-          return;
-        }
-        const aColumn = columnsInCellData[colIndex];
+        const aColumn = dtData.Columns[colIndex];
         // No formatting needed without a style.
         if (!aColumn || aColumn.columnStyles.length === 0) {
           return;
@@ -298,7 +294,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
             processRowStyle(cell, rowData, dtData);
           }
           if (colorMode === ColumnStyleColoring.RowColumn) {
-            processRowColumnStyle(cell, rowData, columnsInCellData);
+            processRowColumnStyle(cell, rowData, dtData.Columns);
           }
           const metricColors = computeMetricCellColors(aStyle, cellValueFormatted);
           if (metricColors.color !== undefined) {

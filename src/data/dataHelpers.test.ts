@@ -522,6 +522,12 @@ describe('BuildColumnDefs — no data callback', () => {
     // Positive contract: the def was found and has a render function.
     expect(typeof asAny(colDef).render).toBe('function');
     // data accessor must be absent — DataTables falls back to the raw row array element.
+    // Structural proof of the createdCell columnsInCellData bug fix: without a `data`
+    // accessor, DataTables passes row[col] (a FormattedColumnValue | number) as the
+    // second argument (cellData) to createdCell — NOT a DTColumnType[]. The old code
+    // used that argument as columnsInCellData[colIndex] to look up the column def, so
+    // aColumn was always undefined and all cell styling (colors, alignment) was
+    // unreachable. The fix sources aColumn from dtData.Columns[colIndex] instead.
     expect(Object.prototype.hasOwnProperty.call(colDef, 'data')).toBe(false);
   });
 });
@@ -943,7 +949,7 @@ describe('prependRowNumbers', () => {
   it('prepends a rowNumber column as the first element', () => {
     const cols = [makeCol('v')];
     const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 10 }];
-    prependRowNumbers(cols, rows, 1);
+    prependRowNumbers(cols, rows);
     expect(cols).toHaveLength(2);
     expect(cols[0].data).toBe('rowNumber');
     expect(cols[1].data).toBe('v');
@@ -952,7 +958,7 @@ describe('prependRowNumbers', () => {
   it('stamps 1-based rowNumber on each row', () => {
     const cols = [makeCol('v')];
     const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 10 }, { v: 20 }, { v: 30 }];
-    prependRowNumbers(cols, rows, 3);
+    prependRowNumbers(cols, rows);
     expect(rows[0].rowNumber).toBe(1);
     expect(rows[1].rowNumber).toBe(2);
     expect(rows[2].rowNumber).toBe(3);
@@ -961,23 +967,23 @@ describe('prependRowNumbers', () => {
   it('rowNumber column has widthHint "1%" and type "number"', () => {
     const cols = [makeCol('v')];
     const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 1 }];
-    prependRowNumbers(cols, rows, 1);
+    prependRowNumbers(cols, rows);
     expect(cols[0].widthHint).toBe('1%');
     expect(cols[0].type).toBe('number');
   });
 
-  it('stamps only `length` rows even if the rows array is longer', () => {
+  it('stamps all rows (every row gets a 1-based rowNumber)', () => {
     const cols = [makeCol('v')];
     const rows: Array<Record<string, FormattedColumnValue | number>> = [{ v: 1 }, { v: 2 }];
-    prependRowNumbers(cols, rows, 1);
+    prependRowNumbers(cols, rows);
     expect(rows[0].rowNumber).toBe(1);
-    expect(rows[1].rowNumber).toBeUndefined();
+    expect(rows[1].rowNumber).toBe(2);
   });
 
-  it('is a no-op on rows when length is 0', () => {
+  it('is a no-op on rows when rows array is empty', () => {
     const cols = [makeCol('v')];
     const rows: Array<Record<string, FormattedColumnValue | number>> = [];
-    prependRowNumbers(cols, rows, 0);
+    prependRowNumbers(cols, rows);
     expect(cols[0].data).toBe('rowNumber');
     expect(rows).toHaveLength(0);
   });
