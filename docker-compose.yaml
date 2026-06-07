@@ -11,6 +11,7 @@ services:
       - TERM=linux
       - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=briangann-datatable-panel
       - GF_FEATURE_TOGGLES_ENABLE=nestedFolders
+      - GF_INSTALL_PLUGINS=yesoreyeram-infinity-datasource
     extends:
       file: .config/docker-compose-base.yaml
       service: grafana
