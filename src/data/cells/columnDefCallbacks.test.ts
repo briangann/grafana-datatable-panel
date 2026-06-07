@@ -1,6 +1,15 @@
 import $ from 'jquery';
 import { renderCell, applyCreatedCell, CreatedCellContext } from './columnDefCallbacks';
-import { DTColumnType, DTData, FormattedColumnValue } from 'types';
+import {
+  ColumnAlignment,
+  ColumnStyleColoring,
+  ColumnStyleItemType,
+  ColumnStyles,
+  DTColumnType,
+  DTData,
+  FormattedColumnValue,
+  Threshold,
+} from 'types';
 import { CellMetaSettings } from 'datatables.net';
 
 // ---------------------------------------------------------------------------
@@ -191,5 +200,128 @@ describe('applyCreatedCell — early-return paths', () => {
     // cellEntry is number → typeof !== 'object' → return before styling
     expect(() => applyCreatedCell(ctx, cell, null, [], 0, 0)).not.toThrow();
     expect(cell.style.color).toBe('');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// applyCreatedCell — jQuery CSS paths
+// ---------------------------------------------------------------------------
+describe('applyCreatedCell — jQuery CSS paths', () => {
+  function makeMetricColumn(colorMode: ColumnStyleColoring, thresholds: Threshold[]): DTColumnType {
+    const style: ColumnStyleItemType = {
+      activeStyle: ColumnStyles.METRIC,
+      enabled: true,
+      label: '',
+      nameOrRegex: '',
+      order: 0,
+      align: ColumnAlignment.DEFAULT,
+      dateStyle: {},
+      hiddenStyle: {},
+      metricStyle: {
+        alias: '',
+        thresholds,
+        colors: [],
+        colorMode,
+        decimals: '2',
+        scaledDecimals: null,
+        unitFormat: 'short',
+        ignoreNullValues: false,
+      },
+      stringStyle: {
+        clickThrough: '',
+        clickThroughSanitize: false,
+        clickThroughOpenNewTab: false,
+        clickThroughCustomTargetEnabled: false,
+        clickThroughCustomTarget: '',
+        splitByPattern: '',
+      },
+    };
+    return {
+      title: 'value',
+      data: 'value',
+      type: 'number',
+      className: '',
+      columnStyles: [style],
+      widthHint: '',
+      visible: true,
+    };
+  }
+
+  const threshold: Threshold[] = [{ value: 0, color: 'red', state: 0 }];
+  const cellValue: FormattedColumnValue = {
+    valueRaw: 50,
+    valueFormatted: '50',
+    valueRounded: 50,
+    valueRoundedAndFormatted: '50',
+  };
+
+  it('always applies font-size from ctx.fontSizePercent', () => {
+    const col = makeStylelessColumn();
+    const ctx = makeCtx({
+      fontSizePercent: '120%',
+      dtData: { Columns: [col], Rows: [[]] },
+    });
+    const cell = document.createElement('td');
+    applyCreatedCell(ctx, cell, null, [], 0, 0);
+    expect(cell.style.fontSize).toBe('120%');
+  });
+
+  it('applies text-align:center to colIndex=0 when rowNumbersEnabled', () => {
+    const col = makeStylelessColumn();
+    const ctx = makeCtx({
+      rowNumbersEnabled: true,
+      dtData: { Columns: [col], Rows: [[]] },
+    });
+    const cell = document.createElement('td');
+    applyCreatedCell(ctx, cell, null, [], 0, 0);
+    expect(cell.style.textAlign).toBe('center');
+  });
+
+  it('does not apply text-align:center to colIndex=0 when rowNumbersEnabled is false', () => {
+    const col = makeStylelessColumn();
+    const ctx = makeCtx({
+      rowNumbersEnabled: false,
+      dtData: { Columns: [col], Rows: [[]] },
+    });
+    const cell = document.createElement('td');
+    applyCreatedCell(ctx, cell, null, [], 0, 0);
+    expect(cell.style.textAlign).toBe('');
+  });
+
+  it('METRIC Cell mode — applies threshold color and bgColor to cell', () => {
+    const col = makeMetricColumn(ColumnStyleColoring.Cell, threshold);
+    const ctx = makeCtx({
+      dtData: { Columns: [col], Rows: [[cellValue]] },
+    });
+    const cell = document.createElement('td');
+    cell.innerHTML = '50';
+    applyCreatedCell(ctx, cell, null, [], 0, 0);
+    // getCellColors with value=50 and threshold at 0 → color=white, bgColor=red
+    expect(cell.style.color).toBe('white');
+    expect(cell.style.backgroundColor).toBe('red');
+  });
+
+  it('METRIC Value mode — applies text color only, no bgColor', () => {
+    const col = makeMetricColumn(ColumnStyleColoring.Value, threshold);
+    const ctx = makeCtx({
+      dtData: { Columns: [col], Rows: [[cellValue]] },
+    });
+    const cell = document.createElement('td');
+    cell.innerHTML = '50';
+    applyCreatedCell(ctx, cell, null, [], 0, 0);
+    expect(cell.style.color).toBe('red');
+    expect(cell.style.backgroundColor).toBe('');
+  });
+
+  it('alignment override is applied when style sets a non-default alignment', () => {
+    const col = makeMetricColumn(ColumnStyleColoring.Cell, threshold);
+    col.columnStyles[0].align = ColumnAlignment.RIGHT;
+    const ctx = makeCtx({
+      dtData: { Columns: [col], Rows: [[cellValue]] },
+    });
+    const cell = document.createElement('td');
+    cell.innerHTML = '50';
+    applyCreatedCell(ctx, cell, null, [], 0, 0);
+    expect(cell.style.textAlign).toBe('right');
   });
 });
