@@ -93,6 +93,39 @@
               "clickThroughSanitize": true,
               "splitByPattern": ""
             }
+          },
+          {
+            "activeStyle": "date",
+            "align": "left",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Time",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "/Time/",
+            "order": 1,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
           }
         ],
         "columnWidthHints": [],
@@ -196,6 +229,39 @@
             },
             "nameOrRegex": "Value",
             "order": 0,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "date",
+            "align": "left",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Time",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "/Time/",
+            "order": 1,
             "stringStyle": {
               "clickThrough": "",
               "clickThroughCustomTarget": "",
@@ -315,6 +381,39 @@
               "clickThroughSanitize": true,
               "splitByPattern": ""
             }
+          },
+          {
+            "activeStyle": "date",
+            "align": "left",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Time",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "/Time/",
+            "order": 1,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
           }
         ],
         "columnWidthHints": [],
@@ -418,6 +517,39 @@
             },
             "nameOrRegex": "Value",
             "order": 0,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "date",
+            "align": "left",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Time",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "/Time/",
+            "order": 1,
             "stringStyle": {
               "clickThrough": "",
               "clickThroughCustomTarget": "",
