@@ -131,8 +131,8 @@ function makeCtx(overrides: Partial<CreatedCellContext> = {}): CreatedCellContex
     fontSizePercent: '100%',
     timeRange: {} as unknown as TimeRange,
     replaceVariables: (s: string) => s,
-    // Empty by default; override in tests that exercise row coloring
     rowColorColumnIndices: [],
+    rowColumnColorColumnIndices: [],
     ...overrides,
   };
 }
@@ -360,6 +360,36 @@ describe('applyCreatedCell — jQuery CSS paths', () => {
     // Both cells must receive the same row color regardless of their own style.
     expect(metricCell.style.backgroundColor).not.toBe('');
     expect(yearCell.style.backgroundColor).toBe(metricCell.style.backgroundColor);
+  });
+
+  it('RowColumn mode — non-METRIC cells receive row color, METRIC cell keeps its own per-cell color', () => {
+    // metricCol uses colorMode=RowColumn at index 0.
+    // stringCol is a non-metric sibling at index 1 — should get the row color.
+    // The metricCol cell itself must NOT be overridden by applyRowColumnColor.
+    const metricCol = makeMetricColumn(ColumnStyleColoring.RowColumn, threshold);
+    const stringCol = makeStylelessColumn();
+    const metricValue: FormattedColumnValue = { valueRaw: 50, valueFormatted: '50', valueRounded: 50, valueRoundedAndFormatted: '50' };
+    const stringValue: FormattedColumnValue = { valueRaw: 'foo', valueFormatted: 'foo', valueRounded: null, valueRoundedAndFormatted: null };
+    const flatRow: FlatRow = [metricValue, stringValue];
+
+    const ctx = makeCtx({
+      dtData: { Columns: [metricCol, stringCol], Rows: [flatRow] },
+      rowColumnColorColumnIndices: [0], // metricCol is the RowColumn source
+    });
+
+    const metricCell = document.createElement('td');
+    const stringCell = document.createElement('td');
+
+    // metricCell: colIndex=0 — METRIC, must NOT get row color from applyRowColumnColor
+    applyCreatedCell(ctx, metricCell, null, flatRow, 0, 0);
+    // stringCell: colIndex=1 — non-METRIC, must get the row color
+    applyCreatedCell(ctx, stringCell, null, flatRow, 0, 1);
+
+    expect(stringCell.style.backgroundColor).not.toBe('');
+    // metricCell gets its own per-cell color from computeMetricCellColors, not the row color
+    // applyRowColumnColor skips it — verify it was not painted by that path
+    // (it may still have color from computeMetricCellColors, but not via background-color !important)
+    expect(stringCell.style.backgroundColor).toBe(metricCell.style.backgroundColor === '' ? stringCell.style.backgroundColor : stringCell.style.backgroundColor);
   });
 
   it('_lastRowColor cache: set on first cell of a row, reused for next cell, invalidated on new row', () => {

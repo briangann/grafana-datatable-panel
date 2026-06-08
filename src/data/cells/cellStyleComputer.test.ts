@@ -62,7 +62,7 @@ describe('computeMetricCellColors', () => {
     expect(result).toEqual({ color: 'white', bgColor: 'red' });
   });
 
-  it('RowColumn mode — both color and bgColor set (same as Cell; row bg handled by processRowColumnStyle)', () => {
+  it('RowColumn mode — both color and bgColor set (same as Cell; non-METRIC row bg handled by applyRowColumnColor)', () => {
     const result = computeMetricCellColors(makeMetricStyle(ColumnStyleColoring.RowColumn, ONE_THRESHOLD), cell);
     expect(result).toEqual({ color: 'white', bgColor: 'red' });
   });

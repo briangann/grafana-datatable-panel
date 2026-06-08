@@ -9,7 +9,7 @@ import {
 } from 'types';
 import { getCellColors } from './cellColors';
 import { computeCellAlignment, computeMetricCellColors } from './cellStyleComputer';
-import { processRowColumnStyle, processStringValueStyle } from './createdCellHelpers';
+import { processStringValueStyle } from './createdCellHelpers';
 
 export type CreatedCellContext = {
   dtData: DTData;
@@ -21,11 +21,14 @@ export type CreatedCellContext = {
   // colorMode=Row. applyRowColor only scans these instead of all columns,
   // reducing per-cell cost from O(cols) to O(k) where k is usually 0 or 1.
   rowColorColumnIndices: number[];
-  // Single-entry cache for the row color computed by applyRowColor.
-  // DataTables calls createdCell for all cells in a row sequentially, so
-  // caching the last result means the O(k) getCellColors scan runs once per
-  // row instead of once per cell — cost drops from O(rows×cols×k) to O(rows×k).
+  // Pre-computed indices of columns using colorMode=RowColumn. The row color
+  // derived from these columns is painted onto every non-METRIC cell; METRIC
+  // cells keep their own per-cell threshold color.
+  rowColumnColorColumnIndices: number[];
+  // Single-entry caches keyed by rowIndex. DataTables calls createdCell for
+  // all cells in a row sequentially, so the O(k) scan runs once per row.
   _lastRowColor?: { rowIndex: number; bg: string | null; fg: string | null };
+  _lastRowColumnColor?: { rowIndex: number; bg: string | null; fg: string | null };
 };
 
 /**
@@ -117,6 +120,62 @@ function applyRowColor(cell: HTMLElement, flatRow: FlatRow | undefined, rowIndex
 }
 
 /**
+ * Paints the RowColumn-mode threshold color onto non-METRIC cells.
+ *
+ * Scans `rowColumnColorColumnIndices` for the worst threshold (O(k)) and
+ * applies the result to every cell whose column style is NOT METRIC — those
+ * cells keep their own per-cell threshold color. Uses the same per-row cache
+ * pattern as applyRowColor: the scan runs once per row, O(1) for cells 2..N.
+ */
+function applyRowColumnColor(
+  cell: HTMLElement,
+  flatRow: FlatRow | undefined,
+  rowIndex: number,
+  colIndex: number,
+  ctx: CreatedCellContext,
+): void {
+  if (ctx.rowColumnColorColumnIndices.length === 0) { return; }
+  if (!flatRow) { return; }
+
+  // METRIC cells keep their own per-cell threshold color — skip them.
+  if (ctx.dtData.Columns[colIndex]?.columnStyles?.[0]?.activeStyle === ColumnStyles.METRIC) { return; }
+
+  // Cache hit: same row, result already computed.
+  if (ctx._lastRowColumnColor?.rowIndex === rowIndex) {
+    const { bg, fg } = ctx._lastRowColumnColor;
+    if (bg) {
+      cell.style.setProperty('color', fg ?? 'white', 'important');
+      cell.style.setProperty('background-color', bg, 'important');
+    }
+    return;
+  }
+
+  let worstColorIndex = -1;
+  let worstBg: string | null = null;
+  let worstFg: string | null = null;
+
+  for (const k of ctx.rowColumnColorColumnIndices) {
+    const s = ctx.dtData.Columns[k]?.columnStyles?.[0];
+    if (!s) { continue; }
+    const cellEntry = flatRow[k];
+    if (typeof cellEntry !== 'object' || cellEntry === null) { continue; }
+    const colorData = getCellColors(s, cellEntry as FormattedColumnValue);
+    if (colorData?.bgColorIndex !== null && colorData?.bgColorIndex !== undefined && colorData.bgColorIndex > worstColorIndex) {
+      worstColorIndex = colorData.bgColorIndex;
+      worstBg = colorData.bgColor;
+      worstFg = colorData.color;
+    }
+  }
+
+  ctx._lastRowColumnColor = { rowIndex, bg: worstBg, fg: worstFg };
+
+  if (worstBg) {
+    cell.style.setProperty('color', worstFg ?? 'white', 'important');
+    cell.style.setProperty('background-color', worstBg, 'important');
+  }
+}
+
+/**
  * DataTables `createdCell` callback for a column def.
  * Applies panel-level styles (font-size, row-number alignment), row coloring,
  * and per-column styles (clickthrough HTML, metric colors, alignment).
@@ -139,6 +198,7 @@ export function applyCreatedCell(
 
   const aRow = ctx.dtData.Rows[rowIndex];
   applyRowColor(cell, aRow, rowIndex, ctx);
+  applyRowColumnColor(cell, aRow, rowIndex, colIndex, ctx);
 
   const aColumn = ctx.dtData.Columns[colIndex];
   if (!aColumn || aColumn.columnStyles.length === 0) {
@@ -166,11 +226,7 @@ export function applyCreatedCell(
   }
 
   if (aStyle.activeStyle === ColumnStyles.METRIC) {
-    const colorMode = aStyle.metricStyle.colorMode;
-    // Row coloring is handled above (the FlatRow scan before guards) for all cells.
-    if (colorMode === ColumnStyleColoring.RowColumn) {
-      processRowColumnStyle(cell, rowData, ctx.dtData.Columns);
-    }
+    // RowColumn coloring is applied above via applyRowColumnColor (FlatRow scan).
     const metricColors = computeMetricCellColors(aStyle, cellValueFormatted);
     if (metricColors.color !== undefined) {
       $cell.css('color', metricColors.color);

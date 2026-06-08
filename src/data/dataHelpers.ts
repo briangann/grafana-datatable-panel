@@ -198,6 +198,13 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
     return acc;
   }, []);
 
+  const rowColumnColorColumnIndices = dtData.Columns.reduce<number[]>((acc, col, i) => {
+    if (col.columnStyles?.[0]?.metricStyle?.colorMode === ColumnStyleColoring.RowColumn) {
+      acc.push(i);
+    }
+    return acc;
+  }, []);
+
   const ctx: CreatedCellContext = {
     dtData,
     rowNumbersEnabled,
@@ -205,6 +212,7 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
     timeRange,
     replaceVariables,
     rowColorColumnIndices,
+    rowColumnColorColumnIndices,
   };
 
   const columnDefs: ConfigColumnDefs[] = [];
