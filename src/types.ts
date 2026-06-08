@@ -249,7 +249,6 @@ export interface FormattedColumnValue {
 
 export type NamedRow = Record<string, FormattedColumnValue | number>;
 export type FlatRow = Array<FormattedColumnValue | number>;
-export type RowColorEntry = { bg: string; fg: string };
 
 export interface DTData {
   Columns: DTColumnType[];

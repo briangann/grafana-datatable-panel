@@ -6,7 +6,6 @@ import {
   DTData,
   FlatRow,
   FormattedColumnValue,
-  RowColorEntry,
 } from 'types';
 import { getCellColors } from './cellColors';
 import { computeCellAlignment, computeMetricCellColors } from './cellStyleComputer';
@@ -18,11 +17,6 @@ export type CreatedCellContext = {
   fontSizePercent: string;
   timeRange: TimeRange;
   replaceVariables: InterpolateFunction;
-  // Keyed by rowIndex (integer, same for all cells in a row).
-  // Populated by processRowStyle when a METRIC/Row column fires createdCell;
-  // read by every subsequent cell in the same row regardless of column style.
-  // Map<number> avoids WeakMap identity issues when DataTables copies rowData.
-  rowColorCache: Map<number, RowColorEntry>;
 };
 
 /**
@@ -86,24 +80,25 @@ export function applyCreatedCell(
   if (flatRowForColor) {
     let worstColorIndex = -1;
     let worstBg: string | null = null;
+    let worstFg: string | null = null;
     for (let k = 0; k < ctx.dtData.Columns.length; k++) {
       const col = ctx.dtData.Columns[k];
       if (!col.columnStyles?.length) { continue; }
       const s = col.columnStyles[0];
       if (s.activeStyle !== ColumnStyles.METRIC) { continue; }
       if (!s.metricStyle) { continue; }
-      const cm = s.metricStyle.colorMode;
-      if (cm !== ColumnStyleColoring.Row && cm !== ColumnStyleColoring.RowColumn) { continue; }
+      if (s.metricStyle.colorMode !== ColumnStyleColoring.Row) { continue; }
       const cellEntry = flatRowForColor[k];
       if (typeof cellEntry !== 'object' || cellEntry === null) { continue; }
       const colorData = getCellColors(s, cellEntry as FormattedColumnValue);
       if (colorData?.bgColorIndex !== null && colorData?.bgColorIndex !== undefined && colorData.bgColorIndex > worstColorIndex) {
         worstColorIndex = colorData.bgColorIndex;
         worstBg = colorData.bgColor;
+        worstFg = colorData.color;
       }
     }
     if (worstBg) {
-      cell.style.setProperty('color', 'white', 'important');
+      cell.style.setProperty('color', worstFg ?? 'white', 'important');
       cell.style.setProperty('background-color', worstBg, 'important');
     }
   }

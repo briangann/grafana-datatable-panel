@@ -1,63 +1,9 @@
 import { getCellColors } from "./cellColors";
-import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FlatRow, FormattedColumnValue, RowColorEntry } from "types";
+import { ColumnStyleItemType, ColumnStyles, DTColumnType, FlatRow, FormattedColumnValue } from "types";
 import { ProcessClickthrough } from "./cellRenderer";
 import { InterpolateFunction, TimeRange } from "@grafana/data";
 
 
-export const processRowStyle = (
-  cell: HTMLElement,
-  rowData: FlatRow,
-  dtData: DTData,
-  rowColorCache: Map<number, RowColorEntry>,
-  rowIndex: number) => {
-
-  let rowColorIndex = -1;
-  let rowColorData = null;
-  let rowColor = null;
-  // this should be configurable...
-  let color = 'white';
-
-  for (let columnNumber = 0; columnNumber < dtData.Columns.length; columnNumber++) {
-    let aColumnStyle = dtData.Columns[columnNumber].columnStyles[0];
-    // need the style to get the color
-    if (!aColumnStyle) {
-      // no style set, skip
-      continue;
-    }
-    // only process color values for numbers
-    if (aColumnStyle.activeStyle !== ColumnStyles.METRIC) {
-      continue;
-    }
-    rowColorData = getCellColors(
-      aColumnStyle,
-      rowData[columnNumber] as FormattedColumnValue
-    );
-    if (!rowColorData) {
-      continue;
-    }
-
-    if (rowColorData.bgColorIndex !== null) {
-      if (rowColorData.bgColorIndex > rowColorIndex) {
-        rowColorIndex = rowColorData.bgColorIndex;
-        rowColor = rowColorData.bgColor;
-      }
-    }
-  }
-  // style the entire row (the parent of the td is the tr)
-  const fmtColors = 'color: ' + color + ' !important;' +
-    'background-color: ' + rowColor + ' !important;';
-
-  // Color all existing siblings (cells already in the DOM at createdCell time).
-  $(cell.parentNode as HTMLElement)
-    .children()
-    .attr('style', (_i: number, s: string) => s + fmtColors);
-
-  // Store in the WeakMap so cells created AFTER this createdCell fires
-  // (columns to the right) can pick up the color when their own createdCell runs.
-  if (rowColor) {
-    rowColorCache.set(rowIndex, { bg: rowColor, fg: color });
-  }
-}
 
 export const processRowColumnStyle = (
   cell: HTMLElement,
