@@ -151,22 +151,14 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     if (cachedProcessedData !== undefined && cachedColumnDefs !== undefined) {
-      let enabledClasses = ['display'];
-      if (props.options.compactRowsEnabled) {
-        enabledClasses.push("compact");
-      }
-      if (!props.options.wrapToFitEnabled) {
-        enabledClasses.push("nowrap");
-      }
-      if (props.options.stripedRowsEnabled) {
-        enabledClasses.push('stripe');
-      }
-      if (props.options.hoverEnabled) {
-        enabledClasses.push('hover');
-      }
-      if (props.options.orderColumnEnabled) {
-        enabledClasses.push('order-column');
-      }
+      const enabledClasses = [
+        'display',
+        props.options.compactRowsEnabled && 'compact',
+        !props.options.wrapToFitEnabled && 'nowrap',
+        props.options.stripedRowsEnabled && 'stripe',
+        props.options.hoverEnabled && 'hover',
+        props.options.orderColumnEnabled && 'order-column',
+      ].filter(Boolean) as string[];
 
       if (JSON.stringify(enabledClasses) !== JSON.stringify(dataTableClassesEnabled)) {
         setDatatableClassesEnabled(enabledClasses);
@@ -266,16 +258,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       // destroy and the next draw.
       setDataTableReady(false);
 
-      // 32 = panel title when displayed
-      // 8 = panel content wrapper padding (all the way around) - need this for width too!
-      // 5 = select rows to display padding top/bottom
-      // 44 = when dt-search or select rows displayed
-      // 38 = bottom buttons
-      //let computedHeight = height - 32 - 8 - 5 - 44 - 38;
-      const getDatatableHeight = (height: number) => {
-        let computedHeight = height - 32 - 8 - 5 - 44 - 38;
-        return computedHeight;
-      };
 
       // convert to order data structure used by datatable
       let orderColumn: Order = [];
@@ -295,7 +277,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         } catch (err) {
           console.error('Exception: ' + err);
         }
-        const calculatedHeight = getDatatableHeight(props.height);
+        // 32=title, 8=padding, 5=select padding, 44=search/length bar, 38=bottom buttons
+        const calculatedHeight = props.height - 32 - 8 - 5 - 44 - 38;
+        const rowsPerPage = props.options.rowsPerPage || 10;
         if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
           const dtOptions: Config = {
             buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
@@ -307,15 +291,14 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             lengthMenu: (() => {
               const lengths: number[] = [5, 10, 25, 50, 75, 100, -1];
               const labels: Array<string | number> = [5, 10, 25, 50, 75, 100, 'All'];
-              const rpp = props.options.rowsPerPage || 10;
-              if (rpp > 0 && !lengths.includes(rpp)) {
-                const idx = lengths.findIndex(l => l === -1 || l > rpp);
-                lengths.splice(idx, 0, rpp);
-                labels.splice(idx, 0, rpp);
+              if (rowsPerPage > 0 && !lengths.includes(rowsPerPage)) {
+                const insertAt = lengths.findIndex(len => len === -1 || len > rowsPerPage);
+                lengths.splice(insertAt, 0, rowsPerPage);
+                labels.splice(insertAt, 0, rowsPerPage);
               }
               return [lengths, labels];
             })(),
-            pageLength: props.options.rowsPerPage || 10,
+            pageLength: rowsPerPage,
             // @ts-expect-error
             mark: props.options.searchHighlightingEnabled || false,
             select: { style: 'os' },

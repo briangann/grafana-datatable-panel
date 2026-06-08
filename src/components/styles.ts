@@ -2,53 +2,17 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { css } from '@emotion/css';
 import 'datatables.net-dt/css/dataTables.dataTables.min.css';
 
-/*
-these are from angular
-
-table.dataTable.cell-border tbody th,
-table.dataTable.cell-border tbody td {
-  border-top: 1px solid #141414;
-  border-right: 1px solid #141414;
-}
-table.dataTable.cell-border tbody tr th:first-child,
-table.dataTable.cell-border tbody tr td:first-child {
-  border-left: 1px solid #141414;
-}
-table.dataTable.cell-border tbody tr:first-child th,
-table.dataTable.cell-border tbody tr:first-child td {
-  border-top: none;
-}
-table.dataTable.stripe tbody tr.odd,
-table.dataTable.display tbody tr.odd {
-  background-color: #1e1c1c;
-}
-table.dataTable.stripe tbody tr.odd.selected,
-table.dataTable.display tbody tr.odd.selected {
-  background-color: #232121;
-}
-table.dataTable.hover tbody tr:hover,
-table.dataTable.display tbody tr:hover {
-  background-color: #1d1b1b;
-}
-table.dataTable.hover tbody tr:hover.selected,
-table.dataTable.display tbody tr:hover.selected {
-  background-color: #222020;
-}
-
-and for pagination
-
-.dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
-  color: #1fb2e5 !important;
-
-*/
+const inputBase = {
+  border: '1px solid #aaa',
+  borderRadius: '3px',
+  padding: '5px',
+  backgroundColor: 'transparent',
+  color: 'inherit',
+} as const;
 
 export const datatableThemedStyles = (theme: GrafanaTheme2) =>
   css({
     width: '100%',
-    margin: '0 auto',
-    clear: 'both',
-    borderCollapse: 'separate',
-    borderSpacing: 0,
     display: 'flex',
     flexDirection: 'column',
     'table.dataTable.hover tbody tr:hover > *': {
@@ -93,24 +57,16 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
       minHeight: 0,
     },
     'div.dt-container .dt-input': {
-      border: '1px solid #aaa',
+      ...inputBase,
       marginRight: '5px',
       height: '30px',
       width: '65px',
-      borderRadius: '3px',
-      padding: '5px',
-      backgroundColor: 'transparent',
-      color: 'inherit',
     },
     'div.dt-container select.dt-input': {
       padding: '4px',
     },
     'div.dt-container .dt-search input': {
-      border: '1px solid #aaa',
-      borderRadius: '3px',
-      padding: '5px',
-      backgroundColor: 'transparent',
-      color: 'inherit',
+      ...inputBase,
       marginLeft: '3px',
       width: '150px',
     },
@@ -120,15 +76,4 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
         border: theme.isDark ? '1px solid black !important' : '1px solid #797979',
         backgroundColor: theme.isDark ? '#6d6767' : 'white',
       },
-
-    // TODO: fix these to match the existing angular look and feel
-    // '.dataTables_wrapper .dataTables_paginate .paginate_button.current, \
-    //   div.dt-container .dt-paging .dt-paging-button': {
-    //   color: '#1fb2e5 !important',
-    // },
-    // '.dataTables_wrapper .dataTables_paginate .paginate_button:active': {
-    //   outline: 'none',
-    //   backgroundColor: '#2b2b2b',
-    // },
 });
-
