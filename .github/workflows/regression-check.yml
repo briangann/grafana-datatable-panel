@@ -8,9 +8,9 @@ on:
   workflow_dispatch:
     inputs:
       released_version:
-        description: 'Released plugin version to compare against'
+        description: 'Pin a specific released version (e.g. v2.0.2). Leave blank to use the latest version from the Grafana catalog.'
         required: false
-        default: 'v2.0.2'
+        default: ''
 
 # Cancel a previous run for the same ref if a new one is triggered.
 concurrency:
@@ -21,7 +21,7 @@ permissions: {}
 
 jobs:
   regression-check:
-    name: Baseline regression check (${{ inputs.released_version }} vs dev)
+    name: Baseline regression check (${{ inputs.released_version || 'latest catalog' }} vs dev)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -73,15 +73,20 @@ jobs:
         env:
           RELEASED_VERSION: ${{ inputs.released_version }}
         run: |
-          # Strip leading 'v' for the ZIP filename (v2.0.2 → 2.0.2)
-          VER="${RELEASED_VERSION#v}"
-          ZIP_URL="https://github.com/briangann/grafana-datatable-panel/releases/download/${RELEASED_VERSION}/briangann-datatable-panel-${VER}.zip"
-
-          # Use cached ZIP if available, otherwise let Grafana download it
           mkdir -p /tmp/plugin-release-cache
-          if [ ! -f "/tmp/plugin-release-cache/plugin-${VER}.zip" ]; then
-            # -sSfL: silent, show errors, fail on HTTP errors, follow redirects
-            curl -sSfL "$ZIP_URL" -o "/tmp/plugin-release-cache/plugin-${VER}.zip"
+
+          # If a specific version was requested, cache its ZIP and use that.
+          # Otherwise leave GF_PLUGINS_PREINSTALL_DATATABLE unset — the released
+          # container will install the latest version from the Grafana catalog.
+          DATATABLE_OVERRIDE=""
+          if [ -n "$RELEASED_VERSION" ]; then
+            VER="${RELEASED_VERSION#v}"
+            ZIP_URL="https://github.com/briangann/grafana-datatable-panel/releases/download/${RELEASED_VERSION}/briangann-datatable-panel-${VER}.zip"
+            if [ ! -f "/tmp/plugin-release-cache/plugin-${VER}.zip" ]; then
+              # -sSfL: silent, show errors, fail on HTTP errors, follow redirects
+              curl -sSfL "$ZIP_URL" -o "/tmp/plugin-release-cache/plugin-${VER}.zip"
+            fi
+            DATATABLE_OVERRIDE="file:///var/lib/grafana/plugin-cache/plugin-${VER}.zip;briangann-datatable-panel"
           fi
 
           # Dev container
@@ -89,11 +94,9 @@ jobs:
             GRAFANA_VERSION=13.0.2 GRAFANA_IMAGE=grafana-oss \
             docker compose up -d &
 
-          # Released container — use container-side path to the cached ZIP.
-          # /tmp/plugin-release-cache is mounted into the container at
-          # /var/lib/grafana/plugin-cache (see docker-compose.released.yml).
-          # GF_PLUGINS_PREINSTALL_DATATABLE overrides the default remote URL.
-          GF_PLUGINS_PREINSTALL_DATATABLE="file:///var/lib/grafana/plugin-cache/plugin-${VER}.zip;briangann-datatable-panel" \
+          # Released container — uses latest from Grafana catalog unless
+          # DATATABLE_OVERRIDE is set (pinned version via workflow input).
+          GF_PLUGINS_PREINSTALL_DATATABLE="$DATATABLE_OVERRIDE" \
             docker compose -f docker-compose.released.yml up -d &
 
           wait

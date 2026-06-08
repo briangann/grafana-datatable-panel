@@ -1,4 +1,4 @@
-# Runs the latest RELEASED plugin (v2.0.2) on port 3001 for regression comparison.
+# Runs the latest RELEASED plugin (from the Grafana catalog) on port 3001 for regression comparison.
 # Usage: docker compose -f docker-compose.released.yml up -d
 #
 # The released plugin is installed from the GitHub release ZIP so no local
@@ -24,9 +24,9 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=false
       - GF_FEATURE_TOGGLES_ENABLE=nestedFolders
       - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=briangann-datatable-panel
-      # Install released plugin — override with GF_PLUGINS_PREINSTALL_DATATABLE env var
-      # to use a local cached ZIP in CI (avoids re-downloading on every run).
-      # Default: fetch directly from GitHub releases.
-      # GF_PLUGINS_PREINSTALL replaces the deprecated GF_INSTALL_PLUGINS (Grafana 10+).
-      - GF_PLUGINS_PREINSTALL=${GF_PLUGINS_PREINSTALL_DATATABLE:-https://github.com/briangann/grafana-datatable-panel/releases/download/v2.0.2/briangann-datatable-panel-2.0.2.zip;briangann-datatable-panel},yesoreyeram-infinity-datasource
+      # Install released plugin from the Grafana catalog (latest published version).
+      # Override GF_PLUGINS_PREINSTALL_DATATABLE to pin a specific version or use
+      # a local cached ZIP in CI (e.g. file:///var/lib/grafana/plugin-cache/plugin.zip;id).
+      # Falls back to GitHub releases URL if set explicitly via the override.
+      - GF_PLUGINS_PREINSTALL=${GF_PLUGINS_PREINSTALL_DATATABLE:-briangann-datatable-panel},yesoreyeram-infinity-datasource
       - GF_LOG_LEVEL=warn

@@ -45,6 +45,19 @@ DEV_JSON="$RESULTS_DIR/baseline-dev.json"
 mkdir -p "$RESULTS_DIR"
 
 # ---------------------------------------------------------------------------
+# Detect the released plugin version installed in the released container.
+# Query the running Grafana instance rather than hardcoding a version string.
+# Falls back to "unknown" if the container isn't reachable or the API changes.
+# ---------------------------------------------------------------------------
+detect_released_version() {
+  local version
+  version=$(curl -sf "$RELEASED_URL/api/plugins/briangann-datatable-panel" 2>/dev/null \
+    | python3 -c "import json,sys; print(json.load(sys.stdin).get('info',{}).get('version','unknown'))" 2>/dev/null \
+    || echo "unknown")
+  echo "$version"
+}
+
+# ---------------------------------------------------------------------------
 # 1. Start released container
 # ---------------------------------------------------------------------------
 echo "▶ Starting released plugin container (port 3001)..."
@@ -62,8 +75,11 @@ done
 # ---------------------------------------------------------------------------
 # 2. Run BASELINE tests against RELEASED plugin
 # ---------------------------------------------------------------------------
+RELEASED_VERSION=$(detect_released_version)
+echo "  Released plugin version: ${RELEASED_VERSION}"
+
 echo ""
-echo "▶ Running BASELINE tests against RELEASED plugin (v2.0.2)..."
+echo "▶ Running BASELINE tests against RELEASED plugin (${RELEASED_VERSION})..."
 echo "  (${#BASELINE_TESTS[@]} test files — features that existed before our changes)"
 echo ""
 cd "$REPO_DIR"
@@ -102,7 +118,7 @@ echo " BASELINE REGRESSION REPORT"
 echo " (only tests that existed before our changes)"
 echo "═══════════════════════════════════════════════════════════"
 
-python3 - "$RELEASED_JSON" "$DEV_JSON" <<'PYEOF'
+python3 - "$RELEASED_JSON" "$DEV_JSON" "$RELEASED_VERSION" <<'PYEOF'
 import json, sys, os
 os.environ["PYTHONUNBUFFERED"] = "1"
 
@@ -125,8 +141,9 @@ def load_results(path):
         return {}
     return {title: ("passed" if ok else "failed") for title, ok in collect_specs(data.get("suites", []))}
 
-released = load_results(sys.argv[1])
-dev      = load_results(sys.argv[2])
+released         = load_results(sys.argv[1])
+dev              = load_results(sys.argv[2])
+released_version = sys.argv[3] if len(sys.argv) > 3 else "unknown"
 
 released_pass = sum(1 for s in released.values() if s == "passed")
 dev_pass      = sum(1 for s in dev.values()      if s == "passed")
@@ -141,8 +158,8 @@ regressions = [
 # Tests that failed on released but pass on dev = improvements (within baseline scope)
 improvements = [t for t, s in released.items() if s == "failed" and dev.get(t) == "passed"]
 
-p(f"\n  Released v2.0.2 : {released_pass}/{len(released)} baseline tests passed")
-p(f"  Dev build       : {dev_pass}/{len(dev)} baseline tests passed")
+p(f"\n  Released v{released_version} : {released_pass}/{len(released)} baseline tests passed")
+p(f"  Dev build           : {dev_pass}/{len(dev)} baseline tests passed")
 
 if regressions:
     p(f"\n🔴 TRUE REGRESSIONS ({len(regressions)})")
