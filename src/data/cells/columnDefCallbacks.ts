@@ -73,7 +73,8 @@ export function renderCell(
  * tables without row coloring at zero overhead per cell.
  *
  * When multiple Row-mode columns exist the one with the highest threshold
- * index (worst state) wins — consistent with how DataTables renders ordering.
+ * state wins. State is compared, not array index, so columns with different
+ * threshold counts are handled correctly across heterogeneous configurations.
  */
 function applyRowColor(cell: HTMLElement, flatRow: FlatRow | undefined, rowIndex: number, ctx: CreatedCellContext): void {
   // No Row-mode columns — nothing to do.
@@ -85,14 +86,14 @@ function applyRowColor(cell: HTMLElement, flatRow: FlatRow | undefined, rowIndex
   // rowIndex is already computed. Return immediately — O(1) for cells 2..N.
   if (ctx._lastRowColor?.rowIndex === rowIndex) {
     const { bg, fg } = ctx._lastRowColor;
-    if (bg) {
+    if (bg !== null) {
       cell.style.setProperty('color', fg ?? 'white', 'important');
       cell.style.setProperty('background-color', bg, 'important');
     }
     return;
   }
 
-  let worstColorIndex = -1;
+  let worstState = -1;
   let worstBg: string | null = null;
   let worstFg: string | null = null;
 
@@ -103,17 +104,22 @@ function applyRowColor(cell: HTMLElement, flatRow: FlatRow | undefined, rowIndex
     const cellEntry = flatRow[k];
     if (typeof cellEntry !== 'object' || cellEntry === null) { continue; }
     const colorData = getCellColors(s, cellEntry as FormattedColumnValue);
-    if (colorData?.bgColorIndex !== null && colorData?.bgColorIndex !== undefined && colorData.bgColorIndex > worstColorIndex) {
-      worstColorIndex = colorData.bgColorIndex;
-      worstBg = colorData.bgColor;
-      worstFg = colorData.color;
+    if (colorData?.bgColorIndex !== null && colorData?.bgColorIndex !== undefined) {
+      // Compare threshold state (user-assigned ordinal: 0=ok, 1=warning, 2=critical),
+      // not array index, so columns with different threshold counts compare correctly.
+      const state = s.metricStyle?.thresholds?.[colorData.bgColorIndex]?.state ?? colorData.bgColorIndex;
+      if (state > worstState) {
+        worstState = state;
+        worstBg = colorData.bgColor;
+        worstFg = colorData.color;
+      }
     }
   }
 
   // Store for subsequent cells in this row.
   ctx._lastRowColor = { rowIndex, bg: worstBg, fg: worstFg };
 
-  if (worstBg) {
+  if (worstBg !== null) {
     cell.style.setProperty('color', worstFg ?? 'white', 'important');
     cell.style.setProperty('background-color', worstBg, 'important');
   }
@@ -143,14 +149,14 @@ function applyRowColumnColor(
   // Cache hit: same row, result already computed.
   if (ctx._lastRowColumnColor?.rowIndex === rowIndex) {
     const { bg, fg } = ctx._lastRowColumnColor;
-    if (bg) {
+    if (bg !== null) {
       cell.style.setProperty('color', fg ?? 'white', 'important');
       cell.style.setProperty('background-color', bg, 'important');
     }
     return;
   }
 
-  let worstColorIndex = -1;
+  let worstState = -1;
   let worstBg: string | null = null;
   let worstFg: string | null = null;
 
@@ -160,16 +166,19 @@ function applyRowColumnColor(
     const cellEntry = flatRow[k];
     if (typeof cellEntry !== 'object' || cellEntry === null) { continue; }
     const colorData = getCellColors(s, cellEntry as FormattedColumnValue);
-    if (colorData?.bgColorIndex !== null && colorData?.bgColorIndex !== undefined && colorData.bgColorIndex > worstColorIndex) {
-      worstColorIndex = colorData.bgColorIndex;
-      worstBg = colorData.bgColor;
-      worstFg = colorData.color;
+    if (colorData?.bgColorIndex !== null && colorData?.bgColorIndex !== undefined) {
+      const state = s.metricStyle?.thresholds?.[colorData.bgColorIndex]?.state ?? colorData.bgColorIndex;
+      if (state > worstState) {
+        worstState = state;
+        worstBg = colorData.bgColor;
+        worstFg = colorData.color;
+      }
     }
   }
 
   ctx._lastRowColumnColor = { rowIndex, bg: worstBg, fg: worstFg };
 
-  if (worstBg) {
+  if (worstBg !== null) {
     cell.style.setProperty('color', worstFg ?? 'white', 'important');
     cell.style.setProperty('background-color', worstBg, 'important');
   }
