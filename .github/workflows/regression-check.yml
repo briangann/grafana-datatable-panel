@@ -12,6 +12,11 @@ on:
         required: false
         default: 'v2.0.2'
 
+# Cancel a previous run for the same ref if a new one is triggered.
+concurrency:
+  group: regression-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions: {}
 
 jobs:
@@ -75,7 +80,8 @@ jobs:
           # Use cached ZIP if available, otherwise let Grafana download it
           mkdir -p /tmp/plugin-release-cache
           if [ ! -f "/tmp/plugin-release-cache/plugin-${VER}.zip" ]; then
-            curl -sL "$ZIP_URL" -o "/tmp/plugin-release-cache/plugin-${VER}.zip"
+            # -sSfL: silent, show errors, fail on HTTP errors, follow redirects
+            curl -sSfL "$ZIP_URL" -o "/tmp/plugin-release-cache/plugin-${VER}.zip"
           fi
 
           # Dev container
@@ -83,8 +89,10 @@ jobs:
             GRAFANA_VERSION=13.0.2 GRAFANA_IMAGE=grafana-oss \
             docker compose up -d &
 
-          # Released container — override GF_INSTALL_PLUGINS to use local ZIP
-          GF_INSTALL_PLUGINS="file:///tmp/plugin-release-cache/plugin-${VER}.zip;briangann-datatable-panel" \
+          # Released container — use container-side path to the cached ZIP.
+          # /tmp/plugin-release-cache is mounted into the container at
+          # /var/lib/grafana/plugin-cache (see docker-compose.released.yml).
+          GF_INSTALL_PLUGINS="file:///var/lib/grafana/plugin-cache/plugin-${VER}.zip;briangann-datatable-panel" \
             docker compose -f docker-compose.released.yml up -d &
 
           wait

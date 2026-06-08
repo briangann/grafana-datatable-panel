@@ -14,6 +14,9 @@ services:
       - "3001:3000/tcp"
     volumes:
       - ./provisioning:/etc/grafana/provisioning
+      # Mount the host plugin cache dir so GF_INSTALL_PLUGINS can use file:// paths.
+      # The directory is created by the workflow before docker compose up.
+      - /tmp/plugin-release-cache:/var/lib/grafana/plugin-cache:ro
     environment:
       - TERM=linux
       - GF_AUTH_ANONYMOUS_ENABLED=true
