@@ -361,4 +361,39 @@ describe('applyCreatedCell — jQuery CSS paths', () => {
     expect(metricCell.style.backgroundColor).not.toBe('');
     expect(yearCell.style.backgroundColor).toBe(metricCell.style.backgroundColor);
   });
+
+  it('_lastRowColor cache: set on first cell of a row, reused for next cell, invalidated on new row', () => {
+    // Tests the cache state directly rather than color outcomes, avoiding
+    // dependence on exact threshold boundary behavior.
+    const metricCol = makeMetricColumn(ColumnStyleColoring.Row, threshold);
+    const rowValue50: FormattedColumnValue = { valueRaw: 50, valueFormatted: '50', valueRounded: 50, valueRoundedAndFormatted: '50' };
+    const yearValue: FormattedColumnValue  = { valueRaw: 2024, valueFormatted: '2024', valueRounded: 2024, valueRoundedAndFormatted: '2024' };
+    const yearCol = makeStylelessColumn();
+    const flatRow0: FlatRow = [rowValue50, yearValue];
+    const flatRow1: FlatRow = [rowValue50, yearValue]; // different row, same data
+
+    const ctx = makeCtx({
+      dtData: { Columns: [metricCol, yearCol], Rows: [flatRow0, flatRow1] },
+      rowColorColumnIndices: [0],
+    });
+
+    expect(ctx._lastRowColor).toBeUndefined();
+
+    // First cell of row 0: cache is populated.
+    const cell00 = document.createElement('td');
+    applyCreatedCell(ctx, cell00, null, flatRow0, 0, 0);
+    expect(ctx._lastRowColor?.rowIndex).toBe(0);
+    const cachedBgRow0 = ctx._lastRowColor?.bg;
+
+    // Second cell of row 0 (different column): cache rowIndex unchanged.
+    const cell01 = document.createElement('td');
+    applyCreatedCell(ctx, cell01, null, flatRow0, 0, 1);
+    expect(ctx._lastRowColor?.rowIndex).toBe(0);
+    expect(ctx._lastRowColor?.bg).toBe(cachedBgRow0);
+
+    // First cell of row 1: cache invalidated, rowIndex updated to 1.
+    const cell10 = document.createElement('td');
+    applyCreatedCell(ctx, cell10, null, flatRow1, 1, 0);
+    expect(ctx._lastRowColor?.rowIndex).toBe(1);
+  });
 });
