@@ -45,7 +45,7 @@ playwright-report
 .stignore
 .stfolder/
 provisioning-private/
-importable/
+importable/*.json
 test-results/
 TODO.md
 .claude/

@@ -20,7 +20,7 @@ export interface MetricColors {
  *
  * Color modes:
  * - Cell / RowColumn → both text color and background color on the cell.
- * - Row / Value      → text color only (row background handled by processRowStyle).
+ * - Row / Value      → text color only (row background handled by the inline FlatRow scan in applyCreatedCell).
  */
 export function computeMetricCellColors(
   aStyle: ColumnStyleItemType,

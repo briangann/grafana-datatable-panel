@@ -151,22 +151,14 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   useEffect(() => {
     if (cachedProcessedData !== undefined && cachedColumnDefs !== undefined) {
-      let enabledClasses = ['display'];
-      if (props.options.compactRowsEnabled) {
-        enabledClasses.push("compact");
-      }
-      if (!props.options.wrapToFitEnabled) {
-        enabledClasses.push("nowrap");
-      }
-      if (props.options.stripedRowsEnabled) {
-        enabledClasses.push('stripe');
-      }
-      if (props.options.hoverEnabled) {
-        enabledClasses.push('hover');
-      }
-      if (props.options.orderColumnEnabled) {
-        enabledClasses.push('order-column');
-      }
+      const enabledClasses = [
+        'display',
+        props.options.compactRowsEnabled && 'compact',
+        !props.options.wrapToFitEnabled && 'nowrap',
+        props.options.stripedRowsEnabled && 'stripe',
+        props.options.hoverEnabled && 'hover',
+        props.options.orderColumnEnabled && 'order-column',
+      ].filter(Boolean) as string[];
 
       if (JSON.stringify(enabledClasses) !== JSON.stringify(dataTableClassesEnabled)) {
         setDatatableClassesEnabled(enabledClasses);
@@ -266,16 +258,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       // destroy and the next draw.
       setDataTableReady(false);
 
-      // 32 = panel title when displayed
-      // 8 = panel content wrapper padding (all the way around) - need this for width too!
-      // 5 = select rows to display padding top/bottom
-      // 44 = when dt-search or select rows displayed
-      // 38 = bottom buttons
-      //let computedHeight = height - 32 - 8 - 5 - 44 - 38;
-      const getDatatableHeight = (height: number) => {
-        let computedHeight = height - 32 - 8 - 5 - 44 - 38;
-        return computedHeight;
-      };
 
       // convert to order data structure used by datatable
       let orderColumn: Order = [];
@@ -295,7 +277,9 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
         } catch (err) {
           console.error('Exception: ' + err);
         }
-        const calculatedHeight = getDatatableHeight(props.height);
+        // 32=title, 8=padding, 5=select padding, 44=search/length bar, 38=bottom buttons
+        const calculatedHeight = props.height - 32 - 8 - 5 - 44 - 38;
+        const rowsPerPage = props.options.rowsPerPage || 10;
         if (!jQuery.fn.dataTable.isDataTable(dataTableDOMRef.current)) {
           const dtOptions: Config = {
             buttons: ['copy', 'excel', 'csv', 'pdf', 'print'],
@@ -304,10 +288,17 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             data: cachedProcessedData.Rows,
             info: props.options.infoEnabled,
             lengthChange: props.options.lengthChangeEnabled,
-            lengthMenu: [
-              [5, 10, 25, 50, 75, 100, -1],
-              [5, 10, 25, 50, 75, 100, 'All'],
-            ],
+            lengthMenu: (() => {
+              const lengths: number[] = [5, 10, 25, 50, 75, 100, -1];
+              const labels: Array<string | number> = [5, 10, 25, 50, 75, 100, 'All'];
+              if (rowsPerPage > 0 && !lengths.includes(rowsPerPage)) {
+                const insertAt = lengths.findIndex(len => len === -1 || len > rowsPerPage);
+                lengths.splice(insertAt, 0, rowsPerPage);
+                labels.splice(insertAt, 0, rowsPerPage);
+              }
+              return [lengths, labels];
+            })(),
+            pageLength: rowsPerPage,
             // @ts-expect-error
             mark: props.options.searchHighlightingEnabled || false,
             select: { style: 'os' },
@@ -368,9 +359,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               }
             },
           };
-          if (props.options.rowsPerPage) {
-            dtOptions.pageLength = props.options.rowsPerPage;
-          }
           jQuery(dataTableDOMRef.current).DataTable(dtOptions as Config);
         }
       }
@@ -411,34 +399,20 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     <div
       id={dataTableWrapperId}
       className={divStyles}
-      style={{ width: '100%', height: '100%', position: 'relative' }}
       data-testid="datatable-panel-container"
     >
       {!dataTableReady && (
-        <div
-          data-testid="datatable-panel-loading"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1,
-            background: theme2.colors.background.primary,
-            color: theme2.colors.text.secondary,
-          }}
-        >
+        <div data-testid="datatable-panel-loading">
           Loading... please wait
         </div>
       )}
       {hasData && props.data && (
         <table
           data-testid="datatable-panel-table"
-          style={{ width: '100%', visibility: dataTableReady ? 'visible' : 'hidden' }}
+          style={{ visibility: dataTableReady ? 'visible' : 'hidden' }}
           id={dataTableId}
           ref={dataTableDOMRef}
           className={dataTableClassesEnabled.join(' ')}
-          width="100%"
         />
       )}
     </div>

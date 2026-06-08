@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 import {
   BuildColumnDefs,
   ConvertDataFrameToDataTableFormat,
@@ -8,7 +10,7 @@ import {
   resolveColumnValue,
   wrapRawValue,
 } from './dataHelpers';
-import { ColumnStyleItemType, ColumnStyles, DTColumnType, FormattedColumnValue, NamedRow } from 'types';
+import { ColumnAlignment, ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, DTColumnType, FormattedColumnValue, NamedRow } from 'types';
 import {
   createTheme,
   dateTime,
@@ -153,6 +155,10 @@ describe('ConvertDataFrameToDataTableFormat', () => {
 
 // Shared test fixtures — used across multiple describe blocks below.
 const asAny = (d: unknown) => d as Record<string, unknown>;
+// The createdCell callback invokes jQuery — provide a global $ for jsdom tests.
+// @ts-expect-error
+beforeAll(() => { global.$ = $; });
+
 const buildTimeRange = () =>
   ({ from: dateTime(0), to: dateTime(0), raw: { from: 'now-1h', to: 'now' } } as unknown as TimeRange);
 
@@ -247,6 +253,91 @@ describe('BuildColumnDefs', () => {
     // The first column def must NOT carry visible:false
     const visibleDef = realDefs.find((d) => asRecord(d).targets === 0);
     expect(asRecord(visibleDef).visible).not.toBe(false);
+  });
+
+  it('applies dt-left className when column style sets align=left, overriding the global alignment flag', () => {
+    // A column style with align=left should override the panel-level alignment
+    // so both the th header and td body cells share the same dt-left class.
+    const leftAlignStyle = {
+      activeStyle: ColumnStyles.DATE,
+      align: ColumnAlignment.LEFT,
+      enabled: true,
+      label: '',
+      nameOrRegex: 'name',
+      order: 0,
+      dateStyle: { dateFormat: 'YYYY-MM-DD' },
+      hiddenStyle: {},
+      metricStyle: { alias: '', thresholds: [], colors: [], colorMode: 'disabled', decimals: '2', scaledDecimals: null, unitFormat: 'short', ignoreNullValues: true },
+      stringStyle: { clickThrough: '', clickThroughCustomTarget: '', clickThroughCustomTargetEnabled: false, clickThroughOpenNewTab: true, clickThroughSanitize: true, splitByPattern: '' },
+    } as unknown as ColumnStyleItemType;
+
+    const dtDataWithAlign = {
+      Columns: [
+        { ...dtData.Columns[0], columnStyles: [leftAlignStyle] },
+        { ...dtData.Columns[1] },
+      ],
+      Rows: dtData.Rows,
+    };
+
+    BuildColumnDefs({
+      rowNumbersEnabled: false,
+      fontSizePercent: '100%',
+      alignment: { numbers: true, strings: true }, // global would give dt-right
+      timeRange: buildTimeRange(),
+      replaceVariables: (s: string) => s,
+      dtData: dtDataWithAlign,
+    });
+
+    // Column 0 has align=left style — must get dt-left regardless of global alignment.
+    expect(dtDataWithAlign.Columns[0].className).toBe('dt-left');
+    // Column 1 has no style — gets dt-right from global alignment.numbers flag.
+    expect(dtDataWithAlign.Columns[1].className).toBe('dt-right');
+  });
+
+  it('pre-computes rowColorColumnIndices for Row-mode METRIC columns and stores them on ctx', () => {
+    // BuildColumnDefs bakes rowColorColumnIndices into the ctx closure that
+    // createdCell callbacks share. Verify indirectly: row coloring is applied
+    // when a Row-mode METRIC column exists, and NOT applied when it doesn't.
+    const rowModeStyle = {
+      activeStyle: ColumnStyles.METRIC,
+      align: ColumnAlignment.DEFAULT,
+      enabled: true,
+      label: '',
+      nameOrRegex: 'value',
+      order: 0,
+      dateStyle: { dateFormat: 'YYYY-MM-DD' },
+      hiddenStyle: {},
+      metricStyle: {
+        alias: '', thresholds: [{ value: 0, color: '#f53636', state: 2 }],
+        colors: [], colorMode: ColumnStyleColoring.Row, decimals: '0',
+        scaledDecimals: null, unitFormat: 'short', ignoreNullValues: false,
+      },
+      stringStyle: { clickThrough: '', clickThroughCustomTarget: '', clickThroughCustomTargetEnabled: false, clickThroughOpenNewTab: true, clickThroughSanitize: true, splitByPattern: '' },
+    } as unknown as ColumnStyleItemType;
+
+    const dtDataWithRowMode = {
+      Columns: [
+        { ...dtData.Columns[0] },
+        { ...dtData.Columns[1], columnStyles: [rowModeStyle] },
+      ],
+      Rows: dtData.Rows,
+    };
+
+    const defs = BuildColumnDefs({
+      rowNumbersEnabled: false,
+      fontSizePercent: '100%',
+      alignment: { numbers: false, strings: false },
+      timeRange: buildTimeRange(),
+      replaceVariables: (s: string) => s,
+      dtData: dtDataWithRowMode,
+    });
+
+    // Invoke the createdCell callback for column 0 (name, no style).
+    // If rowColorColumnIndices is populated with index 1, this cell should be colored.
+    const cell = document.createElement('td');
+    const colDef0 = defs.find((d) => asRecord(d).targets === 0);
+    (asRecord(colDef0).createdCell as Function)(cell, null, dtDataWithRowMode.Rows[0], 0, 0);
+    expect(cell.style.backgroundColor).not.toBe('');
   });
 });
 describe('ConvertDataFrameToDataTableFormat + rowNumbers column index contract', () => {
@@ -753,11 +844,12 @@ describe('resolveColumnValue', () => {
     expect(result.valueFormatted).toBe('7');
   });
 
-  it('no style + mapping with falsy rawValue → mapping skipped (ApplyMappings guards on !valueRaw)', () => {
-    // This is existing ApplyMappings behavior: valueRaw=0 is falsy, so no mapping fires.
+  it('no style + rawValue=0 → mapping fires (0 is a valid value, not treated as absent)', () => {
+    // Fixed: valueRaw=0 is falsy but is a valid data value. ApplyMappings now uses
+    // `=== null || === undefined` instead of a truthiness check so 0 maps correctly.
     const mappings = [{ type: 'value', options: { '0': { text: 'zero', index: 0 } } }] as any;
     const result = resolveColumnValue('utc', noStyleColumn, dummyField, 0, 'number', mappings);
-    expect(result.valueFormatted).toBe('0');
+    expect(result.valueFormatted).toBe('zero');
   });
 });
 

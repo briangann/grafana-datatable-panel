@@ -1,0 +1,701 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0,211,255,1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "briangann-datatable-panel",
+      "title": "Space Launches \u2014 Scroll Mode",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "dt-examples-infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "Nominal",
+                  "color": "green",
+                  "index": 0
+                },
+                "2": {
+                  "text": "Anomaly",
+                  "color": "orange",
+                  "index": 1
+                },
+                "0": {
+                  "text": "Abort",
+                  "color": "red",
+                  "index": 2
+                },
+                "3": {
+                  "text": "Scrubbed",
+                  "color": "gray",
+                  "index": 3
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [
+          {
+            "index": 8,
+            "order": "desc"
+          }
+        ],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "string",
+            "nameOrRegex": "org",
+            "label": "Organization (external link)",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "$__cell_3",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": false,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "status",
+            "label": "Status (row color + value map)",
+            "enabled": true,
+            "order": 1,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": [
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 0
+                },
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0.5
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 1.5
+                },
+                {
+                  "color": "#8a8a8a",
+                  "state": 0,
+                  "value": 2.5
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "hidden",
+            "nameOrRegex": "org_url",
+            "label": "org_url (hidden)",
+            "enabled": true,
+            "order": 99,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "-",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": false,
+        "lengthChangeEnabled": false,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": true,
+        "rowsPerPage": 25,
+        "scroll": true,
+        "searchEnabled": true,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": true,
+        "transformation": "table",
+        "transformationAggregations": [
+          "last"
+        ],
+        "wrapToFitEnabled": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"org\": \"SpaceX\", \"rocket\": \"Falcon 9\", \"launch_site\": \"LC-39A\", \"payload\": \"Starlink\", \"payload_class\": \"LEO Constellation\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"SpaceX\", \"rocket\": \"Falcon Heavy\", \"launch_site\": \"LC-39A\", \"payload\": \"ViaSat-3\", \"payload_class\": \"GEO Comsat\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"SpaceX\", \"rocket\": \"Starship\", \"launch_site\": \"Boca Chica\", \"payload\": \"Test Flight\", \"payload_class\": \"Test\", \"status\": 2, \"year\": 2023, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"Blue Origin\", \"rocket\": \"New Shepard\", \"launch_site\": \"West Texas\", \"payload\": \"Scientific Payloads\", \"payload_class\": \"Suborbital\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.blueorigin.com\"}, {\"org\": \"Blue Origin\", \"rocket\": \"New Glenn\", \"launch_site\": \"LC-36\", \"payload\": \"Test Payload\", \"payload_class\": \"LEO\", \"status\": 2, \"year\": 2024, \"org_url\": \"https://www.blueorigin.com\"}, {\"org\": \"Rocket Lab\", \"rocket\": \"Electron\", \"launch_site\": \"LC-1A NZ\", \"payload\": \"CAPSTONE\", \"payload_class\": \"Lunar\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.rocketlabusa.com\"}, {\"org\": \"Rocket Lab\", \"rocket\": \"Electron\", \"launch_site\": \"LC-1A NZ\", \"payload\": \"BlackSky\", \"payload_class\": \"LEO Imaging\", \"status\": 0, \"year\": 2023, \"org_url\": \"https://www.rocketlabusa.com\"}, {\"org\": \"ULA\", \"rocket\": \"Atlas V\", \"launch_site\": \"SLC-41\", \"payload\": \"GOES-18\", \"payload_class\": \"GEO Weather\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.ulalaunch.com\"}, {\"org\": \"ULA\", \"rocket\": \"Vulcan Centaur\", \"launch_site\": \"SLC-41\", \"payload\": \"Peregrine Moon Lander\", \"payload_class\": \"Lunar\", \"status\": 0, \"year\": 2024, \"org_url\": \"https://www.ulalaunch.com\"}, {\"org\": \"Arianespace\", \"rocket\": \"Ariane 5\", \"launch_site\": \"ELA-3\", \"payload\": \"JUICE\", \"payload_class\": \"Planetary\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.arianespace.com\"}, {\"org\": \"Arianespace\", \"rocket\": \"Ariane 6\", \"launch_site\": \"ELA-4\", \"payload\": \"Test Payloads\", \"payload_class\": \"LEO\", \"status\": 2, \"year\": 2024, \"org_url\": \"https://www.arianespace.com\"}, {\"org\": \"ISRO\", \"rocket\": \"LVM3\", \"launch_site\": \"SDSC\", \"payload\": \"OneWeb Satellites\", \"payload_class\": \"LEO Constellation\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.isro.gov.in\"}, {\"org\": \"ISRO\", \"rocket\": \"PSLV\", \"launch_site\": \"SDSC\", \"payload\": \"Chandrayaan-3\", \"payload_class\": \"Lunar\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.isro.gov.in\"}, {\"org\": \"SpaceX\", \"rocket\": \"Falcon 9\", \"launch_site\": \"SLC-40\", \"payload\": \"Crew Dragon\", \"payload_class\": \"ISS Crew\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"Rocket Lab\", \"rocket\": \"Electron\", \"launch_site\": \"LC-2 VA\", \"payload\": \"NROL-199\", \"payload_class\": \"NRO\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.rocketlabusa.com\"}, {\"org\": \"Blue Origin\", \"rocket\": \"New Shepard\", \"launch_site\": \"West Texas\", \"payload\": \"NS-23 Payloads\", \"payload_class\": \"Suborbital\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.blueorigin.com\"}, {\"org\": \"ULA\", \"rocket\": \"Delta IV Heavy\", \"launch_site\": \"SLC-37B\", \"payload\": \"NROL-70\", \"payload_class\": \"NRO\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.ulalaunch.com\"}, {\"org\": \"ISRO\", \"rocket\": \"PSLV\", \"launch_site\": \"SDSC\", \"payload\": \"EOS-06\", \"payload_class\": \"Earth Observation\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.isro.gov.in\"}, {\"org\": \"SpaceX\", \"rocket\": \"Starship\", \"launch_site\": \"Boca Chica\", \"payload\": \"Test Flight 4\", \"payload_class\": \"Test\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"Arianespace\", \"rocket\": \"Vega-C\", \"launch_site\": \"ELV\", \"payload\": \"LARES-2\", \"payload_class\": \"Science\", \"status\": 0, \"year\": 2022, \"org_url\": \"https://www.arianespace.com\"}]"
+        }
+      ],
+      "pluginVersion": "2.0.0"
+    },
+    {
+      "type": "briangann-datatable-panel",
+      "title": "Space Launches \u2014 Pagination Mode (10 per page)",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "dt-examples-infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "Nominal",
+                  "color": "green",
+                  "index": 0
+                },
+                "2": {
+                  "text": "Anomaly",
+                  "color": "orange",
+                  "index": 1
+                },
+                "0": {
+                  "text": "Abort",
+                  "color": "red",
+                  "index": 2
+                },
+                "3": {
+                  "text": "Scrubbed",
+                  "color": "gray",
+                  "index": 3
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 16
+      },
+      "id": 3,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [
+          {
+            "index": 8,
+            "order": "desc"
+          }
+        ],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "string",
+            "nameOrRegex": "org",
+            "label": "Organization (external link)",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "$__cell_3",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": false,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "status",
+            "label": "Status (row color + value map)",
+            "enabled": true,
+            "order": 1,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": [
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 0
+                },
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0.5
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 1.5
+                },
+                {
+                  "color": "#8a8a8a",
+                  "state": 0,
+                  "value": 2.5
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "hidden",
+            "nameOrRegex": "org_url",
+            "label": "org_url (hidden)",
+            "enabled": true,
+            "order": 99,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "-",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": false,
+        "lengthChangeEnabled": false,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": true,
+        "rowsPerPage": 10,
+        "scroll": false,
+        "searchEnabled": true,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": true,
+        "transformation": "table",
+        "transformationAggregations": [
+          "last"
+        ],
+        "wrapToFitEnabled": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"org\": \"SpaceX\", \"rocket\": \"Falcon 9\", \"launch_site\": \"LC-39A\", \"payload\": \"Starlink\", \"payload_class\": \"LEO Constellation\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"SpaceX\", \"rocket\": \"Falcon Heavy\", \"launch_site\": \"LC-39A\", \"payload\": \"ViaSat-3\", \"payload_class\": \"GEO Comsat\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"SpaceX\", \"rocket\": \"Starship\", \"launch_site\": \"Boca Chica\", \"payload\": \"Test Flight\", \"payload_class\": \"Test\", \"status\": 2, \"year\": 2023, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"Blue Origin\", \"rocket\": \"New Shepard\", \"launch_site\": \"West Texas\", \"payload\": \"Scientific Payloads\", \"payload_class\": \"Suborbital\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.blueorigin.com\"}, {\"org\": \"Blue Origin\", \"rocket\": \"New Glenn\", \"launch_site\": \"LC-36\", \"payload\": \"Test Payload\", \"payload_class\": \"LEO\", \"status\": 2, \"year\": 2024, \"org_url\": \"https://www.blueorigin.com\"}, {\"org\": \"Rocket Lab\", \"rocket\": \"Electron\", \"launch_site\": \"LC-1A NZ\", \"payload\": \"CAPSTONE\", \"payload_class\": \"Lunar\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.rocketlabusa.com\"}, {\"org\": \"Rocket Lab\", \"rocket\": \"Electron\", \"launch_site\": \"LC-1A NZ\", \"payload\": \"BlackSky\", \"payload_class\": \"LEO Imaging\", \"status\": 0, \"year\": 2023, \"org_url\": \"https://www.rocketlabusa.com\"}, {\"org\": \"ULA\", \"rocket\": \"Atlas V\", \"launch_site\": \"SLC-41\", \"payload\": \"GOES-18\", \"payload_class\": \"GEO Weather\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.ulalaunch.com\"}, {\"org\": \"ULA\", \"rocket\": \"Vulcan Centaur\", \"launch_site\": \"SLC-41\", \"payload\": \"Peregrine Moon Lander\", \"payload_class\": \"Lunar\", \"status\": 0, \"year\": 2024, \"org_url\": \"https://www.ulalaunch.com\"}, {\"org\": \"Arianespace\", \"rocket\": \"Ariane 5\", \"launch_site\": \"ELA-3\", \"payload\": \"JUICE\", \"payload_class\": \"Planetary\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.arianespace.com\"}, {\"org\": \"Arianespace\", \"rocket\": \"Ariane 6\", \"launch_site\": \"ELA-4\", \"payload\": \"Test Payloads\", \"payload_class\": \"LEO\", \"status\": 2, \"year\": 2024, \"org_url\": \"https://www.arianespace.com\"}, {\"org\": \"ISRO\", \"rocket\": \"LVM3\", \"launch_site\": \"SDSC\", \"payload\": \"OneWeb Satellites\", \"payload_class\": \"LEO Constellation\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.isro.gov.in\"}, {\"org\": \"ISRO\", \"rocket\": \"PSLV\", \"launch_site\": \"SDSC\", \"payload\": \"Chandrayaan-3\", \"payload_class\": \"Lunar\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.isro.gov.in\"}, {\"org\": \"SpaceX\", \"rocket\": \"Falcon 9\", \"launch_site\": \"SLC-40\", \"payload\": \"Crew Dragon\", \"payload_class\": \"ISS Crew\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"Rocket Lab\", \"rocket\": \"Electron\", \"launch_site\": \"LC-2 VA\", \"payload\": \"NROL-199\", \"payload_class\": \"NRO\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.rocketlabusa.com\"}, {\"org\": \"Blue Origin\", \"rocket\": \"New Shepard\", \"launch_site\": \"West Texas\", \"payload\": \"NS-23 Payloads\", \"payload_class\": \"Suborbital\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.blueorigin.com\"}, {\"org\": \"ULA\", \"rocket\": \"Delta IV Heavy\", \"launch_site\": \"SLC-37B\", \"payload\": \"NROL-70\", \"payload_class\": \"NRO\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.ulalaunch.com\"}, {\"org\": \"ISRO\", \"rocket\": \"PSLV\", \"launch_site\": \"SDSC\", \"payload\": \"EOS-06\", \"payload_class\": \"Earth Observation\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.isro.gov.in\"}, {\"org\": \"SpaceX\", \"rocket\": \"Starship\", \"launch_site\": \"Boca Chica\", \"payload\": \"Test Flight 4\", \"payload_class\": \"Test\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"Arianespace\", \"rocket\": \"Vega-C\", \"launch_site\": \"ELV\", \"payload\": \"LARES-2\", \"payload_class\": \"Science\", \"status\": 0, \"year\": 2022, \"org_url\": \"https://www.arianespace.com\"}]"
+        }
+      ],
+      "pluginVersion": "2.0.0"
+    },
+    {
+      "type": "briangann-datatable-panel",
+      "title": "Space Launches \u2014 Pagination + Rows Per Page Selector",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "dt-examples-infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "1": {
+                  "text": "Nominal",
+                  "color": "green",
+                  "index": 0
+                },
+                "2": {
+                  "text": "Anomaly",
+                  "color": "orange",
+                  "index": 1
+                },
+                "0": {
+                  "text": "Abort",
+                  "color": "red",
+                  "index": 2
+                },
+                "3": {
+                  "text": "Scrubbed",
+                  "color": "gray",
+                  "index": 3
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 16,
+        "w": 24,
+        "x": 0,
+        "y": 32
+      },
+      "id": 4,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [
+          {
+            "index": 8,
+            "order": "desc"
+          }
+        ],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "string",
+            "nameOrRegex": "org",
+            "label": "Organization (external link)",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "$__cell_3",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": false,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "status",
+            "label": "Status (row color + value map)",
+            "enabled": true,
+            "order": 1,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": [
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 0
+                },
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0.5
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 1.5
+                },
+                {
+                  "color": "#8a8a8a",
+                  "state": 0,
+                  "value": 2.5
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "hidden",
+            "nameOrRegex": "org_url",
+            "label": "org_url (hidden)",
+            "enabled": true,
+            "order": 99,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "-",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": false,
+        "lengthChangeEnabled": true,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": true,
+        "rowsPerPage": 10,
+        "scroll": false,
+        "searchEnabled": true,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": true,
+        "transformation": "table",
+        "transformationAggregations": [
+          "last"
+        ],
+        "wrapToFitEnabled": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"org\": \"SpaceX\", \"rocket\": \"Falcon 9\", \"launch_site\": \"LC-39A\", \"payload\": \"Starlink\", \"payload_class\": \"LEO Constellation\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"SpaceX\", \"rocket\": \"Falcon Heavy\", \"launch_site\": \"LC-39A\", \"payload\": \"ViaSat-3\", \"payload_class\": \"GEO Comsat\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"SpaceX\", \"rocket\": \"Starship\", \"launch_site\": \"Boca Chica\", \"payload\": \"Test Flight\", \"payload_class\": \"Test\", \"status\": 2, \"year\": 2023, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"Blue Origin\", \"rocket\": \"New Shepard\", \"launch_site\": \"West Texas\", \"payload\": \"Scientific Payloads\", \"payload_class\": \"Suborbital\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.blueorigin.com\"}, {\"org\": \"Blue Origin\", \"rocket\": \"New Glenn\", \"launch_site\": \"LC-36\", \"payload\": \"Test Payload\", \"payload_class\": \"LEO\", \"status\": 2, \"year\": 2024, \"org_url\": \"https://www.blueorigin.com\"}, {\"org\": \"Rocket Lab\", \"rocket\": \"Electron\", \"launch_site\": \"LC-1A NZ\", \"payload\": \"CAPSTONE\", \"payload_class\": \"Lunar\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.rocketlabusa.com\"}, {\"org\": \"Rocket Lab\", \"rocket\": \"Electron\", \"launch_site\": \"LC-1A NZ\", \"payload\": \"BlackSky\", \"payload_class\": \"LEO Imaging\", \"status\": 0, \"year\": 2023, \"org_url\": \"https://www.rocketlabusa.com\"}, {\"org\": \"ULA\", \"rocket\": \"Atlas V\", \"launch_site\": \"SLC-41\", \"payload\": \"GOES-18\", \"payload_class\": \"GEO Weather\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.ulalaunch.com\"}, {\"org\": \"ULA\", \"rocket\": \"Vulcan Centaur\", \"launch_site\": \"SLC-41\", \"payload\": \"Peregrine Moon Lander\", \"payload_class\": \"Lunar\", \"status\": 0, \"year\": 2024, \"org_url\": \"https://www.ulalaunch.com\"}, {\"org\": \"Arianespace\", \"rocket\": \"Ariane 5\", \"launch_site\": \"ELA-3\", \"payload\": \"JUICE\", \"payload_class\": \"Planetary\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.arianespace.com\"}, {\"org\": \"Arianespace\", \"rocket\": \"Ariane 6\", \"launch_site\": \"ELA-4\", \"payload\": \"Test Payloads\", \"payload_class\": \"LEO\", \"status\": 2, \"year\": 2024, \"org_url\": \"https://www.arianespace.com\"}, {\"org\": \"ISRO\", \"rocket\": \"LVM3\", \"launch_site\": \"SDSC\", \"payload\": \"OneWeb Satellites\", \"payload_class\": \"LEO Constellation\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.isro.gov.in\"}, {\"org\": \"ISRO\", \"rocket\": \"PSLV\", \"launch_site\": \"SDSC\", \"payload\": \"Chandrayaan-3\", \"payload_class\": \"Lunar\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.isro.gov.in\"}, {\"org\": \"SpaceX\", \"rocket\": \"Falcon 9\", \"launch_site\": \"SLC-40\", \"payload\": \"Crew Dragon\", \"payload_class\": \"ISS Crew\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"Rocket Lab\", \"rocket\": \"Electron\", \"launch_site\": \"LC-2 VA\", \"payload\": \"NROL-199\", \"payload_class\": \"NRO\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.rocketlabusa.com\"}, {\"org\": \"Blue Origin\", \"rocket\": \"New Shepard\", \"launch_site\": \"West Texas\", \"payload\": \"NS-23 Payloads\", \"payload_class\": \"Suborbital\", \"status\": 1, \"year\": 2023, \"org_url\": \"https://www.blueorigin.com\"}, {\"org\": \"ULA\", \"rocket\": \"Delta IV Heavy\", \"launch_site\": \"SLC-37B\", \"payload\": \"NROL-70\", \"payload_class\": \"NRO\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.ulalaunch.com\"}, {\"org\": \"ISRO\", \"rocket\": \"PSLV\", \"launch_site\": \"SDSC\", \"payload\": \"EOS-06\", \"payload_class\": \"Earth Observation\", \"status\": 1, \"year\": 2022, \"org_url\": \"https://www.isro.gov.in\"}, {\"org\": \"SpaceX\", \"rocket\": \"Starship\", \"launch_site\": \"Boca Chica\", \"payload\": \"Test Flight 4\", \"payload_class\": \"Test\", \"status\": 1, \"year\": 2024, \"org_url\": \"https://www.spacex.com\"}, {\"org\": \"Arianespace\", \"rocket\": \"Vega-C\", \"launch_site\": \"ELV\", \"payload\": \"LARES-2\", \"payload_class\": \"Science\", \"status\": 0, \"year\": 2022, \"org_url\": \"https://www.arianespace.com\"}]"
+        }
+      ],
+      "pluginVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "datatable-examples"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Space Launches",
+  "uid": "dt-space-launches",
+  "version": 1
+}

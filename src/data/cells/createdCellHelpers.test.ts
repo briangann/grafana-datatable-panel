@@ -1,12 +1,16 @@
-import { ProcessStringValueStyle } from './createdCellHelpers';
+import { processStringValueStyle } from './createdCellHelpers';
 import { ColumnStyleItemType, FormattedColumnValue } from 'types';
 import { TimeRange, dateTime } from '@grafana/data';
+
+// ---------------------------------------------------------------------------
+// processStringValueStyle
+// ---------------------------------------------------------------------------
 
 // Covers the plumbing that forwards `replaceVariables` from BuildColumnDefs
 // down into ProcessClickthrough. The actual substitution logic is unit-tested
 // in cellRenderer.test.ts — these tests pin the forwarding so a future
 // refactor that drops the parameter or swaps its position is caught here.
-describe('ProcessStringValueStyle', () => {
+describe('processStringValueStyle', () => {
   const fakeTimeRange = {
     from: dateTime(0),
     to: dateTime(0),
@@ -29,7 +33,7 @@ describe('ProcessStringValueStyle', () => {
 
   it('forwards replaceVariables to ProcessClickthrough for substitution', () => {
     const replaceVariables = (s: string) => s.replace(/\$host/g, 'web-99');
-    const html = ProcessStringValueStyle(
+    const html = processStringValueStyle(
       makeStyle('http://example.com/h/$host?cell=$__cell'),
       [],
       processedItem,
@@ -41,7 +45,7 @@ describe('ProcessStringValueStyle', () => {
 
   it('returns null when the column style has no clickThrough configured', () => {
     const replaceVariables = (s: string) => s;
-    const html = ProcessStringValueStyle(
+    const html = processStringValueStyle(
       makeStyle(''),
       [],
       processedItem,

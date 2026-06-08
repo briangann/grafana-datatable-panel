@@ -1,0 +1,387 @@
+{
+  "__inputs": [
+    {
+      "name": "DS_INFINITY",
+      "label": "Infinity",
+      "description": "",
+      "type": "datasource",
+      "pluginId": "yesoreyeram-infinity-datasource",
+      "pluginName": "Infinity"
+    }
+  ],
+  "__elements": {},
+  "__requires": [
+    {
+      "type": "panel",
+      "id": "briangann-datatable-panel",
+      "name": "Datatable Panel",
+      "version": "2.0.0"
+    },
+    {
+      "type": "grafana",
+      "id": "grafana",
+      "name": "Grafana",
+      "version": "11.6.0"
+    },
+    {
+      "type": "datasource",
+      "id": "yesoreyeram-infinity-datasource",
+      "name": "Infinity",
+      "version": "1.0.0"
+    }
+  ],
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0,211,255,1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "stat",
+      "title": "Total Services",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 0,
+        "y": 0
+      },
+      "id": 3,
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "value",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "blue"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "blue",
+                "value": null
+              }
+            ]
+          },
+          "displayName": "${__field.labels.value}"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 8}]"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Healthy (Error Rate < 1%)",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 8,
+        "y": 0
+      },
+      "id": 4,
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "value",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "green"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "displayName": "${__field.labels.value}"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 4}]"
+        }
+      ]
+    },
+    {
+      "type": "stat",
+      "title": "Critical (Error Rate \u2265 5%)",
+      "gridPos": {
+        "h": 4,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 5,
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "options": {
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "value",
+          "values": false
+        },
+        "orientation": "auto",
+        "textMode": "auto",
+        "colorMode": "background",
+        "graphMode": "none"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "fixed",
+            "fixedColor": "red"
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              }
+            ]
+          },
+          "displayName": "${__field.labels.value}"
+        },
+        "overrides": []
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"value\": 1}]"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "title": "About This Example Set",
+      "gridPos": {
+        "h": 12,
+        "w": 10,
+        "x": 0,
+        "y": 4
+      },
+      "id": 1,
+      "options": {
+        "mode": "markdown",
+        "content": "## Service Health Monitoring\n\nThis example shows how the **Datatable Panel** turns a table of service metrics into an interactive monitoring dashboard.\n\n### Features demonstrated\n\n- \ud83d\udfe5 **Row coloring** \u2014 whole row turns red when any metric is critical\n- \ud83d\udcca **Cell coloring** \u2014 Latency cells colored by threshold independently\n- \ud83d\udd17 **Clickthrough** \u2014 click any service name to open a detail view\n- \ud83d\udc41\ufe0f **Hidden columns** \u2014 service ID is hidden but passed in the URL\n- \ud83d\udd0d **Search** \u2014 type in the search box to filter services\n\n### Try it\n\n1. Look at the table on the right \u2014 notice the color coding\n2. Click a **service name** to drill into that service\n3. The detail dashboard opens with the service pre-selected\n\n[Open Overview \u2192](/d/dt-service-health-overview)",
+        "code": {
+          "language": "plaintext",
+          "showLineNumbers": false,
+          "showMiniMap": false
+        }
+      },
+      "targets": []
+    },
+    {
+      "type": "briangann-datatable-panel",
+      "title": "Service Health Preview",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "${DS_INFINITY}"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 12,
+        "w": 14,
+        "x": 10,
+        "y": 4
+      },
+      "id": 2,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "error_rate",
+            "label": "Error Rate",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "1",
+              "ignoreNullValues": true,
+              "unitFormat": "percent",
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 1
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 5
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "-",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": false,
+        "lengthChangeEnabled": false,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": false,
+        "rowsPerPage": 6,
+        "scroll": false,
+        "searchEnabled": false,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": true,
+        "transformation": "table",
+        "wrapToFitEnabled": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "${DS_INFINITY}"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"service\": \"authentication\", \"error_rate\": 0.8}, {\"service\": \"api-gateway\", \"error_rate\": 2.1}, {\"service\": \"payment\", \"error_rate\": 0.2}, {\"service\": \"notifications\", \"error_rate\": 7.3}, {\"service\": \"search\", \"error_rate\": 1.5}, {\"service\": \"database\", \"error_rate\": 0.1}, {\"service\": \"auth-service\", \"error_rate\": 3.8}, {\"service\": \"cache\", \"error_rate\": 0.0}]"
+        }
+      ],
+      "pluginVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "datatable-examples"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Service Health \u2014 Landing",
+  "uid": "dt-service-health-landing",
+  "version": 1
+}

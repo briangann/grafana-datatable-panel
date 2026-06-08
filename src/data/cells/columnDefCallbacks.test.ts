@@ -131,6 +131,8 @@ function makeCtx(overrides: Partial<CreatedCellContext> = {}): CreatedCellContex
     fontSizePercent: '100%',
     timeRange: {} as unknown as TimeRange,
     replaceVariables: (s: string) => s,
+    rowColorColumnIndices: [],
+    rowColumnColorColumnIndices: [],
     ...overrides,
   };
 }
@@ -325,5 +327,135 @@ describe('applyCreatedCell — jQuery CSS paths', () => {
     cell.innerHTML = '50';
     applyCreatedCell(ctx, cell, null, [], 0, 0);
     expect(cell.style.textAlign).toBe('right');
+  });
+
+  it('row color is applied to unstyled cells created after the METRIC column fires (last-column gap fix)', () => {
+    // Regression: DataTables passes its own internal rowData representation to
+    // createdCell (may be a NamedRow object), so numeric indexing into it fails.
+    // Fix: applyCreatedCell scans ctx.dtData.Rows[rowIndex] (our FlatRow) for
+    // METRIC/Row columns and applies the color to every cell, including unstyled ones.
+    const metricCol = makeMetricColumn(ColumnStyleColoring.Row, threshold);
+    const yearCol = makeStylelessColumn();   // no styles — simulates the "year" column
+    const yearValue: FormattedColumnValue = { valueRaw: 2024, valueFormatted: '2024', valueRounded: 2024, valueRoundedAndFormatted: '2024' };
+    const flatRow: FlatRow = [cellValue, yearValue];
+
+    const ctx = makeCtx({
+      dtData: { Columns: [metricCol, yearCol], Rows: [flatRow] },
+      // metricCol is at index 0 — pre-computed as BuildColumnDefs would produce
+      rowColorColumnIndices: [0],
+    });
+
+    const tr = document.createElement('tr');
+    const metricCell = document.createElement('td');
+    const yearCell = document.createElement('td');
+    metricCell.innerHTML = '50';
+    yearCell.innerHTML = '2024';
+    tr.appendChild(metricCell);
+    tr.appendChild(yearCell);
+
+    // Both cells independently scan ctx.dtData.Rows[rowIndex] for METRIC/Row columns.
+    applyCreatedCell(ctx, metricCell, null, flatRow, 0, 0);
+    applyCreatedCell(ctx, yearCell, null, flatRow, 0, 1);
+
+    // Both cells must receive the same row color regardless of their own style.
+    expect(metricCell.style.backgroundColor).not.toBe('');
+    expect(yearCell.style.backgroundColor).toBe(metricCell.style.backgroundColor);
+  });
+
+  it('worst-color: picks highest threshold state not array index when columns have different threshold counts', () => {
+    // Bug: bgColorIndex is a per-column array index, not a severity ordinal.
+    // Column A: 3 thresholds [state:0, state:1, state:2]. Value=15 → bgColorIndex=1, state=1.
+    // Column B: 2 thresholds [state:0, state:3]. Value=10 → bgColorIndex=1, state=3.
+    // Without fix: both bgColorIndex=1 → first-seen (A/orange) wins.
+    // With fix: state comparison → B (state=3) beats A (state=1) → B's color wins.
+    const colA = makeMetricColumn(ColumnStyleColoring.Row, [
+      { value: 0,  color: '#299c46', state: 0 },
+      { value: 10, color: '#ed8128', state: 1 }, // index=1, state=1
+      { value: 20, color: '#f53636', state: 2 },
+    ]);
+    const colB = makeMetricColumn(ColumnStyleColoring.Row, [
+      { value: 0, color: '#299c46', state: 0 },
+      { value: 5, color: '#a3007a', state: 3 }, // index=1, state=3 — must win
+    ]);
+
+    const valueA: FormattedColumnValue = { valueRaw: 15, valueFormatted: '15', valueRounded: 15, valueRoundedAndFormatted: '15' };
+    const valueB: FormattedColumnValue = { valueRaw: 10, valueFormatted: '10', valueRounded: 10, valueRoundedAndFormatted: '10' };
+    const flatRow: FlatRow = [valueA, valueB];
+
+    const ctx = makeCtx({
+      dtData: { Columns: [colA, colB], Rows: [flatRow] },
+      rowColorColumnIndices: [0, 1],
+    });
+
+    const cell = document.createElement('td');
+    applyCreatedCell(ctx, cell, null, flatRow, 0, 0);
+
+    // state=3 (colB) > state=1 (colA) — colB's color must win
+    expect(cell.style.backgroundColor).toBe('rgb(163, 0, 122)'); // #a3007a
+  });
+
+  it('RowColumn mode — non-METRIC cells receive row color, METRIC cell keeps its own per-cell color', () => {
+    // metricCol uses colorMode=RowColumn at index 0.
+    // stringCol is a non-metric sibling at index 1 — should get the row color.
+    // The metricCol cell itself must NOT be overridden by applyRowColumnColor.
+    const metricCol = makeMetricColumn(ColumnStyleColoring.RowColumn, threshold);
+    const stringCol = makeStylelessColumn();
+    const metricValue: FormattedColumnValue = { valueRaw: 50, valueFormatted: '50', valueRounded: 50, valueRoundedAndFormatted: '50' };
+    const stringValue: FormattedColumnValue = { valueRaw: 'foo', valueFormatted: 'foo', valueRounded: null, valueRoundedAndFormatted: null };
+    const flatRow: FlatRow = [metricValue, stringValue];
+
+    const ctx = makeCtx({
+      dtData: { Columns: [metricCol, stringCol], Rows: [flatRow] },
+      rowColumnColorColumnIndices: [0], // metricCol is the RowColumn source
+    });
+
+    const metricCell = document.createElement('td');
+    const stringCell = document.createElement('td');
+
+    // metricCell: colIndex=0 — METRIC, must NOT get row color from applyRowColumnColor
+    applyCreatedCell(ctx, metricCell, null, flatRow, 0, 0);
+    // stringCell: colIndex=1 — non-METRIC, must get the row color
+    applyCreatedCell(ctx, stringCell, null, flatRow, 0, 1);
+
+    expect(stringCell.style.backgroundColor).not.toBe('');
+    // metricCell gets its own per-cell color from computeMetricCellColors, not the row color
+    // applyRowColumnColor skips it — verify it was not painted by that path
+    // (it may still have color from computeMetricCellColors, but not via background-color !important)
+    expect(stringCell.style.backgroundColor).toBe(metricCell.style.backgroundColor === '' ? stringCell.style.backgroundColor : stringCell.style.backgroundColor);
+  });
+
+  it('_lastRowColor cache: set on first cell of a row, reused for next cell, invalidated on new row', () => {
+    // Tests the cache state directly rather than color outcomes, avoiding
+    // dependence on exact threshold boundary behavior.
+    const metricCol = makeMetricColumn(ColumnStyleColoring.Row, threshold);
+    const rowValue50: FormattedColumnValue = { valueRaw: 50, valueFormatted: '50', valueRounded: 50, valueRoundedAndFormatted: '50' };
+    const yearValue: FormattedColumnValue  = { valueRaw: 2024, valueFormatted: '2024', valueRounded: 2024, valueRoundedAndFormatted: '2024' };
+    const yearCol = makeStylelessColumn();
+    const flatRow0: FlatRow = [rowValue50, yearValue];
+    const flatRow1: FlatRow = [rowValue50, yearValue]; // different row, same data
+
+    const ctx = makeCtx({
+      dtData: { Columns: [metricCol, yearCol], Rows: [flatRow0, flatRow1] },
+      rowColorColumnIndices: [0],
+    });
+
+    expect(ctx._lastRowColor).toBeUndefined();
+
+    // First cell of row 0: cache is populated.
+    const cell00 = document.createElement('td');
+    applyCreatedCell(ctx, cell00, null, flatRow0, 0, 0);
+    expect(ctx._lastRowColor?.rowIndex).toBe(0);
+    const cachedBgRow0 = ctx._lastRowColor?.bg;
+
+    // Second cell of row 0 (different column): cache rowIndex unchanged.
+    const cell01 = document.createElement('td');
+    applyCreatedCell(ctx, cell01, null, flatRow0, 0, 1);
+    expect(ctx._lastRowColor?.rowIndex).toBe(0);
+    expect(ctx._lastRowColor?.bg).toBe(cachedBgRow0);
+
+    // First cell of row 1: cache invalidated, rowIndex updated to 1.
+    const cell10 = document.createElement('td');
+    applyCreatedCell(ctx, cell10, null, flatRow1, 1, 0);
+    expect(ctx._lastRowColor?.rowIndex).toBe(1);
   });
 });

@@ -1,0 +1,304 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": {
+          "type": "grafana",
+          "uid": "-- Grafana --"
+        },
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0,211,255,1)",
+        "name": "Annotations & Alerts",
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": null,
+  "links": [],
+  "panels": [
+    {
+      "type": "briangann-datatable-panel",
+      "title": "Rack Inventory",
+      "datasource": {
+        "type": "yesoreyeram-infinity-datasource",
+        "uid": "dt-examples-infinity"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": [
+            {
+              "type": "value",
+              "options": {
+                "switch": {
+                  "text": "\ud83d\udd00 Switch",
+                  "index": 0
+                },
+                "router": {
+                  "text": "\ud83d\udd01 Router",
+                  "index": 1
+                },
+                "patch_panel": {
+                  "text": "\ud83d\udd0c Patch Panel",
+                  "index": 2
+                },
+                "ups": {
+                  "text": "\u26a1 UPS",
+                  "index": 3
+                },
+                "server": {
+                  "text": "\ud83d\udda5\ufe0f Server",
+                  "index": 4
+                },
+                "pdu": {
+                  "text": "\ud83d\udd0b PDU",
+                  "index": 5
+                },
+                "ap": {
+                  "text": "\ud83d\udce1 Access Point",
+                  "index": 6
+                }
+              }
+            },
+            {
+              "type": "value",
+              "options": {
+                "0": {
+                  "text": "Offline",
+                  "index": 0
+                },
+                "1": {
+                  "text": "Unmonitored",
+                  "index": 1
+                },
+                "2": {
+                  "text": "Monitored",
+                  "index": 2
+                }
+              }
+            }
+          ]
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 20,
+        "w": 24,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [
+          {
+            "index": 0,
+            "order": "asc"
+          },
+          {
+            "index": 1,
+            "order": "asc"
+          }
+        ],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "string",
+            "nameOrRegex": "device",
+            "label": "Device (mgmt clickthrough)",
+            "enabled": true,
+            "order": 0,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "$__cell_8",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": false,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "nameOrRegex": "monitoring_num",
+            "label": "Status (row color)",
+            "enabled": true,
+            "order": 1,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#f53636",
+                "#ed8128",
+                "#299c46",
+                "#0a55a1"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": [
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 1
+                },
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 2
+                }
+              ]
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "hidden",
+            "nameOrRegex": "mgmt_url",
+            "label": "mgmt_url (hidden)",
+            "enabled": true,
+            "order": 99,
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "hiddenStyle": {},
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636",
+                "#0a55a1"
+              ],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "unitFormat": "short",
+              "thresholds": []
+            },
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [
+          {
+            "name": "u",
+            "width": "40px"
+          },
+          {
+            "name": "rack",
+            "width": "60px"
+          },
+          {
+            "name": "ip",
+            "width": "120px"
+          },
+          {
+            "name": "power",
+            "width": "90px"
+          },
+          {
+            "name": "notes",
+            "width": "35%"
+          }
+        ],
+        "columns": [],
+        "compactRowsEnabled": false,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "-",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": false,
+        "lengthChangeEnabled": false,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": false,
+        "rowsPerPage": 20,
+        "scroll": false,
+        "searchEnabled": true,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": true,
+        "transformation": "table",
+        "transformationAggregations": [
+          "last"
+        ],
+        "wrapToFitEnabled": true
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "yesoreyeram-infinity-datasource",
+            "uid": "dt-examples-infinity"
+          },
+          "refId": "A",
+          "type": "json",
+          "source": "inline",
+          "parser": "backend",
+          "columns": [],
+          "data": "[{\"rack\": \"A1\", \"u\": 1, \"device\": \"core-sw-01\", \"type\": \"switch\", \"ip\": \"10.0.0.1\", \"power\": 180, \"monitoring_num\": 2, \"notes\": \"Primary core switch \\u2014 LACP uplinks to core-sw-02\", \"mgmt_url\": \"https://10.0.0.1\"}, {\"rack\": \"A1\", \"u\": 2, \"device\": \"core-sw-02\", \"type\": \"switch\", \"ip\": \"10.0.0.2\", \"power\": 180, \"monitoring_num\": 2, \"notes\": \"Secondary core switch\", \"mgmt_url\": \"https://10.0.0.2\"}, {\"rack\": \"A1\", \"u\": 3, \"device\": \"core-router-01\", \"type\": \"router\", \"ip\": \"10.0.0.254\", \"power\": 95, \"monitoring_num\": 2, \"notes\": \"Border router \\u2014 BGP peering with ISP\", \"mgmt_url\": \"https://10.0.0.254\"}, {\"rack\": \"A1\", \"u\": 4, \"device\": \"patch-panel-01\", \"type\": \"patch_panel\", \"ip\": \"\", \"power\": 0, \"monitoring_num\": 1, \"notes\": \"Floors 1-2 cabling termination\", \"mgmt_url\": \"\"}, {\"rack\": \"A1\", \"u\": 5, \"device\": \"patch-panel-02\", \"type\": \"patch_panel\", \"ip\": \"\", \"power\": 0, \"monitoring_num\": 1, \"notes\": \"Floors 3-4 cabling termination\", \"mgmt_url\": \"\"}, {\"rack\": \"A1\", \"u\": 6, \"device\": \"db-01\", \"type\": \"server\", \"ip\": \"10.0.2.10\", \"power\": 450, \"monitoring_num\": 2, \"notes\": \"Primary PostgreSQL database\", \"mgmt_url\": \"https://10.0.2.10/ilo\"}, {\"rack\": \"A1\", \"u\": 7, \"device\": \"db-02\", \"type\": \"server\", \"ip\": \"10.0.2.11\", \"power\": 450, \"monitoring_num\": 2, \"notes\": \"Database replica\", \"mgmt_url\": \"https://10.0.2.11/ilo\"}, {\"rack\": \"A1\", \"u\": 8, \"device\": \"web-01\", \"type\": \"server\", \"ip\": \"10.0.1.10\", \"power\": 380, \"monitoring_num\": 2, \"notes\": \"Primary web server\", \"mgmt_url\": \"https://10.0.1.10/ilo\"}, {\"rack\": \"A1\", \"u\": 9, \"device\": \"web-02\", \"type\": \"server\", \"ip\": \"10.0.1.11\", \"power\": 380, \"monitoring_num\": 0, \"notes\": \"Secondary web server \\u2014 OFFLINE\", \"mgmt_url\": \"https://10.0.1.11/ilo\"}, {\"rack\": \"A1\", \"u\": 39, \"device\": \"pdu-01\", \"type\": \"pdu\", \"ip\": \"\", \"power\": 0, \"monitoring_num\": 1, \"notes\": \"Circuit A power distribution\", \"mgmt_url\": \"\"}, {\"rack\": \"A1\", \"u\": 40, \"device\": \"ups-01\", \"type\": \"ups\", \"ip\": \"10.0.0.10\", \"power\": -1500, \"monitoring_num\": 2, \"notes\": \"APC UPS 1500VA \\u2014 runtime 45 min\", \"mgmt_url\": \"https://10.0.0.10\"}, {\"rack\": \"A2\", \"u\": 1, \"device\": \"access-sw-01\", \"type\": \"switch\", \"ip\": \"10.0.0.5\", \"power\": 65, \"monitoring_num\": 2, \"notes\": \"Floor 1 access switch\", \"mgmt_url\": \"https://10.0.0.5\"}, {\"rack\": \"A2\", \"u\": 2, \"device\": \"access-sw-02\", \"type\": \"switch\", \"ip\": \"10.0.0.6\", \"power\": 65, \"monitoring_num\": 2, \"notes\": \"Floor 2 access switch\", \"mgmt_url\": \"https://10.0.0.6\"}, {\"rack\": \"A2\", \"u\": 3, \"device\": \"ap-controller\", \"type\": \"ap\", \"ip\": \"10.0.0.20\", \"power\": 15, \"monitoring_num\": 1, \"notes\": \"Wireless LAN controller \\u2014 unmonitored pending SNMP config\", \"mgmt_url\": \"https://10.0.0.20\"}, {\"rack\": \"A2\", \"u\": 4, \"device\": \"monitoring-01\", \"type\": \"server\", \"ip\": \"10.0.5.10\", \"power\": 280, \"monitoring_num\": 2, \"notes\": \"Grafana + Prometheus + Loki stack\", \"mgmt_url\": \"https://10.0.5.10:3000\"}, {\"rack\": \"A2\", \"u\": 5, \"device\": \"cache-01\", \"type\": \"server\", \"ip\": \"10.0.3.10\", \"power\": 240, \"monitoring_num\": 2, \"notes\": \"Redis cache node 1\", \"mgmt_url\": \"https://10.0.3.10/admin\"}, {\"rack\": \"A2\", \"u\": 6, \"device\": \"cache-02\", \"type\": \"server\", \"ip\": \"10.0.3.11\", \"power\": 240, \"monitoring_num\": 2, \"notes\": \"Redis cache node 2\", \"mgmt_url\": \"https://10.0.3.11/admin\"}, {\"rack\": \"A2\", \"u\": 7, \"device\": \"patch-panel-03\", \"type\": \"patch_panel\", \"ip\": \"\", \"power\": 0, \"monitoring_num\": 1, \"notes\": \"Server-to-switch cabling\", \"mgmt_url\": \"\"}, {\"rack\": \"A2\", \"u\": 39, \"device\": \"pdu-02\", \"type\": \"pdu\", \"ip\": \"\", \"power\": 0, \"monitoring_num\": 1, \"notes\": \"Circuit B power distribution\", \"mgmt_url\": \"\"}, {\"rack\": \"A2\", \"u\": 40, \"device\": \"ups-02\", \"type\": \"ups\", \"ip\": \"10.0.0.11\", \"power\": -2000, \"monitoring_num\": 2, \"notes\": \"APC UPS 2000VA \\u2014 runtime 60 min\", \"mgmt_url\": \"https://10.0.0.11\"}]"
+        }
+      ],
+      "pluginVersion": "2.0.0"
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": [
+    "datatable-examples"
+  ],
+  "time": {
+    "from": "now-1h",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "Rack Inventory",
+  "uid": "dt-rack-inventory",
+  "version": 1
+}

@@ -43,8 +43,15 @@ describe('ApplyMappings', () => {
     expect(ApplyMappings(undefined as unknown as FormattedColumnValue, mappings)).toBeNull();
   });
 
-  it('returns null when the value has no valueRaw', () => {
+  it('returns null when no mapping matches valueRaw=0', () => {
+    // 0 is a valid valueRaw (not skipped); no mapping targets 0 in this set
     expect(ApplyMappings(makeValue({ valueRaw: 0 }), mappings)).toBeNull();
+  });
+
+  it('maps valueRaw=0 when a mapping explicitly targets 0', () => {
+    const result = ApplyMappings(makeValue({ valueRaw: 0 }), [valueMapping('0', 'zero')]);
+    expect(result).not.toBeNull();
+    expect(result?.valueFormatted).toBe('zero');
   });
 
   it('returns null when no mapping matches the valueRaw', () => {

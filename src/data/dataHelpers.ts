@@ -10,7 +10,7 @@ import { applyCreatedCell, CreatedCellContext, renderCell } from './cells/column
 import { FormatColumnValue } from './cells/cellRenderer';
 import { ApplyGrafanaOverrides } from './mappings/overrides';
 import { CellMetaSettings, ConfigColumnDefs } from 'datatables.net';
-import { ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FlatRow, FormattedColumnValue, NamedRow } from 'types';
+import { ColumnAlignment, ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, DTColumnType, DTData, FlatRow, FormattedColumnValue, NamedRow } from 'types';
 import { ApplyColumnStyles } from './columns/columnStyles';
 import { ApplyMappings, GetMappings } from './mappings/mappingProcessor';
 
@@ -188,12 +188,31 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
     dtData,
   } = opts;
 
+  // Pre-compute which column indices use colorMode=Row so applyRowColor can
+  // target only those columns instead of scanning all columns on every cell.
+  // Computed once here; shared across all createdCell callbacks for this table.
+  const rowColorColumnIndices = dtData.Columns.reduce<number[]>((acc, col, i) => {
+    if (col.columnStyles?.[0]?.metricStyle?.colorMode === ColumnStyleColoring.Row) {
+      acc.push(i);
+    }
+    return acc;
+  }, []);
+
+  const rowColumnColorColumnIndices = dtData.Columns.reduce<number[]>((acc, col, i) => {
+    if (col.columnStyles?.[0]?.metricStyle?.colorMode === ColumnStyleColoring.RowColumn) {
+      acc.push(i);
+    }
+    return acc;
+  }, []);
+
   const ctx: CreatedCellContext = {
     dtData,
     rowNumbersEnabled,
     fontSizePercent,
     timeRange,
     replaceVariables,
+    rowColorColumnIndices,
+    rowColumnColorColumnIndices,
   };
 
   const columnDefs: ConfigColumnDefs[] = [];
@@ -210,6 +229,12 @@ export const BuildColumnDefs = (opts: BuildColumnDefsOptions): ConfigColumnDefs[
       columnClassName = 'dt-right';
     }
 
+    // Per-column style alignment overrides the global panel-level class so that
+    // both th (header) and td (body) honour the style's align setting.
+    const styleAlign = dtData.Columns[i].columnStyles?.[0]?.align;
+    if (styleAlign && styleAlign !== ColumnAlignment.DEFAULT) {
+      columnClassName = `dt-${styleAlign}`; // e.g. "dt-left", "dt-center", "dt-right"
+    }
     dtData.Columns[i].className = columnClassName;
     // NOTE: the width below is a "hint" and will be overridden as needed;
     // this lets most tables show timestamps at full width.

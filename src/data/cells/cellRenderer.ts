@@ -243,7 +243,7 @@ export const ReplaceCellMacros = (
   //
   // Replace $__cell with this cell's content $__cell word boundary
   //
-  formatted = formatted.replace(/\$__cell\b/g, () => cellContent);
+  formatted = formatted.replace(/\$__cell\b/g, () => cellContent ?? '');
 
   //
   // process $__cell_N
@@ -261,7 +261,7 @@ export const ReplaceCellMacros = (
     if (idx >= rows.length) {
       return fullMatch;
     }
-    return rows[idx].valueFormatted;
+    return rows[idx].valueFormatted ?? '';
   });
   return formatted;
 }
