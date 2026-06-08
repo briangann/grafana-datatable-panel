@@ -67,7 +67,10 @@ echo "▶ Running BASELINE tests against RELEASED plugin (v2.0.2)..."
 echo "  (${#BASELINE_TESTS[@]} test files — features that existed before our changes)"
 echo ""
 cd "$REPO_DIR"
-GRAFANA_URL="$RELEASED_URL" npx playwright test "${BASELINE_TESTS[@]}" --reporter=list || true
+# In CI skip the progress pass (no TTY, saves time); locally show live output.
+if [[ "${CI:-}" != "true" ]]; then
+  GRAFANA_URL="$RELEASED_URL" npx playwright test "${BASELINE_TESTS[@]}" --reporter=list || true
+fi
 GRAFANA_URL="$RELEASED_URL" npx playwright test "${BASELINE_TESTS[@]}" --reporter=json > "$RELEASED_JSON" 2>/dev/null || true
 echo "  JSON → $RELEASED_JSON"
 
@@ -77,7 +80,9 @@ echo "  JSON → $RELEASED_JSON"
 echo ""
 echo "▶ Running BASELINE tests against DEV build..."
 echo ""
-GRAFANA_URL="$DEV_URL" npx playwright test "${BASELINE_TESTS[@]}" --reporter=list || true
+if [[ "${CI:-}" != "true" ]]; then
+  GRAFANA_URL="$DEV_URL" npx playwright test "${BASELINE_TESTS[@]}" --reporter=list || true
+fi
 GRAFANA_URL="$DEV_URL" npx playwright test "${BASELINE_TESTS[@]}" --reporter=json > "$DEV_JSON" 2>/dev/null || true
 echo "  JSON → $DEV_JSON"
 
@@ -145,6 +150,7 @@ if regressions:
     for t, status in regressions:
         p(f"   • [{status}] {t}")
     p("\n   ↑ These are genuine bugs introduced by our changes.")
+    sys.exit(1)
 else:
     p("\n✅ No regressions in baseline tests")
     p("   Every baseline test that passed on v2.0.2 also passes on dev")
