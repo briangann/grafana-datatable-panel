@@ -306,7 +306,7 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
             lengthChange: props.options.lengthChangeEnabled,
             lengthMenu: (() => {
               const lengths: number[] = [5, 10, 25, 50, 75, 100, -1];
-              const labels: (string | number)[] = [5, 10, 25, 50, 75, 100, 'All'];
+              const labels: Array<string | number> = [5, 10, 25, 50, 75, 100, 'All'];
               const rpp = props.options.rowsPerPage || 10;
               if (rpp > 0 && !lengths.includes(rpp)) {
                 const idx = lengths.findIndex(l => l === -1 || l > rpp);
