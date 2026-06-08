@@ -362,6 +362,38 @@ describe('applyCreatedCell — jQuery CSS paths', () => {
     expect(yearCell.style.backgroundColor).toBe(metricCell.style.backgroundColor);
   });
 
+  it('worst-color: picks highest threshold state not array index when columns have different threshold counts', () => {
+    // Bug: bgColorIndex is a per-column array index, not a severity ordinal.
+    // Column A: 3 thresholds [state:0, state:1, state:2]. Value=15 → bgColorIndex=1, state=1.
+    // Column B: 2 thresholds [state:0, state:3]. Value=10 → bgColorIndex=1, state=3.
+    // Without fix: both bgColorIndex=1 → first-seen (A/orange) wins.
+    // With fix: state comparison → B (state=3) beats A (state=1) → B's color wins.
+    const colA = makeMetricColumn(ColumnStyleColoring.Row, [
+      { value: 0,  color: '#299c46', state: 0 },
+      { value: 10, color: '#ed8128', state: 1 }, // index=1, state=1
+      { value: 20, color: '#f53636', state: 2 },
+    ]);
+    const colB = makeMetricColumn(ColumnStyleColoring.Row, [
+      { value: 0, color: '#299c46', state: 0 },
+      { value: 5, color: '#a3007a', state: 3 }, // index=1, state=3 — must win
+    ]);
+
+    const valueA: FormattedColumnValue = { valueRaw: 15, valueFormatted: '15', valueRounded: 15, valueRoundedAndFormatted: '15' };
+    const valueB: FormattedColumnValue = { valueRaw: 10, valueFormatted: '10', valueRounded: 10, valueRoundedAndFormatted: '10' };
+    const flatRow: FlatRow = [valueA, valueB];
+
+    const ctx = makeCtx({
+      dtData: { Columns: [colA, colB], Rows: [flatRow] },
+      rowColorColumnIndices: [0, 1],
+    });
+
+    const cell = document.createElement('td');
+    applyCreatedCell(ctx, cell, null, flatRow, 0, 0);
+
+    // state=3 (colB) > state=1 (colA) — colB's color must win
+    expect(cell.style.backgroundColor).toBe('rgb(163, 0, 122)'); // #a3007a
+  });
+
   it('RowColumn mode — non-METRIC cells receive row color, METRIC cell keeps its own per-cell color', () => {
     // metricCol uses colorMode=RowColumn at index 0.
     // stringCol is a non-metric sibling at index 1 — should get the row color.
