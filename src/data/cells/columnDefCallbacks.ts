@@ -59,6 +59,11 @@ export function renderCell(
  * may be a NamedRow where numeric indexing returns undefined.
  */
 function applyRowColor(cell: HTMLElement, dtData: DTData, rowIndex: number): void {
+  // Skip the scan entirely when no column uses Row colorMode — O(cols) check
+  // avoids an O(cols) scan on every cell when the feature is not in use.
+  if (!dtData.Columns.some(c => c.columnStyles?.[0]?.metricStyle?.colorMode === ColumnStyleColoring.Row)) {
+    return;
+  }
   const flatRow = dtData.Rows[rowIndex];
   if (!flatRow) { return; }
   let worstColorIndex = -1;

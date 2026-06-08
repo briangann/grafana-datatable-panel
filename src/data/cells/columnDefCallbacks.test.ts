@@ -131,7 +131,6 @@ function makeCtx(overrides: Partial<CreatedCellContext> = {}): CreatedCellContex
     fontSizePercent: '100%',
     timeRange: {} as unknown as TimeRange,
     replaceVariables: (s: string) => s,
-    rowColorCache: new Map(),
     ...overrides,
   };
 }
