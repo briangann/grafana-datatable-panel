@@ -17,7 +17,7 @@ export const processRowColumnStyle = (
   let color = 'white';
   for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
     if (columnsInCellData[columnNumber].type !== undefined) {
-      if (columnsInCellData[columnNumber].columnStyles !== null) {
+      if (columnsInCellData[columnNumber].columnStyles) {
         let aColumnStyle = columnsInCellData[columnNumber].columnStyles[0];
         // need the style to get the color
         if (!aColumnStyle) {
@@ -57,7 +57,7 @@ export const processRowColumnStyle = (
     }
     // a metric style will already be applied and will indicate whatever threshold is met
     // for that cell, otherwise the cell needs to worst color.
-    if (columnsInCellData[columnNumber]?.columnStyles[0]?.activeStyle !== ColumnStyles.METRIC) {
+    if (columnsInCellData[columnNumber]?.columnStyles?.[0]?.activeStyle !== ColumnStyles.METRIC) {
       const children = $(cell.parentNode as HTMLElement).children();
       const aChild = children[columnNumber];
       if (rowColor) {
