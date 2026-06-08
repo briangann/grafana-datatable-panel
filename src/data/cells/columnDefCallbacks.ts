@@ -1,7 +1,6 @@
 import { CellMetaSettings } from 'datatables.net';
 import { InterpolateFunction, TimeRange } from '@grafana/data';
 import {
-  ColumnStyleColoring,
   ColumnStyles,
   DTData,
   FlatRow,
