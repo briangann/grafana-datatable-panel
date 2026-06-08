@@ -1,55 +1,52 @@
 import { expect, test } from '@grafana/plugin-e2e';
 
-// Datatable-RowColoring-Multi.json: 5 columns (Time, Host, CPU%, Memory%, Disk%)
-// ALL three metric columns use colorMode=row.
+// Datatable-RowColoring-Multi.json: 4 panels, 5 columns each
+// (Time, Host, CPU%, Memory%, Disk%) — all three metric columns use colorMode=row.
 //
-// colorMode=row behavior:
-//   - ALL cells in a row — including the METRIC cells — receive the WORST
-//     threshold color across all Row-mode columns, all via setProperty(!important).
-//   - The "worst" = highest bgColorIndex across CPU%, Memory%, Disk%.
+// colorMode=row: ALL cells in a row (including METRIC cells) get the worst
+// threshold color across all Row-mode columns, all via setProperty(!important).
 //
-// This verifies the multi-column worst-color logic in applyRowColor, which
-// iterates all entries in rowColorColumnIndices (3 columns here) and picks
-// the highest threshold index.
+// The four panels prove:
+//   Panel 0 — all green:  CPU/Mem/Disk all < 10   → every cell green
+//   Panel 1 — all orange: CPU/Mem/Disk all 10-19  → every cell orange
+//   Panel 2 — all red:    CPU/Mem/Disk all ≥ 20   → every cell red
+//   Panel 3 — worst wins: rows with different per-column thresholds;
+//             the highest threshold index drives the whole row
 
-const GREEN  = 'rgb(41, 156, 70)';   // #299c46
-const ORANGE = 'rgb(237, 129, 40)';  // #ed8128
-const RED    = 'rgb(245, 54, 54)';   // #f53636
-
-// Static CSV rows and expected worst row color:
-// Row 0: CPU=5(G),  Mem=5(G),  Disk=5(G)   → GREEN
-// Row 1: CPU=5(G),  Mem=15(O), Disk=5(G)   → ORANGE  (Memory worst)
-// Row 2: CPU=5(G),  Mem=5(G),  Disk=25(R)  → RED     (Disk worst)
-// Row 3: CPU=15(O), Mem=25(R), Disk=5(G)   → RED     (Memory worst)
-// Row 4: CPU=5(G),  Mem=15(O), Disk=15(O)  → ORANGE  (Memory/Disk tied)
-const ROW_WORST = [GREEN, ORANGE, RED, RED, ORANGE];
+const GREEN  = 'rgb(41, 156, 70)';
+const ORANGE = 'rgb(237, 129, 40)';
+const RED    = 'rgb(245, 54, 54)';
 
 const TOTAL_COLUMNS = 5; // Time, Host, CPU%, Memory%, Disk%
 
-test('row coloring (multi-metric) — worst threshold across CPU%/Memory%/Disk% colors ALL cells in every row', async ({
-  readProvisionedDashboard,
-  gotoDashboardPage,
-  page,
-}) => {
-  const dashboard = await readProvisionedDashboard({ fileName: 'dashboards/Datatable-RowColoring-Multi.json' });
-  await gotoDashboardPage({ uid: dashboard.uid });
+// Expected worst row color per row of the mixed panel (panel 3):
+// Row 0: CPU=5(G),  Mem=5(G),  Disk=5(G)   → GREEN
+// Row 1: CPU=5(G),  Mem=15(O), Disk=5(G)   → ORANGE  (Memory pushes)
+// Row 2: CPU=5(G),  Mem=5(G),  Disk=25(R)  → RED     (Disk pushes)
+// Row 3: CPU=15(O), Mem=25(R), Disk=5(G)   → RED     (Memory pushes)
+// Row 4: CPU=5(G),  Mem=15(O), Disk=15(O)  → ORANGE  (two columns at orange)
+const MIXED_ROW_WORST = [GREEN, ORANGE, RED, RED, ORANGE];
 
-  const table = page.locator('[data-testid="datatable-panel-table"]:has(tbody tr)').first();
+async function assertAllCellsSameColor(
+  page: import('@playwright/test').Page,
+  panelIndex: number,
+  expectedColor: string,
+  label: string,
+) {
+  const table = page.locator('[data-testid="datatable-panel-table"]:has(tbody tr)').nth(panelIndex);
 
-  await test.step('wait for rows to render', async () => {
+  await test.step(`wait for rows — ${label}`, async () => {
     await expect(table.locator('tbody tr').first()).toBeVisible({ timeout: 15000 });
   });
 
-  await test.step('every cell in every row has the worst row color with !important', async () => {
+  await test.step(`all cells have ${label} color with !important`, async () => {
     await expect
       .poll(
         async () => {
           const rows = table.locator('tbody tr');
-          if (await rows.count() !== ROW_WORST.length) {
-            return `expected ${ROW_WORST.length} rows, got ${await rows.count()}`;
-          }
-          for (let r = 0; r < ROW_WORST.length; r++) {
-            const expected = ROW_WORST[r];
+          const rowCount = await rows.count();
+          if (rowCount === 0) { return 'no rows'; }
+          for (let r = 0; r < rowCount; r++) {
             const cells = rows.nth(r).locator('td');
             const cellCount = await cells.count();
             if (cellCount !== TOTAL_COLUMNS) {
@@ -60,8 +57,8 @@ test('row coloring (multi-metric) — worst threshold across CPU%/Memory%/Disk% 
                 bg: el.style.backgroundColor,
                 priority: el.style.getPropertyPriority('background-color'),
               }));
-              if (result.bg !== expected) {
-                return `row ${r} col ${c}: expected worst color "${expected}", got "${result.bg}"`;
+              if (result.bg !== expectedColor) {
+                return `row ${r} col ${c}: expected "${expectedColor}", got "${result.bg}"`;
               }
               if (result.priority !== 'important') {
                 return `row ${r} col ${c}: expected !important, got "${result.priority}"`;
@@ -70,7 +67,75 @@ test('row coloring (multi-metric) — worst threshold across CPU%/Memory%/Disk% 
           }
           return 'ok';
         },
-        { timeout: 10000, message: 'all cells must have the worst row threshold color with !important' }
+        { timeout: 10000, message: `panel ${panelIndex}: all cells must be ${label} with !important` }
+      )
+      .toBe('ok');
+  });
+}
+
+test('row coloring (multi-metric) — all green when all metrics below threshold 10', async ({
+  readProvisionedDashboard, gotoDashboardPage, page,
+}) => {
+  const dashboard = await readProvisionedDashboard({ fileName: 'dashboards/Datatable-RowColoring-Multi.json' });
+  await gotoDashboardPage({ uid: dashboard.uid });
+  await assertAllCellsSameColor(page, 0, GREEN, 'green');
+});
+
+test('row coloring (multi-metric) — all orange when all metrics 10–19', async ({
+  readProvisionedDashboard, gotoDashboardPage, page,
+}) => {
+  const dashboard = await readProvisionedDashboard({ fileName: 'dashboards/Datatable-RowColoring-Multi.json' });
+  await gotoDashboardPage({ uid: dashboard.uid });
+  await assertAllCellsSameColor(page, 1, ORANGE, 'orange');
+});
+
+test('row coloring (multi-metric) — all red when all metrics ≥ 20', async ({
+  readProvisionedDashboard, gotoDashboardPage, page,
+}) => {
+  const dashboard = await readProvisionedDashboard({ fileName: 'dashboards/Datatable-RowColoring-Multi.json' });
+  await gotoDashboardPage({ uid: dashboard.uid });
+  await assertAllCellsSameColor(page, 2, RED, 'red');
+});
+
+test('row coloring (multi-metric) — worst threshold across columns colors entire row', async ({
+  readProvisionedDashboard, gotoDashboardPage, page,
+}) => {
+  const dashboard = await readProvisionedDashboard({ fileName: 'dashboards/Datatable-RowColoring-Multi.json' });
+  await gotoDashboardPage({ uid: dashboard.uid });
+
+  const table = page.locator('[data-testid="datatable-panel-table"]:has(tbody tr)').nth(3);
+
+  await test.step('wait for mixed panel rows', async () => {
+    await expect(table.locator('tbody tr').first()).toBeVisible({ timeout: 15000 });
+  });
+
+  await test.step('each row shows worst threshold color across all metric columns', async () => {
+    await expect
+      .poll(
+        async () => {
+          const rows = table.locator('tbody tr');
+          if (await rows.count() !== MIXED_ROW_WORST.length) {
+            return `expected ${MIXED_ROW_WORST.length} rows, got ${await rows.count()}`;
+          }
+          for (let r = 0; r < MIXED_ROW_WORST.length; r++) {
+            const expected = MIXED_ROW_WORST[r];
+            const cells = rows.nth(r).locator('td');
+            for (let c = 0; c < TOTAL_COLUMNS; c++) {
+              const result = await cells.nth(c).evaluate((el: HTMLElement) => ({
+                bg: el.style.backgroundColor,
+                priority: el.style.getPropertyPriority('background-color'),
+              }));
+              if (result.bg !== expected) {
+                return `row ${r} col ${c}: expected worst "${expected}", got "${result.bg}"`;
+              }
+              if (result.priority !== 'important') {
+                return `row ${r} col ${c}: expected !important, got "${result.priority}"`;
+              }
+            }
+          }
+          return 'ok';
+        },
+        { timeout: 10000, message: 'worst-color panel: each row must show the worst threshold across all metric columns' }
       )
       .toBe('ok');
   });

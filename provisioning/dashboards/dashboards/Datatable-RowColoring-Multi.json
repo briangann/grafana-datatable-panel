@@ -34,7 +34,7 @@
       },
       "gridPos": {
         "h": 10,
-        "w": 24,
+        "w": 12,
         "x": 0,
         "y": 0
       },
@@ -54,46 +54,46 @@
             },
             "enabled": true,
             "hiddenStyle": {},
-            "metricStyle": {
-              "alias": "",
-              "colorMode": "row",
-              "colors": [
-                "#299c46",
-                "#ed8128",
-                "#f53636"
-              ],
-              "decimals": "0",
-              "ignoreNullValues": true,
-              "thresholds": [
-                {
-                  "color": "#299c46",
-                  "state": 0,
-                  "value": 0
-                },
-                {
-                  "color": "#ed8128",
-                  "state": 1,
-                  "value": 10
-                },
-                {
-                  "color": "#f53636",
-                  "state": 2,
-                  "value": 20
-                }
-              ],
-              "unitFormat": "percent"
-            },
-            "stringStyle": {
-              "clickThrough": "",
-              "clickThroughCustomTarget": "",
-              "clickThroughCustomTargetEnabled": false,
-              "clickThroughOpenNewTab": true,
-              "clickThroughSanitize": true,
-              "splitByPattern": ""
-            },
             "label": "CPU%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
             "nameOrRegex": "CPU%",
-            "order": 0
+            "order": 0,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
           },
           {
             "activeStyle": "metric",
@@ -103,55 +103,7 @@
             },
             "enabled": true,
             "hiddenStyle": {},
-            "metricStyle": {
-              "alias": "",
-              "colorMode": "row",
-              "colors": [
-                "#299c46",
-                "#ed8128",
-                "#f53636"
-              ],
-              "decimals": "0",
-              "ignoreNullValues": true,
-              "thresholds": [
-                {
-                  "color": "#299c46",
-                  "state": 0,
-                  "value": 0
-                },
-                {
-                  "color": "#ed8128",
-                  "state": 1,
-                  "value": 10
-                },
-                {
-                  "color": "#f53636",
-                  "state": 2,
-                  "value": 20
-                }
-              ],
-              "unitFormat": "percent"
-            },
-            "stringStyle": {
-              "clickThrough": "",
-              "clickThroughCustomTarget": "",
-              "clickThroughCustomTargetEnabled": false,
-              "clickThroughOpenNewTab": true,
-              "clickThroughSanitize": true,
-              "splitByPattern": ""
-            },
             "label": "Memory%",
-            "nameOrRegex": "Memory%",
-            "order": 1
-          },
-          {
-            "activeStyle": "metric",
-            "align": "default",
-            "dateStyle": {
-              "dateFormat": "YYYY-MM-DD HH:mm:ss"
-            },
-            "enabled": true,
-            "hiddenStyle": {},
             "metricStyle": {
               "alias": "",
               "colorMode": "row",
@@ -181,6 +133,8 @@
               ],
               "unitFormat": "percent"
             },
+            "nameOrRegex": "Memory%",
+            "order": 1,
             "stringStyle": {
               "clickThrough": "",
               "clickThroughCustomTarget": "",
@@ -188,10 +142,773 @@
               "clickThroughOpenNewTab": true,
               "clickThroughSanitize": true,
               "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
             },
+            "enabled": true,
+            "hiddenStyle": {},
             "label": "Disk%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
             "nameOrRegex": "Disk%",
-            "order": 2
+            "order": 2,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "date",
+            "align": "left",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Time",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "/Time/",
+            "order": 3,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [],
+        "compactRowsEnabled": true,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": false,
+        "lengthChangeEnabled": false,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": false,
+        "rowsPerPage": 10,
+        "scroll": false,
+        "searchEnabled": false,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": false,
+        "transformation": "table",
+        "transformationAggregations": [
+          "last"
+        ],
+        "wrapToFitEnabled": true
+      },
+      "pluginVersion": "2.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "P53465F745837BCFD"
+          },
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Time,Host,CPU%,Memory%,Disk%\n2024-01-01T00:00:00Z,alpha,2,3,1\n2024-01-01T00:01:00Z,beta,3,4,2\n2024-01-01T00:02:00Z,gamma,4,5,3\n2024-01-01T00:03:00Z,delta,5,6,4\n2024-01-01T00:04:00Z,epsilon,6,7,5"
+        }
+      ],
+      "title": "Row color \u2014 all green (CPU/Mem/Disk all < 10)",
+      "type": "briangann-datatable-panel"
+    },
+    {
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "P53465F745837BCFD"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 0
+      },
+      "id": 2,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "metric",
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "CPU%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
+            "nameOrRegex": "CPU%",
+            "order": 0,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Memory%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
+            "nameOrRegex": "Memory%",
+            "order": 1,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Disk%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
+            "nameOrRegex": "Disk%",
+            "order": 2,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "date",
+            "align": "left",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Time",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "/Time/",
+            "order": 3,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [],
+        "compactRowsEnabled": true,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": false,
+        "lengthChangeEnabled": false,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": false,
+        "rowsPerPage": 10,
+        "scroll": false,
+        "searchEnabled": false,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": false,
+        "transformation": "table",
+        "transformationAggregations": [
+          "last"
+        ],
+        "wrapToFitEnabled": true
+      },
+      "pluginVersion": "2.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "P53465F745837BCFD"
+          },
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Time,Host,CPU%,Memory%,Disk%\n2024-01-01T00:00:00Z,alpha,10,11,12\n2024-01-01T00:01:00Z,beta,11,12,13\n2024-01-01T00:02:00Z,gamma,12,13,14\n2024-01-01T00:03:00Z,delta,13,14,15\n2024-01-01T00:04:00Z,epsilon,14,15,16"
+        }
+      ],
+      "title": "Row color \u2014 all orange (CPU/Mem/Disk 10\u201319)",
+      "type": "briangann-datatable-panel"
+    },
+    {
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "P53465F745837BCFD"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 0,
+        "y": 10
+      },
+      "id": 3,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "metric",
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "CPU%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
+            "nameOrRegex": "CPU%",
+            "order": 0,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Memory%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
+            "nameOrRegex": "Memory%",
+            "order": 1,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Disk%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
+            "nameOrRegex": "Disk%",
+            "order": 2,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "date",
+            "align": "left",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Time",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "disabled",
+              "colors": [],
+              "decimals": "2",
+              "ignoreNullValues": true,
+              "thresholds": [],
+              "unitFormat": "short"
+            },
+            "nameOrRegex": "/Time/",
+            "order": 3,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          }
+        ],
+        "columnWidthHints": [],
+        "compactRowsEnabled": true,
+        "datatablePagingType": "simple_numbers",
+        "emptyDataEnabled": true,
+        "emptyDataText": "",
+        "fontSizePercent": "100%",
+        "hoverEnabled": true,
+        "infoEnabled": false,
+        "lengthChangeEnabled": false,
+        "orderColumnEnabled": false,
+        "rowNumbersEnabled": false,
+        "rowsPerPage": 10,
+        "scroll": false,
+        "searchEnabled": false,
+        "searchHighlightingEnabled": false,
+        "stripedRowsEnabled": false,
+        "transformation": "table",
+        "transformationAggregations": [
+          "last"
+        ],
+        "wrapToFitEnabled": true
+      },
+      "pluginVersion": "2.0.0",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-testdata-datasource",
+            "uid": "P53465F745837BCFD"
+          },
+          "refId": "A",
+          "scenarioId": "csv_content",
+          "csvContent": "Time,Host,CPU%,Memory%,Disk%\n2024-01-01T00:00:00Z,alpha,20,21,22\n2024-01-01T00:01:00Z,beta,22,23,24\n2024-01-01T00:02:00Z,gamma,24,25,26\n2024-01-01T00:03:00Z,delta,26,27,28\n2024-01-01T00:04:00Z,epsilon,28,29,30"
+        }
+      ],
+      "title": "Row color \u2014 all red (CPU/Mem/Disk \u2265 20)",
+      "type": "briangann-datatable-panel"
+    },
+    {
+      "datasource": {
+        "type": "grafana-testdata-datasource",
+        "uid": "P53465F745837BCFD"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "mappings": []
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 12,
+        "x": 12,
+        "y": 10
+      },
+      "id": 4,
+      "options": {
+        "alignNumbersToRightEnabled": true,
+        "alignStringsToRightEnabled": false,
+        "columnAliases": [],
+        "columnFiltersEnabled": false,
+        "columnSorting": [],
+        "columnStylesConfig": [
+          {
+            "activeStyle": "metric",
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "CPU%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
+            "nameOrRegex": "CPU%",
+            "order": 0,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Memory%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
+            "nameOrRegex": "Memory%",
+            "order": 1,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
+          },
+          {
+            "activeStyle": "metric",
+            "align": "default",
+            "dateStyle": {
+              "dateFormat": "YYYY-MM-DD HH:mm:ss"
+            },
+            "enabled": true,
+            "hiddenStyle": {},
+            "label": "Disk%",
+            "metricStyle": {
+              "alias": "",
+              "colorMode": "row",
+              "colors": [
+                "#299c46",
+                "#ed8128",
+                "#f53636"
+              ],
+              "decimals": "0",
+              "ignoreNullValues": true,
+              "thresholds": [
+                {
+                  "color": "#299c46",
+                  "state": 0,
+                  "value": 0
+                },
+                {
+                  "color": "#ed8128",
+                  "state": 1,
+                  "value": 10
+                },
+                {
+                  "color": "#f53636",
+                  "state": 2,
+                  "value": 20
+                }
+              ],
+              "unitFormat": "percent"
+            },
+            "nameOrRegex": "Disk%",
+            "order": 2,
+            "stringStyle": {
+              "clickThrough": "",
+              "clickThroughCustomTarget": "",
+              "clickThroughCustomTargetEnabled": false,
+              "clickThroughOpenNewTab": true,
+              "clickThroughSanitize": true,
+              "splitByPattern": ""
+            }
           },
           {
             "activeStyle": "date",
@@ -257,7 +974,7 @@
           "csvContent": "Time,Host,CPU%,Memory%,Disk%\n2024-01-01T00:00:00Z,alpha,5,5,5\n2024-01-01T00:01:00Z,beta,5,15,5\n2024-01-01T00:02:00Z,gamma,5,5,25\n2024-01-01T00:03:00Z,delta,15,25,5\n2024-01-01T00:04:00Z,epsilon,5,15,15"
         }
       ],
-      "title": "Row coloring \u2014 CPU%/Memory%/Disk% with row mode; ALL cells get worst row color",
+      "title": "Row color \u2014 worst wins (mixed thresholds per column per row)",
       "type": "briangann-datatable-panel"
     }
   ],
@@ -269,7 +986,7 @@
   },
   "time": {
     "from": "2024-01-01T00:00:00Z",
-    "to": "2024-01-01T00:10:00Z"
+    "to": "2024-01-01T00:15:00Z"
   },
   "timepicker": {},
   "timezone": "browser",
