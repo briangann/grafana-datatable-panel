@@ -2,14 +2,6 @@ import { GrafanaTheme2 } from '@grafana/data';
 import { css } from '@emotion/css';
 import 'datatables.net-dt/css/dataTables.dataTables.min.css';
 
-const inputBase = {
-  border: '1px solid #aaa',
-  borderRadius: '3px',
-  padding: '5px',
-  backgroundColor: 'transparent',
-  color: 'inherit',
-} as const;
-
 export const datatableThemedStyles = (theme: GrafanaTheme2) =>
   css({
     width: '100%',
@@ -58,18 +50,14 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
       flex: 1,
       minHeight: 0,
     },
+    // Upstream provides border/borderRadius/padding/backgroundColor/color for
+    // .dt-input and .dt-search input; we only add the plugin-specific sizing.
     'div.dt-container .dt-input': {
-      ...inputBase,
       marginRight: '5px',
       height: '30px',
       width: '65px',
     },
-    'div.dt-container select.dt-input': {
-      padding: '4px',
-    },
     'div.dt-container .dt-search input': {
-      ...inputBase,
-      marginLeft: '3px',
       width: '150px',
     },
     'div.dt-container .dt-paging .dt-paging-button.current, \
