@@ -14,7 +14,7 @@ services:
       - "3001:3000/tcp"
     volumes:
       - ./provisioning:/etc/grafana/provisioning
-      # Mount the host plugin cache dir so GF_INSTALL_PLUGINS can use file:// paths.
+      # Mount the host plugin cache dir so GF_PLUGINS_PREINSTALL can use file:// paths.
       # The directory is created by the workflow before docker compose up.
       - /tmp/plugin-release-cache:/var/lib/grafana/plugin-cache:ro
     environment:
@@ -24,10 +24,9 @@ services:
       - GF_AUTH_DISABLE_LOGIN_FORM=false
       - GF_FEATURE_TOGGLES_ENABLE=nestedFolders
       - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=briangann-datatable-panel
-      # Install released plugin — override with GF_INSTALL_PLUGINS env var to use
-      # a local cached ZIP in CI (avoids re-downloading on every run).
+      # Install released plugin — override with GF_PLUGINS_PREINSTALL_DATATABLE env var
+      # to use a local cached ZIP in CI (avoids re-downloading on every run).
       # Default: fetch directly from GitHub releases.
-      - GF_INSTALL_PLUGINS=${GF_INSTALL_PLUGINS:-https://github.com/briangann/grafana-datatable-panel/releases/download/v2.0.2/briangann-datatable-panel-2.0.2.zip;briangann-datatable-panel}
-      # Infinity datasource required by example dashboards
-      - GF_PLUGINS_PREINSTALL=yesoreyeram-infinity-datasource
+      # GF_PLUGINS_PREINSTALL replaces the deprecated GF_INSTALL_PLUGINS (Grafana 10+).
+      - GF_PLUGINS_PREINSTALL=${GF_PLUGINS_PREINSTALL_DATATABLE:-https://github.com/briangann/grafana-datatable-panel/releases/download/v2.0.2/briangann-datatable-panel-2.0.2.zip;briangann-datatable-panel},yesoreyeram-infinity-datasource
       - GF_LOG_LEVEL=warn

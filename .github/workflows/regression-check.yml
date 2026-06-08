@@ -92,7 +92,8 @@ jobs:
           # Released container — use container-side path to the cached ZIP.
           # /tmp/plugin-release-cache is mounted into the container at
           # /var/lib/grafana/plugin-cache (see docker-compose.released.yml).
-          GF_INSTALL_PLUGINS="file:///var/lib/grafana/plugin-cache/plugin-${VER}.zip;briangann-datatable-panel" \
+          # GF_PLUGINS_PREINSTALL_DATATABLE overrides the default remote URL.
+          GF_PLUGINS_PREINSTALL_DATATABLE="file:///var/lib/grafana/plugin-cache/plugin-${VER}.zip;briangann-datatable-panel" \
             docker compose -f docker-compose.released.yml up -d &
 
           wait
