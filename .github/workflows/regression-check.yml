@@ -18,7 +18,6 @@ jobs:
     name: Baseline regression check (v2.0.2 vs dev)
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    needs: []   # independent — no need to wait for the main build job
     permissions:
       contents: read
 
