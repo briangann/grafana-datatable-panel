@@ -17,6 +17,10 @@ export type CreatedCellContext = {
   fontSizePercent: string;
   timeRange: TimeRange;
   replaceVariables: InterpolateFunction;
+  // Pre-computed at BuildColumnDefs time: indices of columns that use
+  // colorMode=Row. applyRowColor only scans these instead of all columns,
+  // reducing per-cell cost from O(cols) to O(k) where k is usually 0 or 1.
+  rowColorColumnIndices: number[];
 };
 
 /**
@@ -58,24 +62,33 @@ export function renderCell(
  * (ctx.dtData.Rows[rowIndex]) rather than DataTables' internal rowData, which
  * may be a NamedRow where numeric indexing returns undefined.
  */
-function applyRowColor(cell: HTMLElement, dtData: DTData, rowIndex: number): void {
-  // Skip the scan entirely when no column uses Row colorMode — O(cols) check
-  // avoids an O(cols) scan on every cell when the feature is not in use.
-  if (!dtData.Columns.some(c => c.columnStyles?.[0]?.metricStyle?.colorMode === ColumnStyleColoring.Row)) {
-    return;
-  }
+/**
+ * Paints the Row-mode threshold color onto `cell`.
+ *
+ * Only the columns listed in `rowColorColumnIndices` are scanned — those are
+ * the METRIC/Row columns pre-identified by BuildColumnDefs. If the list is
+ * empty the function returns immediately with no work done (O(1)), keeping
+ * tables without row coloring at zero overhead per cell.
+ *
+ * When multiple Row-mode columns exist the one with the highest threshold
+ * index (worst state) wins — consistent with how DataTables renders ordering.
+ */
+function applyRowColor(cell: HTMLElement, dtData: DTData, rowIndex: number, rowColorColumnIndices: number[]): void {
+  // No Row-mode columns — nothing to do.
+  if (rowColorColumnIndices.length === 0) { return; }
+
   const flatRow = dtData.Rows[rowIndex];
   if (!flatRow) { return; }
+
   let worstColorIndex = -1;
   let worstBg: string | null = null;
   let worstFg: string | null = null;
-  for (let k = 0; k < dtData.Columns.length; k++) {
+
+  // Only iterate the pre-identified Row-mode column indices (usually 1),
+  // not all columns, keeping this O(k) where k << total column count.
+  for (const k of rowColorColumnIndices) {
     const col = dtData.Columns[k];
-    if (!col.columnStyles?.length) { continue; }
     const s = col.columnStyles[0];
-    if (s.activeStyle !== ColumnStyles.METRIC) { continue; }
-    if (!s.metricStyle) { continue; }
-    if (s.metricStyle.colorMode !== ColumnStyleColoring.Row) { continue; }
     const cellEntry = flatRow[k];
     if (typeof cellEntry !== 'object' || cellEntry === null) { continue; }
     const colorData = getCellColors(s, cellEntry as FormattedColumnValue);
@@ -85,6 +98,7 @@ function applyRowColor(cell: HTMLElement, dtData: DTData, rowIndex: number): voi
       worstFg = colorData.color;
     }
   }
+
   if (worstBg) {
     cell.style.setProperty('color', worstFg ?? 'white', 'important');
     cell.style.setProperty('background-color', worstBg, 'important');
@@ -112,7 +126,7 @@ export function applyCreatedCell(
   }
   $cell.css('font-size', ctx.fontSizePercent);
 
-  applyRowColor(cell, ctx.dtData, rowIndex);
+  applyRowColor(cell, ctx.dtData, rowIndex, ctx.rowColorColumnIndices);
 
   const aColumn = ctx.dtData.Columns[colIndex];
   if (!aColumn || aColumn.columnStyles.length === 0) {

@@ -131,6 +131,8 @@ function makeCtx(overrides: Partial<CreatedCellContext> = {}): CreatedCellContex
     fontSizePercent: '100%',
     timeRange: {} as unknown as TimeRange,
     replaceVariables: (s: string) => s,
+    // Empty by default; override in tests that exercise row coloring
+    rowColorColumnIndices: [],
     ...overrides,
   };
 }
@@ -339,6 +341,8 @@ describe('applyCreatedCell — jQuery CSS paths', () => {
 
     const ctx = makeCtx({
       dtData: { Columns: [metricCol, yearCol], Rows: [flatRow] },
+      // metricCol is at index 0 — pre-computed as BuildColumnDefs would produce
+      rowColorColumnIndices: [0],
     });
 
     const tr = document.createElement('tr');
