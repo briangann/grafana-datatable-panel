@@ -1,0 +1,140 @@
+name: Regression Check
+
+# Manual trigger only — run when you're ready to verify before merging.
+# Usage:
+#   gh workflow run regression-check.yml --ref <branch>
+#   Or: GitHub Actions UI → "Run workflow"
+on:
+  workflow_dispatch:
+    inputs:
+      released_version:
+        description: 'Pin a specific released version (e.g. v2.0.2). Leave blank to use the latest version from the Grafana catalog.'
+        required: false
+        default: ''
+
+# Cancel a previous run for the same ref if a new one is triggered.
+concurrency:
+  group: regression-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions: {}
+
+jobs:
+  regression-check:
+    name: Baseline regression check (${{ inputs.released_version || 'latest catalog' }} vs dev)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        with:
+          persist-credentials: false
+
+      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093  # v6.0.8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        with:
+          node-version: '24'
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        run: echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache pnpm store
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        with:
+          path: ${{ steps.pnpm-cache.outputs.store }}
+          key: node-cache-${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: node-cache-${{ runner.os }}-${{ runner.arch }}-pnpm-
+
+      - name: Cache released plugin ZIP
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        with:
+          path: /tmp/plugin-release-cache
+          key: plugin-release-${{ inputs.released_version }}
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile --prefer-offline
+
+      - name: Build plugin
+        run: pnpm run build
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      # -----------------------------------------------------------------------
+      # Start both containers simultaneously — they can pull/init in parallel.
+      # Dev on port 3000, released on port 3001.
+      # -----------------------------------------------------------------------
+      - name: Start dev and released containers
+        env:
+          RELEASED_VERSION: ${{ inputs.released_version }}
+        run: |
+          mkdir -p /tmp/plugin-release-cache
+
+          # If a specific version was requested, cache its ZIP and use that.
+          # Otherwise leave GF_PLUGINS_PREINSTALL_DATATABLE unset — the released
+          # container will install the latest version from the Grafana catalog.
+          DATATABLE_OVERRIDE=""
+          if [ -n "$RELEASED_VERSION" ]; then
+            VER="${RELEASED_VERSION#v}"
+            ZIP_URL="https://github.com/briangann/grafana-datatable-panel/releases/download/${RELEASED_VERSION}/briangann-datatable-panel-${VER}.zip"
+            if [ ! -f "/tmp/plugin-release-cache/plugin-${VER}.zip" ]; then
+              # -sSfL: silent, show errors, fail on HTTP errors, follow redirects
+              curl -sSfL "$ZIP_URL" -o "/tmp/plugin-release-cache/plugin-${VER}.zip"
+            fi
+            DATATABLE_OVERRIDE="file:///var/lib/grafana/plugin-cache/plugin-${VER}.zip;briangann-datatable-panel"
+          fi
+
+          # Dev container
+          ANONYMOUS_AUTH_ENABLED=false DEVELOPMENT=false \
+            GRAFANA_VERSION=13.0.2 GRAFANA_IMAGE=grafana-oss \
+            docker compose up -d &
+
+          # Released container — uses latest from Grafana catalog unless
+          # DATATABLE_OVERRIDE is set (pinned version via workflow input).
+          GF_PLUGINS_PREINSTALL_DATATABLE="$DATATABLE_OVERRIDE" \
+            docker compose -f docker-compose.released.yml up -d &
+
+          wait
+          echo "Both containers started"
+
+      - name: Wait for both containers
+        run: |
+          for port in 3000 3001; do
+            for i in $(seq 1 30); do
+              if curl -sf "http://localhost:${port}/api/health" 2>/dev/null | grep -q '"database": "ok"'; then
+                echo "Port ${port} ready after ${i}s"
+                break
+              fi
+              sleep 2
+            done
+          done
+
+      # -----------------------------------------------------------------------
+      # Playwright auth must run sequentially (shared auth file).
+      # After auth, run JSON captures in parallel against both containers.
+      # -----------------------------------------------------------------------
+      - name: Run baseline regression check
+        id: regression
+        env:
+          CI: "true"
+          RELEASED_VERSION: ${{ inputs.released_version }}
+        run: ./scripts/baseline-regression-check.sh
+
+      - name: Upload regression results
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        with:
+          name: regression-results-${{ github.run_id }}
+          path: /tmp/pw-baseline-regression/
+          retention-days: 7
+
+      - name: Stop containers
+        if: always()
+        run: |
+          docker compose down || true
+          docker compose -f docker-compose.released.yml down || true
