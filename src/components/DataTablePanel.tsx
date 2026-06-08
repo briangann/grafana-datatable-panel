@@ -399,34 +399,20 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     <div
       id={dataTableWrapperId}
       className={divStyles}
-      style={{ width: '100%', height: '100%', position: 'relative' }}
       data-testid="datatable-panel-container"
     >
       {!dataTableReady && (
-        <div
-          data-testid="datatable-panel-loading"
-          style={{
-            position: 'absolute',
-            inset: 0,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            zIndex: 1,
-            background: theme2.colors.background.primary,
-            color: theme2.colors.text.secondary,
-          }}
-        >
+        <div data-testid="datatable-panel-loading">
           Loading... please wait
         </div>
       )}
       {hasData && props.data && (
         <table
           data-testid="datatable-panel-table"
-          style={{ width: '100%', visibility: dataTableReady ? 'visible' : 'hidden' }}
+          style={{ visibility: dataTableReady ? 'visible' : 'hidden' }}
           id={dataTableId}
           ref={dataTableDOMRef}
           className={dataTableClassesEnabled.join(' ')}
-          width="100%"
         />
       )}
     </div>

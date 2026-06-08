@@ -13,6 +13,8 @@ const inputBase = {
 export const datatableThemedStyles = (theme: GrafanaTheme2) =>
   css({
     width: '100%',
+    height: '100%',
+    position: 'relative',
     display: 'flex',
     flexDirection: 'column',
     'table.dataTable.hover tbody tr:hover > *': {
@@ -76,4 +78,14 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
         border: theme.isDark ? '1px solid black !important' : '1px solid #797979',
         backgroundColor: theme.isDark ? '#6d6767' : 'white',
       },
+    '[data-testid="datatable-panel-loading"]': {
+      position: 'absolute',
+      inset: 0,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      zIndex: 1,
+      background: theme.colors.background.primary,
+      color: theme.colors.text.secondary,
+    },
 });
