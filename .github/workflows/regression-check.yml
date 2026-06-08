@@ -1,21 +1,22 @@
 name: Regression Check
 
-# Run on PRs to main to catch any test that passed on the released plugin
-# but now fails on the PR's dev build — a genuine regression.
+# Manual trigger only — run when you're ready to verify before merging.
+# Usage:
+#   gh workflow run regression-check.yml --ref <branch>
+#   Or: GitHub Actions UI → "Run workflow"
 on:
-  pull_request:
-    branches:
-      - main
-
-concurrency:
-  group: regression-${{ github.ref }}
-  cancel-in-progress: true
+  workflow_dispatch:
+    inputs:
+      released_version:
+        description: 'Released plugin version to compare against'
+        required: false
+        default: 'v2.0.2'
 
 permissions: {}
 
 jobs:
   regression-check:
-    name: Baseline regression check (v2.0.2 vs dev)
+    name: Baseline regression check (${{ inputs.released_version }} vs dev)
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -44,6 +45,12 @@ jobs:
           key: node-cache-${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: node-cache-${{ runner.os }}-${{ runner.arch }}-pnpm-
 
+      - name: Cache released plugin ZIP
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        with:
+          path: /tmp/plugin-release-cache
+          key: plugin-release-${{ inputs.released_version }}
+
       - name: Install dependencies
         run: pnpm install --frozen-lockfile --prefer-offline
 
@@ -54,50 +61,56 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       # -----------------------------------------------------------------------
-      # Dev container (port 3000): current PR build, Grafana 13.0.2
+      # Start both containers simultaneously — they can pull/init in parallel.
+      # Dev on port 3000, released on port 3001.
       # -----------------------------------------------------------------------
-      - name: Start dev container (current build)
+      - name: Start dev and released containers
+        env:
+          RELEASED_VERSION: ${{ inputs.released_version }}
         run: |
-          docker compose pull
+          # Strip leading 'v' for the ZIP filename (v2.0.2 → 2.0.2)
+          VER="${RELEASED_VERSION#v}"
+          ZIP_URL="https://github.com/briangann/grafana-datatable-panel/releases/download/${RELEASED_VERSION}/briangann-datatable-panel-${VER}.zip"
+
+          # Use cached ZIP if available, otherwise let Grafana download it
+          mkdir -p /tmp/plugin-release-cache
+          if [ ! -f "/tmp/plugin-release-cache/plugin-${VER}.zip" ]; then
+            curl -sL "$ZIP_URL" -o "/tmp/plugin-release-cache/plugin-${VER}.zip"
+          fi
+
+          # Dev container
           ANONYMOUS_AUTH_ENABLED=false DEVELOPMENT=false \
             GRAFANA_VERSION=13.0.2 GRAFANA_IMAGE=grafana-oss \
-            docker compose up -d
+            docker compose up -d &
 
-      - name: Wait for dev Grafana
+          # Released container — override GF_INSTALL_PLUGINS to use local ZIP
+          GF_INSTALL_PLUGINS="file:///tmp/plugin-release-cache/plugin-${VER}.zip;briangann-datatable-panel" \
+            docker compose -f docker-compose.released.yml up -d &
+
+          wait
+          echo "Both containers started"
+
+      - name: Wait for both containers
         run: |
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:3000/api/health | grep -q '"database": "ok"'; then
-              echo "Dev Grafana ready after ${i}s"
-              break
-            fi
-            sleep 2
+          for port in 3000 3001; do
+            for i in $(seq 1 30); do
+              if curl -sf "http://localhost:${port}/api/health" 2>/dev/null | grep -q '"database": "ok"'; then
+                echo "Port ${port} ready after ${i}s"
+                break
+              fi
+              sleep 2
+            done
           done
 
       # -----------------------------------------------------------------------
-      # Released container (port 3001): v2.0.2 from GitHub releases
-      # -----------------------------------------------------------------------
-      - name: Start released container (v2.0.2)
-        run: docker compose -f docker-compose.released.yml up -d
-
-      - name: Wait for released Grafana
-        run: |
-          for i in $(seq 1 30); do
-            if curl -sf http://localhost:3001/api/health | grep -q '"database": "ok"'; then
-              echo "Released Grafana ready after ${i}s"
-              break
-            fi
-            sleep 2
-          done
-
-      # -----------------------------------------------------------------------
-      # Run baseline regression check
-      # CI=true skips the progress (list reporter) pass — only JSON capture runs.
-      # Script exits 1 if any baseline test that passed on v2.0.2 fails on dev.
+      # Playwright auth must run sequentially (shared auth file).
+      # After auth, run JSON captures in parallel against both containers.
       # -----------------------------------------------------------------------
       - name: Run baseline regression check
         id: regression
         env:
           CI: "true"
+          RELEASED_VERSION: ${{ inputs.released_version }}
         run: ./scripts/baseline-regression-check.sh
 
       - name: Upload regression results
