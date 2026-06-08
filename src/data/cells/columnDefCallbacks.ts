@@ -57,12 +57,6 @@ export function renderCell(
 }
 
 /**
- * Scans all columns in the row for the METRIC/Row column with the worst
- * threshold and paints that color onto `cell`. Uses our FlatRow directly
- * (ctx.dtData.Rows[rowIndex]) rather than DataTables' internal rowData, which
- * may be a NamedRow where numeric indexing returns undefined.
- */
-/**
  * Paints the Row-mode threshold color onto `cell`.
  *
  * Only the columns listed in `rowColorColumnIndices` are scanned — those are
@@ -73,11 +67,9 @@ export function renderCell(
  * When multiple Row-mode columns exist the one with the highest threshold
  * index (worst state) wins — consistent with how DataTables renders ordering.
  */
-function applyRowColor(cell: HTMLElement, dtData: DTData, rowIndex: number, rowColorColumnIndices: number[]): void {
+function applyRowColor(cell: HTMLElement, flatRow: FlatRow | undefined, dtData: DTData, rowColorColumnIndices: number[]): void {
   // No Row-mode columns — nothing to do.
   if (rowColorColumnIndices.length === 0) { return; }
-
-  const flatRow = dtData.Rows[rowIndex];
   if (!flatRow) { return; }
 
   let worstColorIndex = -1;
@@ -126,17 +118,17 @@ export function applyCreatedCell(
   }
   $cell.css('font-size', ctx.fontSizePercent);
 
-  applyRowColor(cell, ctx.dtData, rowIndex, ctx.rowColorColumnIndices);
+  const aRow = ctx.dtData.Rows[rowIndex];
+  applyRowColor(cell, aRow, ctx.dtData, ctx.rowColorColumnIndices);
 
   const aColumn = ctx.dtData.Columns[colIndex];
   if (!aColumn || aColumn.columnStyles.length === 0) {
     return;
   }
-  const cellContent = $(cell).html();
+  const cellContent = $cell.html();
   if (cellContent === null || rowData === null) {
     return;
   }
-  const aRow = ctx.dtData.Rows[rowIndex];
   if (!aRow) {
     return;
   }
