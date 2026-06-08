@@ -1,0 +1,28 @@
+# Runs the latest RELEASED plugin (v2.0.2) on port 3001 for regression comparison.
+# Usage: docker compose -f docker-compose.released.yml up -d
+#
+# The released plugin is installed from the GitHub release ZIP so no local
+# build is required. Use the same provisioned dashboards as the dev container
+# so the same e2e tests can run against both.
+services:
+  grafana-released:
+    platform: 'linux/amd64'
+    image: grafana/grafana-oss:13.0.2
+    container_name: briangann-datatable-panel-released
+    user: root
+    ports:
+      - "3001:3000/tcp"
+    volumes:
+      - ./provisioning:/etc/grafana/provisioning
+    environment:
+      - TERM=linux
+      - GF_AUTH_ANONYMOUS_ENABLED=true
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=false
+      - GF_FEATURE_TOGGLES_ENABLE=nestedFolders
+      - GF_PLUGINS_ALLOW_LOADING_UNSIGNED_PLUGINS=briangann-datatable-panel
+      # Install released plugin from GitHub release ZIP
+      - GF_INSTALL_PLUGINS=https://github.com/briangann/grafana-datatable-panel/releases/download/v2.0.2/briangann-datatable-panel-2.0.2.zip;briangann-datatable-panel
+      # Infinity datasource required by example dashboards
+      - GF_PLUGINS_PREINSTALL=yesoreyeram-infinity-datasource
+      - GF_LOG_LEVEL=warn
