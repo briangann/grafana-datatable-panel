@@ -49,6 +49,8 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
     clear: 'both',
     borderCollapse: 'separate',
     borderSpacing: 0,
+    display: 'flex',
+    flexDirection: 'column',
     'table.dataTable.hover tbody tr:hover > *': {
       backgroundColor: theme.isDark ? 'rgb(72, 72, 72) !important' : 'rgb(202,202,202) !important',
     },
@@ -77,8 +79,18 @@ export const datatableThemedStyles = (theme: GrafanaTheme2) =>
         background: 'transparent',
         boxShadow: 'none',
     },
+    'div.dt-container': {
+      flex: 1,
+      display: 'flex',
+      flexDirection: 'column',
+      padding: '0 6px',
+    },
     'div.dt-container div.dt-layout-row': {
-      margin: '6px',
+      margin: '6px 0',
+    },
+    'div.dt-container div.dt-layout-row.dt-layout-table': {
+      flex: 1,
+      minHeight: 0,
     },
     'div.dt-container .dt-input': {
       border: '1px solid #aaa',
@@ -702,9 +714,12 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
        * Control feature layout
        */
       'div.dt-container': {
-        //color: 'aqua',
         position: 'relative',
         clear: 'both',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        padding: '0 6px',
       },
       'div.dt-container div.dt-layout-row': {
         display: 'table',
@@ -713,6 +728,8 @@ export const getDatatableThemedStyles = (theme: GrafanaTheme2) =>
       },
       'div.dt-container div.dt-layout-row.dt-layout-table': {
         display: 'block',
+        flex: 1,
+        minHeight: 0,
       },
       'div.dt-container div.dt-layout-row.dt-layout-table div.dt-layout-cell': {
         display: 'block',
