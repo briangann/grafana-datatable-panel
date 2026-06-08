@@ -53,8 +53,43 @@ export function renderCell(
 }
 
 /**
+ * Scans all columns in the row for the METRIC/Row column with the worst
+ * threshold and paints that color onto `cell`. Uses our FlatRow directly
+ * (ctx.dtData.Rows[rowIndex]) rather than DataTables' internal rowData, which
+ * may be a NamedRow where numeric indexing returns undefined.
+ */
+function applyRowColor(cell: HTMLElement, dtData: DTData, rowIndex: number): void {
+  const flatRow = dtData.Rows[rowIndex];
+  if (!flatRow) { return; }
+  let worstColorIndex = -1;
+  let worstBg: string | null = null;
+  let worstFg: string | null = null;
+  for (let k = 0; k < dtData.Columns.length; k++) {
+    const col = dtData.Columns[k];
+    if (!col.columnStyles?.length) { continue; }
+    const s = col.columnStyles[0];
+    if (s.activeStyle !== ColumnStyles.METRIC) { continue; }
+    if (!s.metricStyle) { continue; }
+    if (s.metricStyle.colorMode !== ColumnStyleColoring.Row) { continue; }
+    const cellEntry = flatRow[k];
+    if (typeof cellEntry !== 'object' || cellEntry === null) { continue; }
+    const colorData = getCellColors(s, cellEntry as FormattedColumnValue);
+    if (colorData?.bgColorIndex !== null && colorData?.bgColorIndex !== undefined && colorData.bgColorIndex > worstColorIndex) {
+      worstColorIndex = colorData.bgColorIndex;
+      worstBg = colorData.bgColor;
+      worstFg = colorData.color;
+    }
+  }
+  if (worstBg) {
+    cell.style.setProperty('color', worstFg ?? 'white', 'important');
+    cell.style.setProperty('background-color', worstBg, 'important');
+  }
+}
+
+/**
  * DataTables `createdCell` callback for a column def.
- * Applies font-size, threshold colors, string HTML, and alignment to the cell.
+ * Applies panel-level styles (font-size, row-number alignment), row coloring,
+ * and per-column styles (clickthrough HTML, metric colors, alignment).
  * `$` must be available as a global (provided by DataTables bundle at runtime;
  * set global.$ in tests).
  */
@@ -72,36 +107,7 @@ export function applyCreatedCell(
   }
   $cell.css('font-size', ctx.fontSizePercent);
 
-  // Apply row coloring: scan all columns for the METRIC/Row column with the
-  // worst threshold and apply it to THIS cell now. Using ctx.dtData.Rows[rowIndex]
-  // (our FlatRow) avoids DataTables' internal rowData representation which may
-  // be a NamedRow (object) where numeric indexing returns undefined.
-  const flatRowForColor = ctx.dtData.Rows[rowIndex];
-  if (flatRowForColor) {
-    let worstColorIndex = -1;
-    let worstBg: string | null = null;
-    let worstFg: string | null = null;
-    for (let k = 0; k < ctx.dtData.Columns.length; k++) {
-      const col = ctx.dtData.Columns[k];
-      if (!col.columnStyles?.length) { continue; }
-      const s = col.columnStyles[0];
-      if (s.activeStyle !== ColumnStyles.METRIC) { continue; }
-      if (!s.metricStyle) { continue; }
-      if (s.metricStyle.colorMode !== ColumnStyleColoring.Row) { continue; }
-      const cellEntry = flatRowForColor[k];
-      if (typeof cellEntry !== 'object' || cellEntry === null) { continue; }
-      const colorData = getCellColors(s, cellEntry as FormattedColumnValue);
-      if (colorData?.bgColorIndex !== null && colorData?.bgColorIndex !== undefined && colorData.bgColorIndex > worstColorIndex) {
-        worstColorIndex = colorData.bgColorIndex;
-        worstBg = colorData.bgColor;
-        worstFg = colorData.color;
-      }
-    }
-    if (worstBg) {
-      cell.style.setProperty('color', worstFg ?? 'white', 'important');
-      cell.style.setProperty('background-color', worstBg, 'important');
-    }
-  }
+  applyRowColor(cell, ctx.dtData, rowIndex);
 
   const aColumn = ctx.dtData.Columns[colIndex];
   if (!aColumn || aColumn.columnStyles.length === 0) {
