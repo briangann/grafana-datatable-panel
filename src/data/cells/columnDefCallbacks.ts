@@ -21,6 +21,11 @@ export type CreatedCellContext = {
   // colorMode=Row. applyRowColor only scans these instead of all columns,
   // reducing per-cell cost from O(cols) to O(k) where k is usually 0 or 1.
   rowColorColumnIndices: number[];
+  // Single-entry cache for the row color computed by applyRowColor.
+  // DataTables calls createdCell for all cells in a row sequentially, so
+  // caching the last result means the O(k) getCellColors scan runs once per
+  // row instead of once per cell — cost drops from O(rows×cols×k) to O(rows×k).
+  _lastRowColor?: { rowIndex: number; bg: string | null; fg: string | null };
 };
 
 /**
@@ -67,20 +72,31 @@ export function renderCell(
  * When multiple Row-mode columns exist the one with the highest threshold
  * index (worst state) wins — consistent with how DataTables renders ordering.
  */
-function applyRowColor(cell: HTMLElement, flatRow: FlatRow | undefined, dtData: DTData, rowColorColumnIndices: number[]): void {
+function applyRowColor(cell: HTMLElement, flatRow: FlatRow | undefined, rowIndex: number, ctx: CreatedCellContext): void {
   // No Row-mode columns — nothing to do.
-  if (rowColorColumnIndices.length === 0) { return; }
+  if (ctx.rowColorColumnIndices.length === 0) { return; }
   if (!flatRow) { return; }
+
+  // Cache hit: DataTables calls createdCell for every cell in a row
+  // sequentially before moving to the next row, so the worst-color for this
+  // rowIndex is already computed. Return immediately — O(1) for cells 2..N.
+  if (ctx._lastRowColor?.rowIndex === rowIndex) {
+    const { bg, fg } = ctx._lastRowColor;
+    if (bg) {
+      cell.style.setProperty('color', fg ?? 'white', 'important');
+      cell.style.setProperty('background-color', bg, 'important');
+    }
+    return;
+  }
 
   let worstColorIndex = -1;
   let worstBg: string | null = null;
   let worstFg: string | null = null;
 
-  // Only iterate the pre-identified Row-mode column indices (usually 1),
-  // not all columns, keeping this O(k) where k << total column count.
-  for (const k of rowColorColumnIndices) {
-    const col = dtData.Columns[k];
-    const s = col.columnStyles[0];
+  // First cell in this row: scan the pre-identified Row-mode columns (O(k)).
+  for (const k of ctx.rowColorColumnIndices) {
+    const s = ctx.dtData.Columns[k]?.columnStyles?.[0];
+    if (!s) { continue; }
     const cellEntry = flatRow[k];
     if (typeof cellEntry !== 'object' || cellEntry === null) { continue; }
     const colorData = getCellColors(s, cellEntry as FormattedColumnValue);
@@ -90,6 +106,9 @@ function applyRowColor(cell: HTMLElement, flatRow: FlatRow | undefined, dtData: 
       worstFg = colorData.color;
     }
   }
+
+  // Store for subsequent cells in this row.
+  ctx._lastRowColor = { rowIndex, bg: worstBg, fg: worstFg };
 
   if (worstBg) {
     cell.style.setProperty('color', worstFg ?? 'white', 'important');
@@ -119,7 +138,7 @@ export function applyCreatedCell(
   $cell.css('font-size', ctx.fontSizePercent);
 
   const aRow = ctx.dtData.Rows[rowIndex];
-  applyRowColor(cell, aRow, ctx.dtData, ctx.rowColorColumnIndices);
+  applyRowColor(cell, aRow, rowIndex, ctx);
 
   const aColumn = ctx.dtData.Columns[colIndex];
   if (!aColumn || aColumn.columnStyles.length === 0) {

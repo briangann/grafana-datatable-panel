@@ -13,7 +13,6 @@ export const processRowColumnStyle = (
   let rowColorIndex = -1;
   let rowColorData = null;
   let rowColor = null;
-  // this should be configurable...
   let color = 'white';
   for (let columnNumber = 0; columnNumber < columnsInCellData.length; columnNumber++) {
     if (columnsInCellData[columnNumber].type !== undefined) {
