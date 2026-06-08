@@ -9,7 +9,7 @@ import {
 } from 'types';
 import { getCellColors } from './cellColors';
 import { computeCellAlignment, computeMetricCellColors } from './cellStyleComputer';
-import { processRowColumnStyle, ProcessStringValueStyle } from './createdCellHelpers';
+import { processRowColumnStyle, processStringValueStyle } from './createdCellHelpers';
 
 export type CreatedCellContext = {
   dtData: DTData;
@@ -123,7 +123,7 @@ export function applyCreatedCell(
   const aStyle = aColumn.columnStyles[0];
 
   if (aStyle.activeStyle === ColumnStyles.STRING) {
-    const newHtml = ProcessStringValueStyle(aStyle, rowData, cellValueFormatted, ctx.timeRange, ctx.replaceVariables);
+    const newHtml = processStringValueStyle(aStyle, rowData, cellValueFormatted, ctx.timeRange, ctx.replaceVariables);
     if (newHtml !== null) {
       $cell.html(newHtml);
     }

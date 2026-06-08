@@ -69,7 +69,7 @@ export const processRowColumnStyle = (
   }
 }
 
-export const ProcessStringValueStyle = (
+export const processStringValueStyle = (
   columnStyle: ColumnStyleItemType | null,
   rowData: FlatRow,
   valueFormatted: FormattedColumnValue,
