@@ -260,6 +260,9 @@ Run `pnpm run server` to start it. Build `dist/` first.
 - **Prefer dedicated tools over Bash** for file operations: use `Read`/`Edit`/`Write` for files, GitHub MCP tools
   (`mcp__plugin_github_github__*`) for GitHub API calls (releases, tags, PRs). Reserve Bash for shell-only tasks
   (running pnpm/git, multi-file pipelines with no dedicated tool).
+- **Never use `mcp__plugin_github_github__push_files` to push code changes.** It bypasses local pre-commit hooks,
+  typecheck, lint, and test verification, and leaves local HEAD out of sync. Use `git push` via Bash after all quality
+  gates pass. The MCP push tool is only acceptable for pure documentation files that require no build verification.
 
 ## Changelog Policy
 
