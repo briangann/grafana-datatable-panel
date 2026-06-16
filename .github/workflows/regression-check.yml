@@ -28,14 +28,14 @@ jobs:
       contents: read
 
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # actions/checkout v6.0.3
         with:
           persist-credentials: false
 
-      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093  # v6.0.8
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271  # pnpm/action-setup v6.0.9
 
       - name: Setup Node.js
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # actions/setup-node v6.4.0
         with:
           node-version: '24'
 
@@ -44,14 +44,14 @@ jobs:
         run: echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
 
       - name: Cache pnpm store
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # actions/cache v5.0.5
         with:
           path: ${{ steps.pnpm-cache.outputs.store }}
           key: node-cache-${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
           restore-keys: node-cache-${{ runner.os }}-${{ runner.arch }}-pnpm-
 
       - name: Cache released plugin ZIP
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # actions/cache v5.0.5
         with:
           path: /tmp/plugin-release-cache
           key: plugin-release-${{ inputs.released_version }}
@@ -127,7 +127,7 @@ jobs:
 
       - name: Upload regression results
         if: always()
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # actions/upload-artifact v7.0.1
         with:
           name: regression-results-${{ github.run_id }}
           path: /tmp/pw-baseline-regression/

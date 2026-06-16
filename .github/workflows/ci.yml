@@ -30,21 +30,21 @@ jobs:
     env:
       GRAFANA_ACCESS_POLICY_TOKEN: ${{ secrets.GRAFANA_ACCESS_POLICY_TOKEN }}
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # actions/checkout v6.0.3
         with:
           persist-credentials: false
       # pnpm action uses the packageManager field in package.json to
       # understand which version to install.
-      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093  # v6.0.8
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271  # pnpm/action-setup v6.0.9
       - name: Setup Node.js environment
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # actions/setup-node v6.4.0
         with:
           node-version: '24'
       - name: Get pnpm store directory
         id: pnpm-cache
         run: echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
       - name: Cache pnpm store
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # actions/cache v5.0.5
         with:
           path: ${{ steps.pnpm-cache.outputs.store }}
           key: node-cache-${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -72,21 +72,21 @@ jobs:
 
       - name: Setup Go environment
         if: steps.check-for-backend.outputs.has-backend == 'true'
-        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c  # v6.4.0
+        uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c  # actions/setup-go v6.4.0
         with:
           go-version-file: go.mod
           check-latest: true
 
       - name: Test backend
         if: steps.check-for-backend.outputs.has-backend == 'true'
-        uses: magefile/mage-action@a662bd8c29d8106879588cfff83b2faf6e6f59db  # v4.0.0
+        uses: magefile/mage-action@a662bd8c29d8106879588cfff83b2faf6e6f59db  # magefile/mage-action v4.0.0
         with:
           version: latest
           args: coverage
 
       - name: Build backend
         if: steps.check-for-backend.outputs.has-backend == 'true'
-        uses: magefile/mage-action@a662bd8c29d8106879588cfff83b2faf6e6f59db  # v4.0.0
+        uses: magefile/mage-action@a662bd8c29d8106879588cfff83b2faf6e6f59db  # magefile/mage-action v4.0.0
         with:
           version: latest
           args: buildAll
@@ -141,7 +141,7 @@ jobs:
             grafana/plugin-validator-cli -analyzer=metadatavalid /archive.zip
 
       - name: Archive Build
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # actions/upload-artifact v7.0.1
         with:
           name: ${{ steps.metadata.outputs.plugin-id }}-${{ steps.metadata.outputs.plugin-version }}
           path: ${{ steps.metadata.outputs.plugin-id }}
@@ -159,12 +159,12 @@ jobs:
       matrix: ${{ steps.resolve-versions.outputs.matrix }}
     steps:
       - name: Checkout
-        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # actions/checkout v6.0.3
         with:
           persist-credentials: false
       - name: Resolve Grafana E2E versions
         id: resolve-versions
-        uses: grafana/plugin-actions/e2e-version@73cd57e848b81e75e3c17697e6701c9fa1404bcc # e2e-version/v2.0.0
+        uses: grafana/plugin-actions/e2e-version@8a426248c1477e82122ed56a34d786211c7be334 # e2e-version/v3.0.0
         with:
           version-resolver-type: plugin-grafana-dependency
           limit: "4"
@@ -183,12 +183,12 @@ jobs:
     permissions:
       contents: read
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # actions/checkout v6.0.3
         with:
           persist-credentials: false
 
       - name: Download plugin
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # actions/download-artifact v8.0.1
         with:
           path: dist
           name: ${{ needs.build.outputs.plugin-id }}-${{ needs.build.outputs.plugin-version }}
@@ -198,16 +198,16 @@ jobs:
         run: |
           chmod +x ./dist/gpx_*
 
-      - uses: pnpm/action-setup@0e279bb959325dab635dd2c09392533439d90093  # v6.0.8
+      - uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271  # pnpm/action-setup v6.0.9
       - name: Setup Node.js environment
-        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # v6.4.0
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e  # actions/setup-node v6.4.0
         with:
           node-version: '24'
       - name: Get pnpm store directory
         id: pnpm-cache
         run: echo "store=$(pnpm store path --silent)" >> "$GITHUB_OUTPUT"
       - name: Cache pnpm store
-        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # v5.0.5
+        uses: actions/cache@27d5ce7f107fe9357f9df03efb73ab90386fccae  # actions/cache v5.0.5
         with:
           path: ${{ steps.pnpm-cache.outputs.store }}
           key: node-cache-${{ runner.os }}-${{ runner.arch }}-pnpm-${{ hashFiles('**/pnpm-lock.yaml') }}
@@ -251,7 +251,7 @@ jobs:
 
       # Uncomment this step to upload the server log to Github artifacts. Remember Github artifacts are public on the Internet if the repository is public.
       - name: Upload server log
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # actions/upload-artifact v7.0.1
         if: ${{ always() && steps.run-tests.outcome == 'failure' }}
         with:
           name: ${{ matrix.GRAFANA_IMAGE.NAME }}-v${{ matrix.GRAFANA_IMAGE.VERSION }}-${{github.run_id}}-server-log
@@ -267,7 +267,7 @@ jobs:
       contents: write # deploy-report-pages pushes to gh-pages
       pull-requests: write # deploy-report-pages manages a PR summary comment
     steps:
-      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # v6.0.3
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10  # actions/checkout v6.0.3
         with:
           # deploy-report-pages authenticates via its own github-token input
           # and runs a nested checkout of gh-pages; persisting credentials
