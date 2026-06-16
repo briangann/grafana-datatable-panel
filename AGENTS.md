@@ -152,9 +152,10 @@ The CI workflow (`ci.yml`) is an inline workflow (not a reusable workflow call) 
 
 ### Action Pinning
 
-Pin all GitHub Actions to **commit SHAs** with a `# vX.Y.Z` comment identifying the version (e.g.,
-`actions/checkout@abc123... # v6.0.3`). SHAs are immutable — a tag can be force-pushed to a different commit, a SHA
-cannot. The comment keeps the pinned version human-readable. Update the SHA when bumping the version.
+Pin all GitHub Actions to **commit SHAs** with a `# owner/action vX.Y.Z` comment identifying the action and version
+(e.g., `actions/checkout@abc123... # actions/checkout v6.0.3`). SHAs are immutable — a tag can be force-pushed to a
+different commit, a SHA cannot. The comment keeps the pinned version human-readable. Update both the SHA and the comment
+when bumping the version. Always verify the SHA resolves to the claimed tag before committing.
 
 ## Grafana Compatibility Check
 
@@ -256,6 +257,12 @@ Run `pnpm run server` to start it. Build `dist/` first.
   title and body with well-formatted text that reflects all changes across the entire branch.
 - **Prefer subagents** for research, code exploration, and multi-step work. Launch multiple agents in parallel when
   tasks are independent.
+- **Prefer dedicated tools over Bash** for file operations: use `Read`/`Edit`/`Write` for files, GitHub MCP tools
+  (`mcp__plugin_github_github__*`) for GitHub API calls (releases, tags, PRs). Reserve Bash for shell-only tasks
+  (running pnpm/git, multi-file pipelines with no dedicated tool).
+- **Never use `mcp__plugin_github_github__push_files` to push code changes.** It bypasses local pre-commit hooks,
+  typecheck, lint, and test verification, and leaves local HEAD out of sync. Use `git push` via Bash after all quality
+  gates pass. The MCP push tool is only acceptable for pure documentation files that require no build verification.
 
 ## Changelog Policy
 
