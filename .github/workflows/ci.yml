@@ -164,7 +164,7 @@ jobs:
           persist-credentials: false
       - name: Resolve Grafana E2E versions
         id: resolve-versions
-        uses: grafana/plugin-actions/e2e-version@8a426248c1477e82122ed56a34d786211c7be334 # e2e-version/v3.0.0
+        uses: grafana/plugin-actions/e2e-version@73cd57e848b81e75e3c17697e6701c9fa1404bcc # e2e-version/v2.0.0
         with:
           version-resolver-type: plugin-grafana-dependency
           limit: "4"
