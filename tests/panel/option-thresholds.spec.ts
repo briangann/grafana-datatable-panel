@@ -6,10 +6,30 @@ import type { Page } from '@playwright/test';
 // - findThresholdState hoisted to module scope (lazy useState initialiser)
 // - updateThresholdValue stabilised via useRef + useEffect tracker-latch
 // - useCallback on updateThresholdColor, updateThresholdState, addItem
-//
-// Threshold UI is nested inside the Column Styles editor (ColumnStyleItem with
-// activeStyle=metric). We navigate there via the provisioned thresholds dashboard
-// for view-side tests, and via panel edit for interaction tests.
+
+async function expandSection(page: Page, category: string) {
+  const expandBtn = page.getByRole('button', { name: `Expand ${category} category` });
+  if (await expandBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await expandBtn.click();
+  }
+}
+
+// Add a column style. ColumnStylesEditor's addItem sets isOpen=true and
+// activeStyle=METRIC by default — the Collapse is already open with Metric
+// content visible. Do NOT click the toggle (would close it).
+async function openColumnStylesAndAddMetricStyle(page: Page) {
+  await expandSection(page, 'Column Styles');
+
+  const addStyleButton = page.getByRole('button', { name: 'Add Style' });
+  await expect(addStyleButton).toBeVisible({ timeout: 10000 });
+  await addStyleButton.click();
+
+  // Scroll into view — the options sidebar can extend past the viewport height.
+  // Add Threshold button is visible immediately since activeStyle defaults to METRIC.
+  const addThresholdBtn = page.getByRole('button', { name: 'Add Threshold' });
+  await addThresholdBtn.scrollIntoViewIfNeeded({ timeout: 8000 }).catch(() => {});
+  await expect(addThresholdBtn).toBeVisible({ timeout: 8000 });
+}
 
 test.describe('ThresholdsEditor — provisioned threshold rendering', () => {
   test('metric column with thresholds applies inline color styles to cells', async ({
@@ -17,7 +37,6 @@ test.describe('ThresholdsEditor — provisioned threshold rendering', () => {
     gotoDashboardPage,
     page,
   }) => {
-    // Datatable-RandomWalk-CustomThresholds.json has colorMode=value with 4 thresholds.
     const dashboard = await readProvisionedDashboard({
       fileName: 'dashboards/Datatable-RandomWalk-CustomThresholds.json',
     });
@@ -30,8 +49,6 @@ test.describe('ThresholdsEditor — provisioned threshold rendering', () => {
     });
 
     await test.step('at least one cell carries threshold color styling', async () => {
-      // colorMode=value applies inline color: <hex> to the text. This exercises
-      // the full threshold scan → GetColorAndIndexForValue → applyCreatedCell path.
       await expect
         .poll(() => page.locator('table tbody td[style*="color:"]').count(), {
           timeout: 10000,
@@ -42,30 +59,6 @@ test.describe('ThresholdsEditor — provisioned threshold rendering', () => {
 });
 
 test.describe('ThresholdsEditor — panel edit UI', () => {
-  // Navigate to the Column Styles section, create a style with Metric type,
-  // then interact with the ThresholdsEditor that appears.
-
-  async function openColumnStylesAndAddMetricStyle(page: Page) {
-    // Expand the Column Styles section
-    const section = page.getByRole('button', { name: /Column Styles/i });
-    await expect(section).toBeVisible({ timeout: 10000 });
-    await section.click();
-
-    // Add a new column style
-    const addStyleButton = page.getByRole('button', { name: 'Add column style' });
-    await expect(addStyleButton).toBeVisible({ timeout: 5000 });
-    await addStyleButton.click();
-
-    // Select "Metric" as the style type
-    const styleTypeSelect = page.locator('[aria-label="Style Item Type"]').first();
-    await expect(styleTypeSelect).toBeVisible({ timeout: 5000 });
-    await styleTypeSelect.click();
-
-    const metricOption = page.getByRole('option', { name: 'Metric', exact: true });
-    await expect(metricOption).toBeVisible({ timeout: 5000 });
-    await metricOption.click();
-  }
-
   test('Add Threshold button is visible in a Metric column style', async ({
     panelEditPage,
     page,
@@ -102,7 +95,6 @@ test.describe('ThresholdsEditor — panel edit UI', () => {
     });
 
     await test.step('threshold value input appears', async () => {
-      // ThresholdItem renders a numeric <Input> for the threshold value.
       await expect(
         page.locator('input[type="number"][step="1.0"]').first(),
       ).toBeVisible({ timeout: 5000 });
@@ -119,7 +111,7 @@ test.describe('ThresholdsEditor — panel edit UI', () => {
     panelEditPage,
     page,
   }) => {
-    // This exercises the useRef tracker latch that stabilises updateThresholdValue.
+    // Exercises the useRef tracker latch that stabilises updateThresholdValue.
     await panelEditPage.datasource.set('gdev-testdata');
     await panelEditPage.setVisualization('Datatable Panel');
     await expect(panelEditPage.refreshPanel()).toBeOK();

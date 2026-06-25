@@ -267,11 +267,13 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
           </Field>
 
           <Field label="Style Item Type" disabled={!style.enabled}>
-            <Select
-              options={COLUMN_STYLE_OPTIONS}
-              value={style.activeStyle}
-              onChange={(item) => setColumnStyle({ ...style, activeStyle: item.value })}
-            />
+            <div data-testid="column-style-type-select">
+              <Select
+                options={COLUMN_STYLE_OPTIONS}
+                value={style.activeStyle}
+                onChange={(item) => setColumnStyle({ ...style, activeStyle: item.value })}
+              />
+            </div>
           </Field>
 
           <Field label="Metric/RegEx" disabled={!style.enabled}>

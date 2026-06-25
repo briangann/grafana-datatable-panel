@@ -1,12 +1,31 @@
 import { expect, test } from '@grafana/plugin-e2e';
+import type { Page } from '@playwright/test';
 
-// Covers ColumnStyleItem.tsx — specifically the PR change that hoisted
-// COLUMN_STYLE_OPTIONS to module scope (was rebuilt every render). The options
-// array must contain the same four entries regardless of render count:
-// Date, String, Metric, Hidden.
-//
-// Tests navigate to the Column Styles section in panel edit, add a style, and
-// verify the style type dropdown contains the correct options.
+// Covers ColumnStyleItem.tsx — the PR change that hoisted COLUMN_STYLE_OPTIONS
+// to module scope. The options array must contain Date, String, Metric, Hidden
+// with no duplicates regardless of render count.
+
+async function expandSection(page: Page, category: string) {
+  const expandBtn = page.getByRole('button', { name: `Expand ${category} category` });
+  if (await expandBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await expandBtn.click();
+  }
+}
+
+// Add a style. ColumnStylesEditor's addItem sets isOpen=true immediately,
+// so the new style's Collapse is already open — do NOT click the toggle.
+async function addStyle(page: Page) {
+  await expandSection(page, 'Column Styles');
+
+  const addButton = page.getByRole('button', { name: 'Add Style' });
+  await expect(addButton).toBeVisible({ timeout: 10000 });
+  await addButton.click();
+
+  // New style defaults to activeStyle=METRIC and isOpen=true.
+  // Scroll into view — the options sidebar can extend past the viewport height.
+  const styleSelect = page.getByTestId('column-style-type-select').first();
+  await styleSelect.scrollIntoViewIfNeeded({ timeout: 8000 }).catch(() => {});
+}
 
 test.describe('ColumnStyleItem — COLUMN_STYLE_OPTIONS content', () => {
   test('style type dropdown offers Date, String, Metric, Hidden options', async ({
@@ -17,20 +36,13 @@ test.describe('ColumnStyleItem — COLUMN_STYLE_OPTIONS content', () => {
     await panelEditPage.setVisualization('Datatable Panel');
     await expect(panelEditPage.refreshPanel()).toBeOK();
 
-    await test.step('expand Column Styles section', async () => {
-      const section = page.getByRole('button', { name: /Column Styles/i });
-      await expect(section).toBeVisible({ timeout: 10000 });
-      await section.click();
-    });
-
-    await test.step('add a new column style', async () => {
-      const addButton = page.getByRole('button', { name: 'Add column style' });
-      await expect(addButton).toBeVisible({ timeout: 5000 });
-      await addButton.click();
+    await test.step('expand Column Styles section and add + expand a style', async () => {
+      await addStyle(page);
     });
 
     await test.step('open the Style Item Type dropdown', async () => {
-      const styleTypeSelect = page.locator('[aria-label="Style Item Type"]').first();
+      // The Field label "Style Item Type" associates with the Select inside it.
+      const styleTypeSelect = page.getByTestId('column-style-type-select').first();
       await expect(styleTypeSelect).toBeVisible({ timeout: 5000 });
       await styleTypeSelect.click();
     });
@@ -42,15 +54,13 @@ test.describe('ColumnStyleItem — COLUMN_STYLE_OPTIONS content', () => {
       await expect(page.getByRole('option', { name: 'Hidden', exact: true })).toBeVisible();
     });
 
-    await test.step('exactly four style options (no duplicates from re-render)', async () => {
-      // If COLUMN_STYLE_OPTIONS were rebuilt per render and the component
-      // re-rendered many times, duplicates could appear. Four and only four.
-      const options = page.getByRole('option');
-      await expect(options).toHaveCount(4);
+    await test.step('exactly four style options — no duplicates from re-render', async () => {
+      // If COLUMN_STYLE_OPTIONS were rebuilt per render, duplicates could appear.
+      await expect(page.getByRole('option')).toHaveCount(4);
     });
   });
 
-  test('selecting Metric style type shows metric-specific fields', async ({
+  test('selecting Metric style type shows Add Threshold button', async ({
     panelEditPage,
     page,
   }) => {
@@ -58,15 +68,12 @@ test.describe('ColumnStyleItem — COLUMN_STYLE_OPTIONS content', () => {
     await panelEditPage.setVisualization('Datatable Panel');
     await expect(panelEditPage.refreshPanel()).toBeOK();
 
-    await test.step('expand Column Styles, add style', async () => {
-      const section = page.getByRole('button', { name: /Column Styles/i });
-      await expect(section).toBeVisible({ timeout: 10000 });
-      await section.click();
-      await page.getByRole('button', { name: 'Add column style' }).click();
+    await test.step('expand Column Styles, add + expand a style', async () => {
+      await addStyle(page);
     });
 
     await test.step('select Metric type', async () => {
-      const styleTypeSelect = page.locator('[aria-label="Style Item Type"]').first();
+      const styleTypeSelect = page.getByTestId('column-style-type-select').first();
       await expect(styleTypeSelect).toBeVisible({ timeout: 5000 });
       await styleTypeSelect.click();
       const metricOption = page.getByRole('option', { name: 'Metric', exact: true });
@@ -79,7 +86,7 @@ test.describe('ColumnStyleItem — COLUMN_STYLE_OPTIONS content', () => {
     });
   });
 
-  test('selecting Hidden style type hides metric/string fields', async ({
+  test('selecting Hidden style type does not show Add Threshold button', async ({
     panelEditPage,
     page,
   }) => {
@@ -87,15 +94,12 @@ test.describe('ColumnStyleItem — COLUMN_STYLE_OPTIONS content', () => {
     await panelEditPage.setVisualization('Datatable Panel');
     await expect(panelEditPage.refreshPanel()).toBeOK();
 
-    await test.step('expand Column Styles, add style', async () => {
-      const section = page.getByRole('button', { name: /Column Styles/i });
-      await expect(section).toBeVisible({ timeout: 10000 });
-      await section.click();
-      await page.getByRole('button', { name: 'Add column style' }).click();
+    await test.step('expand Column Styles, add + expand a style', async () => {
+      await addStyle(page);
     });
 
     await test.step('select Hidden type', async () => {
-      const styleTypeSelect = page.locator('[aria-label="Style Item Type"]').first();
+      const styleTypeSelect = page.getByTestId('column-style-type-select').first();
       await expect(styleTypeSelect).toBeVisible({ timeout: 5000 });
       await styleTypeSelect.click();
       const hiddenOption = page.getByRole('option', { name: 'Hidden', exact: true });

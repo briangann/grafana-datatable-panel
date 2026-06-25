@@ -4,8 +4,10 @@ import { expect, test } from '@grafana/plugin-e2e';
 // - dataTableReady state gate (loading overlay lifecycle)
 // - dataTableClassesEnabled useMemo (CSS classes derived from options)
 
-const TABLE = 'datatable-panel-table';
-const LOADING = 'datatable-panel-loading';
+// DataTables clones the table element for scroll headers — use .first() to
+// avoid strict-mode violations when multiple elements share the testid.
+const table = (page: import('@playwright/test').Page) =>
+  page.getByTestId('datatable-panel-table').first();
 
 test.describe('DataTablePanel — ready state gate', () => {
   test('loading overlay disappears once DataTables fires initComplete', async ({
@@ -20,19 +22,20 @@ test.describe('DataTablePanel — ready state gate', () => {
 
     await test.step('loading overlay eventually hidden', async () => {
       // dataTableReady starts false; overlay unmounts after initComplete fires.
-      await expect(page.getByTestId(LOADING)).not.toBeVisible({ timeout: 15000 });
+      await expect(page.getByTestId('datatable-panel-loading')).not.toBeVisible({ timeout: 15000 });
     });
 
     await test.step('table is visible after ready', async () => {
-      await expect(page.getByTestId(TABLE)).toBeVisible();
+      await expect(table(page)).toBeVisible();
     });
   });
 });
 
 test.describe('DataTablePanel — dataTableClassesEnabled useMemo', () => {
-  // This tests the useMemo that replaced the useState+useEffect+JSON.stringify
-  // class-list computation. The memo outputs the correct class set for the
-  // options stored in each provisioned dashboard.
+  // Tests the useMemo that replaced the useState+useEffect+JSON.stringify
+  // class-list computation. Verifies the correct class set for options stored
+  // in the provisioned dashboard (stripedRowsEnabled=true, hoverEnabled=true,
+  // compactRowsEnabled=false, wrapToFitEnabled=true).
 
   test('table has "display" class in all configurations', async ({
     readProvisionedDashboard,
@@ -44,8 +47,8 @@ test.describe('DataTablePanel — dataTableClassesEnabled useMemo', () => {
     });
     await gotoDashboardPage({ uid: dashboard.uid });
 
-    await expect(page.getByTestId(TABLE)).toBeVisible({ timeout: 15000 });
-    await expect(page.getByTestId(TABLE)).toHaveClass(/display/);
+    await expect(table(page)).toBeVisible({ timeout: 15000 });
+    await expect(table(page)).toHaveClass(/display/);
   });
 
   test('table has "stripe" class when stripedRowsEnabled=true', async ({
@@ -53,14 +56,13 @@ test.describe('DataTablePanel — dataTableClassesEnabled useMemo', () => {
     gotoDashboardPage,
     page,
   }) => {
-    // Datatable-ColumnFilter.json provisions stripedRowsEnabled: true
     const dashboard = await readProvisionedDashboard({
       fileName: 'dashboards/Datatable-ColumnFilter.json',
     });
     await gotoDashboardPage({ uid: dashboard.uid });
 
-    await expect(page.getByTestId(TABLE)).toBeVisible({ timeout: 15000 });
-    await expect(page.getByTestId(TABLE)).toHaveClass(/stripe/);
+    await expect(table(page)).toBeVisible({ timeout: 15000 });
+    await expect(table(page)).toHaveClass(/stripe/);
   });
 
   test('table has "hover" class when hoverEnabled=true', async ({
@@ -68,14 +70,13 @@ test.describe('DataTablePanel — dataTableClassesEnabled useMemo', () => {
     gotoDashboardPage,
     page,
   }) => {
-    // Datatable-ColumnFilter.json provisions hoverEnabled: true
     const dashboard = await readProvisionedDashboard({
       fileName: 'dashboards/Datatable-ColumnFilter.json',
     });
     await gotoDashboardPage({ uid: dashboard.uid });
 
-    await expect(page.getByTestId(TABLE)).toBeVisible({ timeout: 15000 });
-    await expect(page.getByTestId(TABLE)).toHaveClass(/hover/);
+    await expect(table(page)).toBeVisible({ timeout: 15000 });
+    await expect(table(page)).toHaveClass(/hover/);
   });
 
   test('table does not have "compact" class when compactRowsEnabled=false', async ({
@@ -83,14 +84,13 @@ test.describe('DataTablePanel — dataTableClassesEnabled useMemo', () => {
     gotoDashboardPage,
     page,
   }) => {
-    // Datatable-ColumnFilter.json provisions compactRowsEnabled: false
     const dashboard = await readProvisionedDashboard({
       fileName: 'dashboards/Datatable-ColumnFilter.json',
     });
     await gotoDashboardPage({ uid: dashboard.uid });
 
-    await expect(page.getByTestId(TABLE)).toBeVisible({ timeout: 15000 });
-    const classAttr = await page.getByTestId(TABLE).getAttribute('class');
+    await expect(table(page)).toBeVisible({ timeout: 15000 });
+    const classAttr = await table(page).getAttribute('class');
     expect(classAttr).not.toMatch(/\bcompact\b/);
   });
 
@@ -99,14 +99,13 @@ test.describe('DataTablePanel — dataTableClassesEnabled useMemo', () => {
     gotoDashboardPage,
     page,
   }) => {
-    // nowrap is added when wrapToFitEnabled=false; ColumnFilter dashboard has true
     const dashboard = await readProvisionedDashboard({
       fileName: 'dashboards/Datatable-ColumnFilter.json',
     });
     await gotoDashboardPage({ uid: dashboard.uid });
 
-    await expect(page.getByTestId(TABLE)).toBeVisible({ timeout: 15000 });
-    const classAttr = await page.getByTestId(TABLE).getAttribute('class');
+    await expect(table(page)).toBeVisible({ timeout: 15000 });
+    const classAttr = await table(page).getAttribute('class');
     expect(classAttr).not.toMatch(/\bnowrap\b/);
   });
 });

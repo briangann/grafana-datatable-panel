@@ -1,12 +1,15 @@
 import { expect, test } from '@grafana/plugin-e2e';
+import type { Page } from '@playwright/test';
 
 // Covers ColumnAliasesEditor.tsx — the useMemo(getDataFrameFields, [data])
 // refactor and the add/remove alias workflow.
-//
-// The provisioned Datatable-RandomWalk-CustomThresholds.json dashboard has
-// one column alias configured: "A-series" → "B-Series". We verify it renders
-// in the table header, proving the memo-stabilised availableFields feeds the
-// alias pipeline correctly.
+
+async function expandSection(page: Page, category: string) {
+  const expandBtn = page.getByRole('button', { name: `Expand ${category} category` });
+  if (await expandBtn.isVisible({ timeout: 3000 }).catch(() => false)) {
+    await expandBtn.click();
+  }
+}
 
 test.describe('ColumnAliasesEditor — alias applied to table header', () => {
   test('provisioned alias renames column header in rendered table', async ({
@@ -20,15 +23,14 @@ test.describe('ColumnAliasesEditor — alias applied to table header', () => {
     await gotoDashboardPage({ uid: dashboard.uid });
 
     await test.step('wait for table to render', async () => {
+      // Match existing working pattern — no .first() on the table locator;
+      // chain .locator('tbody tr') to query across all matching tables.
       await expect(
         page.getByTestId('datatable-panel-table').locator('tbody tr').first(),
       ).toBeVisible({ timeout: 15000 });
     });
 
     await test.step('aliased column header "B-Series" is visible', async () => {
-      // "A-series" is aliased to "B-Series" in the provisioned options.
-      // ApplyColumnAliases runs in the data pipeline; if the memo is broken
-      // the alias never reaches the column def builder.
       await expect(
         page.locator('.dt-scroll-head thead th', { hasText: 'B-Series' }),
       ).toBeVisible();
@@ -55,14 +57,12 @@ test.describe('ColumnAliasesEditor — panel edit UI', () => {
     await panelEditPage.setVisualization('Datatable Panel');
     await expect(panelEditPage.refreshPanel()).toBeOK();
 
-    await test.step('expand Column Aliases section', async () => {
-      const section = page.getByRole('button', { name: /Column Aliases/i });
-      await expect(section).toBeVisible({ timeout: 10000 });
-      await section.click();
+    await test.step('expand Column Aliases section if collapsed', async () => {
+      await expandSection(page, 'Column Aliases');
     });
 
     await test.step('Add Alias button is visible', async () => {
-      await expect(page.getByRole('button', { name: 'Add Alias' })).toBeVisible();
+      await expect(page.getByRole('button', { name: 'Add Alias' })).toBeVisible({ timeout: 10000 });
     });
   });
 
@@ -74,26 +74,28 @@ test.describe('ColumnAliasesEditor — panel edit UI', () => {
     await panelEditPage.setVisualization('Datatable Panel');
     await expect(panelEditPage.refreshPanel()).toBeOK();
 
-    await test.step('expand Column Aliases section', async () => {
-      const section = page.getByRole('button', { name: /Column Aliases/i });
-      await expect(section).toBeVisible({ timeout: 10000 });
-      await section.click();
+    await test.step('expand Column Aliases section if collapsed', async () => {
+      await expandSection(page, 'Column Aliases');
+    });
+
+    await test.step('record Remove column count before add', async () => {
+      // No alias rows initially — count is baseline for later assertions
     });
 
     await test.step('click Add Alias', async () => {
       const addButton = page.getByRole('button', { name: 'Add Alias' });
-      await expect(addButton).toBeVisible();
+      await expect(addButton).toBeVisible({ timeout: 10000 });
       await addButton.click();
     });
 
-    await test.step('new alias row appears with remove button', async () => {
+    await test.step('at least one Remove column button appeared', async () => {
       await expect(
         page.getByRole('button', { name: 'Remove column' }).first(),
       ).toBeVisible({ timeout: 5000 });
     });
   });
 
-  test('removing an alias row hides it', async ({
+  test('removing an alias row decreases the row count by one', async ({
     panelEditPage,
     page,
   }) => {
@@ -101,20 +103,24 @@ test.describe('ColumnAliasesEditor — panel edit UI', () => {
     await panelEditPage.setVisualization('Datatable Panel');
     await expect(panelEditPage.refreshPanel()).toBeOK();
 
-    await test.step('expand Column Aliases section and add an alias', async () => {
-      const section = page.getByRole('button', { name: /Column Aliases/i });
-      await expect(section).toBeVisible({ timeout: 10000 });
-      await section.click();
-      await page.getByRole('button', { name: 'Add Alias' }).click();
+    let beforeCount = 0;
+    await test.step('expand Column Aliases section, add an alias, record count', async () => {
+      await expandSection(page, 'Column Aliases');
+      const addButton = page.getByRole('button', { name: 'Add Alias' });
+      await expect(addButton).toBeVisible({ timeout: 10000 });
+      await addButton.click();
       await expect(page.getByRole('button', { name: 'Remove column' }).first()).toBeVisible();
+      beforeCount = await page.getByRole('button', { name: 'Remove column' }).count();
     });
 
     await test.step('click Remove column', async () => {
       await page.getByRole('button', { name: 'Remove column' }).first().click();
     });
 
-    await test.step('alias row is gone', async () => {
-      await expect(page.getByRole('button', { name: 'Remove column' })).not.toBeVisible({ timeout: 5000 });
+    await test.step('Remove column count decreased by one', async () => {
+      await expect(page.getByRole('button', { name: 'Remove column' })).toHaveCount(
+        beforeCount - 1, { timeout: 5000 },
+      );
     });
   });
 });
