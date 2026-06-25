@@ -11,12 +11,12 @@ export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) 
   // without mutating the memoized result; the cheap value-based filter
   // runs inline every render.
   const dataFields = useMemo(() => [...getDataFrameFields(props.context.data), 'row'], [props.context.data]);
-  const availableFields = dataFields.reduce<SelectableValue[]>((acc, field) => {
+  const availableFields = dataFields.reduce<SelectableValue[]>((selectableFields, field) => {
     if (value.find((item) => item.name === field)) {
-      return acc;
+      return selectableFields;
     }
-    acc.push({ value: field, label: field });
-    return acc;
+    selectableFields.push({ value: field, label: field });
+    return selectableFields;
   }, []);
 
   function handleNewColumnWidth() {
