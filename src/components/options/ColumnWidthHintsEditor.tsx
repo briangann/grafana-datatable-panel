@@ -6,18 +6,18 @@ import { ColumnWidthHint } from 'types';
 
 export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) {
   const { onChange, value = [] } = props;
-  // Spread to avoid mutating the getDataFrameFields result — mutating a
-  // memoized reference would accumulate duplicate 'row' entries across renders.
-  const availableFields = useMemo(() => {
-    const dataFields = [...getDataFrameFields(props.context.data), 'row'];
-    return dataFields.reduce<SelectableValue[]>((acc, field) => {
-      if (value.find((item) => item.name === field)) {
-        return acc;
-      }
-      acc.push({ value: field, label: field });
+  // Memoize only the data-frame traversal — it's the expensive part and
+  // stable as long as the data doesn't change. Spread to include 'row'
+  // without mutating the memoized result; the cheap value-based filter
+  // runs inline every render.
+  const dataFields = useMemo(() => [...getDataFrameFields(props.context.data), 'row'], [props.context.data]);
+  const availableFields = dataFields.reduce<SelectableValue[]>((acc, field) => {
+    if (value.find((item) => item.name === field)) {
       return acc;
-    }, []);
-  }, [props.context.data, value]);
+    }
+    acc.push({ value: field, label: field });
+    return acc;
+  }, []);
 
   function handleNewColumnWidth() {
     onChange([...value, { name: '', width: '' }]);

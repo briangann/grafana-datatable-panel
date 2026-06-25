@@ -3,8 +3,8 @@ import { ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, FormattedColumn
 // text color overlaid on a colored cell background; white is chosen for contrast against the threshold palette
 const CELL_TEXT_ON_BG = 'white';
 
-// Single threshold scan returning both color and index. Callers that need
-// both values (getCellColors) use this to avoid scanning the array twice.
+// Single threshold scan returning both color and index. All other color
+// lookups delegate here so the scan logic lives in exactly one place.
 export const GetColorAndIndexForValue = (
   value: number,
   style: ColumnStyleItemType,
@@ -37,10 +37,11 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData
   let color = null;
   let colorIndex = null;
 
-  if (aColumnStyle.metricStyle.colorMode != null && aColumnStyle.metricStyle.thresholds.length > 0) {
-    if (aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Cell ||
-      aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Row ||
-      aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.RowColumn) {
+  const { colorMode, thresholds } = aColumnStyle.metricStyle;
+  if (colorMode != null && thresholds.length > 0) {
+    if (colorMode === ColumnStyleColoring.Cell ||
+      colorMode === ColumnStyleColoring.Row ||
+      colorMode === ColumnStyleColoring.RowColumn) {
       if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
         const result = GetColorAndIndexForValue(cellData.valueRaw as number, aColumnStyle);
         bgColor = result.color;
@@ -48,7 +49,7 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData
       }
       color = CELL_TEXT_ON_BG;
     }
-    if (aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Value) {
+    if (colorMode === ColumnStyleColoring.Value) {
       if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
         const result = GetColorAndIndexForValue(cellData.valueRaw as number, aColumnStyle);
         color = result.color;
@@ -56,40 +57,14 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData
       }
     }
   }
-  return {
-    bgColor: bgColor,
-    bgColorIndex: bgColorIndex,
-    color: color,
-    colorIndex: colorIndex,
-  };
+  return { bgColor, bgColorIndex, color, colorIndex };
 };
 
-export const GetColorForValue = (value: number, style: ColumnStyleItemType) => {
-  if (!style.metricStyle.thresholds) {
-    return null;
-  }
-  let color = style.metricStyle.thresholds[0].color;
-  for (let i = style.metricStyle.thresholds.length - 1; i > 0; i--) {
-    const checkValue = style.metricStyle.thresholds[i].value;
-    if (value >= checkValue) {
-      color = style.metricStyle.thresholds[i].color;
-      break;
-    }
-  }
-  return color;
-};
+// Delegates to GetColorAndIndexForValue — scan logic lives in one place.
+export const GetColorForValue = (value: number, style: ColumnStyleItemType) =>
+  GetColorAndIndexForValue(value, style).color;
 
-// to determine the overall row color, the index of the threshold is needed
-export const GetColorIndexForValue = (value: number, style: ColumnStyleItemType) => {
-  if (!style.metricStyle.thresholds) {
-    return null;
-  }
-  let colorIndex = 0;
-  for (let i = style.metricStyle.thresholds.length - 1; i > 0; i--) {
-    if (value >= style.metricStyle.thresholds[i].value) {
-      colorIndex = i;
-      break;
-    }
-  }
-  return colorIndex;
-};
+// to determine the overall row color, the index of the threshold is needed.
+// Delegates to GetColorAndIndexForValue — scan logic lives in one place.
+export const GetColorIndexForValue = (value: number, style: ColumnStyleItemType) =>
+  GetColorAndIndexForValue(value, style).colorIndex;

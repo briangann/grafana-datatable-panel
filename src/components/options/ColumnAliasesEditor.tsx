@@ -6,15 +6,17 @@ import { ColumnAliasField } from 'types';
 
 export function ColumnAliasesEditor(props: StandardEditorProps<ColumnAliasField[]>) {
   const { onChange, value = [] } = props;
-  const availableFields = useMemo(() => {
-    return getDataFrameFields(props.context.data).reduce<SelectableValue[]>((acc, field) => {
-      if (value.find((alias) => alias.name === field)) {
-        return acc;
-      }
-      acc.push({ value: field, label: field });
+  // Memoize only the data-frame traversal — it's the expensive part and
+  // stable as long as the data doesn't change. The cheap value-based filter
+  // runs inline every render.
+  const dataFields = useMemo(() => getDataFrameFields(props.context.data), [props.context.data]);
+  const availableFields = dataFields.reduce<SelectableValue[]>((acc, field) => {
+    if (value.find((alias) => alias.name === field)) {
       return acc;
-    }, []);
-  }, [props.context.data, value]);
+    }
+    acc.push({ value: field, label: field });
+    return acc;
+  }, []);
 
   function handleNewColumnAlias() {
     onChange([...value, { name: '', alias: '' }]);

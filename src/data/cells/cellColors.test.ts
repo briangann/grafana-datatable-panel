@@ -89,10 +89,8 @@ describe('GetColorAndIndexForValue', () => {
     [15, 'yellow', 1],
     [20, 'red', 2],
     [999, 'red', 2],
-  ])('value=%i → color=%s index=%i matches GetColorForValue+GetColorIndexForValue', (value, expectedColor, expectedIndex) => {
+  ])('value=%i → color=%s index=%i', (value, expectedColor, expectedIndex) => {
     const result = GetColorAndIndexForValue(value, style);
-    expect(result.color).toBe(GetColorForValue(value, style));
-    expect(result.colorIndex).toBe(GetColorIndexForValue(value, style));
     expect(result.color).toBe(expectedColor);
     expect(result.colorIndex).toBe(expectedIndex);
   });
