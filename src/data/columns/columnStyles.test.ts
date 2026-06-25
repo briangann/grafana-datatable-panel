@@ -105,5 +105,51 @@ describe('Column Styles', () => {
       expect(cols[0].columnStyles).toHaveLength(1);
       expect(cols[1].columnStyles).toHaveLength(0);
     });
+
+    describe('performance', () => {
+      it('benchmark: pre-compiled regex faster than per-iteration new RegExp (full scan, no matches)', () => {
+        // Use columns that match no style so every call scans all styles —
+        // this is the worst case that maximises regex-construction savings.
+        const N = 5_000;
+        const titles = Array.from({ length: 50 }, (_, i) => `other-${i}`);
+        const styles = [
+          makeStyle('/^web-/'), makeStyle('/^db-/'), makeStyle('exact'),
+          makeStyle('/^api-/'), makeStyle('/^cache-/'), makeStyle('/^queue-/'),
+          makeStyle('/^worker-/'), makeStyle('/^proxy-/'),
+        ];
+
+        // Original approach: new RegExp inside the loop per column×style
+        const t0 = performance.now();
+        for (let iter = 0; iter < N; iter++) {
+          const cols = makeCols(titles);
+          for (const item of cols) {
+            for (const s of styles) {
+              const expr = `${s.nameOrRegex}`;
+              if (expr.startsWith('/') && expr.endsWith('/')) {
+                const rx = new RegExp(expr.slice(1, -1));
+                if (item.title.match(rx)) { item.columnStyles.push(s); break; }
+              } else {
+                if (item.title === expr) { item.columnStyles.push(s); break; }
+              }
+            }
+          }
+        }
+        const original = performance.now() - t0;
+
+        // Optimized: pre-compile all regexes once per ApplyColumnStyles call
+        const t1 = performance.now();
+        for (let iter = 0; iter < N; iter++) {
+          const cols = makeCols(titles);
+          ApplyColumnStyles(cols, styles);
+        }
+        const optimized = performance.now() - t1;
+
+        console.log(`ApplyColumnStyles benchmark — original: ${original.toFixed(1)}ms  optimized: ${optimized.toFixed(1)}ms  speedup: ${(original / optimized).toFixed(2)}x`);
+        // Guard only when speedup is clear — thin margins can be noise in CI.
+        if (original > 10) {
+          expect(optimized).toBeLessThan(original);
+        }
+      });
+    });
   });
 });

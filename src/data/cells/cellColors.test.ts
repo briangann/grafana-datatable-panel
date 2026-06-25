@@ -1,4 +1,4 @@
-import { getCellColors, GetColorForValue, GetColorIndexForValue } from './cellColors';
+import { getCellColors, GetColorAndIndexForValue, GetColorForValue, GetColorIndexForValue } from './cellColors';
 import { ColumnStyleColoring, ColumnStyles, ColumnStyleItemType, FormattedColumnValue } from 'types';
 
 const metricStyle = (
@@ -70,6 +70,59 @@ describe('GetColorIndexForValue', () => {
     [100, 2],
   ])('value=%i → index=%i', (value, expected) => {
     expect(GetColorIndexForValue(value, style)).toBe(expected);
+  });
+});
+
+describe('GetColorAndIndexForValue', () => {
+  const thresholds = [
+    { value: 0, color: 'green', state: 0 },
+    { value: 10, color: 'yellow', state: 1 },
+    { value: 20, color: 'red', state: 2 },
+  ];
+  const style = metricStyle(ColumnStyleColoring.Cell, thresholds);
+
+  it.each([
+    [-5, 'green', 0],
+    [0, 'green', 0],
+    [5, 'green', 0],
+    [10, 'yellow', 1],
+    [15, 'yellow', 1],
+    [20, 'red', 2],
+    [999, 'red', 2],
+  ])('value=%i → color=%s index=%i matches GetColorForValue+GetColorIndexForValue', (value, expectedColor, expectedIndex) => {
+    const result = GetColorAndIndexForValue(value, style);
+    expect(result.color).toBe(GetColorForValue(value, style));
+    expect(result.colorIndex).toBe(GetColorIndexForValue(value, style));
+    expect(result.color).toBe(expectedColor);
+    expect(result.colorIndex).toBe(expectedIndex);
+  });
+
+  it('returns null color and index 0 when no thresholds defined', () => {
+    const empty = metricStyle(ColumnStyleColoring.Cell, undefined as unknown as typeof thresholds);
+    expect(GetColorAndIndexForValue(5, empty)).toEqual({ color: null, colorIndex: 0 });
+  });
+
+  describe('performance', () => {
+    it('benchmark: single scan faster than two separate scans', () => {
+      const N = 100_000;
+      const value = 15;
+
+      const t0 = performance.now();
+      for (let i = 0; i < N; i++) {
+        GetColorForValue(value, style);
+        GetColorIndexForValue(value, style);
+      }
+      const original = performance.now() - t0;
+
+      const t1 = performance.now();
+      for (let i = 0; i < N; i++) {
+        GetColorAndIndexForValue(value, style);
+      }
+      const optimized = performance.now() - t1;
+
+      console.log(`GetColorAndIndex benchmark — original: ${original.toFixed(1)}ms  optimized: ${optimized.toFixed(1)}ms  speedup: ${(original / optimized).toFixed(2)}x`);
+      expect(optimized).toBeLessThan(original);
+    });
   });
 });
 

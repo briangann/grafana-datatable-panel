@@ -23,6 +23,22 @@ const DEFAULT_URL_BASE = typeof window !== 'undefined' ? window.location.origin 
 const BROWSER_TIMEZONE =
   typeof Intl !== 'undefined' ? Intl.DateTimeFormat().resolvedOptions().timeZone : 'UTC';
 
+// Unit formats come from column config and are stable per dashboard load.
+// Caching avoids a repeated lookup on every cell render for the same unit.
+const valueFormatCache = new Map<string, ReturnType<typeof getValueFormat>>();
+
+const getCachedValueFormat = (unit: string) => {
+  let formatter = valueFormatCache.get(unit);
+  if (!formatter) {
+    formatter = getValueFormat(unit);
+    valueFormatCache.set(unit, formatter);
+  }
+  return formatter;
+};
+
+// Exported for test isolation only — not part of the public API.
+export const clearValueFormatCache = () => valueFormatCache.clear();
+
 // Similar to DataLinks, this replaces the value of the panel time ranges for use in url params
 export const ReplaceTimeMacros = (timeRange: TimeRange, content: string) => {
   // Use global replacements so all occurrences in the URL are substituted,
@@ -270,7 +286,7 @@ export const applyFormat = (value: any, maxDecimals: number, unitFormat: string)
   let valueFormatted = '';
   let valueRounded = NaN;
   let valueRoundedAndFormatted = '';
-  const formatFunc = getValueFormat(unitFormat);
+  const formatFunc = getCachedValueFormat(unitFormat);
   if (formatFunc) {
     const formatted = formatFunc(value, maxDecimals);
     valueFormatted = formatted.text;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { orderBy } from 'lodash';
 import { Button, useTheme2 } from '@grafana/ui';
 import { v4 as UUIdv4 } from 'uuid';
@@ -54,34 +54,34 @@ export const ThresholdsEditor: React.FC<Props> = (options) => {
     thresholdAdapter,
   );
 
-  const updateThresholdValue = (index: number, value: number) => {
+  const updateThresholdValue = useCallback((index: number, value: number) => {
     const updated = tracker.map((t, i) =>
       i === index
         ? { ...t, threshold: { ...t.threshold, value: Number(value) } }
         : t,
     );
     setAll(orderBy(updated, ['threshold.value'], ['asc']));
-  };
+  }, [tracker, setAll]);
 
-  const updateThresholdColor = (index: number, color: string) => {
+  const updateThresholdColor = useCallback((index: number, color: string) => {
     updateAt(index, (t) => ({
       threshold: {
         ...t.threshold,
         color: theme2.visualization.getColorByName(color),
       },
     }));
-  };
+  }, [updateAt, theme2.visualization]);
 
-  const updateThresholdState = (index: number, state: number) => {
+  const updateThresholdState = useCallback((index: number, state: number) => {
     updateAt(index, (t) => ({
       threshold:
         state < 3
           ? { ...t.threshold, state, color: colorForThresholdState(state) }
           : { ...t.threshold, state },
     }));
-  };
+  }, [updateAt]);
 
-  const addItem = () => {
+  const addItem = useCallback(() => {
     add({
       threshold: {
         color: DEFAULT_OK_COLOR_HEX,
@@ -90,7 +90,7 @@ export const ThresholdsEditor: React.FC<Props> = (options) => {
       },
       ID: UUIdv4(),
     });
-  };
+  }, [add]);
 
   return (
     <>

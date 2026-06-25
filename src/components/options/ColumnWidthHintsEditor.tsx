@@ -1,22 +1,23 @@
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
 import { Box, Button, IconButton, InlineField, Input, Select, Stack } from '@grafana/ui';
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useMemo } from 'react';
 import { getDataFrameFields } from 'data/transformations';
 import { ColumnWidthHint } from 'types';
 
 export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) {
   const { onChange, value = [] } = props;
-  const dataFields = getDataFrameFields(props.context.data);
-  // add field for setting the row width (not part of the dataframes)
-  dataFields.push('row');
-  const availableFields = dataFields.reduce<SelectableValue[]>((acc, field) => {
-    // Filter out fields that already have an width
-    if (value.find((item) => item.name === field)) {
+  // Spread to avoid mutating the getDataFrameFields result — mutating a
+  // memoized reference would accumulate duplicate 'row' entries across renders.
+  const availableFields = useMemo(() => {
+    const dataFields = [...getDataFrameFields(props.context.data), 'row'];
+    return dataFields.reduce<SelectableValue[]>((acc, field) => {
+      if (value.find((item) => item.name === field)) {
+        return acc;
+      }
+      acc.push({ value: field, label: field });
       return acc;
-    }
-    acc.push({ value: field, label: field });
-    return acc;
-  }, []);
+    }, []);
+  }, [props.context.data, value]);
 
   function handleNewColumnWidth() {
     onChange([...value, { name: '', width: '' }]);
@@ -49,13 +50,11 @@ export function ColumnWidthHints(props: StandardEditorProps<ColumnWidthHint[]>) 
 
   const currentWidths = value.map((item: ColumnWidthHint, index: number) => {
     const options = item.name === '' ? availableFields : [...availableFields, { value: item.name, label: item.name }];
-    // TODO: fix the styling so all fields align. Currently
     return (
       <div key={index} style={{ width: '100%' }}>
         <Stack justifyContent="start" direction="row" alignItems="start">
           <InlineField label="Column" tooltip="The column to apply width hints to. Use original name if an alias has been applied.">
             <Select
-              // TODO: We don't want this width here. it should be somehow auto
               width={15}
               options={options}
               allowCustomValue={true}

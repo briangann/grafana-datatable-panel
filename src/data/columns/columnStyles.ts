@@ -1,29 +1,29 @@
 import { ColumnStyleItemType, DTColumnType } from "types";
 
 export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnStyleItemType[]) => {
+  // Pre-compile regex patterns once before the nested loop — avoids
+  // reconstructing the same RegExp for every column × style combination.
+  const compiled = columnStyles.map(aStyle => {
+    const expression = `${aStyle.nameOrRegex}`;
+    if (expression.startsWith('/') && expression.endsWith('/')) {
+      return { style: aStyle, rx: new RegExp(expression.slice(1, -1)) };
+    }
+    return { style: aStyle, rx: null, expression };
+  });
+
   for (const item of columns) {
-    for (let index = 0; index < columnStyles.length; index++) {
-      const aStyle = columnStyles[index];
-      // convert to regexp
-      let expression = `${aStyle.nameOrRegex}`;
-      if (expression.startsWith(`/`) && expression.endsWith(`/`)) {
-        // remove leading and ending slashes
-        expression = expression.slice(1);
-        expression = expression.slice(0, -1);
-        const rx = new RegExp(expression);
-        if (item.title.match(rx)) {
-          // set the column style for the item, to be used in rendering
-          item.columnStyles?.push(aStyle);
-          // matched move on to next column
+    for (const entry of compiled) {
+      if (entry.rx !== null) {
+        if (item.title.match(entry.rx)) {
+          item.columnStyles?.push(entry.style);
           break;
         }
       } else {
-        // not regex, exact match required
-        if (item.title === expression) {
-          item.columnStyles?.push(aStyle);
+        if (item.title === entry.expression) {
+          item.columnStyles?.push(entry.style);
           break;
         }
       }
     }
-  };
+  }
 };

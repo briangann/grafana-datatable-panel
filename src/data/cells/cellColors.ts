@@ -3,6 +3,28 @@ import { ColumnStyleColoring, ColumnStyleItemType, ColumnStyles, FormattedColumn
 // text color overlaid on a colored cell background; white is chosen for contrast against the threshold palette
 const CELL_TEXT_ON_BG = 'white';
 
+// Single threshold scan returning both color and index. Callers that need
+// both values (getCellColors) use this to avoid scanning the array twice.
+export const GetColorAndIndexForValue = (
+  value: number,
+  style: ColumnStyleItemType,
+): { color: string | null; colorIndex: number } => {
+  const thresholds = style.metricStyle.thresholds;
+  if (!thresholds) {
+    return { color: null, colorIndex: 0 };
+  }
+  let color = thresholds[0].color;
+  let colorIndex = 0;
+  for (let i = thresholds.length - 1; i > 0; i--) {
+    if (value >= thresholds[i].value) {
+      color = thresholds[i].color;
+      colorIndex = i;
+      break;
+    }
+  }
+  return { color, colorIndex };
+};
+
 export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData: FormattedColumnValue) => {
   if (aColumnStyle === null || cellData === null || cellData === undefined) {
     return null;
@@ -20,15 +42,17 @@ export const getCellColors = (aColumnStyle: ColumnStyleItemType | null, cellData
       aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Row ||
       aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.RowColumn) {
       if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
-        bgColor = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
-        bgColorIndex = GetColorIndexForValue(cellData.valueRaw as number, aColumnStyle);
+        const result = GetColorAndIndexForValue(cellData.valueRaw as number, aColumnStyle);
+        bgColor = result.color;
+        bgColorIndex = result.colorIndex;
       }
       color = CELL_TEXT_ON_BG;
     }
     if (aColumnStyle.metricStyle.colorMode === ColumnStyleColoring.Value) {
       if (cellData.valueRaw !== null && !isNaN(cellData.valueRaw as number)) {
-        color = GetColorForValue(cellData.valueRaw as number, aColumnStyle);
-        colorIndex = GetColorIndexForValue(cellData.valueRaw as number, aColumnStyle);
+        const result = GetColorAndIndexForValue(cellData.valueRaw as number, aColumnStyle);
+        color = result.color;
+        colorIndex = result.colorIndex;
       }
     }
   }
