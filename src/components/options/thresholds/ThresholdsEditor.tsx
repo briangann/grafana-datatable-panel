@@ -54,14 +54,17 @@ export const ThresholdsEditor: React.FC<Props> = (options) => {
     thresholdAdapter,
   );
 
-  const updateThresholdValue = useCallback((index: number, value: number) => {
+  // Cannot use useCallback here: the sort after value update requires the full
+  // tracker array, and setAll has no functional-updater overload. Closing over
+  // tracker means the reference changes on every mutation, defeating memoization.
+  const updateThresholdValue = (index: number, value: number) => {
     const updated = tracker.map((t, i) =>
       i === index
         ? { ...t, threshold: { ...t.threshold, value: Number(value) } }
         : t,
     );
     setAll(orderBy(updated, ['threshold.value'], ['asc']));
-  }, [tracker, setAll]);
+  };
 
   const updateThresholdColor = useCallback((index: number, color: string) => {
     updateAt(index, (t) => ({

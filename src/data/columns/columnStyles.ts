@@ -6,7 +6,7 @@ export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnS
   const compiled = columnStyles.map(aStyle => {
     const expression = `${aStyle.nameOrRegex}`;
     if (expression.startsWith('/') && expression.endsWith('/')) {
-      return { style: aStyle, rx: new RegExp(expression.slice(1, -1)) };
+      return { style: aStyle, rx: new RegExp(expression.slice(1, -1)), expression: null };
     }
     return { style: aStyle, rx: null, expression };
   });

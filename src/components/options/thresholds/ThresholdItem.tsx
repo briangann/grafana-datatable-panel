@@ -27,7 +27,7 @@ const findThresholdState = (thresholdId: number): SelectableValue => {
   return ThresholdStates[0];
 };
 
-export const ThresholdItem: React.FC<ThresholdItemProps> = memo((options: ThresholdItemProps) => {
+export const ThresholdItem = memo<ThresholdItemProps>((options) => {
   const styles = useStyles2(getThresholdStyles);
   // Initializer callback runs only on mount — avoids iterating ThresholdStates on every render.
   const [threshold, setThreshold] = useState<SelectableValue>(() => findThresholdState(options.threshold.state));
@@ -75,7 +75,7 @@ export const ThresholdItem: React.FC<ThresholdItemProps> = memo((options: Thresh
       }
     />
   );
-}) as React.FC<ThresholdItemProps>;
+});
 
 const getThresholdStyles = (theme: GrafanaTheme2) => {
   return {

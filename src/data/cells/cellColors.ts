@@ -10,7 +10,7 @@ export const GetColorAndIndexForValue = (
   style: ColumnStyleItemType,
 ): { color: string | null; colorIndex: number } => {
   const thresholds = style.metricStyle.thresholds;
-  if (!thresholds) {
+  if (!thresholds || thresholds.length === 0) {
     return { color: null, colorIndex: 0 };
   }
   let color = thresholds[0].color;
