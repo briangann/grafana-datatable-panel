@@ -77,6 +77,8 @@ export const ThresholdItem = memo<ThresholdItemProps>((options) => {
   );
 });
 
+ThresholdItem.displayName = 'ThresholdItem';
+
 const getThresholdStyles = (theme: GrafanaTheme2) => {
   return {
     inputPrefix: css`
