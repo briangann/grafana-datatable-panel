@@ -71,6 +71,11 @@ describe('GetColorIndexForValue', () => {
   ])('value=%i → index=%i', (value, expected) => {
     expect(GetColorIndexForValue(value, style)).toBe(expected);
   });
+
+  it('returns null when thresholds is undefined', () => {
+    const noThresholds = metricStyle(ColumnStyleColoring.Cell, undefined as unknown as typeof thresholds);
+    expect(GetColorIndexForValue(5, noThresholds)).toBeNull();
+  });
 });
 
 describe('GetColorAndIndexForValue', () => {

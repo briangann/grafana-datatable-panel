@@ -91,6 +91,12 @@ describe('getValueMappingResult', () => {
       expect(getValueMappingResult([mapping], 'web-42')).toEqual({ text: 'host-42' });
     });
 
+    it('returns the result unchanged when result.text is null', () => {
+      const mapping = regexToText('/^web-/', { text: undefined as unknown as string });
+      const result = getValueMappingResult([mapping], 'web-01');
+      expect(result).toEqual({ text: undefined });
+    });
+
     it('returns null when the regex does not match', () => {
       const mapping = regexToText('/^web-/', { text: 'web host' });
       expect(getValueMappingResult([mapping], 'db-01')).toBeNull();
@@ -187,6 +193,18 @@ describe('getValueMappingResult', () => {
 
 describe('RegexToText regex cache', () => {
   beforeEach(() => clearRegexCache());
+
+  it('clears and recompiles when cache exceeds REGEX_CACHE_MAX (256)', () => {
+    // Fill the cache beyond the 256-entry cap with unique patterns.
+    // The 257th pattern must still match correctly after the clear.
+    for (let i = 0; i < 256; i++) {
+      const mapping = regexToText(`/^unique-${i}-pattern$/`, { text: 'hit' });
+      getValueMappingResult([mapping], `unique-${i}-pattern`);
+    }
+    const overflowMapping = regexToText('/^overflow-pattern$/', { text: 'found' });
+    const result = getValueMappingResult([overflowMapping], 'overflow-pattern');
+    expect(result).toEqual({ text: 'found' });
+  });
 
   it('returns the same result with cached regex as with fresh regex', () => {
     const mapping = regexToText('/^web-(\\d+)$/', { text: 'host-$1' });

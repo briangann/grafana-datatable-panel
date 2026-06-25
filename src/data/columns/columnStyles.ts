@@ -6,6 +6,9 @@ import { ColumnStyleItemType, DTColumnType } from "types";
 const REGEX_CACHE_MAX = 256;
 const compiledRegexCache = new Map<string, RegExp>();
 
+// Exported for test isolation only — not part of the public API.
+export const clearColumnStyleRegexCache = () => compiledRegexCache.clear();
+
 export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnStyleItemType[]) => {
   // Build a predicate per style once. Regex entries use the module-level cache
   // so the same pattern is never compiled twice across calls.

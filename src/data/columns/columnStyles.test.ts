@@ -3,7 +3,7 @@
  */
 
 import { ColumnStyleItemType, ColumnStyles, DateFormats, DTColumnType } from 'types';
-import { ApplyColumnStyles } from './columnStyles';
+import { ApplyColumnStyles, clearColumnStyleRegexCache } from './columnStyles';
 
 describe('Column Styles', () => {
   const columns: DTColumnType[] = [
@@ -104,6 +104,21 @@ describe('Column Styles', () => {
       ApplyColumnStyles(cols, [style]);
       expect(cols[0].columnStyles).toHaveLength(1);
       expect(cols[1].columnStyles).toHaveLength(0);
+    });
+
+    describe('regex cache', () => {
+      beforeEach(() => clearColumnStyleRegexCache());
+
+      it('clears and recompiles when cache exceeds REGEX_CACHE_MAX (256)', () => {
+        // Fill the cache to the limit with unique patterns, then add one more
+        // to trigger the clear. The new pattern must still match correctly.
+        const overflowStyles = Array.from({ length: 257 }, (_, i) =>
+          ({ nameOrRegex: `/^pattern-${i}-/` } as unknown as ColumnStyleItemType),
+        );
+        const triggerCol = [{ title: `pattern-256-x`, columnStyles: [], data: '', type: 'string', className: '', visible: true } as DTColumnType];
+        ApplyColumnStyles(triggerCol, overflowStyles);
+        expect(triggerCol[0].columnStyles).toHaveLength(1);
+      });
     });
 
     describe('performance', () => {
