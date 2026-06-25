@@ -2,6 +2,8 @@ import { ColumnStyleItemType, DTColumnType } from "types";
 
 // Regex patterns in column styles come from dashboard config — stable per load.
 // Caching avoids recompiling the same pattern across ApplyColumnStyles calls.
+// Cap prevents unbounded growth if a user edits many distinct patterns in a session.
+const REGEX_CACHE_MAX = 256;
 const compiledRegexCache = new Map<string, RegExp>();
 
 export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnStyleItemType[]) => {
@@ -12,6 +14,9 @@ export const ApplyColumnStyles = (columns: DTColumnType[], columnStyles: ColumnS
     if (expression.startsWith('/') && expression.endsWith('/')) {
       let rx = compiledRegexCache.get(expression);
       if (!rx) {
+        if (compiledRegexCache.size >= REGEX_CACHE_MAX) {
+          compiledRegexCache.clear();
+        }
         rx = new RegExp(expression.slice(1, -1));
         compiledRegexCache.set(expression, rx);
       }

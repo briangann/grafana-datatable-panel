@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { orderBy } from 'lodash';
 import { Button, useTheme2 } from '@grafana/ui';
 import { v4 as UUIdv4 } from 'uuid';
@@ -54,17 +54,22 @@ export const ThresholdsEditor: React.FC<Props> = (options) => {
     thresholdAdapter,
   );
 
-  // Cannot use useCallback here: the sort after value update requires the full
-  // tracker array, and setAll has no functional-updater overload. Closing over
-  // tracker means the reference changes on every mutation, defeating memoization.
-  const updateThresholdValue = (index: number, value: number) => {
-    const updated = tracker.map((t, i) =>
+  // Ref-latch tracker so updateThresholdValue stays stable (no tracker dep)
+  // while always reading the latest list for the sort. Updated via effect —
+  // event handlers always fire between renders so the ref is current by then.
+  const trackerRef = useRef(tracker);
+  useEffect(() => {
+    trackerRef.current = tracker;
+  }, [tracker]);
+
+  const updateThresholdValue = useCallback((index: number, value: number) => {
+    const updated = trackerRef.current.map((t, i) =>
       i === index
         ? { ...t, threshold: { ...t.threshold, value: Number(value) } }
         : t,
     );
     setAll(orderBy(updated, ['threshold.value'], ['asc']));
-  };
+  }, [setAll]);
 
   const updateThresholdColor = useCallback((index: number, color: string) => {
     updateAt(index, (t) => ({

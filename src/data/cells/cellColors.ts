@@ -66,5 +66,10 @@ export const GetColorForValue = (value: number, style: ColumnStyleItemType) =>
 
 // to determine the overall row color, the index of the threshold is needed.
 // Delegates to GetColorAndIndexForValue — scan logic lives in one place.
-export const GetColorIndexForValue = (value: number, style: ColumnStyleItemType) =>
-  GetColorAndIndexForValue(value, style).colorIndex;
+// Returns null (not 0) when thresholds is undefined to preserve the original contract.
+export const GetColorIndexForValue = (value: number, style: ColumnStyleItemType) => {
+  if (!style.metricStyle.thresholds) {
+    return null;
+  }
+  return GetColorAndIndexForValue(value, style).colorIndex;
+};
