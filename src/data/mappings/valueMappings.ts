@@ -10,6 +10,27 @@ import {
   ValueMapping,
   ValueMappingResult } from "@grafana/data";
 
+// Regex patterns in value mappings come from column config — they're stable
+// per dashboard load. Caching avoids recompiling the same pattern on every cell.
+// Cap prevents unbounded growth if a user edits many distinct patterns in a session.
+const REGEX_CACHE_MAX = 256;
+const regexCache = new Map<string, RegExp>();
+
+const getCachedRegex = (pattern: string): RegExp => {
+  let rx = regexCache.get(pattern);
+  if (!rx) {
+    if (regexCache.size >= REGEX_CACHE_MAX) {
+      regexCache.clear();
+    }
+    rx = stringToJsRegex(pattern);
+    regexCache.set(pattern, rx);
+  }
+  return rx;
+};
+
+// Exported for test isolation only — not part of the public API.
+export const clearRegexCache = () => regexCache.clear();
+
 export function getValueMappingResult(valueMappings: ValueMapping[], value: any): ValueMappingResult | null {
   for (const vm of valueMappings) {
     switch (vm.type) {
@@ -62,7 +83,7 @@ export function getValueMappingResult(valueMappings: ValueMapping[], value: any)
           continue;
         }
 
-        const regex = stringToJsRegex(vm.options.pattern);
+        const regex = getCachedRegex(vm.options.pattern);
         if (value.match(regex)) {
           const res = { ...vm.options.result };
 

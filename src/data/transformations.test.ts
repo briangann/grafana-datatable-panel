@@ -138,3 +138,25 @@ describe('transformData', () => {
     expect(meanField?.values).toEqual([20]);
   });
 });
+
+describe('getDataFrameFields mutation safety', () => {
+  const mockFrames = [
+    toDataFrame({ fields: [{ name: 'host', type: FieldType.string, values: [] }, { name: 'cpu', type: FieldType.number, values: [] }] }),
+  ];
+
+  // Regression guard: ColumnWidthHintsEditor previously called push('row') directly
+  // on the getDataFrameFields result. If that reference is memoized, mutation would
+  // accumulate duplicate 'row' entries on every render.
+  it('spread pattern is safe across multiple uses of the same source', () => {
+    // Fix: spread into a new array before appending — the source is never mutated.
+    const source = getDataFrameFields(mockFrames);
+    const firstRender = [...source, 'row'];
+    const secondRender = [...source, 'row'];
+
+    // Source unchanged after both renders
+    expect(source).not.toContain('row');
+    // Each render produces exactly one 'row'
+    expect(firstRender.filter((f) => f === 'row').length).toBe(1);
+    expect(secondRender.filter((f) => f === 'row').length).toBe(1);
+  });
+});

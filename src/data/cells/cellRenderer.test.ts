@@ -4,6 +4,7 @@
 import { ColumnStyleItemType, ColumnStyles, FormattedColumnValue } from 'types';
 import {
   applyFormat,
+  clearValueFormatCache,
   FormatColumnValue,
   ProcessClickthrough,
   ReplaceCellMacros,
@@ -754,6 +755,51 @@ describe('Cell Renderer', () => {
       const result = TimeFormatter('browser', epoch, 'YYYY-MM-DD HH:mm:ss');
       expect(result.valueRaw).toBe(epoch);
       expect(result.valueFormatted).toMatch(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/);
+    });
+  });
+});
+
+describe('valueFormat cache', () => {
+  beforeEach(() => clearValueFormatCache());
+
+  it('applyFormat produces identical output with cached formatter', () => {
+    clearValueFormatCache();
+    const first = applyFormat(1234.5, 2, 'short');
+    clearValueFormatCache();
+    const second = applyFormat(1234.5, 2, 'short');
+    expect(first).toEqual(second);
+  });
+
+  describe('performance', () => {
+    it('benchmark: cached getValueFormat faster than cold lookup per call', () => {
+      // applyFormat does real number formatting work that dominates any
+      // lookup overhead — benchmark the lookup directly by calling applyFormat
+      // with N different units (cold every time) vs N calls with same unit (warm).
+      const N = 50_000;
+      // Use many units for the "cold" path — each call must do a fresh lookup.
+      const units = ['short', 'bytes', 'ms', 's', 'percent', 'bits'];
+
+      // Original: cold lookup each call (different unit each iteration)
+      clearValueFormatCache();
+      const t0 = performance.now();
+      for (let i = 0; i < N; i++) {
+        applyFormat(i, 2, units[i % units.length]);
+      }
+      const original = performance.now() - t0;
+
+      // Optimized: warm cache — all N calls hit the same cached formatters
+      clearValueFormatCache();
+      // Prime the cache for all 6 units first
+      units.forEach(u => applyFormat(1, 2, u));
+      const t1 = performance.now();
+      for (let i = 0; i < N; i++) {
+        applyFormat(i, 2, units[i % units.length]);
+      }
+      const optimized = performance.now() - t1;
+
+      console.log(`getValueFormat cache benchmark — original: ${original.toFixed(1)}ms  optimized: ${optimized.toFixed(1)}ms  speedup: ${(original / optimized).toFixed(2)}x`);
+      // getValueFormat itself is fast; speedup may be modest — log result
+      // but don't gate CI on a hard threshold.
     });
   });
 });

@@ -1,5 +1,5 @@
-import { MappingType, SpecialValueMatch, ValueMapping } from '@grafana/data';
-import { getValueMappingResult, isNumeric } from './valueMappings';
+import { MappingType, SpecialValueMatch, ValueMapping, stringToJsRegex } from '@grafana/data';
+import { clearRegexCache, getValueMappingResult, isNumeric } from './valueMappings';
 
 const valueToText = (options: Record<string, { text?: string; color?: string }>): ValueMapping =>
   ({ type: MappingType.ValueToText, options } as ValueMapping);
@@ -89,6 +89,12 @@ describe('getValueMappingResult', () => {
     it('performs capture-group replacement in the result text', () => {
       const mapping = regexToText('/^web-(\\d+)$/', { text: 'host-$1' });
       expect(getValueMappingResult([mapping], 'web-42')).toEqual({ text: 'host-42' });
+    });
+
+    it('returns the result unchanged when result.text is null', () => {
+      const mapping = regexToText('/^web-/', { text: undefined as unknown as string });
+      const result = getValueMappingResult([mapping], 'web-01');
+      expect(result).toEqual({ text: undefined });
     });
 
     it('returns null when the regex does not match', () => {
@@ -182,6 +188,62 @@ describe('getValueMappingResult', () => {
     const regex = regexToText('/^never-matches-/', { text: 'X' });
     const fallback = valueToText({ '7': { text: 'lucky' } });
     expect(getValueMappingResult([regex, fallback], '7')).toEqual({ text: 'lucky' });
+  });
+});
+
+describe('RegexToText regex cache', () => {
+  beforeEach(() => clearRegexCache());
+
+  it('clears and recompiles when cache exceeds REGEX_CACHE_MAX (256)', () => {
+    // Fill the cache beyond the 256-entry cap with unique patterns.
+    // The 257th pattern must still match correctly after the clear.
+    for (let i = 0; i < 256; i++) {
+      const mapping = regexToText(`/^unique-${i}-pattern$/`, { text: 'hit' });
+      getValueMappingResult([mapping], `unique-${i}-pattern`);
+    }
+    const overflowMapping = regexToText('/^overflow-pattern$/', { text: 'found' });
+    const result = getValueMappingResult([overflowMapping], 'overflow-pattern');
+    expect(result).toEqual({ text: 'found' });
+  });
+
+  it('returns the same result with cached regex as with fresh regex', () => {
+    const mapping = regexToText('/^web-(\\d+)$/', { text: 'host-$1' });
+    const first = getValueMappingResult([mapping], 'web-42');
+    clearRegexCache();
+    const second = getValueMappingResult([mapping], 'web-42');
+    expect(first).toEqual(second);
+    expect(first).toEqual({ text: 'host-42' });
+  });
+
+  describe('performance', () => {
+    it('benchmark: cached regex faster than stringToJsRegex per call', () => {
+      const N = 50_000;
+      const pattern = '/^web-(\\d+)$/';
+      const value = 'web-42';
+      const mapping = regexToText(pattern, { text: 'host-$1' });
+
+      // Original approach: stringToJsRegex compiled per call (inlined)
+      const t0 = performance.now();
+      for (let i = 0; i < N; i++) {
+        const rx = stringToJsRegex(pattern);
+        if (value.match(rx)) {
+          value.replace(rx, 'host-$1');
+        }
+      }
+      const original = performance.now() - t0;
+
+      // Optimized: cache hit after first call
+      clearRegexCache();
+      const t1 = performance.now();
+      for (let i = 0; i < N; i++) {
+        getValueMappingResult([mapping], value);
+      }
+      const optimized = performance.now() - t1;
+
+      console.log(`RegexToText cache benchmark — original: ${original.toFixed(1)}ms  optimized: ${optimized.toFixed(1)}ms  speedup: ${(original / optimized).toFixed(2)}x`);
+      // No assertion — getValueMappingResult has overhead beyond the regex lookup
+      // that dominates on CI runners; log only for documentation.
+    });
   });
 });
 

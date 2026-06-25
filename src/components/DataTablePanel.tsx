@@ -34,8 +34,6 @@ import { ApplyColumnAliases } from 'data/columns/columnAliasing';
 interface Props extends PanelProps<DatatableOptions> { }
 
 export const DataTablePanel: React.FC<Props> = (props: Props) => {
-
-  const [dataTableClassesEnabled, setDatatableClassesEnabled] = useState<string[]>([]);
   const [cachedProcessedData, setCachedProcessedData] = useState<DTData>();
   const [cachedColumnDefs, setCachedColumnDefs] = useState<ConfigColumnDefs[]>();
   // Gates the table visibility. Flipped to true inside DataTables'
@@ -73,6 +71,28 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       strings: props.options.alignStringsToRightEnabled,
     }),
     [props.options.alignNumbersToRightEnabled, props.options.alignStringsToRightEnabled],
+  );
+
+  // Derived from boolean options — recomputed only when an option actually
+  // flips. Replaces a useState+useEffect+JSON.stringify round-trip that
+  // caused an extra render pass on every data update.
+  const dataTableClassesEnabled = useMemo(
+    () =>
+      [
+        'display',
+        props.options.compactRowsEnabled && 'compact',
+        !props.options.wrapToFitEnabled && 'nowrap',
+        props.options.stripedRowsEnabled && 'stripe',
+        props.options.hoverEnabled && 'hover',
+        props.options.orderColumnEnabled && 'order-column',
+      ].filter(Boolean) as string[],
+    [
+      props.options.compactRowsEnabled,
+      props.options.hoverEnabled,
+      props.options.orderColumnEnabled,
+      props.options.stripedRowsEnabled,
+      props.options.wrapToFitEnabled,
+    ],
   );
 
   const enableColumnFilters = (dataTable: any) => {
@@ -148,32 +168,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     // a second row.
     dataTable.columns.adjust().draw(false);
   };
-
-  useEffect(() => {
-    if (cachedProcessedData !== undefined && cachedColumnDefs !== undefined) {
-      const enabledClasses = [
-        'display',
-        props.options.compactRowsEnabled && 'compact',
-        !props.options.wrapToFitEnabled && 'nowrap',
-        props.options.stripedRowsEnabled && 'stripe',
-        props.options.hoverEnabled && 'hover',
-        props.options.orderColumnEnabled && 'order-column',
-      ].filter(Boolean) as string[];
-
-      if (JSON.stringify(enabledClasses) !== JSON.stringify(dataTableClassesEnabled)) {
-        setDatatableClassesEnabled(enabledClasses);
-      }
-
-    }
-  }, [
-    cachedProcessedData,
-    cachedColumnDefs,
-    dataTableClassesEnabled,
-    props.options.compactRowsEnabled,
-    props.options.hoverEnabled,
-    props.options.orderColumnEnabled,
-    props.options.stripedRowsEnabled,
-    props.options.wrapToFitEnabled]);
 
   useEffect(() => {
     if (cachedProcessedData !== undefined) {

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { memo, useState } from 'react';
 import { GrafanaTheme2, SelectableValue } from '@grafana/data';
 import { Input, ColorPicker, IconButton, useStyles2, Select } from '@grafana/ui';
 import { css } from '@emotion/css';
@@ -17,20 +17,20 @@ interface ThresholdItemProps {
   disabled: boolean;
 }
 
-export const ThresholdItem: React.FC<ThresholdItemProps> = (options: ThresholdItemProps) => {
-  const styles = useStyles2(getThresholdStyles);
-  const getThreshold = (thresholdId: number) => {
-    const keys = ThresholdStates.keys();
-    for (const aKey of keys) {
-      if (ThresholdStates[aKey].value === thresholdId) {
-        return ThresholdStates[aKey];
-      }
+const findThresholdState = (thresholdId: number): SelectableValue => {
+  const keys = ThresholdStates.keys();
+  for (const aKey of keys) {
+    if (ThresholdStates[aKey].value === thresholdId) {
+      return ThresholdStates[aKey];
     }
-    // no match, return current by default
-    return ThresholdStates[0];
-  };
+  }
+  return ThresholdStates[0];
+};
 
-  const [threshold, setThreshold] = useState<SelectableValue>(getThreshold(options.threshold.state));
+export const ThresholdItem = memo<ThresholdItemProps>((options) => {
+  const styles = useStyles2(getThresholdStyles);
+  // Initializer callback runs only on mount — avoids iterating ThresholdStates on every render.
+  const [threshold, setThreshold] = useState<SelectableValue>(() => findThresholdState(options.threshold.state));
 
   return (
     <Input
@@ -75,7 +75,9 @@ export const ThresholdItem: React.FC<ThresholdItemProps> = (options: ThresholdIt
       }
     />
   );
-};
+});
+
+ThresholdItem.displayName = 'ThresholdItem';
 
 const getThresholdStyles = (theme: GrafanaTheme2) => {
   return {

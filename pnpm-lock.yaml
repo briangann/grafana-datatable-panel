@@ -116,7 +116,7 @@ importers:
         version: 9.0.0(@stylistic/eslint-plugin-ts@2.13.0(eslint@9.39.4)(typescript@5.8.3))(@typescript-eslint/eslint-plugin@8.61.0(@typescript-eslint/parser@8.61.0(eslint@9.39.4)(typescript@5.8.3))(eslint@9.39.4)(typescript@5.8.3))(@typescript-eslint/parser@8.61.0(eslint@9.39.4)(typescript@5.8.3))(eslint-config-prettier@8.10.2(eslint@9.39.4))(eslint-plugin-jsdoc@51.4.1(eslint@9.39.4))(eslint-plugin-react-hooks@7.1.1(eslint@9.39.4))(eslint-plugin-react@7.37.5(eslint@9.39.4))(eslint@9.39.4)(typescript@5.8.3)
       '@grafana/plugin-e2e':
         specifier: 3.9.1
-        version: 3.9.1(@playwright/test@1.60.0)
+        version: 3.9.1(@playwright/test@1.61.1)
       '@grafana/plugin-meta-extractor':
         specifier: 0.0.3
         version: 0.0.3
@@ -127,8 +127,8 @@ importers:
         specifier: 2.2.0
         version: 2.2.0
       '@playwright/test':
-        specifier: 1.60.0
-        version: 1.60.0
+        specifier: 1.61.1
+        version: 1.61.1
       '@stylistic/eslint-plugin-ts':
         specifier: 2.13.0
         version: 2.13.0(eslint@9.39.4)(typescript@5.8.3)
@@ -1032,8 +1032,8 @@ packages:
   '@petamoriken/float16@3.9.1':
     resolution: {integrity: sha512-j+ejhYwY6PeB+v1kn7lZFACUIG97u90WxMuGosILFsl9d4Ovi0sjk0GlPfoEcx+FzvXZDAfioD+NGnnPamXgMA==}
 
-  '@playwright/test@1.60.0':
-    resolution: {integrity: sha512-O71yZIbAh/PxDMNGns37GHBIfrVkEVyn+AXyIa5dOTfb4/xNvRWV+Vv/NMbNCtODB/pO7vLlF2OTmMVLhmr7Ag==}
+  '@playwright/test@1.61.1':
+    resolution: {integrity: sha512-8nKv6+0RJSL9FE4jYOEGXnPeM/Hg12qZpmqzZjRh3qM0Y7c3z1mrOTfFLids72RDQYVh9WpLEfR5WdpNX4fkig==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -4246,13 +4246,13 @@ packages:
     resolution: {integrity: sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ==}
     engines: {node: '>=8'}
 
-  playwright-core@1.60.0:
-    resolution: {integrity: sha512-9bW6zvX/m0lEbgTKJ6YppOKx8H3VOPBMOCFh2irXFOT4BbHgrx5hPjwJYLT40Lu+4qtD36qKc/Hn56StUW57IA==}
+  playwright-core@1.61.1:
+    resolution: {integrity: sha512-h7Qlt6m4REp25qvIdvbDtVmD4LqVXfpRxhORv9L0jzETM05p4fuPJ3dKyuSXQxDSbXnmS79HAgi9589lGSpLkg==}
     engines: {node: '>=18'}
     hasBin: true
 
-  playwright@1.60.0:
-    resolution: {integrity: sha512-hheHdokM8cdqCb0lcE3s+zT4t4W+vvjpGxsZlDnikarzx8tSzMebh3UiFtgqwFwnTnjYQcsyMF8ei2mCO/tpeA==}
+  playwright@1.61.1:
+    resolution: {integrity: sha512-DWnY5o3YbLWK4GovuAVwpqL+1VwGNdUGrRr++8j8PtQQzvAVZUIMjKQ90fY689sEJZJBbZVw1rXaOKSTitkzPQ==}
     engines: {node: '>=18'}
     hasBin: true
 
@@ -6159,10 +6159,10 @@ snapshots:
       - supports-color
       - typescript
 
-  '@grafana/plugin-e2e@3.9.1(@playwright/test@1.60.0)':
+  '@grafana/plugin-e2e@3.9.1(@playwright/test@1.61.1)':
     dependencies:
       '@grafana/e2e-selectors': 13.1.0-25644485979
-      '@playwright/test': 1.60.0
+      '@playwright/test': 1.61.1
       yaml: 2.9.0
 
   '@grafana/plugin-meta-extractor@0.0.3':
@@ -6727,9 +6727,9 @@ snapshots:
 
   '@petamoriken/float16@3.9.1': {}
 
-  '@playwright/test@1.60.0':
+  '@playwright/test@1.61.1':
     dependencies:
-      playwright: 1.60.0
+      playwright: 1.61.1
 
   '@popperjs/core@2.11.8': {}
 
@@ -10608,11 +10608,11 @@ snapshots:
     dependencies:
       find-up: 4.1.0
 
-  playwright-core@1.60.0: {}
+  playwright-core@1.61.1: {}
 
-  playwright@1.60.0:
+  playwright@1.61.1:
     dependencies:
-      playwright-core: 1.60.0
+      playwright-core: 1.61.1
     optionalDependencies:
       fsevents: 2.3.2
 

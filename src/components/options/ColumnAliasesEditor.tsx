@@ -1,19 +1,21 @@
 import { SelectableValue, StandardEditorProps } from '@grafana/data';
 import { Box, Button, IconButton, InlineField, Input, Select, Stack } from '@grafana/ui';
-import React, { FormEvent } from 'react';
+import React, { FormEvent, useMemo } from 'react';
 import { getDataFrameFields } from 'data/transformations';
 import { ColumnAliasField } from 'types';
 
 export function ColumnAliasesEditor(props: StandardEditorProps<ColumnAliasField[]>) {
   const { onChange, value = [] } = props;
-  const dataFields = getDataFrameFields(props.context.data);
-  const availableFields = dataFields.reduce<SelectableValue[]>((acc, field) => {
-    // Filter out fields that already have an alias
+  // Memoize only the data-frame traversal — it's the expensive part and
+  // stable as long as the data doesn't change. The cheap value-based filter
+  // runs inline every render.
+  const dataFields = useMemo(() => getDataFrameFields(props.context.data), [props.context.data]);
+  const availableFields = dataFields.reduce<SelectableValue[]>((selectableFields, field) => {
     if (value.find((alias) => alias.name === field)) {
-      return acc;
+      return selectableFields;
     }
-    acc.push({ value: field, label: field });
-    return acc;
+    selectableFields.push({ value: field, label: field });
+    return selectableFields;
   }, []);
 
   function handleNewColumnAlias() {

@@ -30,6 +30,13 @@ interface ColumnStyleItemProps {
   context: any;
 }
 
+const COLUMN_STYLE_OPTIONS: SelectableValue[] = [
+  { label: 'Date', value: 'date' },
+  { label: 'String', value: 'string' },
+  { label: 'Metric', value: 'metric' },
+  { label: 'Hidden', value: 'hidden' },
+];
+
 export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
   const [style, _setColumnStyle] = useState(props.style);
 
@@ -39,13 +46,6 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
   };
   const [visibleIcon] = useState<IconName>('eye');
   const [hiddenIcon] = useState<IconName>('eye-slash');
-
-  const ColumnStyleOptions: SelectableValue[] = [
-    { label: 'Date', value: 'date' },
-    { label: 'String', value: 'string' },
-    { label: 'Metric', value: 'metric' },
-    { label: 'Hidden', value: 'hidden' },
-  ];
 
   const [clickThroughURL, setClickThroughURL] = useState(props.style.stringStyle.clickThrough);
   const [splitByPattern, setSplitByPattern] = useState(props.style.stringStyle.splitByPattern);
@@ -267,11 +267,13 @@ export const ColumnStyleItem: React.FC<ColumnStyleItemProps> = (props) => {
           </Field>
 
           <Field label="Style Item Type" disabled={!style.enabled}>
-            <Select
-              options={ColumnStyleOptions}
-              value={style.activeStyle}
-              onChange={(item) => setColumnStyle({ ...style, activeStyle: item.value })}
-            />
+            <div data-testid="column-style-type-select">
+              <Select
+                options={COLUMN_STYLE_OPTIONS}
+                value={style.activeStyle}
+                onChange={(item) => setColumnStyle({ ...style, activeStyle: item.value })}
+              />
+            </div>
           </Field>
 
           <Field label="Metric/RegEx" disabled={!style.enabled}>
