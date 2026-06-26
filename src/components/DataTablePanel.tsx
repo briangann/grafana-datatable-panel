@@ -167,6 +167,23 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     // Resync header clone (scrollX) and body widths now that the thead has
     // a second row.
     dataTable.columns.adjust().draw(false);
+
+    // DataTables sets .dt-scroll-head height at init time (single-row thead).
+    // After adding the filter row the container is too short and clips the row
+    // via overflow:hidden. Update it to the actual two-row thead height.
+    //
+    // DataTables also clones the source thead into .dt-scroll-head but only
+    // manages visibility of rows it originally created. Our injected filter
+    // row is cloned with visibility:hidden inherited from the source — force
+    // it visible in the clone.
+    const scrollHead = (dataTable.table(0).container() as HTMLElement).querySelector<HTMLElement>('.dt-scroll-head');
+    const sourceHeader = dataTable.table(0).header() as HTMLElement;
+    if (scrollHead && sourceHeader) {
+      scrollHead.style.height = `${sourceHeader.offsetHeight}px`;
+      scrollHead.querySelectorAll<HTMLElement>('tr.column-filter').forEach(row => {
+        row.style.visibility = 'visible';
+      });
+    }
   };
 
   useEffect(() => {
@@ -348,9 +365,18 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               if (props.options.columnFiltersEnabled) {
                 enableColumnFilters(api);
               }
-              if (mountedRef.current) {
-                setDataTableReady(true);
+              // DataTables may leave scroll-head rows with visibility:hidden when
+              // the panel initialises while the container has zero or reduced
+              // dimensions (e.g. Grafana 12 layout pass). Explicitly reset them.
+              const scrollHead = (api.table(0).container() as HTMLElement).querySelector<HTMLElement>('.dt-scroll-head');
+              if (scrollHead) {
+                scrollHead.querySelectorAll<HTMLElement>('thead tr').forEach(row => {
+                  row.style.visibility = 'visible';
+                });
               }
+              // React 18+ silently ignores setState on unmounted components,
+              // so no mountedRef guard is needed here.
+              setDataTableReady(true);
             },
           };
           jQuery(dataTableDOMRef.current).DataTable(dtOptions as Config);

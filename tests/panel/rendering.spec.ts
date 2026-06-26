@@ -29,7 +29,8 @@ test.describe('panel creation and basic rendering', () => {
     });
 
     await test.step('at least one column header rendered', async () => {
-      await expect(page.getByTestId('datatable-panel-table').locator('thead th').first()).toBeVisible();
+      // In scrollX mode DataTables hides the source thead — use the visible clone in .dt-scroll-head.
+      await expect(page.locator('.dt-scroll-head thead th').first()).toBeVisible({ timeout: 10000 });
     });
 
     await test.step('at least one data row rendered', async () => {

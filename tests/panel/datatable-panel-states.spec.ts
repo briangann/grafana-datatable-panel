@@ -4,10 +4,11 @@ import { expect, test } from '@grafana/plugin-e2e';
 // - dataTableReady state gate (loading overlay lifecycle)
 // - dataTableClassesEnabled useMemo (CSS classes derived from options)
 
-// DataTables clones the table element for scroll headers — use .first() to
-// avoid strict-mode violations when multiple elements share the testid.
+// DataTables clones the source table (including data-testid) into scroll head,
+// body, and foot. The body clone is the visible data table; the head and foot
+// clones are hidden by DataTables for layout. Target the body clone explicitly.
 const table = (page: import('@playwright/test').Page) =>
-  page.getByTestId('datatable-panel-table').first();
+  page.locator('.dt-scroll-body [data-testid="datatable-panel-table"]');
 
 test.describe('DataTablePanel — ready state gate', () => {
   test('loading overlay disappears once DataTables fires initComplete', async ({
@@ -26,7 +27,7 @@ test.describe('DataTablePanel — ready state gate', () => {
     });
 
     await test.step('table is visible after ready', async () => {
-      await expect(table(page)).toBeVisible();
+      await expect(table(page)).toBeVisible({ timeout: 10000 });
     });
   });
 });

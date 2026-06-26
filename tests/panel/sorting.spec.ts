@@ -17,7 +17,8 @@ test.describe('column sorting', () => {
     });
     await gotoDashboardPage({ uid: dashboard.uid });
 
-    const firstHeader = page.getByTestId('datatable-panel-table').locator('thead th').nth(0);
+    // In scrollX mode DataTables hides the source thead — interact with the visible clone.
+    const firstHeader = page.locator('.dt-scroll-head thead th').nth(0);
     await firstHeader.waitFor({ state: 'visible', timeout: 15000 });
     await page.getByTestId('datatable-panel-table').locator('tbody tr').first().waitFor({ state: 'visible', timeout: 10000 });
 
@@ -56,8 +57,9 @@ test.describe('column sorting', () => {
     await gotoDashboardPage({ uid: dashboard.uid });
 
     const table = page.getByTestId('datatable-panel-table');
-    // Host is column index 1 in the CSV: Time, Host, Value
-    const hostHeader = table.locator('thead th').nth(1);
+    // Host is column index 1 in the CSV: Time, Host, Value.
+    // In scrollX mode DataTables hides the source thead — click the visible clone.
+    const hostHeader = page.locator('.dt-scroll-head thead th').nth(1);
     await hostHeader.waitFor({ state: 'visible', timeout: 15000 });
 
     const getHostCells = async () => {
