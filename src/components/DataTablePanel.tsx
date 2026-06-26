@@ -162,11 +162,8 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     // DataTables sets .dt-scroll-head height at init time (single-row thead).
     // After adding the filter row the container is too short and clips the row
     // via overflow:hidden. Update it to the actual two-row thead height.
-    //
-    // DataTables also clones the source thead into .dt-scroll-head but only
-    // manages visibility of rows it originally created. Our injected filter
-    // row is cloned with visibility:hidden inherited from the source — force
-    // it visible in the clone.
+    // Visibility of the filter row clone is handled by initComplete's
+    // thead-wide visibility reset that runs immediately after this function.
     const scrollHead = (dataTable.table(0).container() as HTMLElement).querySelector<HTMLElement>('.dt-scroll-head');
     if (scrollHead) {
       // Measure the clone's thead — the source thead is visibility:hidden and
@@ -175,9 +172,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
       if (cloneThead) {
         scrollHead.style.height = `${cloneThead.offsetHeight}px`;
       }
-      scrollHead.querySelectorAll<HTMLElement>('tr.column-filter').forEach(row => {
-        row.style.visibility = 'visible';
-      });
     }
   };
 

@@ -38,75 +38,28 @@ test.describe('DataTablePanel — dataTableClassesEnabled useMemo', () => {
   // in the provisioned dashboard (stripedRowsEnabled=true, hoverEnabled=true,
   // compactRowsEnabled=false, wrapToFitEnabled=true).
 
-  test('table has "display" class in all configurations', async ({
-    readProvisionedDashboard,
-    gotoDashboardPage,
-    page,
-  }) => {
+  test.beforeEach(async ({ readProvisionedDashboard, gotoDashboardPage, page }) => {
     const dashboard = await readProvisionedDashboard({
       fileName: 'dashboards/Datatable-ColumnFilter.json',
     });
     await gotoDashboardPage({ uid: dashboard.uid });
-
     await expect(table(page)).toBeVisible({ timeout: 15000 });
-    await expect(table(page)).toHaveClass(/display/);
   });
 
-  test('table has "stripe" class when stripedRowsEnabled=true', async ({
-    readProvisionedDashboard,
-    gotoDashboardPage,
-    page,
-  }) => {
-    const dashboard = await readProvisionedDashboard({
-      fileName: 'dashboards/Datatable-ColumnFilter.json',
+  for (const { name, cls, present } of [
+    { name: '"display" in all configurations', cls: /display/, present: true },
+    { name: '"stripe" when stripedRowsEnabled=true', cls: /stripe/, present: true },
+    { name: '"hover" when hoverEnabled=true', cls: /hover/, present: true },
+    { name: 'no "compact" when compactRowsEnabled=false', cls: /\bcompact\b/, present: false },
+    { name: 'no "nowrap" when wrapToFitEnabled=true', cls: /\bnowrap\b/, present: false },
+  ]) {
+    test(`table has ${name}`, async ({ page }) => {
+      if (present) {
+        await expect(table(page)).toHaveClass(cls);
+      } else {
+        const classAttr = await table(page).getAttribute('class');
+        expect(classAttr).not.toMatch(cls);
+      }
     });
-    await gotoDashboardPage({ uid: dashboard.uid });
-
-    await expect(table(page)).toBeVisible({ timeout: 15000 });
-    await expect(table(page)).toHaveClass(/stripe/);
-  });
-
-  test('table has "hover" class when hoverEnabled=true', async ({
-    readProvisionedDashboard,
-    gotoDashboardPage,
-    page,
-  }) => {
-    const dashboard = await readProvisionedDashboard({
-      fileName: 'dashboards/Datatable-ColumnFilter.json',
-    });
-    await gotoDashboardPage({ uid: dashboard.uid });
-
-    await expect(table(page)).toBeVisible({ timeout: 15000 });
-    await expect(table(page)).toHaveClass(/hover/);
-  });
-
-  test('table does not have "compact" class when compactRowsEnabled=false', async ({
-    readProvisionedDashboard,
-    gotoDashboardPage,
-    page,
-  }) => {
-    const dashboard = await readProvisionedDashboard({
-      fileName: 'dashboards/Datatable-ColumnFilter.json',
-    });
-    await gotoDashboardPage({ uid: dashboard.uid });
-
-    await expect(table(page)).toBeVisible({ timeout: 15000 });
-    const classAttr = await table(page).getAttribute('class');
-    expect(classAttr).not.toMatch(/\bcompact\b/);
-  });
-
-  test('table does not have "nowrap" class when wrapToFitEnabled=true', async ({
-    readProvisionedDashboard,
-    gotoDashboardPage,
-    page,
-  }) => {
-    const dashboard = await readProvisionedDashboard({
-      fileName: 'dashboards/Datatable-ColumnFilter.json',
-    });
-    await gotoDashboardPage({ uid: dashboard.uid });
-
-    await expect(table(page)).toBeVisible({ timeout: 15000 });
-    const classAttr = await table(page).getAttribute('class');
-    expect(classAttr).not.toMatch(/\bnowrap\b/);
-  });
+  }
 });
