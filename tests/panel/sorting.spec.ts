@@ -28,15 +28,23 @@ test.describe('column sorting', () => {
       await expect(firstHeader).toHaveClass(/dt-ordering-asc|dt-ordering-desc/);
     });
 
-    await test.step('click twice — sort state changes from first click', async () => {
+    await test.step('click twice — sort direction or state changes', async () => {
       // DataTables 2.x sort cycle can be 3-state (none→asc→desc→none) or
       // 2-state depending on Grafana version and orderDescFirst config.
-      // Capture the class after click 1 and verify click 2 changes it.
+      // After click 1, capture whether the column is sorted asc or desc, then
+      // verify click 2 changes the dt-ordering-* class specifically.
       const afterFirst = await firstHeader.getAttribute('class') ?? '';
+      const hadAsc = /dt-ordering-asc/.test(afterFirst);
       await firstHeader.click();
-      // Just verify the state CHANGED from afterFirst — either direction or none.
-      await expect.poll(async () => await firstHeader.getAttribute('class'), { timeout: 5000 })
-        .not.toBe(afterFirst);
+      if (hadAsc) {
+        // asc → desc (3-state) or asc → none (2-state); either loses dt-ordering-asc
+        await expect.poll(async () => await firstHeader.getAttribute('class'), { timeout: 5000 })
+          .not.toMatch(/dt-ordering-asc/);
+      } else {
+        // desc → none; loses dt-ordering-desc
+        await expect.poll(async () => await firstHeader.getAttribute('class'), { timeout: 5000 })
+          .not.toMatch(/dt-ordering-desc/);
+      }
     });
   });
 
@@ -50,7 +58,9 @@ test.describe('column sorting', () => {
     });
     await gotoDashboardPage({ uid: dashboard.uid });
 
-    const table = page.getByTestId('datatable-panel-table');
+    // DataTables clones the source table into scroll head/body/foot — the body
+    // clone is the one with actual data rows.
+    const table = page.locator('.dt-scroll-body [data-testid="datatable-panel-table"]');
     // Host is column index 1 in the CSV: Time, Host, Value.
     // In scrollX mode DataTables hides the source thead — click the visible clone.
     const hostHeader = page.locator('.dt-scroll-head thead th').nth(1);
