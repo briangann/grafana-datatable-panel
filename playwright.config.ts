@@ -25,7 +25,7 @@ export default defineConfig({
   /**
    * Number of workers.
    */
-  workers: 1,
+  workers: process.env.CI ? 2 : 1,
 
   /**
    * Reporter to use. See https://playwright.dev/docs/test-reporters
