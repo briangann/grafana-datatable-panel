@@ -43,15 +43,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
-  // Tracks whether the component is still mounted, so DataTables' async
-  // `initComplete` callback doesn't setState on an unmounted instance.
-  const mountedRef = useRef(true);
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
 
   const dataTableWrapperId = `data-table-wrapper-${props.id}`;
   const dataTableId = `data-table-renderer-${props.id}`;
@@ -177,9 +168,13 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     // row is cloned with visibility:hidden inherited from the source — force
     // it visible in the clone.
     const scrollHead = (dataTable.table(0).container() as HTMLElement).querySelector<HTMLElement>('.dt-scroll-head');
-    const sourceHeader = dataTable.table(0).header() as HTMLElement;
-    if (scrollHead && sourceHeader) {
-      scrollHead.style.height = `${sourceHeader.offsetHeight}px`;
+    if (scrollHead) {
+      // Measure the clone's thead — the source thead is visibility:hidden and
+      // may return a stale/zero offsetHeight. The clone is always in the layout.
+      const cloneThead = scrollHead.querySelector<HTMLElement>('table thead');
+      if (cloneThead) {
+        scrollHead.style.height = `${cloneThead.offsetHeight}px`;
+      }
       scrollHead.querySelectorAll<HTMLElement>('tr.column-filter').forEach(row => {
         row.style.visibility = 'visible';
       });
@@ -374,8 +369,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
                   row.style.visibility = 'visible';
                 });
               }
-              // React 18+ silently ignores setState on unmounted components,
-              // so no mountedRef guard is needed here.
               setDataTableReady(true);
             },
           };
