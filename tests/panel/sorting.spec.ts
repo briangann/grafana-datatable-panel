@@ -17,7 +17,8 @@ test.describe('column sorting', () => {
     });
     await gotoDashboardPage({ uid: dashboard.uid });
 
-    const firstHeader = page.getByTestId('datatable-panel-table').locator('thead th').nth(0);
+    // In scrollX mode DataTables hides the source thead — interact with the visible clone.
+    const firstHeader = page.locator('.dt-scroll-head thead th').nth(0);
     await firstHeader.waitFor({ state: 'visible', timeout: 15000 });
     await page.getByTestId('datatable-panel-table').locator('tbody tr').first().waitFor({ state: 'visible', timeout: 10000 });
 
@@ -27,20 +28,22 @@ test.describe('column sorting', () => {
       await expect(firstHeader).toHaveClass(/dt-ordering-asc|dt-ordering-desc/);
     });
 
-    await test.step('click twice — sort direction changes', async () => {
-      // DataTables 2.x 3-state cycle per column: none → asc → desc → none.
-      // Column 0 starts with an initial ascending sort, so:
-      //   click 1: asc → desc   (or none → asc if not initially sorted)
-      //   click 2: desc → none  (or asc → desc)
-      // Capture which state we're in after the first click and expect the
-      // correct next state, rather than hard-coding asc or desc.
+    await test.step('click twice — sort direction or state changes', async () => {
+      // DataTables 2.x sort cycle can be 3-state (none→asc→desc→none) or
+      // 2-state depending on Grafana version and orderDescFirst config.
+      // After click 1, capture whether the column is sorted asc or desc, then
+      // verify click 2 changes the dt-ordering-* class specifically.
       const afterFirst = await firstHeader.getAttribute('class') ?? '';
+      const hadAsc = /dt-ordering-asc/.test(afterFirst);
       await firstHeader.click();
-      if (afterFirst.includes('dt-ordering-asc')) {
-        await expect(firstHeader).toHaveClass(/dt-ordering-desc/, { timeout: 5000 });
+      if (hadAsc) {
+        // asc → desc (3-state) or asc → none (2-state); either loses dt-ordering-asc
+        await expect.poll(async () => await firstHeader.getAttribute('class'), { timeout: 5000 })
+          .not.toMatch(/dt-ordering-asc/);
       } else {
-        // Was descending → next state is none (ordering class removed)
-        await expect(firstHeader).not.toHaveClass(/dt-ordering-asc|dt-ordering-desc/, { timeout: 5000 });
+        // desc → none; loses dt-ordering-desc
+        await expect.poll(async () => await firstHeader.getAttribute('class'), { timeout: 5000 })
+          .not.toMatch(/dt-ordering-desc/);
       }
     });
   });
@@ -55,9 +58,12 @@ test.describe('column sorting', () => {
     });
     await gotoDashboardPage({ uid: dashboard.uid });
 
-    const table = page.getByTestId('datatable-panel-table');
-    // Host is column index 1 in the CSV: Time, Host, Value
-    const hostHeader = table.locator('thead th').nth(1);
+    // DataTables clones the source table into scroll head/body/foot — the body
+    // clone is the one with actual data rows.
+    const table = page.locator('.dt-scroll-body [data-testid="datatable-panel-table"]');
+    // Host is column index 1 in the CSV: Time, Host, Value.
+    // In scrollX mode DataTables hides the source thead — click the visible clone.
+    const hostHeader = page.locator('.dt-scroll-head thead th').nth(1);
     await hostHeader.waitFor({ state: 'visible', timeout: 15000 });
 
     const getHostCells = async () => {

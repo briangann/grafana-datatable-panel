@@ -43,15 +43,6 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
 
   const divStyles = useStyles2(datatableThemedStyles);
   const dataTableDOMRef = useRef<HTMLTableElement>(null);
-  // Tracks whether the component is still mounted, so DataTables' async
-  // `initComplete` callback doesn't setState on an unmounted instance.
-  const mountedRef = useRef(true);
-  useEffect(() => {
-    mountedRef.current = true;
-    return () => {
-      mountedRef.current = false;
-    };
-  }, []);
 
   const dataTableWrapperId = `data-table-wrapper-${props.id}`;
   const dataTableId = `data-table-renderer-${props.id}`;
@@ -167,6 +158,21 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
     // Resync header clone (scrollX) and body widths now that the thead has
     // a second row.
     dataTable.columns.adjust().draw(false);
+
+    // DataTables sets .dt-scroll-head height at init time (single-row thead).
+    // After adding the filter row the container is too short and clips the row
+    // via overflow:hidden. Update it to the actual two-row thead height.
+    // Visibility of the filter row clone is handled by initComplete's
+    // thead-wide visibility reset that runs immediately after this function.
+    const scrollHead = (dataTable.table(0).container() as HTMLElement).querySelector<HTMLElement>('.dt-scroll-head');
+    if (scrollHead) {
+      // Measure the clone's thead — the source thead is visibility:hidden and
+      // may return a stale/zero offsetHeight. The clone is always in the layout.
+      const cloneThead = scrollHead.querySelector<HTMLElement>('table thead');
+      if (cloneThead) {
+        scrollHead.style.height = `${cloneThead.offsetHeight}px`;
+      }
+    }
   };
 
   useEffect(() => {
@@ -348,9 +354,16 @@ export const DataTablePanel: React.FC<Props> = (props: Props) => {
               if (props.options.columnFiltersEnabled) {
                 enableColumnFilters(api);
               }
-              if (mountedRef.current) {
-                setDataTableReady(true);
+              // DataTables may leave scroll-head rows with visibility:hidden when
+              // the panel initialises while the container has zero or reduced
+              // dimensions (e.g. Grafana 12 layout pass). Explicitly reset them.
+              const scrollHead = (api.table(0).container() as HTMLElement).querySelector<HTMLElement>('.dt-scroll-head');
+              if (scrollHead) {
+                scrollHead.querySelectorAll<HTMLElement>('thead tr').forEach(row => {
+                  row.style.visibility = 'visible';
+                });
               }
+              setDataTableReady(true);
             },
           };
           jQuery(dataTableDOMRef.current).DataTable(dtOptions as Config);
